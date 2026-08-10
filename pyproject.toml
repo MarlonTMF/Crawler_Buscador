@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crawler_finrural"
+version = "1.0.0"
+description = "Prospector Externo y Crawler de Fuentes Financieras (FINRURAL) — Equipo 1 DataX"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "jsonschema>=4.18.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0"
+]
+
+[project.scripts]
+crawler-finrural = "crawler.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

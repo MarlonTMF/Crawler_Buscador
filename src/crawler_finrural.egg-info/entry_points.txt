@@ -1,0 +1,2 @@
+[console_scripts]
+crawler-finrural = crawler.main:main

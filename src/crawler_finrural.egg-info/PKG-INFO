@@ -1,0 +1,92 @@
+Metadata-Version: 2.4
+Name: crawler_finrural
+Version: 1.0.0
+Summary: Prospector Externo y Crawler de Fuentes Financieras (FINRURAL) — Equipo 1 DataX
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: jsonschema>=4.18.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+
+# Prospector Externo FINRURAL (`crawler_finrural`)
+
+> **Subsistema responsable:** Equipo 1 — Extracción externa de fuentes  
+> **Fuente piloto:** FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/))  
+> **Versión:** 1.0.0
+
+---
+
+## Descripción del Proyecto
+
+`crawler_finrural` es el subsistema profesional y modular de prospección externa desarrollado por el Equipo 1 de DataX. A diferencia de prototipos monolíticos como `example_bcb_crawler`, este sistema aplica una arquitectura basada en **Núcleo Genérico + Adaptadores Declarativos por Fuente (Dataset-First)**.
+
+Mapea de forma dinámica las publicaciones de FINRURAL, identifica el dataset **Reporte Financiero Mensual**, extrae fechas de vigencia mediante una estrategia en 4 capas, calcula huellas digitales SHA-256, deduplica recursos y exporta simultáneamente tres contratos JSON.
+
+---
+
+## Formatos de Salida (Multi-Formato)
+
+1. `output/mapa_finrural.json`: **Contrato Oficial Estandarizado (`ExternalSourceMap` v1.0.0)** consumido por el Motor de Conciliación (Equipo 1 + Equipo 2).
+2. `output/mapa_finrural_tree.json`: **Formato Jerárquico BCB** (Niveles 1 a 5 con sufijo `.csv`) compatible con el visor estático `web/index.html`.
+3. `output/mapa_finrural_compact.json`: **Ficha Compacta para IA** con eliminación de boilerplate e inclusión de `content_signature`.
+
+---
+
+## Arquitectura y Componentes
+
+```text
+src/crawler/
+├── core/
+│   ├── models.py          # Modelos de dominio Pydantic v2
+│   ├── fetcher.py         # Cliente HTTP con rate-limiting, reintentos y headers
+│   ├── discovery.py       # Motor de descubrimiento de semillas y enlaces
+│   ├── extractor.py       # Extractor de vigencia temporal en 4 capas y metadatos
+│   ├── canonicalizer.py   # Canonicalizador y generador de resource_key estable
+│   ├── reducer.py         # Reducción semántica para consumo eficiente por IA
+│   ├── exporter.py        # Exporter multi-formato (Standard, Tree, Compact)
+│   └── orchestrator.py    # Orquestador del pipeline end-to-end
+├── sources/
+│   ├── base_adapter.py    # Interfaz abstracta para adaptadores de fuente
+│   └── finrural_adapter.py# Adaptador específico con reglas declarativas de FINRURAL
+├── validators/
+│   └── schema_validator.py# Validador automático contra JSON Schema Draft 2020-12
+└── main.py                # Punto de entrada CLI
+```
+
+---
+
+## Instalación y Uso
+
+### 1. Requisitos
+- Python 3.9 o superior.
+
+### 2. Configuración del entorno
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+### 3. Ejecución del Crawler
+```bash
+python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/
+```
+
+### 4. Ejecución de Pruebas Automatizadas (Pytest)
+```bash
+pytest
+```
+
+---
+
+## Documentación Relevante
+
+- [`document_project.md`](../document_project.md): Documento base del proyecto.
+- [`architecture.md`](../architecture.md): Arquitectura detallada del subsistema.
+- [`adr_decision.md`](../adr_decision.md): Registro de decisiones de arquitectura (ADRs).
+- [`json_contracts.md`](../json_contracts.md): Especificación de contratos JSON.
+- [`source_finrural.md`](../source_finrural.md): Configuración y detalles específicos de FINRURAL.
