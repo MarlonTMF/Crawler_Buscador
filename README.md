@@ -14,9 +14,40 @@ Mapea de forma dinámica las publicaciones de FINRURAL, identifica el dataset **
 
 ---
 
-## 2. Arquitectura de Diseño y Principios (ADRs)
+## 2. Diagrama de Arquitectura y Pipeline
 
-### 2.1 Modelo de Dominio Dataset-First (ADR-001)
+```mermaid
+flowchart TD
+    A[Inicio: CLI main.py] --> B[Cargar Configuración YAML: source_finrural.yaml]
+    B --> C[FinruralAdapter: Cargar semillas, exclusiones y regex]
+    C --> D[CrawlOrchestrator: Inicializar Pipeline]
+    
+    D --> E[DiscoveryEngine: Escanear Semillas]
+    E --> F{Respetar robots.txt & Rate Limits?}
+    F -- No --> G[Ignorar URL / Abortar]
+    F -- Sí --> H[Extraer enlaces descargables .pdf, .xlsx, .csv]
+    
+    H --> I[MetadataExtractor: Jerarquía de Fechas en 4 Capas]
+    I --> J[Capa 1: URL Pattern regex]
+    J -->|Falló| K[Capa 2: DOM Context Text]
+    K -->|Falló| L[Capa 3: HTTP Header Last-Modified]
+    L -->|Falló| M[Capa 4: PDF Content Fallback]
+    
+    J & K & L & M --> N[Canonicalizer: Limpiar ?x16877 & Generar resource_key estable]
+    N --> O[Deduplicación por resource_key & Hash SHA-256]
+    O --> P[AIContextReducer: Filtrar Boilerplate & Generar content_signature]
+    
+    P --> Q[MultiFormatExporter]
+    Q --> R[mapa_finrural.json: Contrato Oficial JSON Schema v1.0.0]
+    Q --> S[mapa_finrural_tree.json: Vista Jerárquica 5 Niveles tipo BCB]
+    Q --> T[mapa_finrural_compact.json: Vista Reducida para Modelos IA]
+```
+
+---
+
+## 3. Principios de Diseño y ADRs
+
+### 3.1 Modelo de Dominio Dataset-First (ADR-001)
 En lugar de recorrer recursivamente todo el sitio web (lo cual generaría ruido y saturación innecesaria en páginas institucionales como historia o misión), el dominio se organiza en:
 
 ```text
@@ -26,25 +57,25 @@ Source (FINRURAL)
            └── Observations (Metadatos: fecha de corte, SHA-256, tamaño, evidencia)
 ```
 
-### 2.2 Núcleo Genérico + Adaptadores Declarativos (ADR-002)
+### 3.2 Núcleo Genérico + Adaptadores Declarativos (ADR-002)
 El código central (descubrimiento, extracción de fechas, canonicalización, deduplicación, reducción y exportación) es 100% reutilizable. Lo específico de FINRURAL (semillas, selectores, regex y palabras excluidas) vive en un archivo de configuración YAML (`config/source_finrural.yaml`) y su adaptador (`FinruralAdapter`).
 
-### 2.3 Estrategia de Extracción de Vigencia en 4 Capas (ADR-003)
+### 3.3 Estrategia de Extracción de Vigencia en 4 Capas (ADR-003)
 Aplica un orden de costo creciente para resolver la fecha del último dato (`period_end`) sin descargar ni abrir innecesariamente los archivos:
 1. **Capa 1 (URL Pattern):** Regex de patrón en el nombre del archivo (`financiera_05_2025.pdf` ➔ `2025-05-31`, confianza `high`).
 2. **Capa 2 (DOM Context):** Búsqueda de meses en español y años en el texto ancla o contenedores HTML adyacentes (`medium`).
 3. **Capa 3 (HTTP Metadata):** Headers HTTP `Last-Modified` via solicitudes `HEAD` (`low`).
 4. **Capa 4 (PDF Content Fallback):** Parsing del contenido interno del archivo en caso de ambigüedad.
 
-### 2.4 Identidad Estable del Recurso (`resource_key`) (ADR-005)
+### 3.4 Identidad Estable del Recurso (`resource_key`) (ADR-005)
 Cada recurso genera una clave estable independiente de la URL (ej. `finrural:reporte_financiero_mensual:2026-01:pdf`). Esto permite al Motor de Conciliación detectar cuando la fuente cambia la URL de descarga sin perder la referencia al recurso original.
 
-### 2.5 Capa de Reducción Semántica para IA (ADR-004)
+### 3.5 Capa de Reducción Semántica para IA (ADR-004)
 Filtra el ruido de navegación HTML y genera una `content_signature` para evitar reprocesar contenido equivalente en llamadas a modelos de IA downstream, reduciendo el consumo de tokens en más del 80%.
 
 ---
 
-## 3. Formatos de Salida (Multi-Formato — ADR-006)
+## 4. Formatos de Salida (Multi-Formato — ADR-006)
 
 Al finalizar la prospección, el sistema exporta tres archivos JSON en la carpeta `output/`:
 
@@ -62,7 +93,7 @@ Al finalizar la prospección, el sistema exporta tres archivos JSON en la carpet
 
 ---
 
-## 4. Buenas Prácticas de Web Scraping y Ética
+## 5. Buenas Prácticas de Web Scraping y Ética
 
 El cliente HTTP ([`src/crawler/core/fetcher.py`](src/crawler/core/fetcher.py)) incluye controles estrictos para garantizar un rastreo ético y prevenir bloqueos o baneos:
 
@@ -74,7 +105,7 @@ El cliente HTTP ([`src/crawler/core/fetcher.py`](src/crawler/core/fetcher.py)) i
 
 ---
 
-## 5. Estructura del Repositorio
+## 6. Estructura del Repositorio y Módulos
 
 ```text
 crawler_finrural/
@@ -112,21 +143,31 @@ crawler_finrural/
 
 ---
 
-## 6. Instalación y Uso
+## 7. Guía de Extensión: Cómo agregar una nueva fuente (ej. BCB, ASFI)
 
-### 6.1 Preparación del Entorno
+Para agregar una nueva fuente financiera sin modificar el núcleo del crawler:
+
+1. **Crear el archivo YAML de configuración:** Crear `config/source_nueva.yaml` definiendo `base_url`, `seeds`, `allowed_domains` y reglas de exclusión.
+2. **Crear el Adaptador:** Heredar de `BaseSourceAdapter` en `src/crawler/sources/nueva_adapter.py` e implementar las reglas de clasificación de datasets y regex de fechas de esa entidad.
+3. **Ejecutar:** `python3 -m crawler.main --config config/source_nueva.yaml`
+
+---
+
+## 8. Instalación y Uso
+
+### 8.1 Preparación del Entorno
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
 ```
 
-### 6.2 Ejecución de la Prospección Externa
+### 8.2 Ejecución de la Prospección Externa
 ```bash
 python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/ --verbose
 ```
 
-### 6.3 Ejecución de la Suite de Pruebas Automated (Pytest)
+### 8.3 Ejecución de la Suite de Pruebas Automatizadas (Pytest)
 ```bash
 PYTHONPATH=src pytest tests/ -v
 ```
