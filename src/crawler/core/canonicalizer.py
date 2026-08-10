@@ -4,7 +4,7 @@ Normaliza URLs eliminando parámetros de cache-busting (?x16877) y rastreo, y ge
 """
 
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict, Any, Optional
 from crawler.sources.base_adapter import BaseSourceAdapter
 
 

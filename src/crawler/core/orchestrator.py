@@ -6,7 +6,7 @@ Coordina la ejecución secuencial del pipeline: Carga -> Descubrimiento -> Extra
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Set, List, Optional
 
 from crawler.core.models import (
     SourceInfo, CrawlRunInfo, ResourceMetadata, ResourceEvidence,
