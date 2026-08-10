@@ -1,0 +1,70 @@
+source:
+  id: bbv
+  name: Bolsa Boliviana de Valores
+  base_url: https://www.bbv.com.bo
+  allowed_domains:
+    - www.bbv.com.bo
+    - bbv.com.bo
+
+crawl:
+  seeds:
+    - https://www.bbv.com.bo/estadisticas/
+    - https://www.bbv.com.bo/acerca-de-la-bolsa/memorias-anuales/
+    - https://www.bbv.com.bo/acerca-de-la-bolsa/informacion-financiera/
+    - https://www.bbv.com.bo/acerca-de-la-bolsa/informacion-financiera-2024/
+    - https://www.bbv.com.bo/hechos-relevantes-y-noticias/
+  max_depth: 2
+  max_pages: 120
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+
+classification:
+  dataset_rules:
+    - id: estadisticas_bursatiles
+      name: Estadísticas Bursátiles
+      url_patterns:
+        - "/estadisticas"
+        - "/mercados"
+    - id: memorias_anuales
+      name: Memorias Anuales
+      url_patterns:
+        - "/memorias-anuales"
+    - id: informacion_financiera_bbv
+      name: Información Financiera BBV
+      url_patterns:
+        - "/informacion-financiera"
+    - id: hechos_relevantes
+      name: Hechos Relevantes
+      url_patterns:
+        - "/hechos-relevantes"
+  excluded_path_keywords:
+    - "/historia/"
+    - "/mision-y-vision/"
+    - "/valores-y-estrategias/"
+    - "/trabaja-con-nosotros/"
+    - "/contacto/"
+    - "/aula-bursatil/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "(?P<year>20\\d{2})"
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []

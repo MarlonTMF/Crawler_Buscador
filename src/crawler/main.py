@@ -1,16 +1,19 @@
 """
-Punto de entrada ejecutable CLI para el prospector externo FINRURAL.
+Punto de entrada ejecutable CLI para el prospector externo.
+Soporta múltiples fuentes (FINRURAL, Bolsa Boliviana de Valores BBV, ASFI, etc.).
 """
 
 import sys
 import argparse
 import logging
 from pathlib import Path
+import yaml
 
 # Asegurar que 'src' esté en el PYTHONPATH
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from crawler.sources.finrural_adapter import FinruralAdapter
+from crawler.sources.bbv_adapter import BbvAdapter
 from crawler.core.orchestrator import CrawlOrchestrator
 
 
@@ -24,15 +27,34 @@ def setup_logging(verbose: bool = False) -> None:
     )
 
 
+def load_adapter(config_path: Path):
+    """Carga dinámicamente el adaptador adecuado según el archivo de configuración YAML."""
+    if not config_path.exists():
+        raise FileNotFoundError(f"Archivo de configuración no encontrado en: {config_path}")
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    source_id = data.get("source", {}).get("id", "").lower()
+
+    if source_id == "bbv":
+        return BbvAdapter(config_path=config_path)
+    elif source_id == "finrural":
+        return FinruralAdapter(config_path=config_path)
+    else:
+        # Fallback para adaptadores declarativos genéricos
+        return FinruralAdapter(config_path=config_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Prospector Externo y Crawler de Fuentes Financieras (FINRURAL) — Equipo 1 DataX"
+        description="Prospector Externo y Crawler de Fuentes Financieras (FINRURAL, BBV, ASFI) — Equipo 1 DataX"
     )
     parser.add_argument(
         "--config",
         type=str,
         default=str(Path(__file__).resolve().parents[2] / "config" / "source_finrural.yaml"),
-        help="Ruta al archivo de configuración YAML de la fuente"
+        help="Ruta al archivo de configuración YAML de la fuente (ej. config/source_bbv.yaml)"
     )
     parser.add_argument(
         "--output-dir",
@@ -50,12 +72,12 @@ def main() -> None:
     setup_logging(args.verbose)
 
     logger = logging.getLogger("crawler.main")
-    logger.info("=== Iniciando Prospector Externo FINRURAL ===")
-
     config_path = Path(args.config)
     output_dir = Path(args.output_dir)
 
-    adapter = FinruralAdapter(config_path=config_path)
+    adapter = load_adapter(config_path)
+    logger.info(f"=== Iniciando Prospector Externo para [{adapter.source_name}] ===")
+
     orchestrator = CrawlOrchestrator(adapter=adapter, output_dir=output_dir)
 
     try:

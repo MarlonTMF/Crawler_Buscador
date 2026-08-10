@@ -1,7 +1,7 @@
-# Prospector Externo FINRURAL (`crawler_finrural`)
+# Prospector Externo Multi-Fuente (`crawler_finrural`)
 
 > **Subsistema responsable:** Equipo 1 — Extracción externa de fuentes  
-> **Fuente piloto:** FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/))  
+> **Fuentes integradas:** FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/)) & Bolsa Boliviana de Valores BBV ([bbv.com.bo](https://www.bbv.com.bo/))  
 > **Versión:** 1.0.0
 
 ---
@@ -10,7 +10,7 @@
 
 `crawler_finrural` es la plataforma automatizada, profesional y modular de prospección externa desarrollada por el Equipo 1 de DataX Bolivia. A diferencia de prototipos monolíticos como `example_bcb_crawler`, este sistema implementa una arquitectura basada en **Núcleo Genérico + Adaptadores Declarativos por Fuente (Dataset-First)**.
 
-Mapea de forma dinámica las publicaciones de FINRURAL, identifica el dataset **Reporte Financiero Mensual**, extrae fechas de vigencia mediante una estrategia en 4 capas, calcula huellas digitales SHA-256, deduplica recursos y exporta simultáneamente tres contratos JSON independientes para producción, visualización y modelos de IA.
+Mapea de forma dinámica las publicaciones de múltiples entidades financieras (como **FINRURAL** y la **Bolsa Boliviana de Valores BBV**), identifica series periódicas (reportes financieros, memorias anuales, boletines), extrae fechas de vigencia mediante una estrategia en 4 capas, calcula huellas digitales SHA-256, deduplica recursos y exporta simultáneamente tres contratos JSON independientes para producción, visualización y modelos de IA.
 
 ---
 
@@ -18,8 +18,8 @@ Mapea de forma dinámica las publicaciones de FINRURAL, identifica el dataset **
 
 ```mermaid
 flowchart TD
-    A[Inicio: CLI main.py] --> B[Cargar Configuración YAML: source_finrural.yaml]
-    B --> C[FinruralAdapter: Cargar semillas, exclusiones y regex]
+    A[Inicio: CLI main.py] --> B[Cargar Configuración YAML: source_finrural.yaml / source_bbv.yaml]
+    B --> C[SourceAdapter: FinruralAdapter / BbvAdapter]
     C --> D[CrawlOrchestrator: Inicializar Pipeline]
     
     D --> E[DiscoveryEngine: Escanear Semillas]
@@ -38,9 +38,9 @@ flowchart TD
     O --> P[AIContextReducer: Filtrar Boilerplate & Generar content_signature]
     
     P --> Q[MultiFormatExporter]
-    Q --> R[mapa_finrural.json: Contrato Oficial JSON Schema v1.0.0]
-    Q --> S[mapa_finrural_tree.json: Vista Jerárquica 5 Niveles tipo BCB]
-    Q --> T[mapa_finrural_compact.json: Vista Reducida para Modelos IA]
+    Q --> R[mapa_*.json: Contrato Oficial JSON Schema v1.0.0]
+    Q --> S[mapa_*_tree.json: Vista Jerárquica 5 Niveles tipo BCB]
+    Q --> T[mapa_*_compact.json: Vista Reducida para Modelos IA]
 ```
 
 ---
@@ -51,14 +51,14 @@ flowchart TD
 En lugar de recorrer recursivamente todo el sitio web (lo cual generaría ruido y saturación innecesaria en páginas institucionales como historia o misión), el dominio se organiza en:
 
 ```text
-Source (FINRURAL)
- └── Datasets (Reporte Financiero Mensual, Archivo Histórico)
-      └── Resources (financiera_01_2026.pdf)
+Source (FINRURAL / BBV / ASFI)
+ └── Datasets (Reporte Financiero Mensual, Memorias Anuales, Estadísticas)
+      └── Resources (financiera_01_2026.pdf, Memoria-2024.pdf)
            └── Observations (Metadatos: fecha de corte, SHA-256, tamaño, evidencia)
 ```
 
 ### 3.2 Núcleo Genérico + Adaptadores Declarativos (ADR-002)
-El código central (descubrimiento, extracción de fechas, canonicalización, deduplicación, reducción y exportación) es 100% reutilizable. Lo específico de FINRURAL (semillas, selectores, regex y palabras excluidas) vive en un archivo de configuración YAML (`config/source_finrural.yaml`) y su adaptador (`FinruralAdapter`).
+El código central (descubrimiento, extracción de fechas, canonicalización, deduplicación, reducción y exportación) es 100% reutilizable. Lo específico de cada fuente vive en un archivo YAML (`config/source_*.yaml`) y su adaptador Python (`FinruralAdapter`, `BbvAdapter`).
 
 ### 3.3 Estrategia de Extracción de Vigencia en 4 Capas (ADR-003)
 Aplica un orden de costo creciente para resolver la fecha del último dato (`period_end`) sin descargar ni abrir innecesariamente los archivos:
@@ -75,25 +75,74 @@ Filtra el ruido de navegación HTML y genera una `content_signature` para evitar
 
 ---
 
-## 4. Formatos de Salida (Multi-Formato — ADR-006)
+## 4. Ejemplos de Fuentes Integradas
 
-Al finalizar la prospección, el sistema exporta tres archivos JSON en la carpeta `output/`:
+El proyecto incluye dos fuentes completas probadas en producción:
 
-1. **`mapa_finrural.json` (Contrato Oficial Estandarizado — `ExternalSourceMap` v1.0.0):**
+### 4.1 Fuente 1: FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/))
+* **Archivo de Configuración:** `config/source_finrural.yaml`
+* **Adaptador:** `src/crawler/sources/finrural_adapter.py`
+* **Ejecución:**
+  ```bash
+  python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/
+  ```
+* **Resultados:** 126 reportes financieros mensuales procesados (de 2016 a 2026).
+
+### 4.2 Fuente 2: Bolsa Boliviana de Valores BBV ([bbv.com.bo](https://www.bbv.com.bo/))
+* **Archivo de Configuración:** `config/source_bbv.yaml`
+* **Adaptador:** `src/crawler/sources/bbv_adapter.py`
+* **Ejecución:**
+  ```bash
+  python3 -m crawler.main --config config/source_bbv.yaml --output-dir output/
+  ```
+* **Resultados:** 82 documentos procesados (memorias anuales desde 2004, estados financieros y tarifarios).
+
+---
+
+## 5. Alcance, Capacidades y Limitaciones Técnicas
+
+Para garantizar transparencia de ingeniería, a continuación se detallan los escenarios donde el crawler funciona óptimamente, los casos donde no aplica y lo que requeriría en el futuro.
+
+### 5.1 ¿En qué casos funciona EXCELENTE? (Alcance Operativo)
+* **Portales Web Públicos Estructurados:** Sitios de entidades financieras, entes reguladores, bancos centrales y bolsas (WordPress, Drupal, Joomla, HTML estático o dinámico con renderizado de servidor SSR).
+* **Enlaces Directos a Archivos Descargables:** Páginas que exponen recursos en formatos `.pdf`, `.xlsx`, `.xls`, `.csv` o `.zip` con hipervínculos `<a>` estándar en el DOM.
+* **Publicaciones Periódicas con Naming Predecible:** Documentos organizados por año, mes o boletines donde la fecha es inferible desde la URL, el texto ancla o contenedores HTML.
+* **Servidores con Headers HTTP Estándar:** Servidores que responden adecuadamente a peticiones `HEAD` con encabezados `Content-Length`, `Last-Modified` y `ETag`.
+
+### 5.2 ¿En qué casos NO funciona directamente? (Limitaciones del Crawler HTTP)
+* **Aplicaciones Single Page (SPA) en React/Vue/Angular sin SSR:** Páginas que no exponen elementos `<a>` en el HTML inicial y generan enlaces dinámicamente mediante código JavaScript ejecutado en el navegador del cliente (`onclick="downloadBlob()"` o llamadas asíncronas WebSocket/FETCH ocultas).
+* **Sistemas con CAPTCHA Activo o WAF Interactivo:** Sitios protegidos por Cloudflare (JS Challenge / Turnstile), Akamai Bot Manager o CAPTCHAs que exijan interacción humana previa antes de entregar el archivo.
+* **Áreas Protegidas tras Autenticación Obligatoria:** Secciones que requieren inicio de sesión con credenciales (usuario/contraseña), tokens OAuth2 o cookies de sesión privadas.
+* **Formularios de Consulta Dinámica POST (ej. ASP.NET ViewState):** Páginas donde la descarga exige enviar un formulario `POST` con variables de estado ocultas (`__VIEWSTATE`, `__EVENTTARGET`) en lugar de URLs de acceso directo.
+* **Archivos PDF Escaneados sin Capa de Texto (Imágenes):** PDFs generados a partir de escaneos físicos de papel sin capa de texto seleccionable (OCR).
+
+### 5.3 Roadmap: ¿Qué se necesitaría para soportar esos casos complejos?
+* **Módulo Headless Browser (Playwright / Puppeteer):** Para automatizar navegadores reales en sitios SPA con descargas por JavaScript.
+* **Session & Auth Manager:** Extensión en `HttpFetcher` para enviar cookies de autenticación o tokens Bearer en sitios con login.
+* **Form POST Handler:** Adaptadores especializados para construir peticiones `POST` con estados dinámicos.
+* **Integración OCR (Tesseract / Document AI):** Para la Capa 4 de extracción de fechas cuando los PDFs sean imágenes escaneadas.
+
+---
+
+## 6. Formatos de Salida (Multi-Formato — ADR-006)
+
+En cada corrida, el sistema exporta tres archivos JSON en la carpeta `output/`:
+
+1. **`mapa_*.json` (Contrato Oficial Estandarizado — `ExternalSourceMap` v1.0.0):**
    * Consumido por el Motor de Conciliación y Auditoría Interna (Equipo 1 + Equipo 2).
    * Contiene metadatos de Nivel 5: hashes `sha256`, tamaño en bytes, `etag`, `last_modified`, `period_start`, `period_end`, confianza y evidencias.
    * **Validado 100%** contra el esquema formal `schemas/source-map.schema.json` (JSON Schema Draft 2020-12).
 
-2. **`mapa_finrural_tree.json` (Formato Jerárquico BCB — Tree View):**
+2. **`mapa_*_tree.json` (Formato Jerárquico BCB — Tree View):**
    * Compatible con el visor web estático del prototipo (`web/index.html`).
    * Organiza la información en 5 niveles de carpetas finalizando en sufijos `.csv` con atributos `descripcion` y `url_descarga`.
 
-3. **`mapa_finrural_compact.json` (Vista Compacta para IA):**
+3. **`mapa_*_compact.json` (Vista Compacta para IA):**
    * Matriz reducida sin boilerplate para consumo rápido por agentes LLM.
 
 ---
 
-## 5. Buenas Prácticas de Web Scraping y Ética
+## 7. Buenas Prácticas de Web Scraping y Ética
 
 El cliente HTTP ([`src/crawler/core/fetcher.py`](src/crawler/core/fetcher.py)) incluye controles estrictos para garantizar un rastreo ético y prevenir bloqueos o baneos:
 
@@ -105,12 +154,13 @@ El cliente HTTP ([`src/crawler/core/fetcher.py`](src/crawler/core/fetcher.py)) i
 
 ---
 
-## 6. Estructura del Repositorio y Módulos
+## 8. Estructura del Repositorio
 
 ```text
 crawler_finrural/
 ├── config/
-│   └── source_finrural.yaml       # Configuración declarativa de FINRURAL
+│   ├── source_finrural.yaml       # Configuración declarativa de FINRURAL
+│   └── source_bbv.yaml            # Configuración declarativa de la Bolsa de Valores BBV
 ├── schemas/
 │   └── source-map.schema.json     # JSON Schema borrador 2020-12
 ├── src/
@@ -126,7 +176,8 @@ crawler_finrural/
 │       │   └── orchestrator.py    # Orquestador del pipeline end-to-end
 │       ├── sources/
 │       │   ├── base_adapter.py    # Interfaz abstracta para adaptadores
-│       │   └── finrural_adapter.py# Adaptador declarativo para FINRURAL
+│       │   ├── finrural_adapter.py# Adaptador declarativo para FINRURAL
+│       │   └── bbv_adapter.py     # Adaptador declarativo para la Bolsa de Valores BBV
 │       ├── validators/
 │       │   └── schema_validator.py# Validador de JSON Schema
 │       └── main.py                # Punto de entrada CLI
@@ -143,7 +194,7 @@ crawler_finrural/
 
 ---
 
-## 7. Guía de Extensión: Cómo agregar una nueva fuente (ej. BCB, ASFI)
+## 9. Guía de Extensión: Cómo agregar una nueva fuente (ej. ASFI, APS)
 
 Para agregar una nueva fuente financiera sin modificar el núcleo del crawler:
 
@@ -153,21 +204,25 @@ Para agregar una nueva fuente financiera sin modificar el núcleo del crawler:
 
 ---
 
-## 8. Instalación y Uso
+## 10. Instalación y Uso
 
-### 8.1 Preparación del Entorno
+### 10.1 Preparación del Entorno
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
 ```
 
-### 8.2 Ejecución de la Prospección Externa
+### 10.2 Ejecución de la Prospección Externa
 ```bash
+# Ejecución para FINRURAL
 python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/ --verbose
+
+# Ejecución para la Bolsa Boliviana de Valores (BBV)
+python3 -m crawler.main --config config/source_bbv.yaml --output-dir output/ --verbose
 ```
 
-### 8.3 Ejecución de la Suite de Pruebas Automatizadas (Pytest)
+### 10.3 Ejecución de la Suite de Pruebas Automatizadas (Pytest)
 ```bash
 PYTHONPATH=src pytest tests/ -v
 ```
