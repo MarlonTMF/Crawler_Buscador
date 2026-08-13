@@ -36,6 +36,7 @@ class MultiFormatExporter:
             raise ValueError(f"Contrato JSON inválido contra el esquema formal: {err_msg}")
 
         out_path = self.output_dir / filename
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -90,6 +91,7 @@ class MultiFormatExporter:
                 }
 
         out_path = self.output_dir / filename
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(tree, f, ensure_ascii=False, indent=4)
 
@@ -112,6 +114,7 @@ class MultiFormatExporter:
                 compact_items.append(compact_item)
 
         out_path = self.output_dir / filename
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(compact_items, f, ensure_ascii=False, indent=2)
 

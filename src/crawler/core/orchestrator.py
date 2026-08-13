@@ -1,6 +1,6 @@
 """
 Orquestador del prospector externo (Crawl Orchestrator).
-Coordina la ejecución secuencial del pipeline: Carga -> Descubrimiento -> Extracción (con descompresión de archivos .zip/.tar) -> Canonicalización -> Deduplicación -> Exportación.
+Coordina la ejecución secuencial del pipeline: Carga -> Descubrimiento -> Extracción (con descompresión) -> Canonicalización -> Deduplicación -> Exportación por carpetas dedicadas.
 """
 
 import logging
@@ -29,7 +29,10 @@ class CrawlOrchestrator:
 
     def __init__(self, adapter: BaseSourceAdapter, output_dir: Path):
         self.adapter = adapter
-        self.output_dir = output_dir
+        # Organización por carpetas dedicadas por fuente/URL (ej. output/finrural/, output/bbv/)
+        self.source_output_dir = output_dir / self.adapter.source_id
+        self.source_output_dir.mkdir(parents=True, exist_ok=True)
+
         self.fetcher = HttpFetcher(
             rate_limit_seconds=self.adapter.rate_limit
         )
@@ -37,7 +40,7 @@ class CrawlOrchestrator:
         self.extractor = MetadataExtractor(self.fetcher, self.adapter)
         self.archive_extractor = ArchiveExtractor()
         self.canonicalizer = Canonicalizer(self.adapter)
-        self.exporter = MultiFormatExporter(self.output_dir)
+        self.exporter = MultiFormatExporter(self.source_output_dir)
 
     def run(self) -> ExternalSourceMap:
         """Ejecuta el pipeline completo de crawling, descompresión y exportación."""
@@ -206,7 +209,7 @@ class CrawlOrchestrator:
             change_events=[]
         )
 
-        # 3. Fase de Exportación Multi-Formato
+        # 3. Fase de Exportación Multi-Formato en carpeta dedicada por fuente
         self.exporter.export_standard(source_map, f"mapa_{self.adapter.source_id}.json")
         self.exporter.export_tree_format(source_map, f"mapa_{self.adapter.source_id}_tree.json")
         self.exporter.export_compact_ai(source_map, f"mapa_{self.adapter.source_id}_compact.json")

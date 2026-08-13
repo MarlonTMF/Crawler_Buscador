@@ -85,7 +85,7 @@ def main() -> None:
         total_resources = sum(len(ds.resources) for ds in source_map.datasets)
         logger.info(f"=== Prospección finalizada con éxito ===")
         logger.info(f"Fuente: {source_map.source.name} | Datasets: {len(source_map.datasets)} | Recursos procesados: {total_resources}")
-        logger.info(f"Archivos exportados en: {output_dir.resolve()}")
+        logger.info(f"Archivos exportados en: {orchestrator.source_output_dir.resolve()}")
     except Exception as e:
         logger.critical(f"Error fatal durante la prospección: {e}", exc_info=True)
         sys.exit(1)
