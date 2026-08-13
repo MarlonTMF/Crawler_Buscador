@@ -6,6 +6,7 @@ Soporta:
 - Reintentos exponenciales y backoff para respuestas 429 (Too Many Requests) y 5xx.
 - Identificación profesional con User-Agent personalizado.
 - Solicitudes HTTP HEAD para minimizar consumo de ancho de banda del servidor.
+- Solicitudes HTTP GET binarias para descarga de comprimidos y archivos.
 """
 
 import time
@@ -137,6 +138,30 @@ class HttpFetcher:
                 return False, response.status_code, None
             except Exception as e:
                 logger.warning(f"GET HTML {url} intento {attempt}/{self.max_retries} falló: {e}")
+                time.sleep(1.5 * attempt)
+
+        return False, 0, None
+
+    def fetch_bytes(self, url: str) -> Tuple[bool, int, Optional[bytes]]:
+        """Descarga el contenido binario de una URL (ej. para descomprimir en memoria)."""
+        if not self.is_url_allowed_by_robots(url):
+            return False, 403, None
+
+        self._apply_rate_limit(url)
+        for attempt in range(1, self.max_retries + 1):
+            try:
+                response = self.session.get(url, timeout=self.timeout)
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get("Retry-After", 5 * attempt))
+                    logger.warning(f"Rate limit 429 recibido en GET bytes {url}. Esperando {retry_after}s...")
+                    time.sleep(retry_after)
+                    continue
+
+                if response.status_code == 200:
+                    return True, 200, response.content
+                return False, response.status_code, None
+            except Exception as e:
+                logger.warning(f"GET bytes {url} intento {attempt}/{self.max_retries} falló: {e}")
                 time.sleep(1.5 * attempt)
 
         return False, 0, None

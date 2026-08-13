@@ -104,7 +104,8 @@
           "type": "array",
           "items": { "type": "string" }
         },
-        "content_signature": { "type": ["string", "null"] }
+        "content_signature": { "type": ["string", "null"] },
+        "extracted_from_archive": { "type": ["string", "null"] }
       }
     },
     "evidence": {

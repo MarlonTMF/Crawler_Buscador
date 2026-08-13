@@ -34,6 +34,7 @@ class ResourceMetadata(BaseModel):
     geographic_coverage: List[str] = Field(default_factory=list, description="Cobertura geográfica asociada, ej. ['Bolivia']")
     entities: List[str] = Field(default_factory=list, description="Entidades/IFDs identificadas en el recurso")
     content_signature: Optional[str] = Field(None, description="Firma semántica compacta para optimizar consumo de tokens por IA")
+    extracted_from_archive: Optional[str] = Field(None, description="URL del paquete comprimido de origen si este recurso fue extraído de un .zip/.tar")
 
 
 class ResourceEvidence(BaseModel):
