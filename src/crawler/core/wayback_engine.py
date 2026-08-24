@@ -5,11 +5,12 @@ This is a lightweight scaffold: it fetches CDX entries and returns unique origin
 from typing import List
 import requests
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
 
-def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000) -> List[str]:
+def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000, timeout: int = 15, max_retries: int = 3, backoff: float = 1.5) -> List[str]:
     """Query the Wayback CDX API for the given domain and return a list of original URLs.
 
     Args:
@@ -33,13 +34,19 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
         "showResumeKey": "true"
     }
 
-    try:
-        resp = requests.get(base, params=params, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        logger.warning(f"Wayback CDX query failed for {domain}: {e}")
-        return []
+    data = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            resp = requests.get(base, params=params, timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        except Exception as e:
+            logger.warning(f"Wayback CDX query attempt {attempt} failed for {domain}: {e}")
+            if attempt < max_retries:
+                time.sleep(backoff * attempt)
+            else:
+                return []
 
     urls = []
     # first row may be header

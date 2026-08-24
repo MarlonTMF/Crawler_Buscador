@@ -5,12 +5,16 @@ Lightweight scaffold that queries crt.sh JSON output and extracts unique hostnam
 import requests
 from typing import List
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
 
-def find_subdomains(domain: str) -> List[str]:
+def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backoff: float = 1.5) -> List[str]:
     """Query crt.sh for certificates related to domain and extract subdomains.
+
+    Performs retries with exponential backoff and a fallback query if the wildcard
+    query returns server errors.
 
     Args:
         domain: base domain (e.g., 'finrural.org.bo')
@@ -18,14 +22,29 @@ def find_subdomains(domain: str) -> List[str]:
     Returns:
         List of discovered subdomains (may include the base domain).
     """
-    url = f"https://crt.sh/?q=%25.{domain}&output=json"
-    try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        logger.warning(f"crt.sh query failed for {domain}: {e}")
-        return []
+    wildcard_url = f"https://crt.sh/?q=%25.{domain}&output=json"
+    fallback_url = f"https://crt.sh/?q={domain}&output=json"
+
+    data = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            resp = requests.get(wildcard_url, timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        except Exception as e:
+            logger.warning(f"crt.sh wildcard query attempt {attempt} failed for {domain}: {e}")
+            if attempt < max_retries:
+                time.sleep(backoff * attempt)
+                continue
+            # try fallback once
+            try:
+                resp = requests.get(fallback_url, timeout=timeout)
+                resp.raise_for_status()
+                data = resp.json()
+            except Exception as e2:
+                logger.warning(f"crt.sh fallback query also failed for {domain}: {e2}")
+                return []
 
     hosts = set()
     for item in data:
