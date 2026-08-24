@@ -13,14 +13,29 @@ crawl:
     - https://www.finrural.org.bo/archivo-historico/
   max_depth: 3
   max_pages: 500
+  strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
-
-# Opt-in features (disabled by default in production configs)
-features:
+  use_sitemaps: true
   use_wayback: true                   # query Wayback CDX for historical URLs
   use_subdomain_enumeration: true    # query crt.sh for certificate-based subdomains
+  use_search_dorking: false          # requires search_dorking.provider + API key
   use_async_fetcher: true            # use httpx.AsyncClient via AsyncFetcher
+  use_playwright_ocr: false          # opt-in: render pages with Playwright and run OCR (Tesseract)
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none                     # bing | google | none
+  max_results: 50
 
 classification:
   dataset_rules:

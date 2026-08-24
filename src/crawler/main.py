@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from crawler.sources.finrural_adapter import FinruralAdapter
 from crawler.sources.bbv_adapter import BbvAdapter
+from crawler.sources.generic_adapter import GenericSourceAdapter
 from crawler.core.orchestrator import CrawlOrchestrator
 
 
@@ -43,7 +44,7 @@ def load_adapter(config_path: Path):
         return FinruralAdapter(config_path=config_path)
     else:
         # Fallback para adaptadores declarativos genéricos
-        return FinruralAdapter(config_path=config_path)
+        return GenericSourceAdapter(config_path=config_path)
 
 
 def main() -> None:

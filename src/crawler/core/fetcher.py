@@ -59,8 +59,10 @@ class HttpFetcher:
                 logger.info(f"robots.txt cargado exitosamente para [{domain}]")
             else:
                 logger.warning(f"No se pudo cargar robots.txt de [{domain}] (HTTP {response.status_code}), permitiendo crawl con cautela.")
+                parser.allow_all = True
         except Exception as e:
             logger.warning(f"Error al obtener robots.txt de [{domain}]: {e}")
+            parser.allow_all = True
 
         self._robots_parsers[domain] = parser
         return parser

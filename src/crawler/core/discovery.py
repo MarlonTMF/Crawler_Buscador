@@ -1,22 +1,29 @@
 """
-Motor de descubrimiento enfocado en Datasets (Dataset-First Discovery Engine).
-Visita únicamente semillas registradas y páginas índice, filtrando URLs institucionales y extrayendo enlaces a archivos.
+Dataset-first discovery engine.
+
+Combines controlled BFS/DFS crawling, optional passive discovery channels and
+semantic scoring while keeping the public API used by the orchestrator stable.
 """
 
 import logging
-from typing import List, Dict, Any, Set, Tuple
-from urllib.parse import urljoin, urlparse
+from collections import deque
+from typing import List, Set, Tuple
+from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunparse
+
 from bs4 import BeautifulSoup
+
 from crawler.core.fetcher import HttpFetcher
-from crawler.sources.base_adapter import BaseSourceAdapter
-from crawler.core.wayback_engine import query_wayback_urls
+from crawler.core.search_dorker import SearchDorker
+from crawler.core.smart_robots import discover_sitemap_urls
 from crawler.core.subdomain_finder import find_subdomains
+from crawler.core.wayback_engine import query_wayback_urls
+from crawler.sources.base_adapter import BaseSourceAdapter
 
 logger = logging.getLogger(__name__)
 
 
 class DiscoveredCandidate:
-    """Representa un candidato a recurso descargable encontrado durante la fase de descubrimiento."""
+    """Represents a downloadable resource found during discovery."""
 
     def __init__(
         self,
@@ -25,7 +32,9 @@ class DiscoveredCandidate:
         anchor_text: str,
         context_text: str,
         dataset_id: str,
-        file_type: str
+        file_type: str,
+        relevance_score: float = 0.0,
+        depth: int = 0,
     ):
         self.url = url
         self.url_origin = url_origin
@@ -33,144 +42,209 @@ class DiscoveredCandidate:
         self.context_text = context_text
         self.dataset_id = dataset_id
         self.file_type = file_type
+        self.relevance_score = relevance_score
+        self.depth = depth
 
 
 class DiscoveryEngine:
-    """Navega páginas semillas de forma controlada y extrae enlaces descargables."""
+    """Crawls source seeds in a controlled way and extracts download candidates."""
 
     def __init__(self, fetcher: HttpFetcher, adapter: BaseSourceAdapter):
         self.fetcher = fetcher
         self.adapter = adapter
         self.visited_urls: Set[str] = set()
+        crawl_cfg = self.adapter.config.get("crawl", {})
+        self.max_depth = int(crawl_cfg.get("max_depth", 1))
+        self.max_pages = int(crawl_cfg.get("max_pages", 100))
+        self.strategy = str(crawl_cfg.get("strategy", "bfs")).lower()
+        self.semantic_keywords = self._load_semantic_keywords()
+
+    def _load_semantic_keywords(self) -> Set[str]:
+        defaults = {
+            "descargar",
+            "boletin",
+            "boletín",
+            "reporte",
+            "informe",
+            "memoria",
+            "estadistica",
+            "estadística",
+            "financiera",
+            "financiero",
+            "datos",
+            "csv",
+            "xlsx",
+            "pdf",
+            "mensual",
+            "trimestral",
+            "anual",
+        }
+        for rule in self.adapter.config.get("classification", {}).get("dataset_rules", []):
+            for keyword in rule.get("title_keywords", []):
+                defaults.update(str(keyword).lower().split())
+        return defaults
+
+    @staticmethod
+    def _normalize_visit_url(url: str) -> str:
+        parsed = urlparse(url)
+        query_pairs = []
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True):
+            key_l = key.lower()
+            if key_l.startswith("utm_") or key_l in {"fbclid", "gclid", "x16877", "cache", "timestamp", "_"}:
+                continue
+            query_pairs.append((key, value))
+        query = urlencode(sorted(query_pairs), doseq=True)
+        return urlunparse(parsed._replace(query=query, fragment=""))
+
+    def _is_allowed_domain(self, url: str) -> bool:
+        domain = urlparse(url).netloc.lower()
+        allowed = {d.lower() for d in self.adapter.allowed_domains}
+        return not domain or not allowed or domain in allowed
+
+    def _score_link(self, url: str, anchor_text: str, context_text: str, depth: int) -> float:
+        combined = f"{url} {anchor_text} {context_text}".lower()
+        score = sum(1.0 for kw in self.semantic_keywords if kw in combined)
+        if any(f".{ext}" in url.lower() for ext in self.adapter.allowed_extensions):
+            score += 5.0
+        if anchor_text:
+            score += 0.5
+        score -= depth * 0.25
+        return score
 
     def _is_download_link(self, href: str, text: str) -> Tuple[bool, str]:
-        """Determina si un enlace apunta a un archivo descargable según las extensiones permitidas."""
         href_lower = href.lower()
         for ext in self.adapter.allowed_extensions:
-            if f".{ext}" in href_lower:
-                return True, ext
-        
-        if any(kw in text.lower() for kw in ["descargar", "boletín", "reporte", "informe"]):
-            if ".pdf" in href_lower:
-                return True, "pdf"
-            if ".xlsx" in href_lower or ".xls" in href_lower:
-                return True, "xlsx"
-            if ".csv" in href_lower:
-                return True, "csv"
+            if f".{ext.lower().strip('.')}" in href_lower:
+                return True, ext.lower().strip(".")
+
+        text_lower = text.lower()
+        if any(kw in text_lower for kw in ["descargar", "boletín", "boletin", "reporte", "informe"]):
+            for ext in ("pdf", "xlsx", "xls", "csv", "zip"):
+                if f".{ext}" in href_lower:
+                    return True, ext
 
         return False, ""
 
-    def discover_from_seeds(self) -> List[DiscoveredCandidate]:
-        """Recorre las URLs semillas del adaptador y extrae todos los candidatos a recursos."""
-        candidates: List[DiscoveredCandidate] = []
-
-        # Optional: enrich seeds with Wayback CDX discoveries if adapter config enables it
-        use_wayback = False
-        try:
-            use_wayback = bool(self.adapter.config.get("crawl", {}).get("use_wayback", False))
-        except Exception:
-            use_wayback = False
-
-        if use_wayback:
-            # Query Wayback for the base domain(s) and add discovered file URLs as candidates
-            domains = self.adapter.allowed_domains or [self.adapter.base_url]
-            for dom in domains:
-                wb_urls = query_wayback_urls(dom, file_types=self.adapter.allowed_extensions, limit=500)
-                for url in wb_urls:
-                    if url in self.visited_urls:
-                        continue
-                    self.visited_urls.add(url)
+    def _add_passive_candidates(self, candidates: List[DiscoveredCandidate]) -> None:
+        if bool(self.adapter.config.get("crawl", {}).get("use_wayback", False)):
+            domains = self.adapter.allowed_domains or [urlparse(self.adapter.base_url).netloc]
+            for domain in domains:
+                for url in query_wayback_urls(domain, file_types=self.adapter.allowed_extensions, limit=500):
                     dataset_id = self.adapter.classify_dataset(url, "")
-                    # derive file type from extension
-                    file_type = ""
-                    if "." in url:
-                        file_type = url.rsplit(".", 1)[1].lower()
-                    candidate = DiscoveredCandidate(
+                    if not dataset_id:
+                        continue
+                    file_type = url.rsplit(".", 1)[-1].lower() if "." in url else ""
+                    candidates.append(
+                        DiscoveredCandidate(
+                            url=url,
+                            url_origin="wayback",
+                            anchor_text=url.split("/")[-1],
+                            context_text="",
+                            dataset_id=dataset_id,
+                            file_type=file_type,
+                            relevance_score=self._score_link(url, url, "", 0),
+                        )
+                    )
+
+        if bool(self.adapter.config.get("crawl", {}).get("use_search_dorking", False)):
+            dorker = SearchDorker.from_config(self.adapter.config)
+            domain = urlparse(self.adapter.base_url).netloc or self.adapter.base_url
+            for url in dorker.search_domain_documents(domain, self.adapter.allowed_extensions):
+                dataset_id = self.adapter.classify_dataset(url, "")
+                if not dataset_id:
+                    continue
+                file_type = url.rsplit(".", 1)[-1].lower() if "." in url else ""
+                candidates.append(
+                    DiscoveredCandidate(
                         url=url,
-                        url_origin="wayback",
+                        url_origin="search_dorking",
                         anchor_text=url.split("/")[-1],
                         context_text="",
                         dataset_id=dataset_id,
-                        file_type=file_type
+                        file_type=file_type,
+                        relevance_score=self._score_link(url, url, "", 0),
                     )
-                    candidates.append(candidate)
+                )
 
-        # Optional: expand seeds with discovered subdomains via Certificate Transparency (crt.sh)
-        use_subdomains = False
-        try:
-            use_subdomains = bool(self.adapter.config.get("crawl", {}).get("use_subdomain_enumeration", False))
-        except Exception:
-            use_subdomains = False
+    def _build_seed_list(self) -> List[str]:
+        crawl_seeds = list(dict.fromkeys(self.adapter.seeds))
+        crawl_cfg = self.adapter.config.get("crawl", {})
 
-        if use_subdomains:
-            # derive scheme from base_url
-            try:
-                parsed = urlparse(self.adapter.base_url)
-                scheme = parsed.scheme or "https"
-            except Exception:
-                scheme = "https"
+        if bool(crawl_cfg.get("use_subdomain_enumeration", False)):
+            scheme = urlparse(self.adapter.base_url).scheme or "https"
+            for domain in self.adapter.allowed_domains:
+                for subdomain in find_subdomains(domain):
+                    seed_candidate = f"{scheme}://{subdomain}/"
+                    if seed_candidate not in crawl_seeds:
+                        logger.info("Adding seed from certificate transparency: %s", seed_candidate)
+                        crawl_seeds.append(seed_candidate)
 
-            for dom in (self.adapter.allowed_domains or []):
-                subs = find_subdomains(dom)
-                for sub in subs:
-                    seed_candidate = f"{scheme}://{sub}/"
-                    if seed_candidate not in self.adapter.seeds and seed_candidate not in self.visited_urls:
-                        logger.info(f"Añadiendo seed desde subdominio descubierto: {seed_candidate}")
-                        # prepend to seeds list to scan them as well
-                        candidates.append(DiscoveredCandidate(
-                            url=seed_candidate,
-                            url_origin="subdomain_discovery",
-                            anchor_text=sub,
-                            context_text="",
-                            dataset_id="",
-                            file_type=""
-                        ))
+        if bool(crawl_cfg.get("use_sitemaps", True)):
+            for seed_url in list(crawl_seeds):
+                for sitemap_url in discover_sitemap_urls(seed_url, self.fetcher):
+                    if sitemap_url not in crawl_seeds and self._is_allowed_domain(sitemap_url):
+                        crawl_seeds.append(sitemap_url)
 
-        for seed_url in self.adapter.seeds:
-            if seed_url in self.visited_urls:
+        return crawl_seeds
+
+    def discover_from_seeds(self) -> List[DiscoveredCandidate]:
+        candidates: List[DiscoveredCandidate] = []
+        self._add_passive_candidates(candidates)
+
+        queue = deque((seed, 0) for seed in self._build_seed_list())
+        pages_scanned = 0
+
+        while queue and pages_scanned < self.max_pages:
+            page_url, depth = queue.popleft() if self.strategy != "dfs" else queue.pop()
+            visit_url = self._normalize_visit_url(page_url)
+            if visit_url in self.visited_urls:
+                continue
+            if self.adapter.is_url_excluded(page_url) or not self._is_allowed_domain(page_url):
                 continue
 
-            logger.info(f"Escaneando página semilla: {seed_url}")
-            self.visited_urls.add(seed_url)
+            logger.info("Scanning page: %s", page_url)
+            self.visited_urls.add(visit_url)
+            pages_scanned += 1
 
-            success, status, html = self.fetcher.fetch_html(seed_url)
+            success, status, html = self.fetcher.fetch_html(page_url)
             if not success or not html:
-                logger.error(f"No se pudo cargar la semilla {seed_url} (HTTP {status})")
+                logger.error("Could not load %s (HTTP %s)", page_url, status)
                 continue
 
             soup = BeautifulSoup(html, "html.parser")
-            links = soup.find_all("a", href=True)
-
-            for a_tag in links:
+            for a_tag in soup.find_all("a", href=True):
                 href = a_tag["href"].strip()
-                if not href or href.startswith("#") or href.startswith("javascript:"):
+                if not href or href.startswith("#") or href.lower().startswith("javascript:"):
                     continue
 
-                abs_url = urljoin(seed_url, href)
-
-                if self.adapter.is_url_excluded(abs_url):
-                    continue
-
-                domain = urlparse(abs_url).netloc
-                if domain and domain not in self.adapter.allowed_domains:
+                abs_url = self._normalize_visit_url(urljoin(page_url, href))
+                if self.adapter.is_url_excluded(abs_url) or not self._is_allowed_domain(abs_url):
                     continue
 
                 anchor_text = a_tag.get_text(strip=True)
-                parent_tag = a_tag.find_parent(["p", "li", "tr", "td", "div"])
-                context_text = parent_tag.get_text(strip=True) if parent_tag else anchor_text
-
+                parent_tag = a_tag.find_parent(["p", "li", "tr", "td", "div", "section", "article"])
+                context_text = parent_tag.get_text(" ", strip=True) if parent_tag else anchor_text
+                score = self._score_link(abs_url, anchor_text, context_text, depth)
                 is_download, ext = self._is_download_link(href, anchor_text)
                 dataset_id = self.adapter.classify_dataset(abs_url, anchor_text)
 
                 if is_download and dataset_id:
-                    candidate = DiscoveredCandidate(
-                        url=abs_url,
-                        url_origin=seed_url,
-                        anchor_text=anchor_text or href.split("/")[-1],
-                        context_text=context_text,
-                        dataset_id=dataset_id,
-                        file_type=ext
+                    candidates.append(
+                        DiscoveredCandidate(
+                            url=abs_url,
+                            url_origin=page_url,
+                            anchor_text=anchor_text or href.split("/")[-1],
+                            context_text=context_text,
+                            dataset_id=dataset_id,
+                            file_type=ext,
+                            relevance_score=score,
+                            depth=depth,
+                        )
                     )
-                    candidates.append(candidate)
+                elif depth < self.max_depth and score >= 0:
+                    next_visit = self._normalize_visit_url(abs_url)
+                    if next_visit not in self.visited_urls:
+                        queue.append((next_visit, depth + 1))
 
+        candidates.sort(key=lambda item: item.relevance_score, reverse=True)
         return candidates
