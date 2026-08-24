@@ -7,6 +7,7 @@ import requests
 import logging
 import time
 from crawler.core.external_cache import cache_get, cache_set
+from urllib.parse import quote_plus
 
 logger = logging.getLogger(__name__)
 
@@ -81,3 +82,34 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
             result.append(u)
     cache_set("wayback", domain, result)
     return result
+
+
+def _query_wayback_availability(domain: str, timeout: int = 10, max_retries: int = 2, backoff: float = 1.5) -> List[str]:
+    """Use the Internet Archive 'wayback/available' API to find any snapshot for the domain.
+
+    Returns a list of candidate original URLs (domain roots) where snapshots exist.
+    """
+    api = "https://archive.org/wayback/available?url="
+    candidates = [f"https://{domain}/", f"http://{domain}/", f"https://www.{domain}/", f"http://www.{domain}/"]
+    found = []
+    for candidate in candidates:
+        url = api + quote_plus(candidate)
+        for attempt in range(1, max_retries + 1):
+            try:
+                resp = requests.get(url, timeout=timeout)
+                resp.raise_for_status()
+                data = resp.json()
+                snap = data.get("archived_snapshots", {}).get("closest")
+                if snap and snap.get("available"):
+                    # return the original candidate URL (not the archived URL)
+                    found.append(candidate)
+                break
+            except Exception as e:
+                logger.warning(f"Wayback availability attempt {attempt} failed for {candidate}: {e}")
+                if attempt < max_retries:
+                    time.sleep(backoff * attempt)
+                    continue
+                break
+
+    # deduplicate
+    return list(dict.fromkeys(found))
