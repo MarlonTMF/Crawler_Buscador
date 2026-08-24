@@ -28,7 +28,7 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
     # try cache first
     from crawler.core.external_cache import cache_get, cache_set
 
-    cached = cache_get("crtsh", domain, cache_ttl=86400)
+    cached = cache_get("crtsh", domain, 86400)
     if cached is not None:
         return cached
 
@@ -51,6 +51,17 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
                 data = resp.json()
             except Exception as e2:
                 logger.warning(f"crt.sh fallback query also failed for {domain}: {e2}")
+                # try omnisint fallback
+                try:
+                    omnis = _query_omnisint(domain)
+                    if omnis:
+                        try:
+                            cache_set("crtsh", domain, omnis)
+                        except Exception:
+                            pass
+                        return omnis
+                except Exception:
+                    pass
                 # cache negative result briefly
                 try:
                     cache_set("crtsh", domain, [])
@@ -75,3 +86,26 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
     except Exception:
         pass
     return result
+
+
+def _query_omnisint(domain: str, timeout: int = 10, max_retries: int = 2, backoff: float = 1.5):
+    """Query the public Omnisint/sonar service for subdomains as a fallback.
+
+    Returns a list of subdomains or empty list on failure.
+    """
+    url = f"https://sonar.omnisint.io/subdomains/{domain}"
+    for attempt in range(1, max_retries + 1):
+        try:
+            resp = requests.get(url, timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            if isinstance(data, list):
+                return [d.lower() for d in data if isinstance(d, str) and d.endswith(domain)]
+            return []
+        except Exception as e:
+            logger.warning(f"omnisint query attempt {attempt} failed for {domain}: {e}")
+            if attempt < max_retries:
+                time.sleep(backoff * attempt)
+                continue
+            return []
+
