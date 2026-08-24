@@ -97,6 +97,39 @@ python3 -m crawler.main --config config/source_bbv.yaml --output-dir output/
 
 ---
 
+## 4.3 Opciones opt-in (Wayback, Subdomain, Async Fetcher)
+
+El proyecto soporta varias ampliaciones opt-in que se activan desde el archivo de configuración YAML de la fuente. Estas opciones están deshabilitadas por defecto para mantener un comportamiento conservador y ético.
+
+- `use_wayback`: consulta el índice Wayback CDX para descubrir URL históricas relacionadas con la fuente (útil para reconstruir archivos borrados o versiones antiguas). Valor: `true|false`.
+- `use_subdomain_enumeration`: consulta Certificate Transparency (`crt.sh`) para descubrir subdominios que puedan contener recursos relevantes. Valor: `true|false`.
+- `use_async_fetcher`: habilita el `AsyncFetcher` basado en `httpx` (con wrappers sync para compatibilidad), útil para acelerar descargas en fuentes que lo permitan. Valor: `true|false`.
+
+Ejemplo mínimo de `config/source_finrural.yaml` con opciones opt-in:
+
+```yaml
+source:
+    id: finrural
+    base_url: https://www.finrural.org.bo
+    use_wayback: true
+    use_subdomain_enumeration: false
+    use_async_fetcher: true
+    # otros parámetros habituales del adaptador...
+```
+
+Ejecutar con opciones activadas (comando CLI):
+
+```bash
+python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/ --verbose
+```
+
+Notas de uso y ética:
+
+- Cuando `use_wayback` o `use_subdomain_enumeration` están activos, el motor de descubrimiento puede generar más seeds y dominios a investigar: revisa `output/` antes de escalar.
+- Respeta robots.txt y límites de tasa; estas integraciones respetan las mismas políticas del `CrawlOrchestrator`.
+- `use_async_fetcher` acelera I/O pero no cambia la lógica de deduplicación ni la extracción de metadatos.
+
+
 ## 5. Alcance, Capacidades y Limitaciones Técnicas
 
 ### 5.1 ¿En qué casos funciona EXCELENTE? (Alcance Operativo)
