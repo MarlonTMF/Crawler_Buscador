@@ -49,13 +49,18 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
                 return []
 
     urls = []
-    # first row may be header
-    for row in data[1:] if len(data) > 1 else []:
+    # Data may include a header row or unexpected empty rows; iterate defensively.
+    rows = data[1:] if isinstance(data, list) and len(data) > 1 else (data or [])
+    for row in rows:
+        if not row or not isinstance(row, (list, tuple)):
+            continue
+        if len(row) < 1:
+            continue
         original = row[0]
         mimetype = row[2] if len(row) > 2 else ""
-        lower = original.lower()
+        lower = str(original).lower()
         for ext in file_types:
-            if lower.endswith(f".{ext}") or (ext in mimetype.lower()):
+            if lower.endswith(f".{ext}") or (ext in str(mimetype).lower()):
                 urls.append(original)
                 break
 
