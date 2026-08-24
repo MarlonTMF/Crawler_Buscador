@@ -25,6 +25,13 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
     wildcard_url = f"https://crt.sh/?q=%25.{domain}&output=json"
     fallback_url = f"https://crt.sh/?q={domain}&output=json"
 
+    # try cache first
+    from crawler.core.external_cache import cache_get, cache_set
+
+    cached = cache_get("crtsh", domain, cache_ttl=86400)
+    if cached is not None:
+        return cached
+
     data = None
     for attempt in range(1, max_retries + 1):
         try:
@@ -44,6 +51,11 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
                 data = resp.json()
             except Exception as e2:
                 logger.warning(f"crt.sh fallback query also failed for {domain}: {e2}")
+                # cache negative result briefly
+                try:
+                    cache_set("crtsh", domain, [])
+                except Exception:
+                    pass
                 return []
 
     hosts = set()
@@ -57,4 +69,9 @@ def find_subdomains(domain: str, timeout: int = 15, max_retries: int = 3, backof
             if part.endswith(domain):
                 hosts.add(part.lower())
 
-    return sorted(hosts)
+    result = sorted(hosts)
+    try:
+        cache_set("crtsh", domain, result)
+    except Exception:
+        pass
+    return result

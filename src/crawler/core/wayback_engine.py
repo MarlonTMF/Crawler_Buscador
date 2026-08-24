@@ -6,11 +6,12 @@ from typing import List
 import requests
 import logging
 import time
+from crawler.core.external_cache import cache_get, cache_set
 
 logger = logging.getLogger(__name__)
 
 
-def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000, timeout: int = 15, max_retries: int = 3, backoff: float = 1.5) -> List[str]:
+def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000, timeout: int = 15, max_retries: int = 3, backoff: float = 1.5, cache_ttl: int = 86400) -> List[str]:
     """Query the Wayback CDX API for the given domain and return a list of original URLs.
 
     Args:
@@ -34,6 +35,11 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
         "showResumeKey": "true"
     }
 
+    # try cache first
+    cached = cache_get("wayback", domain, cache_ttl)
+    if cached is not None:
+        return cached
+
     data = None
     for attempt in range(1, max_retries + 1):
         try:
@@ -46,6 +52,8 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
             if attempt < max_retries:
                 time.sleep(backoff * attempt)
             else:
+                # cache negative result for a short period to avoid hammering
+                cache_set("wayback", domain, [])
                 return []
 
     urls = []
@@ -71,5 +79,5 @@ def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1
         if u not in seen:
             seen.add(u)
             result.append(u)
-
+    cache_set("wayback", domain, result)
     return result
