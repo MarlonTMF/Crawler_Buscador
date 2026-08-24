@@ -9,6 +9,8 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from crawler.core.fetcher import HttpFetcher
 from crawler.sources.base_adapter import BaseSourceAdapter
+from crawler.core.wayback_engine import query_wayback_urls
+from crawler.core.subdomain_finder import find_subdomains
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,68 @@ class DiscoveryEngine:
     def discover_from_seeds(self) -> List[DiscoveredCandidate]:
         """Recorre las URLs semillas del adaptador y extrae todos los candidatos a recursos."""
         candidates: List[DiscoveredCandidate] = []
+
+        # Optional: enrich seeds with Wayback CDX discoveries if adapter config enables it
+        use_wayback = False
+        try:
+            use_wayback = bool(self.adapter.config.get("crawl", {}).get("use_wayback", False))
+        except Exception:
+            use_wayback = False
+
+        if use_wayback:
+            # Query Wayback for the base domain(s) and add discovered file URLs as candidates
+            domains = self.adapter.allowed_domains or [self.adapter.base_url]
+            for dom in domains:
+                wb_urls = query_wayback_urls(dom, file_types=self.adapter.allowed_extensions, limit=500)
+                for url in wb_urls:
+                    if url in self.visited_urls:
+                        continue
+                    self.visited_urls.add(url)
+                    dataset_id = self.adapter.classify_dataset(url, "")
+                    # derive file type from extension
+                    file_type = ""
+                    if "." in url:
+                        file_type = url.rsplit(".", 1)[1].lower()
+                    candidate = DiscoveredCandidate(
+                        url=url,
+                        url_origin="wayback",
+                        anchor_text=url.split("/")[-1],
+                        context_text="",
+                        dataset_id=dataset_id,
+                        file_type=file_type
+                    )
+                    candidates.append(candidate)
+
+        # Optional: expand seeds with discovered subdomains via Certificate Transparency (crt.sh)
+        use_subdomains = False
+        try:
+            use_subdomains = bool(self.adapter.config.get("crawl", {}).get("use_subdomain_enumeration", False))
+        except Exception:
+            use_subdomains = False
+
+        if use_subdomains:
+            # derive scheme from base_url
+            try:
+                parsed = urlparse(self.adapter.base_url)
+                scheme = parsed.scheme or "https"
+            except Exception:
+                scheme = "https"
+
+            for dom in (self.adapter.allowed_domains or []):
+                subs = find_subdomains(dom)
+                for sub in subs:
+                    seed_candidate = f"{scheme}://{sub}/"
+                    if seed_candidate not in self.adapter.seeds and seed_candidate not in self.visited_urls:
+                        logger.info(f"Añadiendo seed desde subdominio descubierto: {seed_candidate}")
+                        # prepend to seeds list to scan them as well
+                        candidates.append(DiscoveredCandidate(
+                            url=seed_candidate,
+                            url_origin="subdomain_discovery",
+                            anchor_text=sub,
+                            context_text="",
+                            dataset_id="",
+                            file_type=""
+                        ))
 
         for seed_url in self.adapter.seeds:
             if seed_url in self.visited_urls:

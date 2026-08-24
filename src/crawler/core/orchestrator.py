@@ -19,6 +19,7 @@ from crawler.core.archive_extractor import ArchiveExtractor
 from crawler.core.canonicalizer import Canonicalizer
 from crawler.core.exporter import MultiFormatExporter
 from crawler.sources.base_adapter import BaseSourceAdapter
+from crawler.core.async_fetcher import AsyncFetcher
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +34,35 @@ class CrawlOrchestrator:
         self.source_output_dir = output_dir / self.adapter.source_id
         self.source_output_dir.mkdir(parents=True, exist_ok=True)
 
-        self.fetcher = HttpFetcher(
-            rate_limit_seconds=self.adapter.rate_limit
-        )
+        # Allow optional async fetcher (opt-in via config: crawl.use_async_fetcher)
+        use_async = False
+        try:
+            use_async = bool(self.adapter.config.get("crawl", {}).get("use_async_fetcher", False))
+        except Exception:
+            use_async = False
+
+        if use_async:
+            # wrap AsyncFetcher sync helpers to provide same interface used in the codebase
+            async_client = AsyncFetcher()
+
+            class _SyncAsyncFetcherWrapper:
+                def __init__(self, client):
+                    self._client = client
+
+                def fetch_html(self, url: str):
+                    return self._client.fetch_html_sync(url)
+
+                def fetch_bytes(self, url: str):
+                    return self._client.fetch_bytes_sync(url)
+
+                def fetch_head(self, url: str):
+                    return self._client.fetch_head_sync(url)
+
+            self.fetcher = _SyncAsyncFetcherWrapper(async_client)
+        else:
+            self.fetcher = HttpFetcher(
+                rate_limit_seconds=self.adapter.rate_limit
+            )
         self.discovery = DiscoveryEngine(self.fetcher, self.adapter)
         self.extractor = MetadataExtractor(self.fetcher, self.adapter)
         self.archive_extractor = ArchiveExtractor()
