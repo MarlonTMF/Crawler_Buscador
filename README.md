@@ -208,3 +208,34 @@ python3 -m crawler.main --config config/source_finrural.yaml --output-dir output
 ```bash
 PYTHONPATH=src pytest tests/ -v
 ```
+
+---
+
+## Resumen ejecutivo (para presentar al equipo / jefe)
+
+- **Propósito:** recopilar y normalizar documentos públicos (reportes financieros, memorias, archivos comprimidos) desde fuentes como FINRURAL y BBV.
+- **Estado actual:** código modular, pruebas automatizadas (`18 passed`), branch `feature/playwright-ocr` creado para la integración opcional de render+OCR.
+- **Cómo ver una demo rápida:**
+
+```bash
+# instalar dependencias básicas
+python -m pip install -e .
+
+# correr los tests rápidos
+python -m pytest -q
+
+# probar conectividad y seeds (no instala Playwright/OCR)
+python scripts/check_urls.py
+```
+- **Notas sobre Playwright/OCR:** está disponible como opt-in; requiere instalación local adicional:
+
+```bash
+python -m pip install playwright pillow pytesseract
+python -m playwright install
+```
+
+- **Riesgos y dependencias externas:** consultas a `web.archive.org` y `crt.sh` pueden fallar o rate-limit; implementamos retries, backoffs y caches locales para mitigar.
+- **Siguientes pasos recomendados:** completar pruebas E2E de Playwright+OCR, añadir CI que ejecute la suite, y planificar un despliegue con cache compartida (Redis) para producción.
+
+Si necesitas, preparo una diapositiva o un correo de una página con estos puntos listo para enviar.
+
