@@ -46,7 +46,8 @@ class AsyncFetcher:
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             for attempt in range(1, self.max_retries + 1):
                 try:
-                    r = await client.head(url, allow_redirects=True)
+                    # httpx uses `follow_redirects` for following redirects
+                    r = await client.head(url, follow_redirects=True)
                     status = r.status_code
                     # normalize headers to lower-case keys
                     headers = {k.lower(): v for k, v in r.headers.items()}
