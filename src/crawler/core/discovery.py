@@ -62,26 +62,45 @@ class DiscoveryEngine:
     def _load_semantic_keywords(self) -> Set[str]:
         defaults = {
             "descargar",
+            "descarga",
+            "documento",
+            "documentos",
+            "archivo",
+            "archivos",
             "boletin",
             "boletín",
             "reporte",
             "informe",
             "memoria",
+            "memorias",
             "estadistica",
+            "estadísticas",
             "estadística",
             "financiera",
             "financiero",
             "datos",
             "csv",
             "xlsx",
+            "xls",
             "pdf",
+            "zip",
             "mensual",
             "trimestral",
             "anual",
+            "fiscal",
+            "ifd",
+            "instituciones",
+            "financieras",
+            "bursatil",
+            "bursátil",
+            "download",
+            "downloads",
         }
         for rule in self.adapter.config.get("classification", {}).get("dataset_rules", []):
             for keyword in rule.get("title_keywords", []):
                 defaults.update(str(keyword).lower().split())
+        for token in self.adapter.config.get("classification", {}).get("document_path_tokens", []):
+            defaults.add(str(token).lower().strip())
         return defaults
 
     @staticmethod
@@ -103,25 +122,112 @@ class DiscoveryEngine:
 
     def _score_link(self, url: str, anchor_text: str, context_text: str, depth: int) -> float:
         combined = f"{url} {anchor_text} {context_text}".lower()
-        score = sum(1.0 for kw in self.semantic_keywords if kw in combined)
+        score = 0.0
+
+        score += sum(1.0 for kw in self.semantic_keywords if kw in combined)
+
         if any(f".{ext}" in url.lower() for ext in self.adapter.allowed_extensions):
             score += 5.0
-        if anchor_text:
+
+        path_tokens = [
+            "download",
+            "downloads",
+            "descarga",
+            "descargar",
+            "archivo",
+            "archivos",
+            "documento",
+            "documentos",
+            "reporte",
+            "reportes",
+            "informe",
+            "informes",
+            "boletin",
+            "boletín",
+            "estadistica",
+            "estadística",
+            "financiera",
+            "financiero",
+            "memoria",
+            "memorias",
+            "ifd",
+        ]
+
+        if any(token in url.lower() for token in path_tokens):
+            score += 2.5
+        if any(token in combined for token in path_tokens):
+            score += 2.0
+        if any(token in (anchor_text or "").lower() for token in path_tokens):
+            score += 1.25
+        if any(token in (context_text or "").lower() for token in path_tokens):
+            score += 0.75
+
+        if any(segment.isdigit() for segment in url.split("/")):
             score += 0.5
+
+        if anchor_text:
+            score += 0.75
+        if context_text:
+            score += 0.25
+
         score -= depth * 0.25
         return score
 
     def _is_download_link(self, href: str, text: str) -> Tuple[bool, str]:
         href_lower = href.lower()
-        for ext in self.adapter.allowed_extensions:
-            if f".{ext.lower().strip('.')}" in href_lower:
-                return True, ext.lower().strip(".")
-
         text_lower = text.lower()
-        if any(kw in text_lower for kw in ["descargar", "boletín", "boletin", "reporte", "informe"]):
-            for ext in ("pdf", "xlsx", "xls", "csv", "zip"):
-                if f".{ext}" in href_lower:
-                    return True, ext
+
+        for ext in self.adapter.allowed_extensions:
+            ext_clean = ext.lower().strip('.')
+            if f".{ext_clean}" in href_lower:
+                return True, ext_clean
+
+        path_tokens = [
+            "/download",
+            "/downloads",
+            "/descarga",
+            "/descargar",
+            "/archivo",
+            "/archivos",
+            "/documento",
+            "/documentos",
+            "/reporte",
+            "/reportes",
+            "/informe",
+            "/informes",
+            "/boletin",
+            "/boletín",
+            "/estadistica",
+            "/estadística",
+            "/financiera",
+            "/ifd",
+        ]
+
+        if any(token in href_lower for token in path_tokens):
+            return True, "document"
+
+        text_tokens = [
+            "descargar",
+            "descarga",
+            "boletín",
+            "boletin",
+            "reporte",
+            "informe",
+            "archivo",
+            "archivos",
+            "documento",
+            "documentos",
+            "estadistica",
+            "estadística",
+            "financiera",
+            "memoria",
+        ]
+
+        if any(kw in text_lower for kw in text_tokens) and any(kw in href_lower for kw in ["reporte", "informe", "archivo", "boletin", "boletín", "estadistica", "financiera", "download", "descarga", "documentos", "ifd"]):
+            return True, "document"
+
+        if any(kw in href_lower for kw in ["reporte", "informe", "estadistica", "financiera", "boletin", "boletín"]) and any(ext in href_lower for ext in [".pdf", ".xlsx", ".xls", ".csv", ".zip"]):
+            return True, "document"
 
         return False, ""
 

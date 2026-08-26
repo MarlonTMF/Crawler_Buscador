@@ -36,6 +36,17 @@ search_dorking:
   max_results: 50
 
 classification:
+  document_path_tokens:
+    - "reporte"
+    - "informe"
+    - "archivos"
+    - "documentos"
+    - "boletin"
+    - "estadistica"
+    - "financiera"
+    - "ifd"
+    - "descarga"
+    - "download"
   dataset_rules:
     - id: reporte_financiero_mensual
       name: Reporte Financiero Mensual

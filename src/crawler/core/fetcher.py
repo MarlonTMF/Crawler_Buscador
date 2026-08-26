@@ -15,6 +15,9 @@ from typing import Optional, Dict, Any, Tuple
 from urllib.parse import urlparse, urljoin
 from urllib.robotparser import RobotFileParser
 import requests
+from requests import exceptions as requests_exceptions
+
+from crawler.core.headless_fetcher import HeadlessFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +100,157 @@ class HttpFetcher:
                 time.sleep(sleep_time)
         self._last_request_time[domain] = time.time()
 
+    @staticmethod
+    def _classify_request_error(exc: Exception) -> str:
+        text = str(exc).lower()
+        if isinstance(exc, requests_exceptions.SSLError):
+            return "SSL_ERROR"
+        if isinstance(exc, requests_exceptions.Timeout):
+            return "TIMEOUT"
+        if "dns" in text or "name or service not known" in text or "temporary failure in name resolution" in text:
+            return "DNS_ERROR"
+        if "ssl" in text or "certificate" in text:
+            return "SSL_ERROR"
+        if "timed out" in text or "timeout" in text:
+            return "TIMEOUT"
+        return "CONN_ERROR"
+
+    @staticmethod
+    def _detect_document_signal(html: Optional[str], url: str, network_urls: Optional[list[str]] = None) -> Tuple[bool, float]:
+        if not html:
+            return False, 0.0
+
+        candidate_text = f"{html} {url}"
+        lowered = candidate_text.lower()
+        strong_tokens = [
+            ".pdf", ".xlsx", ".xls", ".csv", ".zip",
+            "/download", "/downloads", "/descarga", "/descargar",
+            "descargar", "descarga", "documento", "documentos",
+            "reporte", "reportes", "informe", "informes",
+            "archivo", "archivos", "boletin", "boletín",
+            "estadistica", "estadísticas", "memoria", "memorias", "ifd"
+        ]
+        weak_tokens = ["financiera", "financiero", "institucion", "institución"]
+
+        has_strong_signal = any(token in lowered for token in strong_tokens)
+        has_weak_signal = any(token in lowered for token in weak_tokens)
+
+        if network_urls:
+            has_network_document = any(
+                any(ext in str(item).lower() for ext in [".pdf", ".xlsx", ".xls", ".csv", ".zip"]) for item in network_urls
+            )
+            has_strong_signal = has_strong_signal or has_network_document
+
+        if has_strong_signal and not (has_weak_signal and not any(token in lowered for token in ["reporte", "reportes", "informe", "informes", "descargar", "documento", "documentos", "archivo", "archivos"])):
+            return True, 3.0
+
+        return has_strong_signal, 3.0 if has_strong_signal else 2.0
+
+    def validate_url_access(
+        self,
+        url: str,
+        browser_fallback: bool = False,
+        headless_fetcher: Optional[Any] = None,
+        force_browser_html: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Validate whether a URL is actually reachable and return an operational score cap."""
+        if not self.is_url_allowed_by_robots(url):
+            return {
+                "url": url,
+                "reachable_http": False,
+                "status_code": 403,
+                "error_type": "ROBOTS_BLOCKED",
+                "effective_score": 2.0,
+                "has_document_signal": False,
+            }
+
+        html_candidates: list[str] = []
+        browser_html: Optional[str] = force_browser_html
+
+        if browser_fallback and headless_fetcher is None:
+            headless_fetcher = HeadlessFetcher()
+
+        try:
+            ok, status, headers = self.fetch_head(url)
+            if ok:
+                html_candidates.append(("http", status, ""))
+                return {
+                    "url": url,
+                    "reachable_http": True,
+                    "status_code": status,
+                    "final_url": url,
+                    "error_type": None,
+                    "effective_score": 3.0 if self._detect_document_signal(self._last_http_text(url), url)[0] else 2.0,
+                    "has_document_signal": self._detect_document_signal(self._last_http_text(url), url)[0],
+                }
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            logger.warning("HEAD validation raised unexpected error for %s: %s", url, exc)
+
+        try:
+            ok, status, text = self.fetch_html(url)
+            if ok and text is not None:
+                has_document_signal, effective_score = self._detect_document_signal(text, url)
+                return {
+                    "url": url,
+                    "reachable_http": True,
+                    "status_code": status,
+                    "final_url": url,
+                    "error_type": None,
+                    "effective_score": effective_score,
+                    "has_document_signal": has_document_signal,
+                }
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            logger.warning("GET validation raised unexpected error for %s: %s", url, exc)
+
+        if force_browser_html is not None:
+            has_document_signal, effective_score = self._detect_document_signal(force_browser_html, url)
+            return {
+                "url": url,
+                "reachable_http": False,
+                "status_code": 0,
+                "final_url": url,
+                "error_type": "CONN_ERROR",
+                "effective_score": effective_score,
+                "has_document_signal": has_document_signal,
+                "browser_fallback_used": True,
+            }
+
+        if browser_fallback and headless_fetcher is not None:
+            try:
+                ok, status, result = headless_fetcher.fetch(url)
+                if ok and result is not None:
+                    browser_html = result.html
+                    has_document_signal, effective_score = self._detect_document_signal(browser_html, url, getattr(result, "network_urls", None))
+                    return {
+                        "url": url,
+                        "reachable_http": True,
+                        "status_code": status,
+                        "final_url": url,
+                        "error_type": None,
+                        "effective_score": effective_score,
+                        "has_document_signal": has_document_signal,
+                        "browser_fallback_used": True,
+                    }
+            except Exception as exc:  # pragma: no cover - defensive fallback
+                logger.warning("Browser fallback failed for %s: %s", url, exc)
+
+        return {
+            "url": url,
+            "reachable_http": False,
+            "status_code": 0,
+            "final_url": url,
+            "error_type": "CONN_ERROR",
+            "effective_score": 2.0,
+            "has_document_signal": False,
+        }
+
+    def _last_http_text(self, url: str) -> Optional[str]:
+        try:
+            _, _, text = self.fetch_html(url)
+            return text
+        except Exception:
+            return None
+
     def fetch_head(self, url: str) -> Tuple[bool, int, Dict[str, str]]:
         """Realiza solicitud HEAD para metadatos respetando robots.txt y rate limits."""
         if not self.is_url_allowed_by_robots(url):
@@ -112,9 +266,16 @@ class HttpFetcher:
                     time.sleep(retry_after)
                     continue
 
+                if response.status_code == 405:
+                    logger.info("HEAD no permitido en %s; fallback a GET.", url)
+                    return False, 405, dict(response.headers)
+
                 return (response.status_code == 200), response.status_code, dict(response.headers)
-            except Exception as e:
-                logger.warning(f"HEAD {url} intento {attempt}/{self.max_retries} falló: {e}")
+            except requests_exceptions.RequestException as e:
+                error_name = self._classify_request_error(e)
+                logger.warning(f"HEAD {url} intento {attempt}/{self.max_retries} falló: {error_name} ({e})")
+                if attempt == self.max_retries:
+                    raise
                 time.sleep(1.5 * attempt)
 
         return False, 0, {}
@@ -138,8 +299,11 @@ class HttpFetcher:
                 if response.status_code == 200:
                     return True, 200, response.text
                 return False, response.status_code, None
-            except Exception as e:
-                logger.warning(f"GET HTML {url} intento {attempt}/{self.max_retries} falló: {e}")
+            except requests_exceptions.RequestException as e:
+                error_name = self._classify_request_error(e)
+                logger.warning(f"GET HTML {url} intento {attempt}/{self.max_retries} falló: {error_name} ({e})")
+                if attempt == self.max_retries:
+                    return False, 0, None
                 time.sleep(1.5 * attempt)
 
         return False, 0, None
@@ -162,8 +326,11 @@ class HttpFetcher:
                 if response.status_code == 200:
                     return True, 200, response.content
                 return False, response.status_code, None
-            except Exception as e:
-                logger.warning(f"GET bytes {url} intento {attempt}/{self.max_retries} falló: {e}")
+            except requests_exceptions.RequestException as e:
+                error_name = self._classify_request_error(e)
+                logger.warning(f"GET bytes {url} intento {attempt}/{self.max_retries} falló: {error_name} ({e})")
+                if attempt == self.max_retries:
+                    return False, 0, None
                 time.sleep(1.5 * attempt)
 
         return False, 0, None

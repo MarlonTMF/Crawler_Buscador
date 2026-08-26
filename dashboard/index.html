@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataX - Crawler Operations Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">DX</div>
+          <div>
+            <h1>DataX</h1>
+            <small>Operations</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-panel="overview">Resumen</button>
+          <button class="nav-item" data-panel="records">Casos</button>
+          <button class="nav-item" data-panel="risks">Debilidades</button>
+        </nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Prospector Externo</p>
+            <h2>Dashboard de validación del crawler</h2>
+          </div>
+          <div class="topbar-actions">
+            <span id="lastUpdated" class="last-updated">Sin resultados aún</span>
+            <button id="refreshBtn" class="primary-btn">Actualizar</button>
+          </div>
+        </header>
+
+        <section id="overview" class="panel active">
+          <div class="kpis" id="kpis"></div>
+          <div class="split-grid">
+            <div class="card">
+              <h3>Distribución por score</h3>
+              <div id="scoreChart" class="chart"></div>
+              <div id="scoreDefinition" class="score-definition"></div>
+            </div>
+            <div class="card">
+              <h3>Estado general</h3>
+              <div id="statusCard" class="status-pill"></div>
+              <ul id="weaknessList" class="list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="records" class="panel">
+          <div class="card full-width">
+            <div class="section-header">
+              <h3>Casos evaluados</h3>
+              <input id="searchInput" type="text" placeholder="Buscar fuente o URL" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fuente</th>
+                    <th>URL</th>
+                    <th>Score</th>
+                    <th>HTTP</th>
+                    <th>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody id="recordsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="recordDetail" class="card detail-panel">
+            <h3>Detalle del score por URL</h3>
+            <div id="recordDetailContent">Seleccione una fila para ver el respaldo del score.</div>
+          </div>
+        </section>
+
+        <section id="risks" class="panel">
+          <div class="card full-width">
+            <h3>Observaciones clave</h3>
+            <div id="riskSummary" class="risk-summary"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
