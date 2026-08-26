@@ -154,6 +154,41 @@ def test_http_fetcher_validate_url_access_caps_connection_error(monkeypatch):
     assert result["reachable_http"] is False
 
 
+def test_http_fetcher_exposes_real_document_counts(monkeypatch):
+    fetcher = HttpFetcher()
+    monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)
+
+    class FakeResponse:
+        status_code = 200
+        text = (
+            "<html><body><a href='/docs/reporte-financiero.pdf'>reporte</a>"
+            "<a href='/docs/informe-anual.xlsx'>informe</a>"
+            "<h1>Reporte financiero mensual</h1>"
+            "<p>estadisticas activas del desarrollo</p></body></html>"
+        )
+        headers = {}
+        url = "https://example.com/page"
+        encoding = "utf-8"
+        apparent_encoding = "utf-8"
+        content = text.encode("utf-8")
+
+    def fake_head(url, timeout=None, allow_redirects=True):
+        raise requests.exceptions.ConnectionError("head failed")
+
+    def fake_get(url, timeout=None):
+        return FakeResponse()
+
+    monkeypatch.setattr(fetcher.session, "head", fake_head)
+    monkeypatch.setattr(fetcher.session, "get", fake_get)
+
+    result = fetcher.validate_url_access("https://example.com/page")
+
+    assert result["reachable_http"] is True
+    assert result["document_links_found"] >= 2
+    assert len(result["keyword_hits"]) >= 2
+    assert result["has_document_signal"] is True
+
+
 def test_http_fetcher_uses_get_fallback_when_head_fails(monkeypatch):
     fetcher = HttpFetcher()
     monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)

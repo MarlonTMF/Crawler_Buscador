@@ -24,6 +24,14 @@ def main() -> None:
         reachable = bool(result.get('reachable_http'))
         has_doc_signal = bool(result.get('has_document_signal'))
         robots_allowed = fetcher.is_url_allowed_by_robots(url)
+        doc_links = int(result.get('document_links_found') or 0)
+        keyword_hits = list(result.get('keyword_hits') or [])
+        document_evidence = result.get('document_evidence') or {
+            'keyword_hits': keyword_hits,
+            'file_type': None,
+            'quality_score': effective_score,
+            'snippet_text': '',
+        }
 
         if not reachable:
             diagnostics = ['sin enlace directo', 'fallo operativo']
@@ -45,8 +53,9 @@ def main() -> None:
             'Robots_Allowed': robots_allowed,
             'HTTP_Status': http_status,
             'Final_Url': result.get('final_url') or url,
-            'Doc_Links_Found_In_Seed': 1 if has_doc_signal else 0,
-            'Subpage_Keywords_Found': 1 if has_doc_signal else 0,
+            'Doc_Links_Found_In_Seed': doc_links,
+            'Subpage_Keywords_Found': len(keyword_hits),
+            'Document_Evidence': document_evidence,
             'Error_Detail': error_detail if error_detail else None,
         }
         records.append(record)

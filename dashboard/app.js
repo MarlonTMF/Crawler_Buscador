@@ -278,17 +278,17 @@ function showRecordEvidence(record) {
     detailHost.style.opacity = '1';
   }, 150);
 
-  const evidence = record.evidence || {
-    signals: [
-      'No hay evidencia derivada para esta fila.',
-      'El contenido no fue enriquecido en el dashboard.'
-    ],
-    document_evidence: { keyword_hits: [], snippet_text: '', quality_score: 0 }
-  };
+  // Normalize evidence coming from different export shapes:
+  // - record.evidence (server-side enrichment)
+  // - record.Document_Evidence (exported by rebuild script)
+  // - record.document_evidence (alternate key)
+  const evidenceFromRecord = record.evidence || {};
+  const legacyDocEvidence = record.Document_Evidence || record.document_evidence || evidenceFromRecord.document_evidence || {};
+  const evidenceSignals = (evidenceFromRecord.signals || record.signals || []);
 
   const rawScore = Number(record.Score_Excel || 0);
-  const effectiveScore = Number(evidence.score || 0);
-  const documentEvidence = evidence.document_evidence || { keyword_hits: [], snippet_text: '', quality_score: 0 };
+  const effectiveScore = Number(evidenceFromRecord.score || legacyDocEvidence.quality_score || 0);
+  const documentEvidence = legacyDocEvidence || { keyword_hits: [], snippet_text: '', quality_score: 0, file_type: null };
   const capped = rawScore > effectiveScore && effectiveScore <= 2.0;
   const diagnostics = Array.isArray(record.Diagnosticos_Excel) ? record.Diagnosticos_Excel : [];
   const scoreReasons = buildScoreReason(record, rawScore, effectiveScore);
@@ -381,7 +381,7 @@ function showRecordEvidence(record) {
     <div class="detail-box">
       <strong>Prueba de respaldo del score</strong>
       <ul class="evidence-list">
-        ${evidence.signals.map((signal) => `<li>${signal}</li>`).join('') || '<li>Sin señales registradas.</li>'}
+        ${(evidenceSignals && evidenceSignals.length) ? evidenceSignals.map((signal) => `<li>${signal}</li>`).join('') : '<li>Sin señales registradas.</li>'}
       </ul>
     </div>
   `;

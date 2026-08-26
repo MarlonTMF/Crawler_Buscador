@@ -11,6 +11,7 @@ Soporta:
 
 import time
 import logging
+import re
 from typing import Optional, Dict, Any, Tuple
 from urllib.parse import urlparse, urljoin
 from urllib.robotparser import RobotFileParser
@@ -116,9 +117,9 @@ class HttpFetcher:
         return "CONN_ERROR"
 
     @staticmethod
-    def _detect_document_signal(html: Optional[str], url: str, network_urls: Optional[list[str]] = None) -> Tuple[bool, float]:
+    def _extract_document_counts(html: Optional[str], url: str, network_urls: Optional[list[str]] = None) -> Tuple[bool, float, int, list[str]]:
         if not html:
-            return False, 0.0
+            return False, 0.0, 0, []
 
         candidate_text = f"{html} {url}"
         lowered = candidate_text.lower()
@@ -132,19 +133,40 @@ class HttpFetcher:
         ]
         weak_tokens = ["financiera", "financiero", "institucion", "institución"]
 
-        has_strong_signal = any(token in lowered for token in strong_tokens)
+        url_matches = set()
+        for match in re.findall(r'href=["\']([^"\']+)["\']|src=["\']([^"\']+)["\']', html, re.IGNORECASE):
+            for item in match:
+                if item:
+                    url_matches.add(item)
+        for item in network_urls or []:
+            url_matches.add(str(item))
+
+        doc_links = 0
+        for link in url_matches:
+            lower_link = link.lower()
+            if any(ext in lower_link for ext in [".pdf", ".xlsx", ".xls", ".csv", ".zip"]) or any(token in lower_link for token in ["/download", "/downloads", "/descarga", "/descargar", "reporte", "informe", "archivo", "documento"]):
+                doc_links += 1
+
+        keyword_hits: list[str] = []
+        for token in [
+            "reporte", "informe", "financiero", "estadistica", "documento", "archivo",
+            "desarrollo", "activo", "mensual", "anual", "trimestral"
+        ]:
+            if token in lowered and token not in keyword_hits:
+                keyword_hits.append(token)
+
+        has_strong_signal = any(token in lowered for token in strong_tokens) or doc_links > 0 or bool(keyword_hits)
         has_weak_signal = any(token in lowered for token in weak_tokens)
 
-        if network_urls:
-            has_network_document = any(
-                any(ext in str(item).lower() for ext in [".pdf", ".xlsx", ".xls", ".csv", ".zip"]) for item in network_urls
-            )
-            has_strong_signal = has_strong_signal or has_network_document
-
         if has_strong_signal and not (has_weak_signal and not any(token in lowered for token in ["reporte", "reportes", "informe", "informes", "descargar", "documento", "documentos", "archivo", "archivos"])):
-            return True, 3.0
+            return True, 3.0, doc_links, keyword_hits
 
-        return has_strong_signal, 3.0 if has_strong_signal else 2.0
+        return bool(has_strong_signal), 3.0 if has_strong_signal else 2.0, doc_links, keyword_hits
+
+    @staticmethod
+    def _detect_document_signal(html: Optional[str], url: str, network_urls: Optional[list[str]] = None) -> Tuple[bool, float]:
+        has_signal, score, _, _ = HttpFetcher._extract_document_counts(html, url, network_urls)
+        return has_signal, score
 
     def validate_url_access(
         self,
@@ -174,22 +196,8 @@ class HttpFetcher:
             ok, status, headers = self.fetch_head(url)
             if ok:
                 html_candidates.append(("http", status, ""))
-                return {
-                    "url": url,
-                    "reachable_http": True,
-                    "status_code": status,
-                    "final_url": url,
-                    "error_type": None,
-                    "effective_score": 3.0 if self._detect_document_signal(self._last_http_text(url), url)[0] else 2.0,
-                    "has_document_signal": self._detect_document_signal(self._last_http_text(url), url)[0],
-                }
-        except Exception as exc:  # pragma: no cover - defensive fallback
-            logger.warning("HEAD validation raised unexpected error for %s: %s", url, exc)
-
-        try:
-            ok, status, text = self.fetch_html(url)
-            if ok and text is not None:
-                has_document_signal, effective_score = self._detect_document_signal(text, url)
+                page_html = self._last_http_text(url)
+                has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(page_html, url)
                 return {
                     "url": url,
                     "reachable_http": True,
@@ -198,12 +206,44 @@ class HttpFetcher:
                     "error_type": None,
                     "effective_score": effective_score,
                     "has_document_signal": has_document_signal,
+                    "document_links_found": doc_links,
+                    "keyword_hits": keyword_hits,
+                    "document_evidence": {
+                        "keyword_hits": keyword_hits,
+                        "file_type": None,
+                        "quality_score": effective_score,
+                        "snippet_text": (page_html or "")[:180],
+                    },
+                }
+        except Exception as exc:  # pragma: no cover - defensive fallback
+            logger.warning("HEAD validation raised unexpected error for %s: %s", url, exc)
+
+        try:
+            ok, status, text = self.fetch_html(url)
+            if ok and text is not None:
+                has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(text, url)
+                return {
+                    "url": url,
+                    "reachable_http": True,
+                    "status_code": status,
+                    "final_url": url,
+                    "error_type": None,
+                    "effective_score": effective_score,
+                    "has_document_signal": has_document_signal,
+                    "document_links_found": doc_links,
+                    "keyword_hits": keyword_hits,
+                    "document_evidence": {
+                        "keyword_hits": keyword_hits,
+                        "file_type": None,
+                        "quality_score": effective_score,
+                        "snippet_text": text[:180],
+                    },
                 }
         except Exception as exc:  # pragma: no cover - defensive fallback
             logger.warning("GET validation raised unexpected error for %s: %s", url, exc)
 
         if force_browser_html is not None:
-            has_document_signal, effective_score = self._detect_document_signal(force_browser_html, url)
+            has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(force_browser_html, url)
             return {
                 "url": url,
                 "reachable_http": False,
@@ -212,6 +252,8 @@ class HttpFetcher:
                 "error_type": "CONN_ERROR",
                 "effective_score": effective_score,
                 "has_document_signal": has_document_signal,
+                "document_links_found": doc_links,
+                "keyword_hits": keyword_hits,
                 "browser_fallback_used": True,
             }
 
@@ -220,7 +262,7 @@ class HttpFetcher:
                 ok, status, result = headless_fetcher.fetch(url)
                 if ok and result is not None:
                     browser_html = result.html
-                    has_document_signal, effective_score = self._detect_document_signal(browser_html, url, getattr(result, "network_urls", None))
+                    has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(browser_html, url, getattr(result, "network_urls", None))
                     return {
                         "url": url,
                         "reachable_http": True,
@@ -229,6 +271,14 @@ class HttpFetcher:
                         "error_type": None,
                         "effective_score": effective_score,
                         "has_document_signal": has_document_signal,
+                        "document_links_found": doc_links,
+                        "keyword_hits": keyword_hits,
+                        "document_evidence": {
+                            "keyword_hits": keyword_hits,
+                            "file_type": None,
+                            "quality_score": effective_score,
+                            "snippet_text": browser_html[:180],
+                        },
                         "browser_fallback_used": True,
                     }
             except Exception as exc:  # pragma: no cover - defensive fallback
@@ -242,6 +292,8 @@ class HttpFetcher:
             "error_type": "CONN_ERROR",
             "effective_score": 2.0,
             "has_document_signal": False,
+            "document_links_found": 0,
+            "keyword_hits": [],
         }
 
     def _last_http_text(self, url: str) -> Optional[str]:
