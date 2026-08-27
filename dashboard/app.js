@@ -141,7 +141,7 @@ function renderRecords(records) {
     const mapLabel = mapStatus === 'accepted' ? 'Aceptado' : (mapStatus === 'rejected' ? 'Rechazado' : (mapStatus === 'pending' ? 'Pendiente' : ''));
 
     return `
-      <tr data-url="${rowUrl.replace(/"/g, '&quot;')}" class="${isSelected ? 'row-selected' : ''}" style="cursor:pointer;">
+      <tr data-url="${rowUrl.replace(/"/g, '&quot;')}" data-original="${(row.Url_Original||row.url||'').replace(/"/g, '&quot;')}" data-mapping-resolved="${(row.mapping_resolved||row.resolved_from_variant||row.Final_Url||'').replace(/"/g, '&quot;')}" class="${isSelected ? 'row-selected' : ''}" style="cursor:pointer;">
         <td>${row.Fuente || '-'}</td>
         <td><a href="${rowUrl || '#'}" target="_blank" rel="noreferrer">${rowUrl || '-'}</a></td>
         <td>${row.mapping_resolved || row.resolved_from_variant || row.Final_Url || '-'}</td>
@@ -161,6 +161,35 @@ function renderRecords(records) {
   const newTableBody = document.getElementById('recordsTable');
 
   newTableBody.addEventListener('click', (ev) => {
+    // If click inside mapping-cell, handle accept/reject directly
+    const mappingCell = ev.target.closest('.mapping-cell');
+    if (mappingCell) {
+      ev.stopPropagation();
+      const trMap = mappingCell.closest('tr[data-url]');
+      if (!trMap) return;
+      const status = mappingCell.getAttribute('data-status');
+      if (status !== 'pending') {
+        // only allow action on pending mappings
+        return;
+      }
+      const original = trMap.getAttribute('data-original');
+      const resolved = trMap.getAttribute('data-mapping-resolved');
+      const accept = confirm('¿Aceptar mapeo para esta fila? (Aceptar = aceptar, Cancelar = rechazar)');
+      const action = accept ? 'accept' : 'reject';
+      fetch(`/api/mapping/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ original: original, resolved: resolved })
+      }).then((res) => {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        loadSummary();
+      }).catch((err) => {
+        console.error('Mapping action error', err);
+        alert('No se pudo ejecutar la acción de mapeo. Ver consola.');
+      });
+      return;
+    }
+
     const tr = ev.target.closest('tr[data-url]');
     if (!tr) return;
     // immediate visual feedback
