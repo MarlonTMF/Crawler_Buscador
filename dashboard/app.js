@@ -136,10 +136,16 @@ function renderRecords(records) {
     const rowUrl = row.Url_Original || row.url || '';
     const isSelected = selectedUrl && rowUrl === selectedUrl;
 
+    const mapStatus = row.mapping_status || 'none';
+    const statusIcon = mapStatus === 'accepted' ? '✔' : (mapStatus === 'rejected' ? '✖' : (mapStatus === 'pending' ? '◌' : ''));
+    const mapLabel = mapStatus === 'accepted' ? 'Aceptado' : (mapStatus === 'rejected' ? 'Rechazado' : (mapStatus === 'pending' ? 'Pendiente' : ''));
+
     return `
       <tr data-url="${rowUrl.replace(/"/g, '&quot;')}" class="${isSelected ? 'row-selected' : ''}" style="cursor:pointer;">
         <td>${row.Fuente || '-'}</td>
         <td><a href="${rowUrl || '#'}" target="_blank" rel="noreferrer">${rowUrl || '-'}</a></td>
+        <td>${row.mapping_resolved || row.resolved_from_variant || row.Final_Url || '-'}</td>
+        <td class="mapping-cell" data-status="${mapStatus}"><span title="${mapLabel}">${statusIcon}</span></td>
         <td>${formatScore(score)}</td>
         <td>${row.HTTP_Status || '-'}</td>
         <td><span class="badge ${badge}">${label}</span></td>
@@ -147,16 +153,39 @@ function renderRecords(records) {
     `;
   }).join('') || '<tr><td colspan="5">No se encontraron registros.</td></tr>';
 
-  recordsTable.querySelectorAll('tr[data-url]').forEach((rowEl) => {
-    rowEl.addEventListener('click', () => {
-      const url = rowEl.getAttribute('data-url');
-      selectedUrl = url || null;
-      const selected = records.find((item) => {
-        const candidate = item.Url_Original || item.url || '';
-        return candidate === url;
-      });
-      showRecordEvidence(selected || null);
+  // Use event delegation on tbody for reliable, immediate selection
+  recordsTable.querySelectorAll('tr[data-url]').forEach((el) => el.setAttribute('tabindex', '0'));
+
+  // remove any existing delegated handlers to avoid duplicates
+  recordsTable.replaceWith(recordsTable.cloneNode(true));
+  const newTableBody = document.getElementById('recordsTable');
+
+  newTableBody.addEventListener('click', (ev) => {
+    const tr = ev.target.closest('tr[data-url]');
+    if (!tr) return;
+    // immediate visual feedback
+    newTableBody.querySelectorAll('tr.row-selected').forEach((el) => el.classList.remove('row-selected'));
+    tr.classList.add('row-selected');
+    // ensure the clicked row is visible
+    try { tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
+
+    const url = tr.getAttribute('data-url');
+    selectedUrl = url || null;
+    const selected = records.find((item) => {
+      const candidate = item.Url_Original || item.url || '';
+      return candidate === url;
     });
+    showRecordEvidence(selected || null);
+  });
+
+  // keyboard interaction: Enter/Space on focused row
+  newTableBody.addEventListener('keydown', (ev) => {
+    const tr = ev.target.closest && ev.target.closest('tr[data-url]');
+    if (!tr) return;
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault();
+      tr.click();
+    }
   });
 
   const activeRecord = filtered.find((row) => {
@@ -334,6 +363,27 @@ function showRecordEvidence(record) {
       </div>
     </div>
 
+    <!-- Resolved URL / mapping controls -->
+    <div class="detail-grid">
+      <div class="detail-box detail-box-wide">
+          <strong>Resolved URL</strong>
+          ${record.mapping_resolved || record.resolved_from_variant || record.Final_Url || '-'}
+        </div>
+      <div class="detail-box">
+          ${record.mapping_resolved ? `
+            <strong>Mapeo automático</strong>
+            <div>Detectado desde: ${record.original_url || record.mapped_from || record.Url_Original || '-'}</div>
+            <div style="margin-top:8px;">
+              <input id="resolvedInput" type="text" value="${(record.mapping_resolved || record.Final_Url || '').replace(/"/g, '&quot;')}" style="width:100%; margin-bottom:6px;" />
+              <div>
+                <button id="acceptMapping" class="primary-btn small">Aceptar mapeo</button>
+                <button id="rejectMapping" class="secondary-btn small">Rechazar mapeo</button>
+              </div>
+            </div>
+          ` : ''}
+      </div>
+    </div>
+
     <div class="detail-box">
       <strong>Estado del score</strong>
       <div>${defendabilityText}</div>
@@ -385,6 +435,35 @@ function showRecordEvidence(record) {
       </ul>
     </div>
   `;
+
+  // Attach mapping accept/reject handlers if present
+  const acceptBtn = document.getElementById('acceptMapping');
+  const rejectBtn = document.getElementById('rejectMapping');
+  if (acceptBtn || rejectBtn) {
+    const original = record.original_url || record.mapped_from || record.Url_Original || record.Url_Original;
+    const resolved = record.final_url || record.Final_Url || record.resolved_from_variant || record.Final_Url;
+
+    async function postAction(action) {
+      try {
+        const input = document.getElementById('resolvedInput');
+        const resolvedValue = input ? input.value.trim() : resolved;
+        const res = await fetch(`/api/mapping/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ original: original, resolved: resolvedValue })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // reload summary to reflect mapping decision
+        await loadSummary();
+      } catch (err) {
+        console.error('Mapping action failed', err);
+        alert('No se pudo registrar la decisión de mapeo. Revisa la consola.');
+      }
+    }
+
+    if (acceptBtn) acceptBtn.addEventListener('click', () => postAction('accept'));
+    if (rejectBtn) rejectBtn.addEventListener('click', () => postAction('reject'));
+  }
 }
 
 searchInput.addEventListener('input', () => {

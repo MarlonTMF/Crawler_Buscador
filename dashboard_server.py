@@ -31,7 +31,38 @@ def _read_records_for_summary() -> dict:
             baseline_rows = 0
 
     summary = build_validation_summary(records, baseline_rows=baseline_rows)
-    summary["records"] = [{**record, "evidence": build_record_evidence(record)} for record in records]
+
+    # load persisted moved-url mappings and annotate records with mapping state
+    mappings_path = ROOT / 'config' / 'moved_urls.json'
+    mappings = []
+    if mappings_path.exists():
+        try:
+            mappings = json.loads(mappings_path.read_text(encoding='utf-8'))
+        except Exception:
+            mappings = []
+
+    annotated = []
+    for record in records:
+        rec = {**record, "evidence": build_record_evidence(record)}
+        original = record.get('Url_Original') or record.get('original') or record.get('url')
+        matched = None
+        for m in mappings:
+            if not m:
+                continue
+            if m.get('original') and original and m.get('original') == original:
+                matched = m
+        if matched:
+            status = 'pending'
+            if 'accepted' in matched:
+                status = 'accepted' if matched.get('accepted') else 'rejected'
+            rec['mapping_status'] = status
+            rec['mapping_resolved'] = matched.get('resolved')
+            rec['mapping_entry'] = matched
+        else:
+            rec['mapping_status'] = 'none'
+        annotated.append(rec)
+
+    summary["records"] = annotated
     return summary
 
 
@@ -57,6 +88,64 @@ class DashboardHandler(SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         # avoid noisy logs in terminal
         return
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        if parsed.path.startswith('/api/mapping/'):
+            action = parsed.path.rsplit('/', 1)[-1]
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            try:
+                payload = json.loads(body.decode('utf-8') or '{}')
+            except Exception:
+                payload = {}
+
+            original = payload.get('original')
+            resolved = payload.get('resolved')
+
+            cfg_path = ROOT / 'config' / 'moved_urls.json'
+            data = []
+            if cfg_path.exists():
+                try:
+                    data = json.loads(cfg_path.read_text(encoding='utf-8'))
+                except Exception:
+                    data = []
+
+            found = False
+            for entry in data:
+                if entry.get('original') == original and entry.get('resolved') == resolved:
+                    entry['accepted'] = True if action == 'accept' else False
+                    entry['accepted_at'] = json.dumps({'ts': None})
+                    found = True
+                    break
+
+            if not found:
+                entry = {
+                    'original': original,
+                    'resolved': resolved,
+                    'confidence': 0.8,
+                    'timestamp': None,
+                    'accepted': True if action == 'accept' else False,
+                }
+                data.append(entry)
+
+            try:
+                cfg_path.parent.mkdir(parents=True, exist_ok=True)
+                cfg_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+            except Exception:
+                pass
+
+            resp = json.dumps({'status': 'ok', 'action': action, 'original': original, 'resolved': resolved}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
+        # fallback: unhandled POST
+        self.send_response(404)
+        self.end_headers()
 
 
 if __name__ == "__main__":
