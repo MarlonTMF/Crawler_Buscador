@@ -1,241 +1,161 @@
-# Prospector Externo Multi-Fuente (`crawler_finrural`)
+# Prospector de Datos Web Multi-Fuente (DataX - Equipo 1)
 
-> **Subsistema responsable:** Equipo 1 — Extracción externa de fuentes  
-> **Fuentes integradas:** FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/)) & Bolsa Boliviana de Valores BBV ([bbv.com.bo](https://www.bbv.com.bo/))  
-> **Versión:** 1.1.0 (Con soporte de descompresión automática de paquetes `.zip`, `.tar`, `.tgz`)
+**Prospector de Datos Web** es una plataforma automatizada, resiliente y modular diseñada para el descubrimiento, extracción, auditoría y catalogación de recursos públicos documentales y estadísticos (PDFs, Excels, Archivos Comprimidos) desde portales institucionales y financieros.
 
----
-
-## 1. Descripción del Proyecto
-
-`crawler_finrural` es la plataforma automatizada, profesional y modular de prospección externa desarrollada por el Equipo 1 de DataX Bolivia. A diferencia de prototipos monolíticos como `example_bcb_crawler`, este sistema implementa una arquitectura basada en **Núcleo Genérico + Adaptadores Declarativos por Fuente (Dataset-First)**.
-
-Mapea de forma dinámica las publicaciones de múltiples entidades financieras (como **FINRURAL** y la **Bolsa Boliviana de Valores BBV**), identifica series periódicas (reportes financieros, memorias anuales, boletines), **descomprime automáticamente en memoria contenedores `.zip` / `.tar` para extraer sus documentos internos**, extrae fechas de vigencia mediante una estrategia en 4 capas, calcula huellas digitales SHA-256, deduplica recursos y exporta simultáneamente tres contratos JSON independientes para producción, visualización y modelos de IA.
+A diferencia de un scraper monolítico, este sistema implementa un **Núcleo de Descubrimiento Multipropósito** con **Adaptadores Declarativos por Fuente**, y mecanismos avanzados de contingencia para la búsqueda profunda de URLs, garantizando la recuperación de datos incluso ante arquitecturas web adversas, recursos descontinuados, o enlaces caídos.
 
 ---
 
-## 2. Diagrama de Arquitectura y Pipeline
+## 🌟 Características Principales
 
-```mermaid
-flowchart TD
-    A[Inicio: CLI main.py] --> B[Cargar Configuración YAML: source_finrural.yaml / source_bbv.yaml]
-    B --> C[SourceAdapter: FinruralAdapter / BbvAdapter]
-    C --> D[CrawlOrchestrator: Inicializar Pipeline]
-    
-    D --> E[DiscoveryEngine: Escanear Semillas]
-    E --> F{Respetar robots.txt & Rate Limits?}
-    F -- No --> G[Ignorar URL / Abortar]
-    F -- Sí --> H[Extraer enlaces .pdf, .xlsx, .csv, .zip, .tar]
-    
-    H --> I{¿Es un archivo comprimido .zip / .tar?}
-    I -- Sí --> J[ArchiveExtractor: Descargar y descomprimir en memoria]
-    J --> K[Obtener lista de archivos internos .pdf, .xlsx, .csv]
-    
-    I -- No --> L[Procesar archivo descargable directo]
-    K & L --> M[MetadataExtractor: Jerarquía de Fechas en 4 Capas]
-    
-    M --> N[Capa 1: URL Pattern / Inner Filename regex]
-    N -->|Falló| O[Capa 2: DOM Context Text]
-    O -->|Falló| P[Capa 3: HTTP Header Last-Modified]
-    P -->|Falló| Q[Capa 4: PDF Content Fallback]
-    
-    N & O & P & Q --> R[Canonicalizer: Limpiar ?x16877 & Generar resource_key estable]
-    R --> S[Deduplicación por resource_key & Hash SHA-256]
-    S --> T[AIContextReducer: Filtrar Boilerplate & Generar content_signature]
-    
-    T --> U[MultiFormatExporter]
-    U --> V[mapa_*.json: Contrato Oficial JSON Schema v1.0.0]
-    U --> W[mapa_*_tree.json: Vista Jerárquica 5 Niveles tipo BCB]
-    U --> X[mapa_*_compact.json: Vista Reducida para Modelos IA]
-```
+### 1. Arquitectura Dataset-First y Adaptadores Declarativos
+El núcleo (`core`) es 100% reutilizable. Las reglas de negocio, palabras clave y exclusiones de cada fuente se configuran de manera declarativa en YAML (ej. `config/source_finrural.yaml`, `config/source_bbv.yaml`). El sistema clasifica automáticamente los enlaces encontrados en **Datasets** lógicos (ej. *Reportes Financieros*, *Memorias Anuales*, *Estadísticas Bursátiles*).
 
----
+### 2. Motores Avanzados de Búsqueda y Descubrimiento de URLs
+El sistema implementa múltiples estrategias (activas y pasivas) para buscar listas de URL y recursos más allá del rastreo convencional (Crawling BFS/DFS):
 
-## 3. Principios de Diseño y ADRs
+* **Sitemap Discovery (`smart_robots.py`):** Detección e ingesta automática de sitemaps XML declarados en `robots.txt` o en rutas estándar.
+* **Enumeración de Subdominios (`subdomain_finder.py`):** Integración con Certificate Transparency (`crt.sh`) para descubrir subdominios ocultos asociados a la entidad.
+* **Search Dorking Programático (`search_dorker.py`):** Automatización de búsquedas avanzadas en Bing Search o Google Custom Search (ej. `site:dominio.com filetype:pdf "reporte"`).
+* **Motor Wayback (`wayback_engine.py`):** Consulta a la API CDX de Web Archive para descubrir URLs históricas y recuperar archivos eliminados o movidos en el dominio.
 
-### 3.1 Modelo de Dominio Dataset-First (ADR-001)
-En lugar de recorrer recursivamente todo el sitio web, el dominio se organiza en:
+### 3. Contingencia y Resiliencia Activa (`contingency_engine.py`)
+Si el sistema detecta que un recurso ha sido movido o presenta errores (404, 403, timeout), activa automáticamente protocolos de contingencia:
+* **Resolución de Variantes de URL:** Prueba variaciones de protocolo (HTTP/HTTPS), subdominios `www.`, rutas y extensiones territoriales (ej. `.org` a `.org.bo`).
+* **Fallback a Wayback Machine:** Si la fuente primaria falla por completo, descarga el recurso directamente desde la última instantánea disponible en *archive.org*.
 
-```text
-Source (FINRURAL / BBV / ASFI)
- └── Datasets (Reporte Financiero Mensual, Memorias Anuales, Estadísticas)
-      └── Resources (financiera_01_2026.pdf, Memoria-2024.pdf)
-           └── Observations (Metadatos: fecha de corte, SHA-256, tamaño, evidencia)
-```
+### 4. Cliente HTTP Ético e Híbrido (`fetcher.py`)
+* **Respeto a `robots.txt`:** Verificación estricta de políticas.
+* **Control de Frecuencia (Rate-Limit):** Manejo de errores HTTP 429 y retrasos (backoff) exponenciales.
+* **Fallback a Navegador (Headless Playwright):** Permite renderizado de páginas SPA (React/Vue/Angular) u ofuscadas si la petición HTTP tradicional no encuentra enlaces documentales.
 
-### 3.2 Núcleo Genérico + Adaptadores Declarativos (ADR-002)
-El código central es 100% reutilizable. Lo específico de cada fuente vive en un archivo YAML (`config/source_*.yaml`) y su adaptador Python (`FinruralAdapter`, `BbvAdapter`).
+### 5. Descompresión Automática en Memoria (`archive_extractor.py`)
+Descarga contenedores comprimidos (`.zip`, `.tar`, `.tgz`, `.bz2`) directamente en memoria, filtrando y extrayendo de forma transparente los documentos internos relevantes (`.pdf`, `.xlsx`, `.csv`) asignándoles metadatos independientes y trazabilidad del contenedor origen.
 
-### 3.3 Estrategia de Extracción de Vigencia en 4 Capas (ADR-003)
-1. **Capa 1 (URL Pattern):** Regex de patrón en el nombre del archivo (`financiera_05_2025.pdf` ➔ `2025-05-31`, confianza `high`).
-2. **Capa 2 (DOM Context):** Búsqueda de meses en español y años en el texto ancla o contenedores HTML adyacentes (`medium`).
-3. **Capa 3 (HTTP Metadata):** Headers HTTP `Last-Modified` via solicitudes `HEAD` (`low`).
-4. **Capa 4 (PDF Content Fallback):** Parsing del contenido interno del archivo en caso de ambigüedad.
+### 6. Extracción de Vigencia en 4 Capas (`extractor.py`)
+Jerarquía de bajo costo a alto costo para determinar la vigencia de un documento:
+1. **URL Pattern:** Regex sobre nombres de archivo (ej. `financiera_05_2025.pdf`).
+2. **DOM Context:** Análisis de texto adyacente (nodos padre, texto ancla).
+3. **HTTP Metadata:** Evaluación de `Last-Modified` vía `HEAD`.
+4. **Fallback Hash/Content:** (Opcional) Análisis de contenido directo.
 
-### 3.4 Identidad Estable del Recurso (`resource_key`) (ADR-005)
-Cada recurso genera una clave estable independiente de la URL (ej. `finrural:reporte_financiero_mensual:2026-01:pdf`).
+### 7. Panel de Diagnóstico y Auditoría Local (`dashboard_server.py`)
+Incluye una interfaz web local para monitorear ejecuciones, evaluar puntajes de calidad (0.0 a 4.0), visualizar causas de fallos ("Diagnósticos Excel"), y aprobar manualmente mapeos de contingencia o redirecciones.
+Base de datos SQLite integrada (`control_db.py`) para historial de estado por recurso (PENDIENTE, PROCESADO, ERROR, RECUPERADO).
 
-### 3.5 Capa de Reducción Semántica para IA (ADR-004)
-Filtra el ruido de navegación HTML y genera una `content_signature` para evitar reprocesar contenido equivalente en llamadas a modelos de IA downstream.
-
-### 3.6 Descompresión Automática de Paquetes en Memoria (ADR-007 — Nuevo)
-Cuando el prospector descubre un enlace a un archivo comprimido (`.zip`, `.tar`, `.tar.gz`, `.tgz`), el módulo `ArchiveExtractor` lo descarga en memoria, inspecciona su estructura interna y extrae de forma transparente todos los documentos válidos (`.pdf`, `.xlsx`, `.csv`), asignándoles metadatos individuales, SHA-256 y trazabilidad al contenedor de origen (`metadata.extracted_from_archive`).
+### 8. Exportación Estandarizada
+Exporta catálogos JSON listos para ingestión humana o IA:
+- **Estandarizado (`mapa_*.json`):** Contrato principal detallado.
+- **Árbol Jerárquico (`mapa_*_tree.json`):** Formato agrupado por gestión y niveles compatibles con el BCB.
+- **Compacto para IA (`mapa_*_compact.json`):** Vista reducida semánticamente generada por `reducer.py`.
 
 ---
 
-## 4. Ejemplos de Fuentes Integradas
-
-### 4.1 Fuente 1: FINRURAL ([finrural.org.bo](https://www.finrural.org.bo/))
-```bash
-python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/
-```
-
-### 4.2 Fuente 2: Bolsa Boliviana de Valores BBV ([bbv.com.bo](https://www.bbv.com.bo/))
-```bash
-python3 -m crawler.main --config config/source_bbv.yaml --output-dir output/
-```
-
----
-
-## 4.3 Opciones opt-in (Wayback, Subdomain, Async Fetcher)
-
-El proyecto soporta varias ampliaciones opt-in que se activan desde el archivo de configuración YAML de la fuente. Estas opciones están deshabilitadas por defecto para mantener un comportamiento conservador y ético.
-
-- `use_wayback`: consulta el índice Wayback CDX para descubrir URL históricas relacionadas con la fuente (útil para reconstruir archivos borrados o versiones antiguas). Valor: `true|false`.
-- `use_subdomain_enumeration`: consulta Certificate Transparency (`crt.sh`) para descubrir subdominios que puedan contener recursos relevantes. Valor: `true|false`.
-- `use_async_fetcher`: habilita el `AsyncFetcher` basado en `httpx` (con wrappers sync para compatibilidad), útil para acelerar descargas en fuentes que lo permitan. Valor: `true|false`.
-
-Ejemplo mínimo de `config/source_finrural.yaml` con opciones opt-in:
-
-```yaml
-source:
-    id: finrural
-    base_url: https://www.finrural.org.bo
-    use_wayback: true
-    use_subdomain_enumeration: false
-    use_async_fetcher: true
-    # otros parámetros habituales del adaptador...
-```
-
-Ejecutar con opciones activadas (comando CLI):
-
-```bash
-python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/ --verbose
-```
-
-Notas de uso y ética:
-
-- Cuando `use_wayback` o `use_subdomain_enumeration` están activos, el motor de descubrimiento puede generar más seeds y dominios a investigar: revisa `output/` antes de escalar.
-- Respeta robots.txt y límites de tasa; estas integraciones respetan las mismas políticas del `CrawlOrchestrator`.
-- `use_async_fetcher` acelera I/O pero no cambia la lógica de deduplicación ni la extracción de metadatos.
-
-
-## 5. Alcance, Capacidades y Limitaciones Técnicas
-
-### 5.1 ¿En qué casos funciona EXCELENTE? (Alcance Operativo)
-* **Portales Web Públicos Estructurados:** Sitios de entidades financieras, reguladores y bolsas (WordPress, Drupal, Joomla, HTML estático/SSR).
-* **Enlaces a Archivos Directos y Comprimidos:** Procesa hipervínculos a `.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip`, `.tar` de forma transparente.
-* **Publicaciones Periódicas con Naming Predecible:** Documentos organizados por año, mes o boletines donde la fecha es inferible.
-* **Servidores con Headers HTTP Estándar:** Servidores que responden a peticiones `HEAD` y `GET` binarias.
-
-### 5.2 ¿En qué casos NO funciona directamente? (Limitaciones del Crawler HTTP)
-* **Aplicaciones Single Page (SPA) en React/Vue/Angular sin SSR:** Páginas que no exponen elementos `<a>` en el HTML inicial.
-* **Sistemas con CAPTCHA Activo o WAF Interactivo:** Sitios protegidos por Cloudflare (JS Challenge / Turnstile) o CAPTCHAs.
-* **Áreas Protegidas tras Autenticación Obligatoria:** Secciones que requieren inicio de sesión con usuario/contraseña o OAuth2.
-* **Formularios de Consulta Dinámica POST (ej. ASP.NET ViewState):** Páginas donde la descarga exige enviar un formulario `POST`.
-* **Archivos PDF Escaneados sin Capa de Texto (Imágenes):** PDFs generados a partir de escaneos físicos de papel sin OCR.
-
----
-
-## 6. Estructura del Repositorio
+## 🏗️ Estructura del Proyecto
 
 ```text
 crawler_finrural/
 ├── config/
-│   ├── source_finrural.yaml       # Configuración declarativa de FINRURAL
-│   └── source_bbv.yaml            # Configuración declarativa de la Bolsa de Valores BBV
-├── schemas/
-│   └── source-map.schema.json     # JSON Schema borrador 2020-12
+│   ├── source_finrural.yaml       # Configuración para FINRURAL
+│   ├── source_bbv.yaml            # Configuración para Bolsa Boliviana de Valores
+│   └── moved_urls.json            # Historial persistente de mapeos/redirecciones
+├── dashboard/                     # Archivos estáticos de la interfaz web de auditoría
+├── scripts/                       # Scripts auxiliares (check_urls.py, etc.)
 ├── src/
 │   └── crawler/
-│       ├── core/
-│       │   ├── models.py          # Modelos de dominio Pydantic v2
-│       │   ├── fetcher.py         # Cliente HTTP ético con robots.txt, rate-limit y fetch_bytes
-│       │   ├── discovery.py       # Descubrimiento enfocado en datasets
-│       │   ├── extractor.py       # Extractor de vigencia en 4 capas y metadatos
-│       │   ├── archive_extractor.py# Descompresión y extracción de archivos .zip/.tar en memoria
-│       │   ├── canonicalizer.py   # Canonicalización de URLs y resource_key
-│       │   ├── reducer.py         # Reducción semántica para consumo por IA
-│       │   ├── exporter.py        # Exporter multi-formato (Standard, Tree, Compact)
-│       │   └── orchestrator.py    # Orquestador del pipeline end-to-end
-│       ├── sources/
-│       │   ├── base_adapter.py    # Interfaz abstracta para adaptadores
-│       │   ├── finrural_adapter.py# Adaptador declarativo para FINRURAL
-│       │   └── bbv_adapter.py     # Adaptador declarativo para la Bolsa de Valores BBV
-│       ├── validators/
-│       │   └── schema_validator.py# Validador de JSON Schema
-│       └── main.py                # Punto de entrada CLI
-├── tests/
-│   ├── test_archive_extractor.py  # Pruebas de descompresión de .zip/.tar
-│   ├── test_canonicalizer.py
-│   ├── test_exporter.py
-│   ├── test_extractor.py
-│   ├── test_finrural_adapter.py
-│   ├── test_models_and_schema.py
-│   └── test_orchestrator_archive.py# Prueba de integración del pipeline con comprimidos
-├── .gitignore                     # Exclusión de cache, entorno virtual y outputs
-├── pyproject.toml                 # Configuración de paquete Python
-└── README.md
+│       ├── core/                  # Núcleo 100% reutilizable (Motores, Fetcher, Modelos)
+│       ├── sources/               # Adaptadores Declarativos por institución
+│       ├── validators/            # Validadores de JSON Schemas
+│       └── main.py                # CLI de ejecución del Crawler
+├── tests/                         # Pruebas automatizadas del núcleo y adaptadores
+├── benchmark_runner.py            # Orquestador para pruebas masivas en frío (50+ fuentes)
+├── dashboard_server.py            # Servidor local del panel de auditoría (API/UI)
+├── pyproject.toml                 # Dependencias
+└── README.md                      # Documentación
 ```
 
 ---
 
-## 7. Instalación y Uso
+## 🚀 Instalación y Uso
 
-### 7.1 Preparación del Entorno
+### 1. Requisitos e Instalación
+
+Requiere **Python 3.9+**.
+
 ```bash
-python3 -m venv .venv
+# Crear entorno virtual
+python -m venv .venv
+
+# Activar entorno (Linux/macOS)
 source .venv/bin/activate
+# Activar entorno (Windows)
+.venv\Scripts\activate
+
+# Instalar paquete y dependencias
 pip install -e .
+
+# Opcional: instalar Playwright para rendering headless (Fallback SPA)
+pip install playwright
+playwright install
 ```
 
-### 7.2 Ejecución
+### 2. Ejecutar la Prospección
+
+Para ejecutar el crawler en una fuente específica, utiliza el adaptador YAML correspondiente:
+
+**Para FINRURAL:**
 ```bash
-python3 -m crawler.main --config config/source_finrural.yaml --output-dir output/ --verbose
+python -m crawler.main --config config/source_finrural.yaml --output-dir output/
 ```
 
-### 7.3 Ejecución de la Suite de Pruebas Automatizadas (Pytest)
+**Para Bolsa Boliviana de Valores (BBV):**
 ```bash
-PYTHONPATH=src pytest tests/ -v
+python -m crawler.main --config config/source_bbv.yaml --output-dir output/
+```
+
+### 3. Iniciar el Panel de Diagnóstico Web
+
+El panel permite analizar los resultados, ver logs de jobs paralelos y resolver URLs caídas.
+
+```bash
+python dashboard_server.py
+```
+> Ingresa a `http://127.0.0.1:8000` en tu navegador.
+
+### 4. Ejecutar Benchmark de Fuentes
+
+Permite evaluar en frío el descubrimiento en docenas de fuentes pre-configuradas (BM, ASFI, BCB, etc.):
+
+```bash
+python benchmark_runner.py
+```
+
+### 5. Ejecutar Pruebas Automatizadas
+
+```bash
+pytest tests/ -v
 ```
 
 ---
 
-## Resumen ejecutivo (para presentar al equipo / jefe)
+## ⚙️ Opciones de Motores de Búsqueda (Opt-in en YAML)
 
-- **Propósito:** recopilar y normalizar documentos públicos (reportes financieros, memorias, archivos comprimidos) desde fuentes como FINRURAL y BBV.
-- **Estado actual:** código modular, pruebas automatizadas (`18 passed`), branch `feature/playwright-ocr` creado para la integración opcional de render+OCR.
-- **Cómo ver una demo rápida:**
+En los archivos de configuración (`config/source_*.yaml`), puedes activar opciones pasivas para descubrir listas de URLs no visibles navegando, modificando la sección `crawl`:
 
-```bash
-# instalar dependencias básicas
-python -m pip install -e .
-
-# correr los tests rápidos
-python -m pytest -q
-
-# probar conectividad y seeds (no instala Playwright/OCR)
-python scripts/check_urls.py
-```
-- **Notas sobre Playwright/OCR:** está disponible como opt-in; requiere instalación local adicional:
-
-```bash
-python -m pip install playwright pillow pytesseract
-python -m playwright install
+```yaml
+crawl:
+  use_sitemaps: true                 # Busca y procesa robots.txt y sitemap.xml
+  use_wayback: true                  # Consulta a la API CDX de archive.org
+  use_search_dorking: true           # Consulta a Google/Bing APIs (Requiere llaves de entorno)
+  use_subdomain_enumeration: true    # Búsqueda en crt.sh
 ```
 
-- **Riesgos y dependencias externas:** consultas a `web.archive.org` y `crt.sh` pueden fallar o rate-limit; implementamos retries, backoffs y caches locales para mitigar.
-- **Siguientes pasos recomendados:** completar pruebas E2E de Playwright+OCR, añadir CI que ejecute la suite, y planificar un despliegue con cache compartida (Redis) para producción.
+---
 
-Si necesitas, preparo una diapositiva o un correo de una página con estos puntos listo para enviar.
+## 🛡️ Manejo de Límites y Ética
 
+Este sistema respeta incondicionalmente las buenas costumbres web:
+- Limitador estricto `rate_limit_per_second` nativo.
+- Verificación total del `robots.txt` a través de `urllib.robotparser`.
+- Priorización de método `HEAD` para verificación previa de metadatos, evitando consumir ancho de banda si el archivo no cambió (ETag, Last-Modified).
+- Alertas automatizadas de derivación volumétrica (`drift_monitor.py`) que evitan sobrecargar el sistema en caso de loops de redirección o trampas del servidor.
