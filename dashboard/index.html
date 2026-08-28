@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataX - Crawler Operations Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">DX</div>
+          <div>
+            <h1>DataX</h1>
+            <small>Operations</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-panel="overview">Resumen</button>
+          <button class="nav-item" data-panel="records">Casos</button>
+          <button class="nav-item" data-panel="risks">Debilidades</button>
+        </nav>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Prospector Externo</p>
+            <h2>Dashboard de validación del crawler</h2>
+          </div>
+          <div class="topbar-actions">
+            <span id="lastUpdated" class="last-updated">Sin resultados aún</span>
+            <button id="refreshBtn" class="primary-btn">Actualizar</button>
+            <div id="statusToast" class="toast" style="display:none"></div>
+          </div>
+        </header>
+
+        <section id="overview" class="panel active">
+          <div class="kpis" id="kpis"></div>
+          <div class="split-grid">
+            <div class="card">
+              <h3>Distribución por score</h3>
+              <div id="scoreChart" class="chart"></div>
+              <div id="scoreDefinition" class="score-definition"></div>
+            </div>
+            <div class="card">
+              <h3>Estado general</h3>
+              <div id="statusCard" class="status-pill"></div>
+              <ul id="weaknessList" class="list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="records" class="panel">
+          <div class="card full-width">
+            <div class="section-header">
+              <h3>Casos evaluados</h3>
+              <div class="records-tools">
+                <input id="searchInput" type="text" placeholder="Buscar fuente o URL" />
+                <select id="statusFilter" aria-label="Filtrar por estado">
+                  <option value="all">Todos los estados</option>
+                  <option value="success">Encontradas</option>
+                  <option value="alternative">Alternativas</option>
+                  <option value="review">Requieren revisión</option>
+                  <option value="pending">Pendientes</option>
+                </select>
+                <button id="runAllBtn" class="primary-btn small">Actualizar URLs</button>
+              </div>
+            </div>
+            <div id="recordsSummary" class="records-summary" aria-live="polite"></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fuente</th>
+                    <th>URL</th>
+                    <th>Resolved URL</th>
+                    <th>Mapping</th>
+                    <th>Estado de análisis</th>
+                    <th>Score</th>
+                    <th>HTTP</th>
+                    <th>Resultado</th>
+                    <th class="actions-heading">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="recordsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="recordDetail" class="card detail-panel">
+            <h3>Detalle del score por URL</h3>
+            <div id="recordDetailContent">Seleccione una fila para ver el respaldo del score.</div>
+          </div>
+        </section>
+
+        <section id="risks" class="panel">
+          <div class="card full-width">
+            <h3>Observaciones clave</h3>
+            <div id="riskSummary" class="risk-summary"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="jobPanel" class="job-panel" style="display:none">
+      <div class="job-header">
+        <div>
+          <strong id="jobTitle">Job</strong>
+          <div id="jobStatus" style="font-size:0.85rem;color:var(--muted)"></div>
+        </div>
+        <div class="job-actions">
+          <button id="jobRefresh" class="primary-btn small">Refrescar</button>
+          <button id="jobClose" class="job-close">Cerrar</button>
+        </div>
+      </div>
+      <div class="job-body">
+        <div class="job-progress-track"><div id="jobProgressBar" class="job-progress-bar"></div></div>
+        <div id="jobProgressText" class="job-progress-text">Esperando progreso...</div>
+        <div id="jobDecision" class="job-decision" style="display:none"></div>
+        <div id="jobCandidates" class="job-candidates" style="display:none"></div>
+        <div class="job-log" id="jobLog">Sin logs aún.</div>
+        <div class="job-updates" id="jobUpdates" style="display:none">
+          <strong>URLs actualizadas:</strong>
+          <ul id="jobUpdatesList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js?v=20260828-5"></script>
+  </body>
+</html>

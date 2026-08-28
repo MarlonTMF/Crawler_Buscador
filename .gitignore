@@ -80,3 +80,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+
+# Ignore installer binaries that should not be committed
+*.exe

@@ -19,6 +19,16 @@ crawl:
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
 
 classification:
+  document_path_tokens:
+    - "estadisticas"
+    - "informacion-financiera"
+    - "documentos"
+    - "archivos"
+    - "reporte"
+    - "informe"
+    - "boletin"
+    - "download"
+    - "descarga"
   dataset_rules:
     - id: estadisticas_bursatiles
       name: Estadísticas Bursátiles
