@@ -12,7 +12,10 @@ Soporta:
 import time
 import logging
 import re
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, List
+import json
+from datetime import datetime
+from pathlib import Path
 from urllib.parse import urlparse, urljoin
 from urllib.robotparser import RobotFileParser
 import requests
@@ -174,6 +177,7 @@ class HttpFetcher:
         browser_fallback: bool = False,
         headless_fetcher: Optional[Any] = None,
         force_browser_html: Optional[str] = None,
+        allow_variants: bool = True,
     ) -> Dict[str, Any]:
         """Validate whether a URL is actually reachable and return an operational score cap."""
         if not self.is_url_allowed_by_robots(url):
@@ -284,6 +288,30 @@ class HttpFetcher:
             except Exception as exc:  # pragma: no cover - defensive fallback
                 logger.warning("Browser fallback failed for %s: %s", url, exc)
 
+        # Before returning a hard CONN_ERROR, try simple URL-variant fallbacks
+        if allow_variants:
+            try:
+                candidate = self._try_url_variants(url)
+                if candidate:
+                    logger.info("URL %s likely moved -> trying candidate %s", url, candidate)
+                    # persist mapping
+                    self._record_moved_url(original=url, resolved=candidate)
+                    # re-evaluate the candidate but don't attempt variants again
+                    candidate_result = self.validate_url_access(
+                        candidate,
+                        browser_fallback=browser_fallback,
+                        headless_fetcher=headless_fetcher,
+                        force_browser_html=force_browser_html,
+                        allow_variants=False,
+                    )
+                    # annotate result with mapping info
+                    candidate_result["mapped_from"] = url
+                    candidate_result["resolved_from_variant"] = True
+                    candidate_result["original_url"] = url
+                    return candidate_result
+            except Exception as e:
+                logger.warning("Variant fallback failed for %s: %s", url, e)
+
         return {
             "url": url,
             "reachable_http": False,
@@ -386,3 +414,117 @@ class HttpFetcher:
                 time.sleep(1.5 * attempt)
 
         return False, 0, None
+
+    def _try_url_variants(self, url: str) -> Optional[str]:
+        """Generate simple URL variants and return the first reachable candidate or None.
+
+        Variants attempted:
+        - https <-> http
+        - with/without www
+        - root domain (strip path)
+        - simple TLD swaps among .com/.org/.bo when applicable
+        - remove or add trailing slash
+        """
+        results = self.probe_url_variants(url)
+        return next((item['url'] for item in results if item['reachable']), None)
+
+    def _generate_url_variants(self, url: str) -> List[str]:
+        parsed = urlparse(url)
+        scheme = parsed.scheme or "https"
+        netloc = parsed.netloc
+        path = parsed.path or ""
+
+        candidates: List[str] = []
+
+        def build(sch, nloc, pth):
+            base = f"{sch}://{nloc}"
+            if pth:
+                if not pth.startswith('/'):
+                    pth = '/' + pth
+                return base + pth
+            return base
+
+        # scheme swaps
+        schemes = [scheme]
+        schemes += ["https" if scheme == "http" else "http"]
+
+        # www variants
+        if netloc.startswith('www.'):
+            netlocs = [netloc, netloc[4:]]
+        else:
+            netlocs = [netloc, f"www.{netloc}"]
+
+        # Common domain endings: keep the name and vary the full suffix rather
+        # than creating malformed values such as example.org.com.
+        host_name = netloc[4:] if netloc.startswith('www.') else netloc
+        labels = host_name.split('.')
+        stem = labels[0] if labels else host_name
+        domain_suffixes = ['.org', '.bo', '.com', '.org.bo', '.com.bo', '.net', '.gob.bo', '.edu.bo']
+        generated_netlocs = [f'{stem}{suffix}' for suffix in domain_suffixes]
+        for candidate_n in generated_netlocs:
+            if candidate_n not in netlocs:
+                netlocs.append(candidate_n)
+            if f'www.{candidate_n}' not in netlocs:
+                netlocs.append(f'www.{candidate_n}')
+
+        # create variants: root and original path
+        for sch in schemes:
+            for nloc in netlocs:
+                # original path
+                candidates.append(build(sch, nloc, path))
+                # root
+                candidates.append(build(sch, nloc, ""))
+                # trailing slash variants
+                candidates.append(build(sch, nloc, path.rstrip('/') + '/'))
+
+        # dedupe while preserving order
+        seen = set()
+        deduped = []
+        for c in candidates:
+            if c and c not in seen and c != url:
+                seen.add(c)
+                deduped.append(c)
+
+        return deduped
+
+    def probe_url_variants(self, url: str) -> List[Dict[str, Any]]:
+        """Probe every generated URL variant and return inspectable results."""
+        return [self.probe_url_variant(candidate) for candidate in self._generate_url_variants(url)]
+
+    def probe_url_variant(self, candidate: str) -> Dict[str, Any]:
+        """Probe one candidate URL and return a UI-friendly diagnostic."""
+        try:
+            ok, status, _ = self.fetch_head(candidate)
+            if ok:
+                return {'url': candidate, 'reachable': True, 'status': status, 'reason': 'Respuesta HTTP válida en HEAD'}
+            ok2, status2, _ = self.fetch_html(candidate)
+            if ok2:
+                return {'url': candidate, 'reachable': True, 'status': status2, 'reason': 'Respuesta HTTP válida en GET'}
+            return {'url': candidate, 'reachable': False, 'status': status2 or status or 0, 'reason': 'No respondió con contenido accesible'}
+        except requests_exceptions.RequestException as exc:
+            return {'url': candidate, 'reachable': False, 'status': 0, 'reason': self._classify_request_error(exc)}
+        except Exception as exc:
+            return {'url': candidate, 'reachable': False, 'status': 0, 'reason': str(exc) or 'Error desconocido'}
+
+    def _record_moved_url(self, original: str, resolved: str, confidence: float = 0.8) -> None:
+        try:
+            cfg_dir = Path.cwd() / 'config'
+            cfg_dir.mkdir(parents=True, exist_ok=True)
+            path = cfg_dir / 'moved_urls.json'
+            data = []
+            if path.exists():
+                try:
+                    data = json.loads(path.read_text(encoding='utf-8'))
+                except Exception:
+                    data = []
+
+            entry = {
+                'original': original,
+                'resolved': resolved,
+                'confidence': confidence,
+                'timestamp': datetime.utcnow().isoformat() + 'Z'
+            }
+            data.append(entry)
+            path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+        except Exception as e:
+            logger.warning('No se pudo registrar moved_urls.json: %s', e)

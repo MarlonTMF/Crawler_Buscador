@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -14,8 +15,15 @@ from crawler.core.fetcher import HttpFetcher
 def main() -> None:
     fetcher = HttpFetcher(timeout=15, max_retries=2, rate_limit_seconds=0.5)
     records = []
+    progress_path = os.environ.get('DATAX_PROGRESS_PATH')
 
-    for item in SOURCES:
+    def write_progress(processed: int) -> None:
+        if progress_path:
+            Path(progress_path).write_text(json.dumps({'processed': processed, 'total': len(SOURCES)}), encoding='utf-8')
+
+    write_progress(0)
+
+    for index, item in enumerate(SOURCES, start=1):
         url = item['url']
         result = fetcher.validate_url_access(url, browser_fallback=True)
         effective_score = float(result.get('effective_score', 0.0) or 0.0)
@@ -59,6 +67,7 @@ def main() -> None:
             'Error_Detail': error_detail if error_detail else None,
         }
         records.append(record)
+        write_progress(index)
 
     output_path = ROOT / 'output' / 'excel_urls_diagnostic.json'
     output_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding='utf-8')
