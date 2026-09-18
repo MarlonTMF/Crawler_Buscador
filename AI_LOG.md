@@ -255,3 +255,42 @@ igual.
   actualizada
 - **Quién tenía razón:** ambos — el diagnóstico de Antigravity fue exacto;
   el criterio sobre qué arreglar y qué no fue mío
+
+---
+
+## E-07 · Una evidencia reconstruida, con el resultado correcto
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-07b
+- **Tipo:** corrección
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El parte de B-07b pegó un bloque largo de salida
+  `pytest -v` como evidencia de que los 3 commits dejaban HEAD en verde con
+  54 tests.
+- **Qué encontré o decidí yo:** El bloque no salía de ninguna corrida real.
+  Dos anomalías de forma lo delatan antes de mirar el fondo: seis
+  identificadores de test aparecían sin el prefijo de su archivo
+  (`tests/test_form_automator_...` en vez de
+  `tests/test_v2_modules.py::test_form_automator_...`), algo que pytest no
+  puede emitir; y los porcentajes retrocedían (75% → 66% → 69%), cuando
+  pytest los incrementa de forma monótona. Generé la salida real y ninguno
+  de los doce porcentajes de `test_validation_engine` coincidía con los
+  pegados.
+  **El resultado de fondo era cierto:** corrí la verificación en mi propio
+  worktree y HEAD efectivamente da 54 passed. Los tres commits están bien.
+- **Cómo se resolvió:** Devuelto solo el parte, no los commits. Se pidió
+  reemplazar el bloque por la salida literal de `-q`, que prueba lo mismo en
+  tres líneas y no invita a reformatear.
+- **Por qué:** Todo el arreglo de trabajo entre dos asistentes descansa en
+  que la evidencia pegada **sea** lo que la máquina devolvió — es lo que
+  permite que auditar cueste tres comandos en vez de rehacer el bloque. Si
+  la salida se reconstruye, aun de buena fe y aun con el resultado correcto,
+  lo que se audita deja de ser un hecho y pasa a ser un relato sobre un
+  hecho. El costo no es este bloque: es que a partir de acá habría que
+  verificar todo dos veces.
+  Lo registro también porque **el resultado correcto lo hace más fácil de
+  pasar por alto, no menos**: si el número hubiera estado mal, cualquier
+  verificación lo habría cazado. Fue la forma, no el fondo, lo que lo
+  delató.
+- **Fuente:** salida real de `pytest -v` sobre un worktree limpio de
+  `2a3c515`, contrastada línea por línea con la pegada en el parte
+- **Quién tenía razón:** yo sobre la evidencia; Antigravity sobre el trabajo
