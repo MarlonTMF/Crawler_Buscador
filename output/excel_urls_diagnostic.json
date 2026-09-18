@@ -512,7 +512,9 @@
     "mapped_from": null,
     "resolved_from_variant": false,
     "original_url": null,
-    "mapping_resolved": null
+    "mapping_resolved": null,
+    "crawler_source": "asofin",
+    "crawler_dataset": "boletines_microfinanzas"
   },
   {
     "Fuente": "ATC",
@@ -1025,7 +1027,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"apple-touch-icon\" sizes="
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "cndc",
+    "crawler_dataset": "normas_operativas"
   },
   {
     "Fuente": "DGAC",
@@ -1437,7 +1441,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "ibce_cao",
+    "crawler_dataset": "comercio_exterior"
   },
   {
     "Fuente": "IBCH",
