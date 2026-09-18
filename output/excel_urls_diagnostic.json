@@ -843,7 +843,7 @@
     ],
     "Robots_Allowed": true,
     "HTTP_Status": "DISUELTA",
-    "Final_Url": "https://www.bbcp.com.bo/",
+    "Final_Url": null,
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
     "Document_Evidence": {
@@ -856,9 +856,9 @@
     "mapped_from": "https://www.bolsadecereales.org.bo",
     "resolved_from_variant": true,
     "original_url": "https://www.bolsadecereales.org.bo",
-    "mapping_resolved": "https://www.bbcp.com.bo/",
-    "mapping_note": "Sin actividad rastreable en la web ni sucesor unico. Funciones equivalentes de informacion/precios de granos repartidas hoy entre OAP (observatorioagro.gob.bo), INE, CAO/SIPREM (cao.org.bo) e IBCE (ibce.org.bo). No confundir con bolsadecereales.com (Bolsa de Cereales de Buenos Aires, Argentina). Confianza media: ausencia de evidencia, no evidencia de ausencia.",
-    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+    "mapping_resolved": null,
+    "mapping_note": "Sin actividad rastreable en la web ni sucesor unico. Funciones equivalentes de informacion/precios de granos repartidas hoy entre OAP (observatorioagro.gob.bo), INE, CAO/SIPREM (cao.org.bo) e IBCE (ibce.org.bo). No confundir con bolsadecereales.com (Bolsa de Cereales de Buenos Aires, Argentina). Confianza media: ausencia de evidencia, no evidencia de ausencia. Registro duplicado 'manual' (bbcp.com.bo -> bbcp.org/lander) fusionado y depurado en B-11: correspondia a un lander de parking sin valor institucional.",
+    "mapping_timestamp": "2026-09-18T14:40:00.000000+00:00"
   },
   {
     "Fuente": "CADECO",
@@ -2500,31 +2500,5 @@
     "mapping_resolved": "https://www.planificacion.gob.bo/vipfe",
     "mapping_source": "gemini_verdict",
     "mapping_note": "VIPFE integrado al portal del Ministerio de Planificacion. Sitio SPA (Angular): no se pudo confirmar texto por HTML estatico."
-  },
-  {
-    "Fuente": "manual",
-    "Institucion": "manual",
-    "Url_Original": "https://www.bbcp.com.bo/",
-    "Score_Excel": 2.0,
-    "Diagnosticos_Excel": [
-      "exitoso",
-      "sin enlace directo"
-    ],
-    "Robots_Allowed": true,
-    "HTTP_Status": "200",
-    "Final_Url": "https://bbcp.org",
-    "mapped_from": "https://www.bbcp.com.bo/",
-    "resolved_from_variant": true,
-    "original_url": "https://www.bbcp.com.bo/",
-    "mapping_resolved": "https://bbcp.org",
-    "Doc_Links_Found_In_Seed": 0,
-    "Subpage_Keywords_Found": 0,
-    "Document_Evidence": {
-      "keyword_hits": [],
-      "file_type": null,
-      "quality_score": 2.0,
-      "snippet_text": "<!DOCTYPE html><html><head><script>window.onload=function(){window.location.href=\"/lander\"}</script></head></html>"
-    },
-    "Error_Detail": null
   }
 ]
