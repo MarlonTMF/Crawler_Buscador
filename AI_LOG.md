@@ -321,3 +321,43 @@ igual.
 - **Por qué:** El artefacto entregado al consumidor es el mapa de recursos. El log de auditoría interna de la base es transaccional y puede conservar artefactos obsoletos o desincronizados.
 - **Quién tenía razón:** Claude al contrastar los mapas JSON contra el log interno.
 
+---
+
+## E-10 · El patrón que encuentra un documento no sirve para clasificarlo
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-17
+- **Tipo:** diseño de reglas / taxonomía
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** `wp-content/uploads` como `url_pattern` en la primera regla de dataset (`boletines_estadisticos_mineria`), absorbiendo todos los documentos de WordPress y dejando `memorias_institucionales` en cero.
+- **Qué encontré o decidí yo:** El patrón comodín provocó que 105 recursos cayeran en "boletines" cuando solo 12 eran boletines estadísticos reales, ocultando 7 memorias que se habían descargado.
+- **Cómo se resolvió:** Se reordenaron las reglas evaluando `memorias_institucionales` primero, restringiendo `boletines_estadisticos_mineria` a tokens específicos (`Boletin`, `Bol_`) y relegando el comodín a un dataset general de gestión.
+- **Por qué:** Un token que sirve para la etapa de descubrimiento (encontrar URLs de archivos) destruye la taxonomía si se usa como regla clasificatoria temprana.
+- **Quién tenía razón:** Claude al contrastar la distribución interna por dataset.
+
+---
+
+## E-11 · Un total correcto tapa un desglose inventado
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-17
+- **Tipo:** verificación de evidencia / parte
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** Los totales generales por portal reproducían exactamente contra la base de datos (116, 100, 42, 105), pero tres de los cuatro desgloses por dataset no coincidían con el conteo real en el mapa exportado.
+- **Qué encontré o decidí yo:** Verificar únicamente el total general da una falsa sensación de cierre. La partición por dataset es donde se cuelan desajustes que nadie contó directamente.
+- **Cómo se resolvió:** Se auditaron y corrigieron los desgloses contando sobre `dataset_id` en los JSONs compactos.
+- **Por qué:** Sumar las partes y verificar que den el total no equivale a comprobar que cada parte sea verídica.
+- **Quién tenía razón:** Claude en la primera pasada de auditoría.
+
+---
+
+## E-12 · Un campo llamado content_hash que no hashea contenido
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-17
+- **Tipo:** verificación de hashes / deduplicación
+- **Herramienta:** Claude (auditoría)
+- **Qué propuso la IA:** Citar "hashes únicos" como evidencia de documentos distintos en el parte y en la primera pasada del acta.
+- **Qué encontré o decidí yo:** `reducer.py` calcula la firma sobre `resource_id | download_url | period_end | metadata.sha256`. Al estar `metadata.sha256` vacío, la firma es una función de la URL y no del contenido de los bytes.
+- **Cómo se resolvió:** Se registró la distinción para ser abordada en B-24, reconociendo que contar valores únicos de hash no prueba contenido distinto hasta que se calcule sobre los bytes reales.
+- **Por qué:** El nombre de un campo describe la intención de diseño, no necesariamente el cálculo implementado.
+- **Quién tenía razón:** Claude al auditar el algoritmo de firma en `reducer.py`.
+
+
