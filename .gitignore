@@ -81,5 +81,22 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Local secrets
+.env
+.env.*
+
 # Ignore installer binaries that should not be committed
 *.exe
+backup_10.0.0.12
+
+# Material de benchmark y propuestas de terceros (~10 MB)
+# El informe comparativo se conserva en docs/Informe_Prospeccion_en_Cifras.html
+Elecciones De Crawler por URL/
+Propuesta arquitectura y Backlogs/
+
+# Binarios comprimidos
+*.rar
+*.zip
+
+# Archivos de análisis local (no son código del proyecto)
+resultadosPrimerCrawleoUnido.xlsx
