@@ -116,7 +116,10 @@ class DiscoveryEngine:
         return urlunparse(parsed._replace(query=query, fragment=""))
 
     def _is_allowed_domain(self, url: str) -> bool:
-        domain = urlparse(url).netloc.lower()
+        parsed = urlparse(url)
+        if parsed.scheme and parsed.scheme not in ("http", "https"):
+            return False
+        domain = parsed.netloc.lower()
         allowed = {d.lower() for d in self.adapter.allowed_domains}
         return not domain or not allowed or domain in allowed
 
@@ -320,7 +323,10 @@ class DiscoveryEngine:
             soup = BeautifulSoup(html, "html.parser")
             for a_tag in soup.find_all("a", href=True):
                 href = a_tag["href"].strip()
-                if not href or href.startswith("#") or href.lower().startswith("javascript:"):
+                href_lower = href.lower()
+                if not href or href.startswith("#") or href_lower.startswith(
+                    ("javascript:", "mailto:", "tel:", "fax:", "whatsapp:", "sms:")
+                ):
                     continue
 
                 abs_url = self._normalize_visit_url(urljoin(page_url, href))
