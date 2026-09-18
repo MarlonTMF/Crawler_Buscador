@@ -4,5 +4,73 @@
     "resolved": "https://www.imf.com",
     "confidence": 0.8,
     "timestamp": "2026-08-27T17:23:36.086101Z"
+  },
+  {
+    "original": "https://www.cadexco.org.bo",
+    "resolved": "https://cadexco.bo/",
+    "confidence": 0.9,
+    "reason": "CADEXCO (Cámara Departamental de Exportadores de Cochabamba) migró de dominio: el antiguo www.cadexco.org.bo cayó, el vigente es cadexco.bo. Verificado por contenido: la página menciona 'Cochabamba' y su historia institucional (fundada 5 de julio de 1983), descartando confusión con CADEX Santa Cruz.",
+    "matched_keywords": [
+      "cochabamba"
+    ],
+    "source": "URLsFaltantes.md (investigación externa con búsqueda web) + verificación de contenido propia",
+    "timestamp": "2026-09-17T00:00:00Z"
+  },
+  {
+    "original": "https://www.ibch.org.bo",
+    "resolved": "https://www.ibch.com/",
+    "confidence": 0.9,
+    "reason": "IBCH (Instituto Boliviano del Cemento y Hormigón) migró de dominio: el antiguo ibch.org.bo cayó, el vigente es ibch.com. Verificado por contenido: la página menciona 'Cemento' repetidamente, descartando confusión con IBCE (comercio exterior).",
+    "matched_keywords": [
+      "cemento"
+    ],
+    "source": "URLsFaltantes.md (investigación externa con búsqueda web) + verificación de contenido propia",
+    "timestamp": "2026-09-17T00:00:00Z"
+  },
+  {
+    "original": "https://www.aduana.gob.bo/aduana7/content/bolet%C3%ADn-de-recaudaciones-0",
+    "resolved": "https://www.aduana.gob.bo/com_boletines",
+    "confidence": 0.75,
+    "reason": "El sitio de Aduana Nacional migro de plataforma (aduana7/content/... ya no existe, 404). La nueva pagina de Boletines institucionales (com_boletines) reemplaza la funcion: lista boletines mensuales en PDF. Verificado por titulo de pagina (Boletines | Aduana Nacional); no se confirmo que el contenido especifico sea exactamente el mismo boletin (nombre generico vs. boletin de recaudaciones), confianza media-alta.",
+    "matched_keywords": [
+      "boletin"
+    ],
+    "source": "verificacion manual (curl + inspeccion de enlaces del sitio)",
+    "timestamp": "2026-09-17T15:42:39.793588+00:00"
+  },
+  {
+    "original": "https://www.bcp.gov.py/compras-y-ventas-de-divisas-del-bcp-i666",
+    "resolved": "https://www.bcp.gov.py/web/institucional/tipo-de-cambio",
+    "confidence": 0.8,
+    "reason": "El sitio del Banco Central del Paraguay fue rediseniado (URLs antiguas -iNNN ya no existen, dan 404). La nueva pagina Tipo de cambio cubre la misma funcion (compras y ventas de divisas). NOTA IMPORTANTE: el sitio usa Cloudflare y bloquea clientes HTTP simples (curl/requests) con 403 o un challenge JS (\"Just a moment...\"); solo responde 200 con un navegador headless real (Playwright, wait_until=domcontentloaded). El crawler debe usar HeadlessFetcher para este dominio, no el fetcher HTTP simple.",
+    "matched_keywords": [
+      "tipo de cambio",
+      "divisas"
+    ],
+    "source": "verificacion manual (Playwright headless, sitio requiere renderizado)",
+    "timestamp": "2026-09-17T15:58:00.376687+00:00"
+  },
+  {
+    "original": "https://www.bcp.gov.py/informacion-financiera-y-estadisticas-del-mercado-i1504",
+    "resolved": "https://www.bcp.gov.py/web/institucional/informe-de-indicadores-financieros-if",
+    "confidence": 0.7,
+    "reason": "URL antigua -i1504 da 404 tras rediseno del sitio. El reemplazo mas cercano por contenido es el Informe de Indicadores Financieros (IF), bajo la nueva estructura /web/institucional/. Mismo requisito: sitio protegido por Cloudflare, requiere navegador headless.",
+    "matched_keywords": [
+      "indicadores financieros"
+    ],
+    "source": "verificacion manual (Playwright headless, sitio requiere renderizado)",
+    "timestamp": "2026-09-17T15:58:00.376687+00:00"
+  },
+  {
+    "original": "https://www.bcp.gov.py/informe-de-inflacion-mensual-i362",
+    "resolved": "https://www.bcp.gov.py/web/institucional/informe-de-politica-monetaria-ipom",
+    "confidence": 0.55,
+    "reason": "URL antigua -i362 da 404. No se encontro una pagina dedicada identica a \"Informe de Inflacion Mensual\"; el reemplazo mas cercano es el Informe de Politica Monetaria (IPOM), que incluye el analisis de inflacion. Alternativa mas especifica pero de alcance distinto: /web/institucional/w/meta-de-inflacion (meta de inflacion, no informe mensual). Confianza media: revisar a mano cual de las dos calza mejor con el uso original del dato.",
+    "matched_keywords": [
+      "inflacion",
+      "politica monetaria"
+    ],
+    "source": "verificacion manual (Playwright headless, sitio requiere renderizado)",
+    "timestamp": "2026-09-17T15:58:00.376687+00:00"
   }
 ]
