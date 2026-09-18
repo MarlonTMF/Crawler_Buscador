@@ -1495,7 +1495,9 @@
     "mapping_resolved": "https://www.ibch.com/",
     "mapping_source": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion de contenido propia",
     "mapping_confidence": 0.9,
-    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00",
+    "crawler_source": "ibch",
+    "crawler_dataset": "manuales_normas_construccion"
   },
   {
     "Fuente": "ICCO",
@@ -1528,8 +1530,8 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": "icco",
-    "crawler_dataset": "estadisticas_cacao"
+    "crawler_source": null,
+    "crawler_dataset": null
   },
   {
     "Fuente": "IN",
@@ -1688,8 +1690,8 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": "mdryt",
-    "crawler_dataset": "estadisticas_rurales"
+    "crawler_source": null,
+    "crawler_dataset": null
   },
   {
     "Fuente": "MDRyT/OAP",
@@ -1735,8 +1737,8 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": "mdryt",
-    "crawler_dataset": "oap_agropecuario"
+    "crawler_source": null,
+    "crawler_dataset": null
   },
   {
     "Fuente": "MEFP",
@@ -1827,7 +1829,7 @@
     },
     "Error_Detail": null,
     "crawler_source": "mmym",
-    "crawler_dataset": "boletines_estadisticos_mineria"
+    "crawler_dataset": "gestion_institucional_minera"
   },
   {
     "Fuente": "Min. Educacion",
@@ -2334,7 +2336,7 @@
     },
     "Error_Detail": null,
     "crawler_source": "snis",
-    "crawler_dataset": "boletines_epidemiologicos"
+    "crawler_dataset": "publicaciones_salud"
   },
   {
     "Fuente": "SPVS-APS",
