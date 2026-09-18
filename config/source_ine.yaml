@@ -1,23 +1,22 @@
 # ==============================================================================
 # Configuración del Prospector Externo — DataX Web Prospector
-# Fuente: BCP (Banco Central del Paraguay)
+# Fuente: INE (Instituto Nacional de Estadística)
 # Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
 # ==============================================================================
 
 source:
-  id: bcp
-  name: "Banco Central del Paraguay"
-  base_url: https://www.bcp.gov.py
+  id: ine
+  name: "Instituto Nacional de Estadística"
+  base_url: https://www.ine.gob.bo
   allowed_domains:
-    - www.bcp.gov.py
-    - bcp.gov.py
+    - www.ine.gob.bo
+    - ine.gob.bo
 
 crawl:
   seeds:
-    - https://www.bcp.gov.py/web/institucional/memorias-y-balances
-  # Fuente protegida por Cloudflare/WAF bot detection (D-03).
-  # Requiere navegador real (Playwright domcontentloaded) para acceder a los datos.
-  max_depth: 1
+    - https://www.ine.gob.bo/index.php/institucion/planificacion/planificacion-estrategica-pei/plan-estrategico-institucional-pei-2016-2020/
+    - https://www.ine.gob.bo/index.php/institucion/escala-salarial/
+  max_depth: 0
   max_pages: 5
   strategy: bfs
   rate_limit_per_second: 1.0
@@ -27,9 +26,9 @@ crawl:
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false
-  use_playwright: true
-  use_playwright_ocr: true
-  headless: true
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
 
 audit:
   enabled: true
@@ -47,23 +46,33 @@ search_dorking:
 
 classification:
   document_path_tokens:
-    - "/documents/"
-    - "Memoria"
-    - "Balance"
+    - "/descarga/"
+    - "pei"
+    - "escala"
   dataset_rules:
-    - id: memorias_y_balances
-      name: "Memorias y Balances Anuales"
+    - id: planes_estrategicos
+      name: "Planes Estratégicos Institucionales (PEI)"
       url_patterns:
-        - "Memoria"
-        - "Balance"
-        - "memorias-y-balances"
+        - "pei"
+        - "planes-estrategicos"
       title_keywords:
-        - "memoria"
-        - "balance"
-        - "anual"
+        - "pei"
+        - "estrategico"
+        - "institucional"
+    - id: escala_salarial
+      name: "Escala Salarial y Estructura Organizacional"
+      url_patterns:
+        - "escala"
+        - "salarial"
+      title_keywords:
+        - "escala"
+        - "salarial"
   excluded_path_keywords:
+    - "/estadisticas-economicas/"
+    - "/estadisticas-sociales/"
     - "/contacto"
     - "/login"
+    - "wp-admin"
 
 period_extraction:
   months_es:

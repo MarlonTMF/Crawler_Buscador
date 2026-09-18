@@ -1,24 +1,23 @@
 # ==============================================================================
 # Configuración del Prospector Externo — DataX Web Prospector
-# Fuente: BCP (Banco Central del Paraguay)
+# Fuente: BCB (Banco Central de Bolivia)
 # Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
 # ==============================================================================
 
 source:
-  id: bcp
-  name: "Banco Central del Paraguay"
-  base_url: https://www.bcp.gov.py
+  id: bcb
+  name: "Banco Central de Bolivia"
+  base_url: https://www.bcb.gob.bo
   allowed_domains:
-    - www.bcp.gov.py
-    - bcp.gov.py
+    - www.bcb.gob.bo
+    - bcb.gob.bo
+    - deudaexternapublica.bcb.gob.bo
 
 crawl:
   seeds:
-    - https://www.bcp.gov.py/web/institucional/memorias-y-balances
-  # Fuente protegida por Cloudflare/WAF bot detection (D-03).
-  # Requiere navegador real (Playwright domcontentloaded) para acceder a los datos.
-  max_depth: 1
-  max_pages: 5
+    - https://www.bcb.gob.bo
+  max_depth: 0
+  max_pages: 3
   strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
@@ -27,9 +26,9 @@ crawl:
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false
-  use_playwright: true
-  use_playwright_ocr: true
-  headless: true
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
 
 audit:
   enabled: true
@@ -47,20 +46,39 @@ search_dorking:
 
 classification:
   document_path_tokens:
-    - "/documents/"
-    - "Memoria"
-    - "Balance"
+    - "/webdocs/"
+    - "/uploads/"
+    - "Reservas"
+    - "IEF"
   dataset_rules:
-    - id: memorias_y_balances
-      name: "Memorias y Balances Anuales"
+    - id: reservas_internacionales
+      name: "Reservas Internacionales Netas (RIN)"
       url_patterns:
-        - "Memoria"
-        - "Balance"
-        - "memorias-y-balances"
+        - "Reservas"
+        - "RIN"
+        - "sector_externo"
       title_keywords:
-        - "memoria"
-        - "balance"
-        - "anual"
+        - "reservas"
+        - "rin"
+        - "componentes"
+    - id: estabilidad_financiera
+      name: "Informes de Estabilidad Financiera (IEF)"
+      url_patterns:
+        - "IEF"
+        - "politicasbcb"
+      title_keywords:
+        - "estabilidad"
+        - "financiera"
+        - "ief"
+    - id: deuda_externa
+      name: "Informes y Reglamentos de Deuda Externa Pública"
+      url_patterns:
+        - "DEPEX"
+        - "deudaexterna"
+        - "REGLAM_DEXT"
+      title_keywords:
+        - "deuda"
+        - "externa"
   excluded_path_keywords:
     - "/contacto"
     - "/login"

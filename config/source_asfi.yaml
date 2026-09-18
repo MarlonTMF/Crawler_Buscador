@@ -1,23 +1,24 @@
 # ==============================================================================
 # Configuración del Prospector Externo — DataX Web Prospector
-# Fuente: BCP (Banco Central del Paraguay)
+# Fuente: ASFI (Autoridad de Supervisión del Sistema Financiero)
 # Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
 # ==============================================================================
 
 source:
-  id: bcp
-  name: "Banco Central del Paraguay"
-  base_url: https://www.bcp.gov.py
+  id: asfi
+  name: "Autoridad de Supervisión del Sistema Financiero"
+  base_url: https://www.asfi.gob.bo
   allowed_domains:
-    - www.bcp.gov.py
-    - bcp.gov.py
+    - www.asfi.gob.bo
+    - asfi.gob.bo
 
 crawl:
   seeds:
-    - https://www.bcp.gov.py/web/institucional/memorias-y-balances
-  # Fuente protegida por Cloudflare/WAF bot detection (D-03).
-  # Requiere navegador real (Playwright domcontentloaded) para acceder a los datos.
-  max_depth: 1
+    - https://www.asfi.gob.bo
+    - https://www.asfi.gob.bo/pagina-memoria-institucional
+    - https://www.asfi.gob.bo/la/balance-general
+    - https://www.asfi.gob.bo/la/seguimiento-y-evaluacion-al-poa
+  max_depth: 0
   max_pages: 5
   strategy: bfs
   rate_limit_per_second: 1.0
@@ -27,9 +28,9 @@ crawl:
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false
-  use_playwright: true
-  use_playwright_ocr: true
-  headless: true
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
 
 audit:
   enabled: true
@@ -47,20 +48,38 @@ search_dorking:
 
 classification:
   document_path_tokens:
-    - "/documents/"
-    - "Memoria"
+    - "/sites/default/files/"
+    - "MEMORIA"
     - "Balance"
+    - "POA"
   dataset_rules:
-    - id: memorias_y_balances
-      name: "Memorias y Balances Anuales"
+    - id: memoria_institucional
+      name: "Memorias Institucionales Anuales"
       url_patterns:
-        - "Memoria"
-        - "Balance"
-        - "memorias-y-balances"
+        - "MEMORIA"
+        - "memoria"
       title_keywords:
         - "memoria"
-        - "balance"
         - "anual"
+        - "institucional"
+    - id: balance_general
+      name: "Balances Generales y Estados Financieros"
+      url_patterns:
+        - "Balance"
+        - "balance"
+      title_keywords:
+        - "balance"
+        - "general"
+        - "financiero"
+    - id: poa_seguimiento
+      name: "Programación Operativa Anual (POA) y Evaluaciones"
+      url_patterns:
+        - "POA"
+        - "poa"
+      title_keywords:
+        - "poa"
+        - "operativa"
+        - "seguimiento"
   excluded_path_keywords:
     - "/contacto"
     - "/login"
