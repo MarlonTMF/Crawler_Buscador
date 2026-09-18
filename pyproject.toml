@@ -31,3 +31,8 @@ crawler-finrural = "crawler.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+markers = [
+    "live: toca red real o navegador real y puede tardar minutos (2026-09-17: 2 casos confirmados colgando >60s pese a mockear session.head/get, porque el fallback interno de HttpFetcher escapa el mock). Excluir con -m 'not live' para verificación rápida; correr sin filtro antes de un release.",
+]

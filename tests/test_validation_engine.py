@@ -125,6 +125,7 @@ def test_connection_failures_are_capped_below_valid_document_scores():
     assert "CONN_ERROR" in " ".join(summary["record_evidence"][0]["signals"]).upper()
 
 
+@pytest.mark.live
 def test_http_fetcher_validate_url_access_caps_connection_error(monkeypatch):
     fetcher = HttpFetcher()
     monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)
@@ -218,6 +219,7 @@ def test_http_fetcher_uses_get_fallback_when_head_fails(monkeypatch):
     assert "fallback ok" in text
 
 
+@pytest.mark.live
 def test_browser_fallback_distinguishes_document_from_landing_page(monkeypatch):
     fetcher = HttpFetcher()
     monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)
