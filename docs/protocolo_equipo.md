@@ -249,6 +249,7 @@ Antigravity **para y escala a Claude** —no decide— cuando:
 
 | Situación | Por qué para |
 |---|---|
+| Hace falta escribir o completar contenido de `docs/decisiones.md` (incluido un umbral faltante en una decisión ya cerrada) para que un bloque cumpla su propio criterio | Es el artefacto de más larga vida del proyecto. La propuesta va en "Dudas / escalamientos" del parte, no directo al commit — aunque el texto parezca de bajo riesgo (ver B-06, donde salió bien pero no debió decidirse sola) |
 | Un candidato de URL no se puede verificar por contenido | Es exactamente donde el proyecto falló 4 veces (D-01) |
 | Un diff o un bloque de código que no entiende | Commitear a ciegas es cómo entra un bug silencioso |
 | Una fuente no encaja en el modelo declarativo | Marcarla es observación; qué hacer con ella es criterio (D-07) |

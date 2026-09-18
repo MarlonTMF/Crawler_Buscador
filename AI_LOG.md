@@ -209,3 +209,49 @@ igual.
 - **Quién tenía razón:** ambos en parte — Antigravity siguió el plan al pie
   de la letra y el plan estaba mal; la discrepancia de 54 líneas era visible
   en la salida que su propio parte pegó
+
+---
+
+## E-06 · El diagnóstico de D-08 fue exacto; la decisión de cómo arreglarlo no era mecánica
+
+- **Fecha / bloque:** 2026-09-18 · B-07 (bloque compartido 🅰️→🅲)
+- **Tipo:** verificación / criterio propio
+- **Herramienta:** Antigravity (diagnóstico), Claude (verificación y decisión)
+- **Qué propuso la IA (Antigravity):** Diagnóstico con precisión matemática
+  de las 3 causas del escape de mock de D-08 —`requests.post` a nivel de
+  módulo, `.env` cargando una clave real sin que nadie lo pidiera, y el
+  backoff de reintentos multiplicando el tiempo— con los 18s medidos de
+  `test_browser_fallback...` explicados exactamente como 2 URLs × 9s. Dos
+  preguntas elevadas para decisión: cómo partir los commits, y si convenía
+  aplicar el arreglo.
+- **Qué encontré o decidí yo:** Verifiqué las tres causas leyendo el código
+  yo mismo antes de decidir nada —no tomé el reporte como dado—, y hasta
+  ahí coincidía en todo. Encontré algo que el reporte no había señalado: el
+  `time.sleep` del backoff no está condicionado a que el fallo sea real,
+  así que arreglar solo el escape a Gemini dejaría los tests en 9-18s, no
+  en milisegundos. También confirmé algo que cambia la prioridad del
+  hallazgo: esta máquina tiene una clave de Gemini real cargando, así que
+  toda corrida de la suite completa gastaba cuota real en cada ejecución —
+  la misma cuota que este proyecto ya agotó dos veces antes.
+- **Cómo se resolvió:** Aprobé el diagnóstico y dos de las tres correcciones
+  propuestas (`self.session.post`, aislar los tests). Rechacé la tercera
+  —cambiar el default de `HttpFetcher` para no leer `.env` automáticamente—
+  por ser una superficie de cambio mayor a la necesaria: aislar los dos
+  tests puntuales con `gemini_api_key=None` explícito resuelve lo mismo con
+  menos riesgo. Decidí también que el fix va en el mismo commit que
+  introduce la función (nunca estuvo en HEAD con el bug), no en un commit de
+  arreglo separado.
+- **Por qué:** Es el primer bloque de este proyecto donde el reparto
+  Antigravity/Claude mostró su razón de ser con un caso real: el
+  diagnóstico técnico —encontrar la causa exacta— no requería el historial
+  acumulado del proyecto, y salió perfecto. La decisión de *qué hacer* con
+  ese diagnóstico sí lo requería: cambiar un default de clase que otros
+  scripts (`resolve_dead_domains.py`) dependen de tener, o tocar
+  `networkidle` ya que se estaba ahí (rechazado, es alcance de B-23), son
+  decisiones con consecuencias que se extienden más allá del bloque en
+  curso.
+- **Fuente:** lectura directa de `fetcher.py` (líneas 576, 81),
+  verificación de la clave real cargada, `docs/decisiones.md` D-08
+  actualizada
+- **Quién tenía razón:** ambos — el diagnóstico de Antigravity fue exacto;
+  el criterio sobre qué arreglar y qué no fue mío

@@ -245,16 +245,63 @@ existiendo y debe correrse antes de cerrar una fase grande del plan de
 cobertura — el filtro es para iteración rápida, no reemplaza la verificación
 completa.
 
-**Pendiente de verificar.** Por qué el mock de `fetcher.session` no
-intercepta la llamada real en esos 2 casos — probablemente el fallback usa
-`requests.get`/`requests.post` a nivel de módulo en vez de `self.session`,
-o pasa por `_probe_gemini_alternatives`/similar sin pasar por el objeto
-mockeado. No se investigó a fondo en esta sesión porque no era el objetivo;
-queda anotado para no repetir el hallazgo de cero.
+**Diagnóstico confirmado (2026-09-18, auditoría de B-07).** Tres causas
+independientes, verificadas leyendo `fetcher.py` línea por línea, no
+asumidas:
 
-**Umbral que reabriría esto.** Diagnosticar y corregir el escape del mock en `HttpFetcher` para que la suite completa pueda correr 100% desconectada y en <15s sin requerir deseleccionar tests `live` en el ciclo de desarrollo rápido.
+1. **Escape a nivel de módulo.** `_generate_gemini_content` llama
+   `requests.post(...)` directo, no `self.session.post(...)`. Los mocks
+   sobre `fetcher.session.head`/`.get` nunca lo interceptan.
+2. **Activación involuntaria por `.env` ambiental.** `HttpFetcher.__init__`
+   carga `GEMINI_API_KEY` de `.env` por defecto si no se pasa
+   `gemini_api_key` explícito. En cualquier máquina con una clave real
+   configurada —esta incluida, verificado: hay una clave de 39 caracteres
+   cargando en este entorno—, un test que simula una caída de conexión cae
+   en el fallback real a la API de Google sin que nadie lo pidiera.
+3. **El backoff de reintentos es real incluso con el mock.** `fetch_head` y
+   `fetch_html` ejecutan `time.sleep(1.5 * attempt)` entre reintentos
+   **sin condicionarlo a que el fallo sea real** — un mock que lanza la
+   excepción al instante igual duerme. 9s por método fallido (HEAD+GET),
+   ×2 URLs en `test_browser_fallback...` = los 18s medidos, exactos.
 
-**Verificado el.** 2026-09-17.
+**Consecuencia — más allá de la suite de tests.** Esto no era solo un
+problema de velocidad de tests: cualquier corrida de `pytest tests/`
+completa en una máquina con clave real configurada **gastaba cuota real de
+la API de Gemini en cada ejecución**, sin que apareciera en ningún log
+visible. Es la misma cuota que ya se agotó dos veces en sesiones anteriores
+de este proyecto (ver `RESUMEN_SESION.md`) — parte de ese agotamiento pudo
+venir de acá, no solo del uso intencional en `resolve_dead_domains.py`.
+
+**Decisión del fix.** Se corrige en el mismo commit que introduce
+`_generate_gemini_content` (nunca se había commiteado con el bug, así que no
+hace falta un commit de arreglo separado — se escribe bien desde el
+principio):
+
+- `_generate_gemini_content` pasa a usar `self.session.post(...)`.
+- Los dos tests afectados pasan `gemini_api_key=None` explícito al
+  construir `HttpFetcher()`, para que ningún `.env` ambiental los alcance
+  —es la guarda real: `_ask_gemini_for_alternatives` corta antes de llamar
+  a la red si `self.gemini_api_key` es falsy, sin importar qué esté
+  mockeado.
+- Ambos tests mockean también `time.sleep` para no pagar los 9-18s de
+  backoff real, que es comportamiento intencional del fetcher y no algo que
+  deba cambiar para producción.
+- Se retira `@pytest.mark.live` de ambos.
+
+**Lo que NO se cambia, y por qué.** El comportamiento por defecto de
+`HttpFetcher()` —cargar `.env` automáticamente si no se pasa clave— se
+queda igual. Es una decisión de conveniencia para el uso real (CLI,
+`resolve_dead_domains.py`) y cambiar el default para acomodar tests sería
+una superficie de cambio más grande y más riesgosa que corregir los dos
+tests puntuales que necesitaban aislarse del ambiente.
+
+**Umbral que reabriría esto.** Cumplido — ver "Decisión del fix" arriba.
+Si en el futuro aparece un tercer test que dependa de que el fallback a
+Gemini esté desactivado por defecto, aislarlo de la misma forma
+(`gemini_api_key=None` explícito), no cambiar el default de la clase.
+
+**Verificado el.** 2026-09-17 (hallazgo original) · 2026-09-18 (diagnóstico
+confirmado y fix decidido, B-07).
 
 ---
 
