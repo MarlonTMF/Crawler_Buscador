@@ -72,6 +72,8 @@ class HttpFetcher:
         honor_robots_txt: bool = True,
         gemini_api_key: Optional[str] = None,
         gemini_model: str = "gemini-2.0-flash",
+        use_playwright: bool = False,
+        headless_fetcher: Optional[HeadlessFetcher] = None,
     ):
         self.user_agent = user_agent
         self.timeout = timeout
@@ -80,6 +82,8 @@ class HttpFetcher:
         self.honor_robots_txt = honor_robots_txt
         self.gemini_api_key = gemini_api_key or _load_gemini_key_from_env_file()
         self.gemini_model = gemini_model
+        self.use_playwright = use_playwright
+        self.headless_fetcher = headless_fetcher
         
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": self.user_agent})
@@ -302,8 +306,9 @@ class HttpFetcher:
         html_candidates: list[str] = []
         browser_html: Optional[str] = force_browser_html
 
-        if browser_fallback and headless_fetcher is None:
-            headless_fetcher = HeadlessFetcher()
+        use_headless = browser_fallback or self.use_playwright
+        if use_headless and headless_fetcher is None:
+            headless_fetcher = self.headless_fetcher or HeadlessFetcher()
 
         try:
             ok, status, headers = self.fetch_head(url)
@@ -382,7 +387,7 @@ class HttpFetcher:
                 },
             }
 
-        if browser_fallback and headless_fetcher is not None:
+        if use_headless and headless_fetcher is not None:
             try:
                 ok, status, result = headless_fetcher.fetch(url)
                 if ok and result is not None:
@@ -490,6 +495,15 @@ class HttpFetcher:
         """Descarga página HTML respetando robots.txt, rate limits y reintentos con backoff."""
         if not self.is_url_allowed_by_robots(url):
             return False, 403, None
+
+        if self.use_playwright:
+            self._apply_rate_limit(url)
+            if self.headless_fetcher is None:
+                self.headless_fetcher = HeadlessFetcher(timeout_ms=self.timeout * 1000)
+            ok, status, result = self.headless_fetcher.fetch(url)
+            if ok and result is not None:
+                return True, status, result.html
+            return False, status, None
 
         self._apply_rate_limit(url)
         for attempt in range(1, self.max_retries + 1):

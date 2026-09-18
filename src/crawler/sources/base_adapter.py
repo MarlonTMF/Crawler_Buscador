@@ -54,6 +54,11 @@ class BaseSourceAdapter(ABC):
     def drop_query_params(self) -> List[str]:
         return self.config.get("canonicalization", {}).get("drop_query_parameters", [])
 
+    @property
+    def use_playwright(self) -> bool:
+        crawl_cfg = self.config.get("crawl", {})
+        return bool(crawl_cfg.get("use_playwright", False) or crawl_cfg.get("headless", False))
+
     @abstractmethod
     def is_url_excluded(self, url: str) -> bool:
         """Determina si una URL debe ser ignorada según reglas de exclusión de la fuente."""

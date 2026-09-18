@@ -1,0 +1,78 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: BCP (Banco Central del Paraguay)
+# Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
+# ==============================================================================
+
+source:
+  id: bcp
+  name: "Banco Central del Paraguay"
+  base_url: https://www.bcp.gov.py
+  allowed_domains:
+    - www.bcp.gov.py
+    - bcp.gov.py
+
+crawl:
+  seeds:
+    - https://www.bcp.gov.py/web/institucional/
+  # Fuente protegida por Cloudflare/WAF bot detection (D-03).
+  # Requiere navegador real (Playwright domcontentloaded) para acceder a los datos.
+  max_depth: 2
+  max_pages: 120
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: false
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: true
+  use_playwright_ocr: true
+  headless: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens: []
+    # TODO: completar tras explorar el sitio (ej. tokens en URL que indican documentos)
+  dataset_rules: []
+    # TODO: completar tras explorar el sitio (definir grupos logicos de documentos)
+  excluded_path_keywords: []
+    # TODO: completar tras explorar el sitio (rutas institucionales o no relevantes a omitir)
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "" # TODO: definir regex con (?P<year>...) segun nomenclatura de archivos de la fuente
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []

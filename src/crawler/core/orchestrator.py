@@ -39,9 +39,10 @@ class CrawlOrchestrator:
         self.source_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Allow optional async fetcher (opt-in via config: crawl.use_async_fetcher)
+        use_playwright = getattr(self.adapter, "use_playwright", False)
         use_async = False
         try:
-            use_async = bool(self.adapter.config.get("crawl", {}).get("use_async_fetcher", False))
+            use_async = bool(self.adapter.config.get("crawl", {}).get("use_async_fetcher", False)) and not use_playwright
         except Exception:
             use_async = False
 
@@ -65,7 +66,8 @@ class CrawlOrchestrator:
             self.fetcher = _SyncAsyncFetcherWrapper(async_client)
         else:
             self.fetcher = HttpFetcher(
-                rate_limit_seconds=self.adapter.rate_limit
+                rate_limit_seconds=self.adapter.rate_limit,
+                use_playwright=use_playwright,
             )
         self.discovery = DiscoveryEngine(self.fetcher, self.adapter)
         self.extractor = MetadataExtractor(self.fetcher, self.adapter)
