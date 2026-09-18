@@ -624,8 +624,8 @@
       "snippet_text": "<!doctype html>\n<html lang=\"es\">\n\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/x"
     },
     "Error_Detail": null,
-    "crawler_source": "bbv",
-    "crawler_dataset": "boletines_bursatiles"
+    "crawler_source": null,
+    "crawler_dataset": null
   },
   {
     "Fuente": "BCB",
@@ -921,7 +921,9 @@
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
     "note": "AMBIGUO: se uso La Paz (cadecolp.org, verificado 200) como representante porque fue el primero confirmado vivo. Tambien viven Cochabamba (cadecocbba.com, 200) y Santa Cruz (cadecocruz.org.bo, 200). NO viven actualmente: Chuquisaca (cadecochuquisaca.org.bo) ni el paraguas CABOCO (caboco.org), ambos con fallo de resolucion DNS al 2026-09-17 pese a que URLsFaltantes.md los reporto activos. Determinar el departamento original del registro SPIM antes de fijar una unica URL definitiva. DECISION CERRADA (verificada contra backup_10.0.0.12, tabla source id=18): el registro original nunca especifico departamento (name generico, homepage vacio, sin archivos ni observaciones asociadas) -> es indeterminable con los datos disponibles, no un dato perdido. Se fija La Paz (cadecolp.org) como registro canonico por decision de politica (sede/capital, verificado vivo), no como hecho recuperado. Si se requiere cobertura completa, desdoblar en entradas por departamento (Cochabamba y Santa Cruz tambien viven).",
     "decision_status": "cerrada (ambiguedad irrecuperable, decision de politica)",
-    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00"
+    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00",
+    "crawler_source": "cadeco",
+    "crawler_dataset": "boletines_construccion"
   },
   {
     "Fuente": "CADEXCO",
@@ -1553,7 +1555,9 @@
     },
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
-    "added_timestamp": "2026-09-17T15:56:11.362083+00:00"
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "crawler_source": "in",
+    "crawler_dataset": "memorias_institucionales"
   },
   {
     "Fuente": "INE",
@@ -1894,7 +1898,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "min_educacion",
+    "crawler_dataset": "documentos_educacion"
   },
   {
     "Fuente": "NIH",
@@ -2326,7 +2332,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "snis",
+    "crawler_dataset": "boletines_epidemiologicos"
   },
   {
     "Fuente": "SPVS-APS",
