@@ -106,3 +106,4 @@ resultadosPrimerCrawleoUnido.xlsx
 # de corrida. El resto de output/ sigue ignorado (crawls, jobs, caches).
 !output/excel_urls_diagnostic.json
 !output/url_resolution_log.json
+!output/fuentes_pendientes_decision_negocio.json

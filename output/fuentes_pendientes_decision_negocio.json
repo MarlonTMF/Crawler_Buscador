@@ -1,0 +1,82 @@
+[
+  {
+    "source_id": "63",
+    "codigo_spim": "ICNORTE",
+    "institucion": "ICNORTE",
+    "homepage_spim": "no-data",
+    "categoria": "d (pendiente decision de negocio)",
+    "descripcion_categoria": "Fuera del per?metro actual del cat?logo institucional, pero activas en SPIM con datos reales de retail/canasta de consumo",
+    "archivos_en_spim_count": 1,
+    "archivos": [
+      {
+        "id": "745",
+        "nombre": "Precios del SuperMercado ICENORTE",
+        "codigo": "D_BO_000000543"
+      }
+    ]
+  },
+  {
+    "source_id": "64",
+    "codigo_spim": "HIPERMAXI",
+    "institucion": "HIPERMAXI",
+    "homepage_spim": "no-data",
+    "categoria": "d (pendiente decision de negocio)",
+    "descripcion_categoria": "Fuera del per?metro actual del cat?logo institucional, pero activas en SPIM con datos reales de retail/canasta de consumo",
+    "archivos_en_spim_count": 1,
+    "archivos": [
+      {
+        "id": "746",
+        "nombre": "Precios del SuperMercado HIPERMAXI",
+        "codigo": "D_BO_000000544"
+      }
+    ]
+  },
+  {
+    "source_id": "65",
+    "codigo_spim": "FIDALGA",
+    "institucion": "FIDALGA",
+    "homepage_spim": "no-data",
+    "categoria": "d (pendiente decision de negocio)",
+    "descripcion_categoria": "Fuera del per?metro actual del cat?logo institucional, pero activas en SPIM con datos reales de retail/canasta de consumo",
+    "archivos_en_spim_count": 1,
+    "archivos": [
+      {
+        "id": "748",
+        "nombre": "Precios del SuperMercado FIDALGA",
+        "codigo": "D_BO_000000546"
+      }
+    ]
+  },
+  {
+    "source_id": "70",
+    "codigo_spim": "FARMACIA CHAVEZ",
+    "institucion": "Faramcias Chavez",
+    "homepage_spim": "https://www.farmaciaschavez.com.bo/",
+    "categoria": "d (pendiente decision de negocio)",
+    "descripcion_categoria": "Fuera del per?metro actual del cat?logo institucional, pero activas en SPIM con datos reales de retail/canasta de consumo",
+    "archivos_en_spim_count": 1,
+    "archivos": [
+      {
+        "id": "778",
+        "nombre": "Productos Farmaceutico por Categoria Chavez",
+        "codigo": "D_BO_000000555"
+      }
+    ]
+  },
+  {
+    "source_id": "71",
+    "codigo_spim": "FARMACORP",
+    "institucion": "Farmacorp",
+    "homepage_spim": "https://farmacorp.com/",
+    "categoria": "d (pendiente decision de negocio)",
+    "descripcion_categoria": "Fuera del per?metro actual del cat?logo institucional, pero activas en SPIM con datos reales de retail/canasta de consumo",
+    "archivos_en_spim_count": 1,
+    "archivos": [
+      {
+        "id": "780",
+        "nombre": "Productos Farmaceutico por Categoria Farmacorp",
+        "codigo": "D_BO_000000559"
+      }
+    ]
+  }
+]
