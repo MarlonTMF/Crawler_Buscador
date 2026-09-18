@@ -14,10 +14,13 @@ source:
 
 crawl:
   seeds:
-    - https://asofinbolivia.com/
     - https://asofinbolivia.com/index.php/boletines/
+    - https://asofinbolivia.com/index.php/2026/09/16/no-252/
+    - https://asofinbolivia.com/index.php/2026/08/13/no-251/
+    - https://asofinbolivia.com/index.php/2026/08/13/no-250/
+    - https://asofinbolivia.com/index.php/2025/08/11/memoria-2024/
   max_depth: 1
-  max_pages: 15
+  max_pages: 35
   strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
@@ -48,23 +51,33 @@ classification:
   document_path_tokens:
     - "/wp-content/uploads/"
     - "Bol_Fin"
+    - "Bol_FIN"
     - "Bol_Soc"
+    - "Memoria"
   dataset_rules:
     - id: boletines_microfinanzas
       name: "Boletines Financieros y Estadísticos del Sector Microfinanciero"
       url_patterns:
         - "Bol_Fin"
+        - "Bol_FIN"
         - "Bol_Soc"
+        - "Memoria"
         - "wp-content/uploads"
-        - "boletines"
+        - "estatuto"
+        - "acta-fundacion"
       title_keywords:
         - "boletin"
         - "financiero"
         - "microfinanzas"
         - "asofin"
+        - "memoria"
+        - "descargar"
   excluded_path_keywords:
     - "/contacto"
     - "/login"
+    - "/page/"
+    - "/cursos"
+    - "/links-de-interes"
 
 period_extraction:
   months_es:

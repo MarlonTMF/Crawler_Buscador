@@ -28,3 +28,21 @@ def test_layered_date_extraction():
     assert res_l2.period_end == "2025-05-31"
     assert res_l2.confidence == "medium"
     assert res_l2.method == "dom_context"
+
+
+def test_fetch_head_network_error_resilience(monkeypatch):
+    from unittest.mock import MagicMock
+    import requests
+
+    fetcher = HttpFetcher(max_retries=2)
+    fetcher.session = MagicMock()
+    fetcher.session.head.side_effect = requests.exceptions.ConnectionError("Connection refused")
+    monkeypatch.setattr("time.sleep", lambda s: None)
+
+    success, status, headers = fetcher.fetch_head("https://broken.example.com/test.pdf")
+    assert success is False
+    assert status == 0
+    assert headers == {}
+    assert fetcher.session.head.call_count == 2
+
+
