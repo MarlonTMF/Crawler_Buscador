@@ -104,18 +104,16 @@ estimación del mismo tipo de trabajo depende de eso.
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-12 | Generador de esqueletos YAML desde el diagnóstico | 75 min | — | ⬜ | `feat:` |
-| B-13 | Runner por lotes con reporte de cobertura | 60 min | — | ⬜ | `feat:` |
-| B-14 | Lote 1 — 4 fuentes (las de mayor evidencia) | 80 min | — | ⬜ | `feat:` |
-| B-15 | Lote 2 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-16 | Lote 3 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-17 | Lote 4 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-18 | Lote 5 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-19 | Lote 6 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-20 | Lote 7 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-21 | Lote 8 — 4 fuentes | 80 min | — | ⬜ | `feat:` |
-| B-22 | Lote 9 — 2 fuentes restantes + cierre | 50 min | — | ⬜ | `feat:` |
-| | **Subtotal etapa C** | **13 h 45 min** | | | |
+| B-12 | Generador de esqueletos YAML desde el diagnóstico | 75 min | — | ✅ | `feat:` |
+| B-13 | Runner por lotes con reporte de cobertura | 60 min | — | ✅ | `feat:` |
+| B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `feat:` |
+| B-15 | Lote 2 — 4 fuentes (APS, ADA, DGAC, SEPREC) + consolidación de portales | 80 min | 80 min | ✅ | `feat:` |
+| B-16 | Lote 3 — 4 portales | 80 min | — | ⬜ | `feat:` |
+| B-17 | Lote 4 — 4 portales | 80 min | — | ⬜ | `feat:` |
+| B-18 | Lote 5 — 4 portales | 80 min | — | ⬜ | `feat:` |
+| B-19 | Lote 6 — 4 portales | 80 min | — | ⬜ | `feat:` |
+| B-20 | Lote 7 — 1 portal restante + cierre de onboarding | 40 min | — | ⬜ | `feat:` |
+| | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 15 min** | | | |
 
 ### Etapa D · Calibración (Fase 3)
 
@@ -691,11 +689,18 @@ feat: runner por lotes con reporte de cobertura real
 
 ---
 
-## B-14 a B-22 · Lotes de onboarding (34 fuentes)
+## B-14 a B-20 · Lotes de onboarding (25 portales únicos tras consolidación)
 
-Nueve bloques con la **misma estructura**. Se describen una sola vez.
+Siete bloques (B-14 a B-20) con la **misma estructura**.
+> **Ajuste B-14/B-15 (consolidación de portales):** el catálogo tenía 15 entradas
+> compartiendo 6 portales (`asfi.gob.bo`, `aps.gob.bo`, `bcb.gob.bo`, `att.gob.bo`,
+> `icco.org`, `ruralytierras.gob.bo`), más 3 de procedencia histórica (`SPVS-ASFI`,
+> `SPVS-APS`, `SUPTRANS`). Aplicando la regla de 1 YAML por portal y datasets por
+> institución/tema, el universo se redujo de 34 fuentes a 25 portales únicos
+> (ahorro de 9 YAMLs y corridas redundantes). Con B-14 (4 portales) y B-15 (4 portales),
+> quedan 17 portales por onboardear en B-16 a B-20.
 
-**Objetivo de cada bloque.** Dejar 4 fuentes (2 en el último) con YAML propio
+**Objetivo de cada bloque.** Dejar 4 portales (1 en el último) con YAML propio
 y al menos un documento real extraído y verificado.
 
 **Entradas.** B-12 y B-13 cerrados. Track A resuelto para esas 4 fuentes.

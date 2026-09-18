@@ -14,15 +14,16 @@ source:
 
 crawl:
   seeds:
-    - https://www.asfi.gob.bo
     - https://www.asfi.gob.bo/pagina-memoria-institucional
     - https://www.asfi.gob.bo/la/balance-general
     - https://www.asfi.gob.bo/la/seguimiento-y-evaluacion-al-poa
+    - https://www.asfi.gob.bo/la/documentos-y-formularios
+    - https://www.asfi.gob.bo/la/entidades-intermediacion-financiera-licencia-funcionamiento
   max_depth: 0
-  max_pages: 5
+  max_pages: 10
   strategy: bfs
   rate_limit_per_second: 1.0
-  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
   use_sitemaps: false
   use_wayback: false
   use_search_dorking: false
@@ -52,6 +53,11 @@ classification:
     - "MEMORIA"
     - "Balance"
     - "POA"
+    - "valores"
+    - "Valores"
+    - "Desarrollo"
+    - "Intermediaci"
+    - "Entidades"
   dataset_rules:
     - id: memoria_institucional
       name: "Memorias Institucionales Anuales"
@@ -62,6 +68,34 @@ classification:
         - "memoria"
         - "anual"
         - "institucional"
+    - id: mercado_valores
+      name: "Mercado de Valores"
+      url_patterns:
+        - "valores"
+        - "Valores"
+        - "colocaci"
+        - "Tasas"
+        - "CircularValores"
+      title_keywords:
+        - "valores"
+        - "mercado"
+        - "riesgo"
+        - "auditor"
+    - id: instituciones_financieras_desarrollo
+      name: "Instituciones Financieras de Desarrollo e Intermediación"
+      url_patterns:
+        - "Desarrollo"
+        - "desarrollo"
+        - "Intermediaci"
+        - "intermediacion"
+        - "Entidades"
+        - "IFD"
+      title_keywords:
+        - "desarrollo"
+        - "financiera"
+        - "licencia"
+        - "intermediacion"
+        - "entidades"
     - id: balance_general
       name: "Balances Generales y Estados Financieros"
       url_patterns:

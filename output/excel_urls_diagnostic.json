@@ -204,7 +204,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "aps",
+    "crawler_dataset": "seguros_pensiones"
   },
   {
     "Fuente": "APS/SOAT",
@@ -283,7 +285,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "aps",
+    "crawler_dataset": "soat"
   },
   {
     "Fuente": "ASFI",
@@ -314,7 +318,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "asfi",
+    "crawler_dataset": "memoria_institucional"
   },
   {
     "Fuente": "ASFI - BCB",
@@ -398,7 +404,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "bcb",
+    "crawler_dataset": "informes_regulatorios"
   },
   {
     "Fuente": "ASFI - FINRURAL",
@@ -429,7 +437,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "asfi",
+    "crawler_dataset": "instituciones_financieras_desarrollo"
   },
   {
     "Fuente": "ASFI-Valores",
@@ -460,7 +470,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "asfi",
+    "crawler_dataset": "mercado_valores"
   },
   {
     "Fuente": "ASOFIN",
@@ -570,7 +582,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "att",
+    "crawler_dataset": "telecomunicaciones"
   },
   {
     "Fuente": "BBV",
@@ -681,7 +695,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "bcb",
+    "crawler_dataset": "estadisticas_generales"
   },
   {
     "Fuente": "BCB_BRASIL",
@@ -1206,7 +1222,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "icco",
+    "crawler_dataset": "programas_fdta_valles"
   },
   {
     "Fuente": "FEGASACRUZ",
@@ -1479,7 +1497,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "icco",
+    "crawler_dataset": "estadisticas_cacao"
   },
   {
     "Fuente": "IN",
@@ -1633,7 +1653,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "mdryt",
+    "crawler_dataset": "estadisticas_rurales"
   },
   {
     "Fuente": "MDRyT/OAP",
@@ -1678,7 +1700,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "mdryt",
+    "crawler_dataset": "oap_agropecuario"
   },
   {
     "Fuente": "MEFP",
@@ -2296,7 +2320,11 @@
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
-    "note": "SPVS se dividio: pensiones y seguros paso a APS, valores paso a ASFI (ver registro SPVS-ASFI). Base legal: Ley 365 (23/04/2013) y DS 0071 (09/04/2009)."
+    "note": "SPVS se dividio: pensiones y seguros paso a APS, valores paso a ASFI (ver registro SPVS-ASFI). Base legal: Ley 365 (23/04/2013) y DS 0071 (09/04/2009).",
+    "crawler_source": "aps",
+    "crawler_dataset": null,
+    "crawler_no_onboard": true,
+    "crawler_no_onboard_reason": "Procedencia historica: la institucion fue disuelta y sus funciones absorbidas por el portal indicado en crawler_source. No aporta documentos propios."
   },
   {
     "Fuente": "SPVS-ASFI",
@@ -2324,7 +2352,11 @@
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
-    "note": "Ver SPVS-APS para la funcion de pensiones/seguros. Este registro cubre solo la funcion de supervision del mercado de valores, hoy en ASFI (dominio ya trackeado tambien bajo Fuente=ASFI)."
+    "note": "Ver SPVS-APS para la funcion de pensiones/seguros. Este registro cubre solo la funcion de supervision del mercado de valores, hoy en ASFI (dominio ya trackeado tambien bajo Fuente=ASFI).",
+    "crawler_source": "asfi",
+    "crawler_dataset": null,
+    "crawler_no_onboard": true,
+    "crawler_no_onboard_reason": "Procedencia historica: la institucion fue disuelta y sus funciones absorbidas por el portal indicado en crawler_source. No aporta documentos propios."
   },
   {
     "Fuente": "SUPTRANS",
@@ -2352,7 +2384,11 @@
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
-    "note": "Dominio ya trackeado tambien bajo Fuente=ATT; este registro documenta la procedencia SUPTRANS del SPIM."
+    "note": "Dominio ya trackeado tambien bajo Fuente=ATT; este registro documenta la procedencia SUPTRANS del SPIM.",
+    "crawler_source": "att",
+    "crawler_dataset": null,
+    "crawler_no_onboard": true,
+    "crawler_no_onboard_reason": "Procedencia historica: la institucion fue disuelta y sus funciones absorbidas por el portal indicado en crawler_source. No aporta documentos propios."
   },
   {
     "Fuente": "Statistics Denmark",
