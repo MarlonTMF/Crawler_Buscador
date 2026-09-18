@@ -37,8 +37,16 @@ Fuente: `output/excel_urls_diagnostic.json`, 67 registros limpios (sin duplicado
 |---|---|---|---|
 | HTTP 200 simple | 62 / 67 | 92.5% | Resuelven directamente por GET HTTP simple |
 | **Verificada y accesible** | **64 / 67** | **95.5%** | **Cifra principal de Track A**: incluye 62 en 200 + BCP y BCRP que requieren Headless por Cloudflare/WAF |
-| Exclusiones documentadas | 3 / 67 | 4.5% | FMI (403 Akamai WAF), FUNDEMPRESA (410, concesión estatal concluida), BOLCEREALES (DISUELTA) |
-| **Total Track A justificado** | **67 / 67** | **100.0%** | **Catálogo 100% auditado y clasificado con justificación empírica** |
+| Exclusiones documentadas | 3 / 67 | 4.5% | FMI (403 Akamai WAF), FUNDEMPRESA (410 confirmado; sucesión por SEPREC **probable pero sin verificar** — ver abajo), BOLCEREALES (DISUELTA) |
+| Catálogo clasificado | 67 / 67 | — | Ninguna fuente queda sin explicación. **Esto no es una cifra de cobertura**: mide que todas están auditadas, no que todas funcionen. No usar como "100%" en una presentación. |
+
+> **Salvedad que no debe perderse al citar (auditoría B-11).** La afirmación
+> "la concesión de FUNDEMPRESA fue transferida por ley a SEPREC" **no está
+> verificada**. Lo comprobado es: `fundempresa.org.bo` devuelve 410, y
+> `seprec.gob.bo` opera el Registro de Comercio (8 menciones en su portada,
+> ninguna a FUNDEMPRESA). La sucesión es plausible y sigue sin documentarse.
+> Se anota así porque esta salvedad ya se perdió una vez al pasar de una
+> auditoría a este documento.
 
 *Histórico de línea base (2026-09-17):* 59/63 (93.7%) sobre un universo preliminar sin auditar.
 
