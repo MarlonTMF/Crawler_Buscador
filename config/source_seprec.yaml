@@ -1,0 +1,101 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: SEPREC (Servicio Plurinacional de Registro de Comercio)
+# Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
+# ==============================================================================
+
+source:
+  id: seprec
+  name: "Servicio Plurinacional de Registro de Comercio"
+  base_url: https://www.seprec.gob.bo
+  allowed_domains:
+    - www.seprec.gob.bo
+    - seprec.gob.bo
+
+crawl:
+  seeds:
+    - https://www.seprec.gob.bo
+    - https://www.seprec.gob.bo/index.php/memoria-intitucional/
+    - https://www.seprec.gob.bo/index.php/normativa-interna/
+  max_depth: 0
+  max_pages: 5
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: false
+  use_wayback: false
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens:
+    - "/wp-content/uploads/"
+    - "Memoria-"
+    - "RESOLUCION"
+    - "RA-"
+    - "AEMP-RA"
+  dataset_rules:
+    - id: memoria_institucional
+      name: "Memorias Anuales Institucionales"
+      url_patterns:
+        - "Memoria"
+        - "memoria"
+      title_keywords:
+        - "memoria"
+        - "anual"
+    - id: resoluciones_normativas
+      name: "Resoluciones Administrativas y Normativa Interna"
+      url_patterns:
+        - "RESOLUCION"
+        - "resolucion"
+        - "RA-"
+        - "AEMP-RA"
+      title_keywords:
+        - "resolucion"
+        - "administrativa"
+        - "normativa"
+  excluded_path_keywords:
+    - "/contacto"
+    - "/login"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "" # TODO: definir regex con (?P<year>...) segun nomenclatura de archivos de la fuente
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []
