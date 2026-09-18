@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 import subprocess
 import uuid
@@ -16,6 +17,30 @@ ROOT = Path(__file__).resolve().parent
 DASHBOARD_DIR = ROOT / "dashboard"
 JSON_PATH = ROOT / "output" / "excel_urls_diagnostic.json"
 BASELINE_PATH = ROOT / "resultadosPrimerCrawleoUnido.xlsx"
+
+
+def _load_runtime_gemini_key() -> str:
+    if os.getenv("GEMINI_API_KEY"):
+        return os.getenv("GEMINI_API_KEY")
+
+    for env_path in [ROOT / ".env", Path.home() / ".env"]:
+        if not env_path.exists():
+            continue
+        try:
+            for line in env_path.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#") or "=" not in stripped:
+                    continue
+                key, value = [part.strip() for part in stripped.split("=", 1)]
+                if key == "GEMINI_API_KEY":
+                    os.environ["GEMINI_API_KEY"] = value.strip("\"'")
+                    return os.environ["GEMINI_API_KEY"]
+        except Exception:
+            continue
+    return ""
+
+
+_load_runtime_gemini_key()
 
 # Simple in-memory job registry
 JOBS: Dict[str, Dict[str, Any]] = {}
@@ -191,7 +216,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                     return
 
                 # default: job metadata
-                minimal = {k: job.get(k) for k in ('id', 'type', 'status', 'stage', 'stage_detail', 'alternative_url', 'target_url', 'error_detail', 'alternatives', 'analysis_results', 'tested', 'total', 'start_ts', 'end_ts')}
+                minimal = {k: job.get(k) for k in ('id', 'type', 'status', 'stage', 'stage_detail', 'alternative_url', 'target_url', 'error_detail', 'alternatives', 'analysis_results', 'tested', 'total', 'start_ts', 'end_ts', 'gemini_verdict', 'gemini_summary')}
                 progress_path = job.get('progress_path')
                 if progress_path:
                     try:
@@ -382,28 +407,27 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                         with JOBS_LOCK:
                             JOBS[jid].update({'stage': 'direct_check', 'stage_detail': 'Validando acceso directo, robots.txt y respuesta HTTP'})
                         result = fetcher.validate_url_access(target_url, browser_fallback=True, allow_variants=False)
-                        if not result.get('reachable_http'):
-                            with JOBS_LOCK:
-                                JOBS[jid].update({'stage': 'searching_alternative', 'stage_detail': 'La URL original no respondió. Buscando una alternativa similar.'})
-                            alternative_url = fetcher._try_url_variants(target_url)
-                            if alternative_url:
-                                confirmation_event = threading.Event()
-                                with JOBS_LOCK:
-                                    JOBS[jid].update({'status': 'awaiting_confirmation', 'stage': 'awaiting_confirmation', 'stage_detail': 'Alternativa sugerida. Esperando tu confirmación para analizarla.', 'alternative_url': alternative_url, 'confirmation_event': confirmation_event})
-                                if not confirmation_event.wait(timeout=300):
-                                    raise RuntimeError('No se confirmó la URL alternativa dentro del tiempo permitido.')
-                                with JOBS_LOCK:
-                                    JOBS[jid].update({'status': 'running', 'stage': 'alternative_check', 'stage_detail': f'Analizando alternativa aceptada: {alternative_url}', 'target_url': alternative_url})
-                                result = fetcher.validate_url_access(alternative_url, browser_fallback=True, allow_variants=False)
-                                result['mapped_from'] = target_url
-                                result['resolved_from_variant'] = True
-                                result['original_url'] = target_url
+                        if original_url and original_url != target_url:
+                            result['mapped_from'] = original_url
+                            result['resolved_from_variant'] = True
+                            result['original_url'] = original_url
+                        elif not result.get('reachable_http'):
+                            alt = fetcher._try_url_variants(target_url)
+                            if alt and alt != target_url:
+                                res_alt = fetcher.validate_url_access(alt, browser_fallback=True, allow_variants=False)
+                                if res_alt.get('reachable_http'):
+                                    result = res_alt
+                                    result['mapped_from'] = target_url
+                                    result['resolved_from_variant'] = True
+                                    result['original_url'] = target_url
+
                         mapped = bool(result.get('resolved_from_variant'))
                         error_type = result.get('error_type')
                         with JOBS_LOCK:
                             JOBS[jid].update({
-                                'stage': 'alternative_resolved' if mapped else ('completed' if not error_type else 'failed'),
-                                'stage_detail': (f"Alternativa encontrada y validada: {result.get('final_url')}" if mapped else (f"Error técnico: {error_type}" if error_type else 'Acceso directo validado')),
+                                'status': 'finished',
+                                'stage': 'completed',
+                                'stage_detail': (f"Alternativa validada: {result.get('final_url')}" if mapped else (f"Respuesta HTTP {result.get('status_code')}" if result.get('reachable_http') else f"Error: {error_type or 'CONN_ERROR'}")),
                                 'alternative_url': result.get('final_url') if mapped else None,
                             })
                         with open(logfile, 'w', encoding='utf-8') as fh:
@@ -547,6 +571,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             except Exception:
                 payload = {}
             url = payload.get('url')
+            api_key = payload.get('api_key') or os.getenv('GEMINI_API_KEY') or _load_runtime_gemini_key()
             if url:
                 jobid = uuid.uuid4().hex
                 logpath = JOBS_DIR / f"{jobid}.log"
@@ -556,7 +581,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 with JOBS_LOCK:
                     JOBS[jobid] = {**initial_job, 'meta_path': str(metapath), 'log_path': str(logpath), 'tested': 0, 'total': 0}
 
-                def _probe_job(jid, logfile, target_url):
+                def _probe_job(jid, logfile, target_url, gemini_key):
                     with JOBS_LOCK:
                         JOBS[jid].update({'status': 'running', 'stage': 'probing', 'stage_detail': 'Probando esquema, www, ruta y terminaciones .org/.bo/.com'})
                         metapath = Path(JOBS[jid]['meta_path'])
@@ -564,7 +589,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                     try:
                         from crawler.core.fetcher import HttpFetcher
 
-                        fetcher = HttpFetcher(timeout=4, max_retries=1, rate_limit_seconds=0.0)
+                        fetcher = HttpFetcher(timeout=4, max_retries=1, rate_limit_seconds=0.0, gemini_api_key=gemini_key)
                         candidates = fetcher._generate_url_variants(target_url)
                         with JOBS_LOCK:
                             JOBS[jid].update({'total': len(candidates)})
@@ -572,7 +597,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                         from concurrent.futures import ThreadPoolExecutor, as_completed
 
                         def probe(candidate):
-                            local_fetcher = HttpFetcher(timeout=4, max_retries=1, rate_limit_seconds=0.0)
+                            local_fetcher = HttpFetcher(timeout=4, max_retries=1, rate_limit_seconds=0.0, gemini_api_key=gemini_key)
                             return local_fetcher.probe_url_variant(candidate)
 
                         with ThreadPoolExecutor(max_workers=6) as executor:
@@ -583,18 +608,88 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                                 with JOBS_LOCK:
                                     JOBS[jid].update({'tested': index, 'alternatives': list(results), 'stage_detail': f'Probada {index} de {len(candidates)}: {item["url"]}'})
                                     Path(JOBS[jid]['meta_path']).write_text(json.dumps(JOBS[jid], ensure_ascii=False), encoding='utf-8')
+
+                        gemini_verdict = fetcher._ask_gemini_for_url_verdict(target_url, failed_candidates=candidates)
+                        with JOBS_LOCK:
+                            JOBS[jid].update({'gemini_verdict': gemini_verdict})
+
+                        extra_urls = []
+                        if gemini_verdict.get('best_url'):
+                            extra_urls.append(gemini_verdict['best_url'])
+                        for alt in gemini_verdict.get('alternatives') or []:
+                            if alt not in extra_urls:
+                                extra_urls.append(alt)
+
+                        existing_urls = {item['url'] for item in results}
+                        unreachable_gemini_seeds = []
+                        for extra_url in extra_urls:
+                            if extra_url not in existing_urls and extra_url != target_url:
+                                probe = fetcher.probe_url_variant(extra_url)
+                                probe['source'] = 'gemini'
+                                probe['fallback_method'] = 'gemini'
+                                results.append(probe)
+                                existing_urls.add(extra_url)
+                                if not probe.get('reachable'):
+                                    unreachable_gemini_seeds.append(extra_url)
+
+                        gemini_results = fetcher._probe_gemini_alternatives(target_url)
+                        for item in gemini_results:
+                            if item.get('url') not in existing_urls and item.get('url') != target_url:
+                                results.append(item)
+                                existing_urls.add(item['url'])
+                                if not item.get('reachable') and item.get('url'):
+                                    unreachable_gemini_seeds.append(item['url'])
+
+                        # Intercambio Gemini <-> motor de variantes: Gemini a veces acierta la
+                        # institución/sucesora pero se equivoca en el dominio exacto (TLD, con/sin
+                        # www, con/sin ruta). En vez de descartar el candidato apenas su URL literal
+                        # no responde, se lo vuelve a pasar por el motor local de variantes
+                        # (_generate_url_variants) para intentar encontrar la URL real por
+                        # permutación mecánica antes de darlo por muerto.
+                        variant_hits = 0
+                        for seed in unreachable_gemini_seeds:
+                            try:
+                                seed_variants = fetcher._generate_url_variants(seed)
+                            except Exception:
+                                continue
+                            for candidate in seed_variants:
+                                if candidate in existing_urls or candidate == seed:
+                                    continue
+                                probe = fetcher.probe_url_variant(candidate)
+                                probe['source'] = 'gemini+variant'
+                                probe['fallback_method'] = 'gemini+variant'
+                                probe['gemini_seed'] = seed
+                                results.append(probe)
+                                existing_urls.add(candidate)
+                                if probe.get('reachable'):
+                                    variant_hits += 1
+
+                        if gemini_results or extra_urls:
+                            with JOBS_LOCK:
+                                detail = 'Gemini devolvió sugerencias adicionales; se han integrado para análisis.'
+                                if variant_hits:
+                                    detail += f' Se recuperaron {variant_hits} URL(s) reales probando variantes de las sugerencias de Gemini.'
+                                JOBS[jid].update({'stage_detail': detail})
+
                         with open(logfile, 'w', encoding='utf-8') as fh:
                             fh.write(json.dumps(results, ensure_ascii=False, indent=2))
                         reachable = [item for item in results if item.get('reachable')]
+                        verdict_message = gemini_verdict.get('reason') or 'Gemini no devolvió un veredicto.'
+                        if gemini_verdict.get('status') == 'moved' and gemini_verdict.get('best_url'):
+                            verdict_message = f"Gemini indica que la URL cambió a: {gemini_verdict['best_url']}. {gemini_verdict.get('reason', '')}".strip()
+                        elif gemini_verdict.get('status') == 'not_found':
+                            verdict_message = f"Gemini indica que la URL probablemente ya no existe. {gemini_verdict.get('reason', '')}".strip()
+                        elif gemini_verdict.get('status') == 'exists':
+                            verdict_message = f"Gemini indica que la URL o portal equivalente aún existe. {gemini_verdict.get('reason', '')}".strip()
                         with JOBS_LOCK:
-                            JOBS[jid].update({'status': 'finished', 'stage': 'completed', 'stage_detail': f'{len(reachable)} alternativas accesibles de {len(results)} probadas', 'alternatives': results, 'end_ts': time.time()})
+                            JOBS[jid].update({'status': 'finished', 'stage': 'completed', 'stage_detail': f'{len(reachable)} alternativas accesibles de {len(results)} probadas ({"Gemini" if any(item.get("source") == "gemini" for item in results) else "variaciones locales"})', 'alternatives': results, 'end_ts': time.time(), 'gemini_verdict': gemini_verdict, 'gemini_summary': verdict_message})
                             Path(JOBS[jid]['meta_path']).write_text(json.dumps(JOBS[jid], ensure_ascii=False), encoding='utf-8')
                     except Exception as exc:
                         with JOBS_LOCK:
                             JOBS[jid].update({'status': 'failed', 'stage': 'failed', 'stage_detail': f'Error probando alternativas: {exc}', 'error_detail': str(exc), 'end_ts': time.time()})
                             Path(JOBS[jid]['meta_path']).write_text(json.dumps(JOBS[jid], ensure_ascii=False), encoding='utf-8')
 
-                threading.Thread(target=_probe_job, args=(jobid, str(logpath), url), daemon=True).start()
+                threading.Thread(target=_probe_job, args=(jobid, str(logpath), url, api_key), daemon=True).start()
                 resp = json.dumps({'status': 'accepted', 'action': 'probe_alternatives', 'job_id': jobid, 'url': url}).encode('utf-8')
                 self.send_response(202)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -662,14 +757,69 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             payload = json.loads(body.decode('utf-8') or '{}')
             original = payload.get('original_url')
             selected = payload.get('selected') or {}
-            resolved = selected.get('url')
+            resolved = payload.get('resolved_url') or selected.get('url') or payload.get('url')
             data = json.loads(JSON_PATH.read_text(encoding='utf-8')) if JSON_PATH.exists() else []
             for entry in data:
-                if (entry.get('Url_Original') or entry.get('url')) == original:
-                    entry.update({'Url_Original': resolved, 'Final_Url': resolved, 'original_url': original, 'mapped_from': original, 'resolved_from_variant': True, 'mapping_resolved': resolved, 'HTTP_Status': selected.get('http_status') or selected.get('status') or 200, 'Score_Excel': round(float(selected.get('score', 0) or 0), 1), 'Error_Detail': selected.get('error'), 'Diagnosticos_Excel': ['alternativa seleccionada', 'acceso validado']})
+                orig = entry.get('Url_Original') or entry.get('original') or entry.get('url')
+                if orig == original or entry.get('mapped_from') == original or entry.get('Final_Url') == original:
+                    entry.update({
+                        'Url_Original': original,
+                        'Final_Url': resolved,
+                        'original_url': original,
+                        'mapped_from': original,
+                        'resolved_from_variant': True,
+                        'mapping_resolved': resolved,
+                        'HTTP_Status': selected.get('http_status') or selected.get('status') or 200,
+                        'Score_Excel': round(float(selected.get('score', 0) or 8.0), 1),
+                        'Error_Detail': selected.get('error'),
+                        'Diagnosticos_Excel': ['alternativa elegida por IA/usuario', 'acceso validado']
+                    })
                     break
             JSON_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
             resp = json.dumps({'status': 'ok', 'original_url': original, 'resolved_url': resolved}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
+        if parsed.path == '/api/ask_gemini_verdict':
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            payload = json.loads(body.decode('utf-8') or '{}')
+            target_url = payload.get('url')
+            api_key = payload.get('api_key') or os.getenv('GEMINI_API_KEY') or _load_runtime_gemini_key()
+            if api_key:
+                os.environ['GEMINI_API_KEY'] = api_key
+            
+            if not target_url:
+                resp = json.dumps({'status': 'error', 'message': 'Falta parametro url'}).encode('utf-8')
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(resp)))
+                self.end_headers()
+                self.wfile.write(resp)
+                return
+
+            from crawler.core.fetcher import HttpFetcher
+            fetcher = HttpFetcher(timeout=15, gemini_api_key=api_key)
+            verdict = fetcher._ask_gemini_for_url_verdict(target_url)
+
+            job_id = payload.get('job_id')
+            if job_id and job_id in JOBS:
+                with JOBS_LOCK:
+                    JOBS[job_id].update({'gemini_verdict': verdict})
+                    if verdict.get('best_url'):
+                        existing = JOBS[job_id].get('alternatives') or []
+                        existing_urls = {item.get('url') for item in existing}
+                        if verdict['best_url'] not in existing_urls:
+                            probe = fetcher.probe_url_variant(verdict['best_url'])
+                            probe['source'] = 'gemini'
+                            existing.append(probe)
+                            JOBS[job_id]['alternatives'] = existing
+
+            resp = json.dumps({'status': 'ok', 'gemini_verdict': verdict}).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(resp)))

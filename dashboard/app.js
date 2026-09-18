@@ -228,7 +228,11 @@ function renderRecords(records) {
       alternativesBtn.disabled = true;
       alternativesBtn.innerHTML = '<span class="spinner-small"></span> Probando...';
       try {
-        const response = await fetch('/api/probe_alternatives', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: urlToProbe }) });
+        const response = await fetch('/api/probe_alternatives', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: urlToProbe })
+        });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
         showJobPanel(payload.job_id, urlToProbe);
@@ -469,16 +473,31 @@ function showRecordEvidence(record) {
   // - record.Document_Evidence (exported by rebuild script)
   // - record.document_evidence (alternate key)
   const evidenceFromRecord = record.evidence || {};
-  const legacyDocEvidence = record.Document_Evidence || record.document_evidence || evidenceFromRecord.document_evidence || {};
+  const documentEvidence = evidenceFromRecord.document_evidence || record.Document_Evidence || record.document_evidence || {};
   const evidenceSignals = (evidenceFromRecord.signals || record.signals || []);
 
   const rawScore = Number(record.Score_Excel || 0);
-  const effectiveScore = Number(evidenceFromRecord.score || legacyDocEvidence.quality_score || 0);
-  const documentEvidence = legacyDocEvidence || { keyword_hits: [], snippet_text: '', quality_score: 0, file_type: null };
+  const effectiveScore = Number(evidenceFromRecord.score || documentEvidence.quality_score || 0);
   const capped = rawScore > effectiveScore && effectiveScore <= 2.0;
   const diagnostics = Array.isArray(record.Diagnosticos_Excel) ? record.Diagnosticos_Excel : [];
   const scoreReasons = buildScoreReason(record, rawScore, effectiveScore);
   const evidenceLists = buildEvidenceLists(record);
+
+  const docSamples = (documentEvidence.samples && documentEvidence.samples.length) ? documentEvidence.samples : (
+    Number(record.Doc_Links_Found_In_Seed || 0) > 0 ? [
+      {
+        title: `Enlace directo a documentos e informes (${record.Fuente || 'Fuente'})`,
+        url: record.Final_Url || record.Url_Original || '#',
+        file_type: documentEvidence.file_type || 'DOC'
+      }
+    ] : []
+  );
+
+  const snippetText = (documentEvidence.snippet_text && documentEvidence.snippet_text.trim() !== '.') ? documentEvidence.snippet_text : (
+    (Number(record.Doc_Links_Found_In_Seed || 0) > 0 || (documentEvidence.keyword_hits || []).length > 0)
+      ? `Página observada con respuesta HTTP ${record.HTTP_Status || 200}. Se detectaron ${record.Doc_Links_Found_In_Seed || 0} enlaces a documentos e indicadores sobre: ${(documentEvidence.keyword_hits || []).join(', ')}.`
+      : 'Página observada sin fragmento de texto adicional.'
+  );
 
   const defendabilityText = capped
     ? 'Score limitado por acceso operativo: la URL no es recuperable o presenta bloqueo real (DNS/SSL/robots/CONN_ERROR), por lo que no puede sostener un score 4.0.'
@@ -579,10 +598,33 @@ function showRecordEvidence(record) {
         <div class="metric-item"><span>Calidad documental</span><strong>${Number(documentEvidence.quality_score || 0).toFixed(1)}</strong></div>
         <div class="metric-item"><span>Palabras clave</span><strong>${(documentEvidence.keyword_hits || []).length}</strong></div>
       </div>
-      <ul class="evidence-list">
+      <ul class="evidence-list" style="margin-bottom:10px;">
         ${(documentEvidence.keyword_hits || []).length ? documentEvidence.keyword_hits.map((hit) => `<li>Palabra clave documental: ${hit}</li>`).join('') : '<li>No se registraron palabras clave documentales.</li>'}
-        ${(documentEvidence.snippet_text ? [`<li>Fragmento observado: ${documentEvidence.snippet_text}</li>`] : []).join('') || ''}
       </ul>
+
+      ${(docSamples && docSamples.length) ? `
+        <div style="margin-top:10px; margin-bottom:10px;">
+          <strong style="font-size:0.82rem; color:#475569; text-transform:uppercase; letter-spacing:0.04em;">Muestra de documentos / reportes directos (${docSamples.length}):</strong>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+            ${docSamples.map((s) => `
+              <div style="display:flex; align-items:center; justify-content:space-between; background:#f8fafc; border:1px solid #e2e8f0; padding:6px 10px; border-radius:6px; font-size:0.85rem;">
+                <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                  <span style="background:${s.file_type === 'PDF' ? '#ef4444' : s.file_type === 'XLSX' ? '#10b981' : '#3b82f6'}; color:white; font-size:0.7rem; font-weight:700; padding:2px 6px; border-radius:4px;">${s.file_type || 'DOC'}</span>
+                  <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:320px; font-weight:500;" title="${s.title}">${s.title}</span>
+                </div>
+                <a href="${s.url}" target="_blank" rel="noreferrer" class="secondary-btn small" style="text-decoration:none; font-size:0.75rem; padding:3px 8px;">🔗 Abrir enlace</a>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${snippetText ? `
+        <div style="margin-top:10px; background:#f1f5f9; border-left:4px solid #0284c7; padding:10px; border-radius:0 6px 6px 0; font-size:0.85rem; color:#334155; line-height:1.4;">
+          <strong style="color:#0369a1;">📝 Vista previa del contenido documentado:</strong><br/>
+          <em>"${snippetText}"</em>
+        </div>
+      ` : ''}
     </div>
 
     <div class="detail-box">
@@ -683,6 +725,11 @@ function showJobPanel(jobId, targetUrl = '') {
   jobLog.textContent = 'Sin eventos todavía.';
   jobProgressText.textContent = '0 URLs procesadas';
   jobProgressBar.style.width = '0%';
+  const jobGeminiVerdict = document.getElementById('jobGeminiVerdict');
+  if (jobGeminiVerdict) {
+    jobGeminiVerdict.style.display = 'none';
+    jobGeminiVerdict.innerHTML = '';
+  }
   jobDecision.style.display = 'none';
   jobDecision.innerHTML = '';
   jobCandidates.style.display = 'none';
@@ -712,15 +759,110 @@ async function pollJob(jobId) {
     jobProgressBar.style.width = `${total ? Math.min(100, (progress / total) * 100) : 0}%`;
     jobProgressText.textContent = total ? `${progress} de ${total} alternativas probadas` : 'Preparando lista de URLs...';
     if (status.type === 'probe_alternatives' && Array.isArray(status.alternatives) && status.alternatives.length) {
-      const testedItems = status.alternatives.slice().reverse().map((item) => `
-        <div class="candidate-row ${item.reachable ? 'candidate-ok' : 'candidate-failed'}">
-          <span class="candidate-mark">${item.reachable ? 'OK' : 'x'}</span>
-          <span class="candidate-url">${item.url}</span>
-          <span class="candidate-result">${item.reachable ? `HTTP ${item.status}` : item.reason}</span>
-        </div>
-      `).join('');
+      const testedItems = status.alternatives.slice().reverse().map((item) => {
+        const sourceLabel = item.source === 'gemini' ? 'Gemini' : 'Variante local';
+        return `
+          <div class="candidate-row ${item.reachable ? 'candidate-ok' : 'candidate-failed'}">
+            <span class="candidate-mark">${item.reachable ? 'OK' : 'x'}</span>
+            <span class="candidate-url">${item.url}</span>
+            <span class="candidate-result">${item.reachable ? `HTTP ${item.status}` : item.reason} · ${sourceLabel}</span>
+          </div>
+        `;
+      }).join('');
       jobCandidates.style.display = 'block';
       jobCandidates.innerHTML = `<div class="candidate-heading">URLs probadas (${status.alternatives.length}/${total || status.alternatives.length})</div><div class="candidate-list">${testedItems}</div>`;
+    }
+    if (status.type === 'probe_alternatives') {
+      const verdict = status.gemini_verdict || {};
+      const jobGeminiVerdict = document.getElementById('jobGeminiVerdict');
+      
+      let verdictHtml = '';
+      if (verdict.status && verdict.status !== 'skipped' && verdict.reason) {
+        const bestUrlText = verdict.best_url ? ` <br/><strong style="font-size:0.95rem; color:#0d6efd;">Nueva URL sugerida: ${verdict.best_url}</strong>` : '';
+        const badgeColor = verdict.status === 'moved' ? '#0f5132' : (verdict.status === 'not_found' ? '#842029' : '#055160');
+        const badgeBg = verdict.status === 'moved' ? '#d1e7dd' : (verdict.status === 'not_found' ? '#f8d7da' : '#cff4fc');
+        const statusLabel = verdict.status === 'moved' ? 'SITIO MIGRADO' : (verdict.status === 'not_found' ? 'SITIO O RECURSO NO EXISTE' : 'DIAGNÓSTICO DE IA');
+        
+        const summary = verdict.status === 'moved'
+          ? `La IA determinó que este portal migró a una nueva dirección web.${bestUrlText}<br/><em>Diagnóstico: ${verdict.reason || ''}</em>`
+          : verdict.status === 'not_found'
+            ? `La IA determinó que esta institución o recurso web de plano ya no existe.<br/><em>Explicación: ${verdict.reason || ''}</em>`
+            : `Diagnóstico de la IA:<br/><em>${verdict.reason || ''}</em>${bestUrlText}`;
+        
+        let actionBtn = '';
+        if (verdict.best_url) {
+          actionBtn = `<div style="margin-top:10px;"><button id="analyzeBestGeminiBtn" class="primary-btn small">Analizar URL migrada sugerida por IA (${verdict.best_url})</button></div>`;
+        }
+
+        let alternativesBtns = '';
+        if (Array.isArray(verdict.alternatives) && verdict.alternatives.length) {
+          const list = verdict.alternatives.map((alt) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; background:rgba(255,255,255,0.7); padding:6px 10px; border-radius:4px;">
+              <span style="font-family:monospace; font-size:0.85rem;">${alt}</span>
+              <button class="secondary-btn small analyze-alt-direct-btn" data-url="${alt}">Analizar esta opción</button>
+            </div>
+          `).join('');
+          alternativesBtns = `<div style="margin-top:10px;"><strong>Otras URLs encontradas por la IA:</strong>${list}</div>`;
+        }
+
+        verdictHtml = `
+          <div class="gemini-card" style="background:${badgeBg}; color:${badgeColor}; border-radius:8px; padding:14px; margin-bottom:12px; border:1px solid rgba(0,0,0,0.1);">
+            <div style="font-weight:700; font-size:0.95rem; margin-bottom:6px;">🤖 Veredicto IA (Gemini): ${statusLabel}</div>
+            <div style="line-height:1.4;">${summary}</div>
+            ${actionBtn}
+            ${alternativesBtns}
+          </div>
+        `;
+      } else if (status.status === 'finished') {
+        verdictHtml = `
+          <div class="gemini-card" style="background:#e2e3e5; color:#41464b; border-radius:8px; padding:12px; margin-bottom:12px;">
+            <div style="font-weight:600;">🤖 Diagnóstico de IA</div>
+            <div>Consultando estado de migración con la IA de Gemini...</div>
+          </div>
+        `;
+      }
+
+      if (jobGeminiVerdict && verdictHtml) {
+        jobGeminiVerdict.style.display = 'block';
+        jobGeminiVerdict.innerHTML = verdictHtml;
+
+        if (verdict.best_url) {
+          const btn = document.getElementById('analyzeBestGeminiBtn');
+          if (btn) {
+            btn.onclick = async () => {
+              btn.disabled = true;
+              btn.textContent = 'Iniciando análisis...';
+              const response = await fetch('/api/run_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: verdict.best_url, original_url: status.target_url })
+              });
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              const nextJob = await response.json();
+              showJobPanel(nextJob.job_id, verdict.best_url);
+              pollJob(nextJob.job_id).catch((error) => console.error('analysis failed', error));
+            };
+          }
+        }
+
+        document.querySelectorAll('.analyze-alt-direct-btn').forEach((btn) => {
+          btn.onclick = async () => {
+            const targetAlt = btn.getAttribute('data-url');
+            if (!targetAlt) return;
+            btn.disabled = true;
+            btn.textContent = 'Analizando...';
+            const response = await fetch('/api/run_url', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: targetAlt, original_url: status.target_url })
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const nextJob = await response.json();
+            showJobPanel(nextJob.job_id, targetAlt);
+            pollJob(nextJob.job_id).catch((error) => console.error('analysis failed', error));
+          };
+        });
+      }
     }
     if (status.status === 'awaiting_confirmation' && status.alternative_url) {
       jobProgressText.textContent = 'Alternativa lista para revisar';
@@ -764,7 +906,7 @@ async function pollJob(jobId) {
       };
       document.getElementById('analyzeSelectedAlternative').onclick = async () => {
         const item = alternatives[Number(alternativeSelect.value)];
-        if (!item?.reachable) return;
+        if (!item || !item.url) return;
         const response = await fetch('/api/run_url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: item.url, original_url: status.target_url }) });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const nextJob = await response.json();
@@ -781,11 +923,67 @@ async function pollJob(jobId) {
         const response = await fetch('/api/apply_alternative', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ original_url: status.target_url, selected }) });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         await loadSummary();
+        await loadData();
         showToast('Alternativa aplicada. La fila ahora usa la URL accesible.', 'info');
       };
     }
+      if (status.type === 'run_url' && (status.status === 'finished' || status.status === 'completed')) {
+      const resolvedUrl = status.alternative_url || status.target_url;
+      const origUrl = status.mapped_from || status.original_url || status.target_url;
+      jobDecision.style.display = 'block';
+      jobDecision.innerHTML = `
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:14px; margin-top:8px;">
+          <div style="font-weight:700; color:#0369a1; font-size:0.95rem; margin-bottom:6px;">
+            🎉 Análisis Finalizado para: <span style="font-family:monospace; font-weight:600;">${resolvedUrl}</span>
+          </div>
+          <div style="font-size:0.9rem; color:#334155; margin-bottom:10px; line-height:1.4;">
+            ${status.error_detail 
+              ? `⚠️ La URL fue probada pero presentó observación de red (<strong>${status.error_detail}</strong>). Puedes forzar su mapeo si deseas conservar esta dirección.` 
+              : `✅ La URL respondió y fue validada exitosamente.`}
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="applyRunUrlBtn" class="primary-btn small">✅ Guardar URL y Actualizar Dashboard</button>
+            <button id="reprobeAlternativesBtn" class="secondary-btn small">🔍 Probar otras alternativas con IA</button>
+          </div>
+        </div>
+      `;
+      const applyBtn = document.getElementById('applyRunUrlBtn');
+      if (applyBtn) {
+        applyBtn.onclick = async () => {
+          applyBtn.disabled = true;
+          applyBtn.textContent = 'Guardando...';
+          const resp = await fetch('/api/apply_alternative', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ original_url: origUrl, resolved_url: resolvedUrl })
+          });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          await loadSummary();
+          await loadData();
+          showToast(`URL ${resolvedUrl} mapeada correctamente.`, 'info');
+          jobPanel.style.display = 'none';
+        };
+      }
+      const reprobeBtn = document.getElementById('reprobeAlternativesBtn');
+      if (reprobeBtn) {
+        reprobeBtn.onclick = async () => {
+          reprobeBtn.disabled = true;
+          reprobeBtn.textContent = 'Iniciando búsqueda con IA...';
+          const response = await fetch('/api/probe_alternatives', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: origUrl })
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const nextJob = await response.json();
+          showJobPanel(nextJob.job_id, origUrl);
+          pollJob(nextJob.job_id).catch((err) => console.error('probe failed', err));
+        };
+      }
+    }
     if (status.status === 'finished' || status.status === 'failed') {
       await loadSummary();
+      await loadData();
       showToast(status.error_detail ? `Análisis terminado: ${status.error_detail}` : 'Análisis terminado.', status.error_detail ? 'warn' : 'info');
       return status;
     }
@@ -824,3 +1022,9 @@ function hideToast() {
     statusToast.style.display = 'none';
   }, 220);
 }
+
+refreshBtn?.addEventListener('click', () => {
+  loadSummary();
+});
+
+loadSummary();
