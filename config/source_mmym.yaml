@@ -51,18 +51,6 @@ classification:
     - "Boletin"
     - "MI-"
   dataset_rules:
-    - id: boletines_estadisticos_mineria
-      name: "Boletines Estadísticos Trimestrales y Semestrales de Minería"
-      url_patterns:
-        - "Boletin"
-        - "boletin"
-        - "wp-content/uploads"
-      title_keywords:
-        - "boletin"
-        - "mineria"
-        - "estadistica"
-        - "trimestre"
-        - "semestre"
     - id: memorias_institucionales
       name: "Memorias Institucionales de Entidades Mineras"
       url_patterns:
@@ -75,6 +63,32 @@ classification:
         - "sergeomin"
         - "ajam"
         - "institucional"
+    - id: boletines_estadisticos_mineria
+      name: "Boletines Estadísticos Trimestrales y Semestrales de Minería"
+      url_patterns:
+        - "Boletin"
+        - "boletin"
+        - "Bol_"
+      title_keywords:
+        - "boletin"
+        - "mineria"
+        - "estadistica"
+        - "trimestre"
+        - "semestre"
+    - id: gestion_institucional_minera
+      name: "Informes de Gestión, Ejecución Presupuestaria y Normativa Minera"
+      url_patterns:
+        - "Reporte"
+        - "Informe"
+        - "PEI"
+        - "Ley"
+        - "Decreto"
+        - "wp-content/uploads"
+      title_keywords:
+        - "informe"
+        - "ejecucion"
+        - "presupuesto"
+        - "normativa"
   excluded_path_keywords:
     - "/contacto"
     - "/login"
