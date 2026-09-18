@@ -989,7 +989,10 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": null,
+    "crawler_dataset": null,
+    "technical_exclusion_note": "Exclusion tecnica justificada de Track A (B-17 / B-20): repositorio DSpace (repositoriodigital.cepal.org) requiere conector API REST OAI-PMH; no integrable via prospeccion HTML BFS estandar. Programado para Fase 4."
   },
   {
     "Fuente": "CEPROBOL",
@@ -1249,8 +1252,8 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": "icco",
-    "crawler_dataset": "programas_fdta_valles"
+    "crawler_source": null,
+    "crawler_dataset": null
   },
   {
     "Fuente": "FEGASACRUZ",
