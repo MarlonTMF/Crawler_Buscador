@@ -294,3 +294,30 @@ igual.
 - **Fuente:** salida real de `pytest -v` sobre un worktree limpio de
   `2a3c515`, contrastada línea por línea con la pegada en el parte
 - **Quién tenía razón:** yo sobre la evidencia; Antigravity sobre el trabajo
+
+---
+
+## E-08 · Un recurso PROCESADO_EXITOSAMENTE no es un documento
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-16
+- **Tipo:** corrección de métricas / taxonomía
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El estado de la fila de auditoría (`status = PROCESADO_EXITOSAMENTE`) fue presentado como proxy de documentos extraídos, reportando 14 recursos en ASOFIN.
+- **Qué encontré o decidí yo:** El estado de la fila solo describe que la tubería HTTP no arrojó excepción no capturada, no que lo capturado sirva. En ASOFIN, 12 de los 14 recursos eran páginas HTML de navegación, incluyendo 3 páginas del paginador tituladas literalmente "2", "3" y "49".
+- **Cómo se resolvió:** Se recalibró el YAML de ASOFIN excluyendo `/page/` de la captura de documentos, sembrando posts fechados de boletines reales, reduciendo el ruido de navegación y logrando 18 PDFs reales en la exportación entregable.
+- **Por qué:** Un criterio de aceptación o reporte que use `status = PROCESADO_EXITOSAMENTE` como métrica de cobertura infla el resultado. La unidad de cobertura es el documento del tipo buscado, no el recurso procesado.
+- **Quién tenía razón:** Claude sobre la distinción entre estado de tubería y validez de documento.
+
+---
+
+## E-09 · La evidencia de un onboarding se cita del mapa exportado, nunca del log acumulativo
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-16
+- **Tipo:** procedimiento / verificación de evidencia
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El parte inicial de B-16 citó dos PDFs de ASOFIN (`Memoria-Asofin-2024` y `Bol_Fin-072026`) que estaban presentes en la tabla `resource_audit_log` de `inventory.db` pero ausentes del `mapa_asofin_compact.json` exportado en la corrida final.
+- **Qué encontré o decidí yo:** `resource_audit_log` acumula registros históricos entre corridas si no se limpia la base, mientras que el mapa JSON refleja únicamente la última exportación. Citar el log como evidencia permitió mostrar algo que ya no formaba parte del entregable real.
+- **Cómo se resolvió:** Se limpió la base previa, se ejecutó una corrida limpia y se tomaron las muestras de evidencia exclusivamente desde los archivos JSON exportados del entregable (`mapa_asofin_compact.json`).
+- **Por qué:** El artefacto entregado al consumidor es el mapa de recursos. El log de auditoría interna de la base es transaccional y puede conservar artefactos obsoletos o desincronizados.
+- **Quién tenía razón:** Claude al contrastar los mapas JSON contra el log interno.
+
