@@ -108,7 +108,7 @@ estimación del mismo tipo de trabajo depende de eso.
 | B-13 | Runner por lotes con reporte de cobertura | 60 min | — | ✅ | `feat:` |
 | B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `feat:` |
 | B-15 | Lote 2 — 4 fuentes (APS, ADA, DGAC, SEPREC) + consolidación de portales | 80 min | 80 min | ✅ | `feat:` |
-| B-16 | Lote 3 — 4 portales | 80 min | — | ⬜ | `feat:` |
+| B-16 | Lote 3 — 4 portales (IBCE-CAO, CNDC, ASOFIN, ATT) | 80 min | 90 min | ✅ | `feat:` |
 | B-17 | Lote 4 — 4 portales | 80 min | — | ⬜ | `feat:` |
 | B-18 | Lote 5 — 4 portales | 80 min | — | ⬜ | `feat:` |
 | B-19 | Lote 6 — 4 portales | 80 min | — | ⬜ | `feat:` |
