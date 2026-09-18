@@ -9,13 +9,47 @@ Soporta:
 - Solicitudes HTTP GET binarias para descarga de comprimidos y archivos.
 """
 
+import os
 import time
 import logging
 import re
 from typing import Optional, Dict, Any, Tuple, List
 import json
+import urllib.parse
 from datetime import datetime
 from pathlib import Path
+
+
+def _load_gemini_key_from_env_file() -> Optional[str]:
+    """Carga GEMINI_API_KEY desde .env del proyecto o del entorno del sistema."""
+    if os.getenv("GEMINI_API_KEY"):
+        return os.getenv("GEMINI_API_KEY")
+
+    candidate_paths = [
+        Path.cwd() / ".env",
+        Path(__file__).resolve().parents[3] / ".env",
+        Path.home() / ".env",
+    ]
+
+    seen = set()
+    for env_path in candidate_paths:
+        path = env_path.resolve() if env_path.exists() else env_path
+        if str(path) in seen:
+            continue
+        seen.add(str(path))
+        if not path.exists():
+            continue
+        try:
+            for line in path.read_text(encoding="utf-8").splitlines():
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#") or "=" not in stripped:
+                    continue
+                key, value = [part.strip() for part in stripped.split("=", 1)]
+                if key == "GEMINI_API_KEY":
+                    return value.strip("\"'")
+        except Exception:
+            continue
+    return None
 from urllib.parse import urlparse, urljoin
 from urllib.robotparser import RobotFileParser
 import requests
@@ -35,13 +69,17 @@ class HttpFetcher:
         timeout: int = 15,
         max_retries: int = 3,
         rate_limit_seconds: float = 1.0,
-        honor_robots_txt: bool = True
+        honor_robots_txt: bool = True,
+        gemini_api_key: Optional[str] = None,
+        gemini_model: str = "gemini-2.0-flash",
     ):
         self.user_agent = user_agent
         self.timeout = timeout
         self.max_retries = max_retries
         self.rate_limit_seconds = rate_limit_seconds
         self.honor_robots_txt = honor_robots_txt
+        self.gemini_api_key = gemini_api_key or _load_gemini_key_from_env_file()
+        self.gemini_model = gemini_model
         
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": self.user_agent})
@@ -167,6 +205,77 @@ class HttpFetcher:
         return bool(has_strong_signal), 3.0 if has_strong_signal else 2.0, doc_links, keyword_hits
 
     @staticmethod
+    def _extract_document_samples(html_content: Optional[str], base_url: str) -> Dict[str, Any]:
+        """Extrae muestras de enlaces documentales (PDF, XLSX, CSV) y un fragmento de texto limpio de la página."""
+        if not html_content:
+            return {"samples": [], "snippet_text": "", "file_type": None}
+        
+        import html as html_lib
+        decoded_html = html_lib.unescape(html_content)
+
+        # 1. Clean HTML to readable text snippet
+        text_clean = re.sub(r'<script.*?>.*?</script>', ' ', decoded_html, flags=re.DOTALL | re.IGNORECASE)
+        text_clean = re.sub(r'<style.*?>.*?</style>', ' ', text_clean, flags=re.DOTALL | re.IGNORECASE)
+        text_clean = re.sub(r'<[^>]+>', ' ', text_clean)
+        text_clean = ' '.join(text_clean.split())
+        
+        sentences = re.split(r'[.\n]', text_clean)
+        matching_sentences = []
+        for s in sentences:
+            s_strip = s.strip()
+            if len(s_strip) > 20 and any(kw in s_strip.lower() for kw in ["informe", "reporte", "estadistica", "memoria", "anual", "financier", "documento", "boletin"]):
+                matching_sentences.append(s_strip)
+                if len(' '.join(matching_sentences)) > 300:
+                    break
+        
+        snippet = ' ... '.join(matching_sentences[:3]) if matching_sentences else text_clean[:250]
+        
+        # 2. Extract anchor links to documents
+        samples = []
+        seen = set()
+        pattern = r'<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>'
+        for match in re.finditer(pattern, decoded_html, re.IGNORECASE | re.DOTALL):
+            href, anchor_text = match.groups()
+            anchor_clean = re.sub(r'<[^>]+>', '', anchor_text).strip()
+            lower_href = href.lower()
+            
+            file_type = None
+            if '.pdf' in lower_href:
+                file_type = 'PDF'
+            elif '.xlsx' in lower_href or '.xls' in lower_href:
+                file_type = 'XLSX'
+            elif '.csv' in lower_href:
+                file_type = 'CSV'
+            elif '.doc' in lower_href or '.docx' in lower_href:
+                file_type = 'DOCX'
+            elif '.zip' in lower_href:
+                file_type = 'ZIP'
+            elif any(kw in lower_href for kw in ['/download', '/descarga', 'reporte', 'informe', 'documento']):
+                file_type = 'DOC'
+                
+            if file_type:
+                try:
+                    full_url = urllib.parse.urljoin(base_url, href)
+                except Exception:
+                    full_url = href
+                if full_url not in seen and full_url.startswith('http'):
+                    seen.add(full_url)
+                    title = anchor_clean if (anchor_clean and len(anchor_clean) > 2) else full_url.split('/')[-1]
+                    samples.append({
+                        "title": title[:70],
+                        "url": full_url,
+                        "file_type": file_type
+                    })
+                    if len(samples) >= 10:
+                        break
+                        
+        return {
+            "samples": samples,
+            "snippet_text": snippet[:350],
+            "file_type": samples[0]["file_type"] if samples else ("HTML" if snippet else None)
+        }
+
+    @staticmethod
     def _detect_document_signal(html: Optional[str], url: str, network_urls: Optional[list[str]] = None) -> Tuple[bool, float]:
         has_signal, score, _, _ = HttpFetcher._extract_document_counts(html, url, network_urls)
         return has_signal, score
@@ -202,6 +311,7 @@ class HttpFetcher:
                 html_candidates.append(("http", status, ""))
                 page_html = self._last_http_text(url)
                 has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(page_html, url)
+                doc_details = self._extract_document_samples(page_html, url)
                 return {
                     "url": url,
                     "reachable_http": True,
@@ -214,9 +324,10 @@ class HttpFetcher:
                     "keyword_hits": keyword_hits,
                     "document_evidence": {
                         "keyword_hits": keyword_hits,
-                        "file_type": None,
+                        "file_type": doc_details.get("file_type"),
                         "quality_score": effective_score,
-                        "snippet_text": (page_html or "")[:180],
+                        "snippet_text": doc_details.get("snippet_text") or "",
+                        "samples": doc_details.get("samples") or [],
                     },
                 }
         except Exception as exc:  # pragma: no cover - defensive fallback
@@ -226,6 +337,7 @@ class HttpFetcher:
             ok, status, text = self.fetch_html(url)
             if ok and text is not None:
                 has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(text, url)
+                doc_details = self._extract_document_samples(text, url)
                 return {
                     "url": url,
                     "reachable_http": True,
@@ -238,9 +350,10 @@ class HttpFetcher:
                     "keyword_hits": keyword_hits,
                     "document_evidence": {
                         "keyword_hits": keyword_hits,
-                        "file_type": None,
+                        "file_type": doc_details.get("file_type"),
                         "quality_score": effective_score,
-                        "snippet_text": text[:180],
+                        "snippet_text": doc_details.get("snippet_text") or "",
+                        "samples": doc_details.get("samples") or [],
                     },
                 }
         except Exception as exc:  # pragma: no cover - defensive fallback
@@ -248,6 +361,7 @@ class HttpFetcher:
 
         if force_browser_html is not None:
             has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(force_browser_html, url)
+            doc_details = self._extract_document_samples(force_browser_html, url)
             return {
                 "url": url,
                 "reachable_http": False,
@@ -259,6 +373,13 @@ class HttpFetcher:
                 "document_links_found": doc_links,
                 "keyword_hits": keyword_hits,
                 "browser_fallback_used": True,
+                "document_evidence": {
+                    "keyword_hits": keyword_hits,
+                    "file_type": doc_details.get("file_type"),
+                    "quality_score": effective_score,
+                    "snippet_text": doc_details.get("snippet_text") or "",
+                    "samples": doc_details.get("samples") or [],
+                },
             }
 
         if browser_fallback and headless_fetcher is not None:
@@ -267,6 +388,7 @@ class HttpFetcher:
                 if ok and result is not None:
                     browser_html = result.html
                     has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(browser_html, url, getattr(result, "network_urls", None))
+                    doc_details = self._extract_document_samples(browser_html, url)
                     return {
                         "url": url,
                         "reachable_http": True,
@@ -279,9 +401,10 @@ class HttpFetcher:
                         "keyword_hits": keyword_hits,
                         "document_evidence": {
                             "keyword_hits": keyword_hits,
-                            "file_type": None,
+                            "file_type": doc_details.get("file_type"),
                             "quality_score": effective_score,
-                            "snippet_text": browser_html[:180],
+                            "snippet_text": doc_details.get("snippet_text") or "",
+                            "samples": doc_details.get("samples") or [],
                         },
                         "browser_fallback_used": True,
                     }
@@ -294,9 +417,7 @@ class HttpFetcher:
                 candidate = self._try_url_variants(url)
                 if candidate:
                     logger.info("URL %s likely moved -> trying candidate %s", url, candidate)
-                    # persist mapping
                     self._record_moved_url(original=url, resolved=candidate)
-                    # re-evaluate the candidate but don't attempt variants again
                     candidate_result = self.validate_url_access(
                         candidate,
                         browser_fallback=browser_fallback,
@@ -304,10 +425,14 @@ class HttpFetcher:
                         force_browser_html=force_browser_html,
                         allow_variants=False,
                     )
-                    # annotate result with mapping info
                     candidate_result["mapped_from"] = url
                     candidate_result["resolved_from_variant"] = True
                     candidate_result["original_url"] = url
+                    if candidate_result.get("final_url") == candidate:
+                        candidate_result["variant_source"] = "gemini" if any(
+                            item.get("url") == candidate and item.get("source") == "gemini"
+                            for item in self._probe_gemini_alternatives(url)
+                        ) else "variant"
                     return candidate_result
             except Exception as e:
                 logger.warning("Variant fallback failed for %s: %s", url, e)
@@ -322,6 +447,7 @@ class HttpFetcher:
             "has_document_signal": False,
             "document_links_found": 0,
             "keyword_hits": [],
+            "gemini_candidates": self._ask_gemini_for_alternatives(url),
         }
 
     def _last_http_text(self, url: str) -> Optional[str]:
@@ -415,6 +541,193 @@ class HttpFetcher:
 
         return False, 0, None
 
+    @staticmethod
+    def _normalize_candidate_url(raw_url: str) -> Optional[str]:
+        if not raw_url:
+            return None
+        candidate = raw_url.strip()
+        if not candidate:
+            return None
+        if "://" not in candidate:
+            candidate = f"https://{candidate}"
+        parsed = urlparse(candidate)
+        if not parsed.netloc:
+            return None
+        return candidate.rstrip() if candidate.startswith(("http://", "https://")) else None
+
+    def _ask_gemini_for_alternatives(self, url: str, failed_candidates: Optional[List[str]] = None) -> List[str]:
+        """Query Gemini for candidate alternative URLs when local heuristics fail."""
+    def _generate_gemini_content(self, prompt: str) -> str:
+        """Invoca la API de Gemini intentando con gemini-2.5-flash y otros modelos disponibles."""
+        if not self.gemini_api_key:
+            raise ValueError("GEMINI_API_KEY no configurada.")
+        
+        # gemini-2.0-flash / gemini-1.5-* fueron retirados de la API (confirmado contra
+        # /v1beta/models el 2026-09-11); se agregan los modelos vigentes como fallback
+        # para que la cadena no dependa de un único nombre que puede volver a cambiar.
+        models_to_try = [self.gemini_model, "gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro-latest"]
+        last_exc = None
+        seen_models = set()
+        for model in models_to_try:
+            if not model or model in seen_models:
+                continue
+            seen_models.add(model)
+            try:
+                response = self.session.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                    params={"key": self.gemini_api_key},
+                    headers={"Content-Type": "application/json"},
+                    json={"contents": [{"parts": [{"text": prompt}]}]},
+                    timeout=20,
+                )
+                response.raise_for_status()
+                payload = response.json()
+                text = payload.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                if text:
+                    return text
+            except Exception as exc:
+                last_exc = exc
+                continue
+        if last_exc:
+            raise last_exc
+        return ""
+
+    def _ask_gemini_for_alternatives(self, url: str, failed_candidates: Optional[List[str]] = None) -> List[str]:
+        """Ask Gemini for up to 10 probable alternative URLs when local rules fail."""
+        if not self.gemini_api_key:
+            logger.info("GEMINI_API_KEY no configurada; se omite fallback a Gemini para %s", url)
+            return []
+
+        failed = failed_candidates or []
+        prompt = (
+            "Eres un asistente de descubrimiento web para instituciones públicas. "
+            "Dada la URL original que no responde, genera un JSON válido con hasta 10 URL alternativas "
+            "más probables, priorizando el mismo dominio institucional, www, TLDs comunes (.org, .com, .bo, .gob.bo, .edu.bo), "
+            "y páginas de inicio o rutas comunes, sin incluir explicaciones. "
+            f"URL original: {url}. "
+            f"Candidatos ya fallidos: {failed}."
+            "Responde solo con un array JSON de strings."
+        )
+
+        try:
+            text = self._generate_gemini_content(prompt)
+            if not text:
+                return []
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+                cleaned = cleaned.rstrip("`").strip()
+            candidates = json.loads(cleaned)
+            if not isinstance(candidates, list):
+                return []
+            normalized = []
+            seen = set()
+            for item in candidates:
+                if not isinstance(item, str):
+                    continue
+                value = self._normalize_candidate_url(item)
+                if value and value not in seen and value != url:
+                    seen.add(value)
+                    normalized.append(value)
+            return normalized[:10]
+        except Exception as exc:  # pragma: no cover - external service failure
+            logger.warning("Gemini fallback failed for %s: %s", url, exc)
+            return []
+
+    def _ask_gemini_for_url_verdict(self, url: str, failed_candidates: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Ask Gemini for a final verdict: moved, not found, or same URL likely exists."""
+        if not self.gemini_api_key:
+            return {
+                "status": "skipped",
+                "best_url": None,
+                "reason": "No hay clave Gemini configurada para validar si la URL cambió o dejó de existir.",
+                "alternatives": [],
+            }
+
+        failed = failed_candidates or []
+        prompt = (
+            "Eres un analista experto en portales web institucionales y financieros. "
+            "Dada una URL original que no responde o da error de conexión, investiga e indica: "
+            "(1) Si la URL o sitio migró a un nuevo dominio, subdominio o portal (status: 'moved'), proporcionando la nueva URL exacta en 'best_url'. "
+            "(2) Si la institución o recurso web de plano ya no existe (status: 'not_found'). "
+            "(3) Si existen URLs alternativas en la web con otro nombre, estructura o dominio institucional (status: 'exists' o 'moved'), incluyéndolas en 'alternatives'. "
+            "Devuelve SOLO un JSON válido con este esquema exacto: "
+            "{\"status\": \"moved\"|\"not_found\"|\"unknown\"|\"exists\", "
+            "\"best_url\": string|null, \"reason\": string, \"alternatives\": [string]} "
+            f"URL original analizada: {url}. "
+            f"Candidatos probados que ya fallaron: {failed[:15]}. "
+            "No agregues texto explicativo fuera del JSON."
+        )
+
+        try:
+            text = self._generate_gemini_content(prompt)
+            if not text:
+                return {"status": "unknown", "best_url": None, "reason": "Gemini no devolvió respuesta útil.", "alternatives": []}
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+                cleaned = cleaned.rstrip("`").strip()
+            verdict = json.loads(cleaned)
+            if not isinstance(verdict, dict):
+                return {"status": "unknown", "best_url": None, "reason": "Gemini devolvió una respuesta no válida.", "alternatives": []}
+            status = verdict.get("status", "unknown")
+            best_url = verdict.get("best_url")
+            reason = verdict.get("reason") or "No pudimos determinar con seguridad si la URL cambió o no existe."
+            alternatives = verdict.get("alternatives") or []
+            normalized = []
+            seen = set()
+            for item in alternatives:
+                if not isinstance(item, str):
+                    continue
+                value = self._normalize_candidate_url(item)
+                if value and value not in seen and value != url:
+                    seen.add(value)
+                    normalized.append(value)
+            if best_url is not None:
+                best_url = self._normalize_candidate_url(best_url) or best_url
+            return {
+                "status": status if status in {"moved", "not_found", "unknown", "exists"} else "unknown",
+                "best_url": best_url,
+                "reason": reason,
+                "alternatives": normalized[:5],
+            }
+        except Exception as exc:  # pragma: no cover - external service failure
+            logger.warning("Gemini verdict failed for %s: %s", url, exc)
+            return {"status": "unknown", "best_url": None, "reason": f"La consulta a Gemini falló: {exc}", "alternatives": []}
+
+    def _probe_gemini_alternatives(self, url: str) -> List[Dict[str, Any]]:
+        """Query Gemini and probe each returned candidate, preserving source metadata.
+
+        Intercambio Gemini <-> motor de variantes: Gemini suele acertar la institución
+        (o su sucesora) pero se equivoca en el dominio exacto — TLD, con/sin ``www``,
+        con/sin ruta. En vez de descartar un candidato apenas su URL literal no
+        responde, se lo vuelve a pasar por el motor local de variantes
+        (``_generate_url_variants``) para intentar encontrar la URL real por
+        permutación mecánica antes de darlo por muerto.
+        """
+        failed_candidates = [candidate for candidate in self._generate_url_variants(url) if candidate != url]
+        gemini_candidates = self._ask_gemini_for_alternatives(url, failed_candidates)
+        results = []
+        seen = {url}
+        for candidate in gemini_candidates:
+            probe = self.probe_url_variant(candidate)
+            probe["source"] = "gemini"
+            probe["fallback_method"] = "gemini"
+            results.append(probe)
+            seen.add(candidate)
+            if probe.get("reachable"):
+                continue
+            for variant in self._generate_url_variants(candidate):
+                if variant in seen:
+                    continue
+                seen.add(variant)
+                vprobe = self.probe_url_variant(variant)
+                vprobe["source"] = "gemini+variant"
+                vprobe["fallback_method"] = "gemini+variant"
+                vprobe["gemini_seed"] = candidate
+                results.append(vprobe)
+        return results
+
     def _try_url_variants(self, url: str) -> Optional[str]:
         """Generate simple URL variants and return the first reachable candidate or None.
 
@@ -426,7 +739,13 @@ class HttpFetcher:
         - remove or add trailing slash
         """
         results = self.probe_url_variants(url)
-        return next((item['url'] for item in results if item['reachable']), None)
+        first = next((item['url'] for item in results if item['reachable']), None)
+        if first:
+            return first
+
+        gemini_results = self._probe_gemini_alternatives(url)
+        first_gemini = next((item['url'] for item in gemini_results if item.get('reachable')), None)
+        return first_gemini
 
     def _generate_url_variants(self, url: str) -> List[str]:
         parsed = urlparse(url)

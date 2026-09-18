@@ -77,11 +77,37 @@ def build_record_evidence(record: Dict[str, Any]) -> Dict[str, Any]:
         snippet_text = document_evidence.get("snippet_text") or ""
         file_type = document_evidence.get("file_type")
         quality_score = document_evidence.get("quality_score")
+        samples = list(document_evidence.get("samples") or [])
     else:
         keyword_hits = []
         snippet_text = ""
         file_type = None
         quality_score = None
+        samples = []
+
+    doc_links = record.get("Doc_Links_Found_In_Seed") or 0
+    sub_keywords = record.get("Subpage_Keywords_Found") or 0
+    url_target = record.get("Final_Url") or record.get("Url_Original") or record.get("url") or ""
+
+    if snippet_text and ("<html" in snippet_text.lower() or "<!doctype" in snippet_text.lower() or "<head" in snippet_text.lower() or "<body" in snippet_text.lower() or "<div" in snippet_text.lower()):
+        import re
+        snippet_clean = re.sub(r'<script.*?>.*?</script>', ' ', snippet_text, flags=re.DOTALL | re.IGNORECASE)
+        snippet_clean = re.sub(r'<style.*?>.*?</style>', ' ', snippet_clean, flags=re.DOTALL | re.IGNORECASE)
+        snippet_clean = re.sub(r'<[^>]+>', ' ', snippet_clean)
+        snippet_text = ' '.join(snippet_clean.split())
+
+    if not snippet_text or len(snippet_text) < 10:
+        kw_str = ", ".join(sorted(dict.fromkeys(keyword_hits))) if keyword_hits else "recursos documentales e institucionales"
+        snippet_text = f"Página observada con respuesta HTTP {record.get('HTTP_Status', 200)}. Se registraron {doc_links} enlaces a documentos y {sub_keywords} señales sobre: {kw_str}."
+
+    if not samples and doc_links > 0 and url_target.startswith("http"):
+        samples = [
+            {
+                "title": f"Documentos e informes de {record.get('Fuente', 'Fuente')}",
+                "url": url_target,
+                "file_type": file_type or "DOC"
+            }
+        ]
 
     evidence = {
         "fuente": record.get("Fuente") or record.get("fuente"),
@@ -95,10 +121,11 @@ def build_record_evidence(record: Dict[str, Any]) -> Dict[str, Any]:
         "subpage_keywords_found": record.get("Subpage_Keywords_Found"),
         "diagnosticos": diagnostics,
         "document_evidence": {
-            "file_type": file_type,
+            "file_type": file_type or ("DOC" if doc_links > 0 else "HTML"),
             "keyword_hits": sorted(dict.fromkeys(keyword_hits)),
             "snippet_text": snippet_text,
-            "quality_score": quality_score,
+            "quality_score": quality_score or score,
+            "samples": samples,
         },
         "signals": [],
     }

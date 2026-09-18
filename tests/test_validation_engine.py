@@ -125,9 +125,10 @@ def test_connection_failures_are_capped_below_valid_document_scores():
     assert "CONN_ERROR" in " ".join(summary["record_evidence"][0]["signals"]).upper()
 
 
-@pytest.mark.live
 def test_http_fetcher_validate_url_access_caps_connection_error(monkeypatch):
-    fetcher = HttpFetcher()
+    monkeypatch.setattr("crawler.core.fetcher.time.sleep", lambda s: None)
+    fetcher = HttpFetcher(gemini_api_key=None)
+    fetcher.gemini_api_key = None
     monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)
 
     def fake_head(url, timeout=None, allow_redirects=True):
@@ -219,9 +220,62 @@ def test_http_fetcher_uses_get_fallback_when_head_fails(monkeypatch):
     assert "fallback ok" in text
 
 
-@pytest.mark.live
+def test_http_fetcher_asks_gemini_for_alternative_urls(monkeypatch):
+    fetcher = HttpFetcher(gemini_api_key="test-key")
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "candidates": [{
+                    "content": {"parts": [{"text": "```json\n[\"https://example.org\", \"https://www.example.org\"]\n```"}]}
+                }]
+            }
+
+    def fake_post(url, headers=None, params=None, json=None, timeout=None):
+        assert params["key"] == "test-key"
+        return FakeResponse()
+
+    monkeypatch.setattr(fetcher.session, "post", fake_post)
+
+    result = fetcher._ask_gemini_for_alternatives("https://example.com")
+
+    assert result == ["https://example.org", "https://www.example.org"]
+
+
+def test_http_fetcher_asks_gemini_for_url_verdict(monkeypatch):
+    fetcher = HttpFetcher(gemini_api_key="test-key")
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "candidates": [{
+                    "content": {"parts": [{"text": "```json\n{\"status\":\"moved\",\"best_url\":\"https://example.org\",\"reason\":\"El sitio se movió al dominio institucional\",\"alternatives\":[\"https://example.org\",\"https://www.example.org\"]}\n```"}]}
+                }]
+            }
+
+    def fake_post(url, headers=None, params=None, json=None, timeout=None):
+        assert params["key"] == "test-key"
+        return FakeResponse()
+
+    monkeypatch.setattr(fetcher.session, "post", fake_post)
+
+    result = fetcher._ask_gemini_for_url_verdict("https://example.com")
+
+    assert result["status"] == "moved"
+    assert result["best_url"] == "https://example.org"
+    assert "movió" in result["reason"].lower()
+
+
 def test_browser_fallback_distinguishes_document_from_landing_page(monkeypatch):
-    fetcher = HttpFetcher()
+    monkeypatch.setattr("crawler.core.fetcher.time.sleep", lambda s: None)
+    fetcher = HttpFetcher(gemini_api_key=None)
+    fetcher.gemini_api_key = None
     monkeypatch.setattr(fetcher, "is_url_allowed_by_robots", lambda url: True)
 
     def fake_head(url, timeout=None, allow_redirects=True):
