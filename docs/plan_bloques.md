@@ -72,8 +72,23 @@ estimación del mismo tipo de trabajo depende de eso.
 | B-04 | Resoluciones de URL verificadas | 20 min | — | ⬜ | `data:` |
 | B-05 | Infraestructura de trabajo (CLAUDE.md, agentes, hook) | 20 min | — | ⬜ | `chore:` |
 | B-06 | Documentos de decisiones y planes | 15 min | — | ⬜ | `docs:` |
-| B-07 | Cambios del dashboard y del fetcher pendientes | 45 min | — | ⬜ | `feat:` |
-| | **Subtotal etapa A** | **2 h 30 min** | | | |
+| B-07 | Cambios del dashboard y del fetcher pendientes | 45 min | 20 min | ✅ | `feat:` ×2 |
+| B-07b | Módulos sin trackear que el plan omitió | 40 min | — | ⬜ | `feat:` |
+| | **Subtotal etapa A** | **3 h 10 min** | | | |
+
+> **B-07b agregado el 2026-09-18.** Al ordenar el árbol tras cerrar B-07
+> aparecieron ~1.550 líneas **sin trackear** que ningún bloque cubría:
+> `src/crawler/core/api_detector.py` (583), `src/crawler/core/url_resolver.py`
+> (289), `resolve_dead_domains.py` (179), `generate_api_report.py` (253),
+> `ingest_samples.py`, `update_all_evidence.py`,
+> `scripts/render_api_report_pdf.py`, sus tests
+> (`test_api_detector.py`, `test_url_resolver.py` — 18 casos que ya pasan) y
+> los documentos `RESUMEN_SESION.md` y `URLsFaltantes.md`.
+>
+> **Por qué se escapó:** la etapa A se diseñó leyendo `git status` y se
+> enfocó en los archivos **modificados** (la columna ` M`), sin asignar
+> bloque a los **sin trackear** (`??`) más allá de los que B-01 mandó a
+> ignorar. Es un hueco del plan, no de la ejecución.
 
 ### Etapa B · Cerrar Track A (Fase 0)
 
