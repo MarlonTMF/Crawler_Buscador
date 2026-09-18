@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["-m", "pytest", "tests/", "-q", "-m", "not live"],
+            "timeout": 60,
+            "statusMessage": "Corriendo suite rápida de pytest (sin tests 'live', ~8s)..."
+          }
+        ]
+      }
+    ]
+  }
+}
