@@ -1,0 +1,2337 @@
+[
+  {
+    "Fuente": "ANAPO",
+    "Institucion": "Asociación de Productores de Oleaginosas y Trigo",
+    "Url_Original": "https://www.anapobolivia.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.anapobolivia.org",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "estadistica",
+        "desarrollo",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!doctype html><html lang=\"es\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"profile\" href=\"https://gmpg.org/xfn/11\"><m"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "APS",
+    "Institucion": "Autoridad de Fiscalización y Control de Pensiones y Seguros",
+    "Url_Original": "https://www.aps.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.aps.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "estadistica",
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "Inicio Inicio Institucional Acerca de la APS Reseña Histórica Misión y Visión Información de la MAE Valores y Principios Objetivos Institucionales Planificación Información Planificación Programas y Proyectos de Inversión Recursos Humanos Organigrama Nómina de Autoridades Nómina de Personal Escala Salarial Manual de Organización y Funciones Plan Op",
+      "samples": [
+        {
+          "title": "Organigrama",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Organigrama.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Nómina de Autoridades",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Nomina_Autoridades.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Nómina de Personal",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Nomina_Personal.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Escala Salarial",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Escala%20Salarial.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Manual de Organización y Funciones",
+          "url": "https://www.aps.gob.bo/images/webdocs/UPE/mof/Manual%20de%20Organizacion%20y%20Funciones.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Plan Operativo Anual Individual – POAI",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/RAI%20APS%20009%202025%20MANUAL%20DE%20PUESTOS%20-%20PLAN%20OPERATIVO%20ANUAL%20INDIVIDUAL%20POAI%20GESTION%202025.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Perfiles de Cargos",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Perfil%20Minimo%20de%20Cargos.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Informes de resultados de viajes al exterior",
+          "url": "https://www.aps.gob.bo/index.php/institucional/informes-de-resultados-de-viajes-al-exterior",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Lista de Precios de Atención SOAT",
+          "url": "https://www.aps.gob.bo/images/webdocs/UPCC/otros/Lista%20de%20Precios%20de%20Atencion%20SOAT.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Convocatoria",
+          "url": "https://www.aps.gob.bo/images/webdocs/DP/Convocatoria%20Examen%20Medicos%20Calificadores.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ASFI-Valores",
+    "Institucion": "Autoridad de Supervisión del Sistema Financiero",
+    "Url_Original": "https://www.asfi.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.asfi.gob.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 7,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "financiero",
+        "estadistica",
+        "archivo",
+        "activo",
+        "anual",
+        "trimestral"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "BCB",
+    "Institucion": "Banco Central de Bolivia",
+    "Url_Original": "https://www.bcb.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.bcb.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 8,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "financiero",
+        "documento",
+        "desarrollo",
+        "activo",
+        "mensual",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Banco Central de Bolivia Pasar al contenido principal Menú SOBRE EL BCB SOBRE EL BCB Marco Legal Gobierno Corporativo Instrumentos de Gestión Gestión de Transparencia Institucional Comunicaciones Marco Legal Constitución Política del Estado Leyes Resoluciones Circulares Externas Gobierno Corporativo Historia Misión y Visión Valores y Principios Dir",
+      "samples": [
+        {
+          "title": "Auditoria de TIC",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditoria_informatica",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias Financieras",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_finacieras",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias Operativas",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_operativas",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias de Cumplimiento",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_especiales",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Informe de Actividades",
+          "url": "https://www.bcb.gob.bo/?q=informe_actividades",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Informes de Seguimiento",
+          "url": "https://www.bcb.gob.bo/?q=informe_seguimiento",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Cuestionario Wolfsberg sobre Prevención de Lavado de Dinero",
+          "url": "https://www.bcb.gob.bo/webdocs/Otros/the_wolfsberg_group.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Reporte de Inflación y Política Monetaria",
+          "url": "https://www.bcb.gob.bo/?q=content/reporte-de-inflaci%C3%B3n-y-pol%C3%ADtica-monetaria",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Operaciones de Mercado Abierto",
+          "url": "https://www.bcb.gob.bo/webdocs/normativaoma/RD_N_109_2026.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Informe de Vigilancia del Sistema de Pagos",
+          "url": "https://www.bcb.gob.bo/?q=informe-vigilancia-sistema-pagos",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "BM",
+    "Institucion": "Banco Mundial",
+    "Url_Original": "https://www.worldbank.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.worldbank.org",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "World Bank Group - International Development, Poverty and Sustainability The Hidden Gap in Water Financing The Hidden Gap in Water Financing Billions allocated for water go unspent each year — smarter planning and stronger institutions can close the ",
+      "samples": [
+        {
+          "title": "https://openknowledge.worldbank.org/bitstreams/8e6bcf71-89a1-443b-bbe9",
+          "url": "https://openknowledge.worldbank.org/bitstreams/8e6bcf71-89a1-443b-bbe9-6c39a496d7ab/download",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "CEPAL",
+    "Institucion": "Comisión Económica para América Latina y el Caribe",
+    "Url_Original": "https://www.cepal.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.cepal.org",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "estadistica",
+        "documento",
+        "desarrollo",
+        "activo"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "\"> Oficina Nacional, Washington --> --> Cómo trabajamos Divisiones y unidades --> Órganos subsidiarios y reuniones intergubernamentales --> Períodos de sesiones --> Tratados y acuerdos --> Programa de trabajo de la CEPAL --> Cooperación --> Proyectos --> --> Noticias y actividades Noticias --> Actividades --> Comunicados --> Anuncios --> CEPAL en l",
+      "samples": [
+        {
+          "title": "Qué gana México con el reacomodo geopolítico mundial: La CEPAL promuev",
+          "url": "https://www.cepal.org/es/comunicados/que-gana-mexico-reacomodo-geopolitico-mundial-la-cepal-promueve-debate-informe",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "FEGASACRUZ",
+    "Institucion": "Federación de Ganaderos de Santa Cruz",
+    "Url_Original": "https://www.fegasacruz.org.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "http://www.fegasacruz.org/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Página en construcción</tit"
+    },
+    "Error_Detail": null,
+    "mapped_from": null,
+    "resolved_from_variant": false,
+    "original_url": null,
+    "mapping_resolved": null
+  },
+  {
+    "Fuente": "FINRURAL",
+    "Institucion": "Finrural Bolivia",
+    "Url_Original": "https://www.finrural.org.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.finrural.org.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "financiero",
+        "documento",
+        "desarrollo",
+        "mensual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "FINRURAL – Asociación de Instituciones Financieras de Desarrollo – Bolivia Síguenos en Facebook Twitter Linkedin Av ... lar 1788291492 urnif 1788291492 @ofni 1788291492 Inicio Información institucional Historia Misión, visión y valores Sostenibilidad Estructura organizacional Instituciones asociadas CIDRE IFD CRECER IFD DIACONÍA-FRIF IFD FONDECO IF",
+      "samples": [
+        {
+          "title": "Reporte Financiero Mensual",
+          "url": "https://www.finrural.org.bo/reporte-financiero-mensual-instituciones-financieras-de-desarrollo/",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "FMI",
+    "Institucion": "Fondo Monetario Internacional",
+    "Url_Original": "https://www.imf.org",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "institucion real confirmada",
+      "bloqueo activo contra trafico automatizado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "403_BOT_BLOCKED",
+    "Final_Url": "https://www.imf.org",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<html><head>\n<title>Access Denied</title>\n</head><body>\n<h1>Access Denied</h1>\n \nYou don't have permission to access \"http://www.imf.org/en/home\" on this server.<p>\nReference #18.d"
+    },
+    "Error_Detail": null,
+    "mapping_note": "imf.org es la institucion correcta (verificado). Bloquea 403 incluso con navegador headless real (Playwright, domcontentloaded, UA Chrome) - bloqueo por IP/datacenter, no por Cloudflare-challenge (patron distinto a BCP/D-03). La resolucion previa a imf.com era incorrecta (otra institucion, revertida). No es un dominio muerto: requiere acceso desde IP no-datacenter para confirmar contenido.",
+    "mapping_timestamp": "2026-09-18T13:01:27.132060+00:00"
+  },
+  {
+    "Fuente": "MEFP",
+    "Institucion": "Ministerio de Economía y Finanzas Públicas",
+    "Url_Original": "https://www.economiayfinanzas.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.economiayfinanzas.gob.bo",
+    "Doc_Links_Found_In_Seed": 22,
+    "Subpage_Keywords_Found": 6,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "financiero",
+        "estadistica",
+        "activo",
+        "mensual",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\" prefix=\"content: http://purl.org/rss/1.0/modules/content/  dc: http://purl.org/dc/terms/  foaf: http://xmlns.com/foaf/0.1/  og: http://ogp."
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "MMYM",
+    "Institucion": "Ministerio de Minería y Metalurgia",
+    "Url_Original": "https://www.mineria.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.mineria.gob.bo",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 2,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "archivo",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <!-- <link href='https://fonts.go"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "OMC",
+    "Institucion": "Organización Mundial del Comercio",
+    "Url_Original": "https://www.wto.org",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.wto.org",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\r\n    <title>World Trade Organization - Home page - Global trade</title>\r\n  "
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "Statistics Denmark",
+    "Institucion": "Danmarks Statistik",
+    "Url_Original": "https://www.dst.dk",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.dst.dk",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "\r\n<!DOCTYPE html>\r\n<html lang=\"da\">\r\n<head>\r\n    <title>\r\n        Danmarks Statistik\r\n\r\n    </title>\r\n    \r\n    <link rel=\"shortcut icon\" href=\"/Site/Dst/Images/favicon2013.ico\" />"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "VIPFE",
+    "Institucion": "Viceministerio de Inversión Pública y Financiamiento Externo",
+    "Url_Original": "https://www.vipfe.gob.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada (confianza media, pendiente verificacion visual)",
+      "acceso validado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.planificacion.gob.bo/vipfe",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.vipfe.gob.bo",
+    "resolved_from_variant": false,
+    "mapping_resolved": "https://www.planificacion.gob.bo/vipfe",
+    "mapping_source": "gemini_verdict",
+    "mapping_note": "VIPFE integrado al portal del Ministerio de Planificacion. Sitio SPA (Angular): no se pudo confirmar texto por HTML estatico."
+  },
+  {
+    "Fuente": "ADA",
+    "Institucion": "ADA Bolivia",
+    "Url_Original": "https://www.adascz.com.bo/",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.adascz.com.bo/",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 2,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "estadistica",
+        "desarrollo"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "ADA Inicio La Institución Quiénes Somos Directorio Expresidentes ADA Personal Afíliese Beneficios Requisitos Formulario Enlaces de Interés Publicaciones Boletín ADA Informa Boletín de Precios Recetarios Recetas Memorias Estadísticas del sector Notas de Prensa Anuncios Producción de Pollo Producción de Huevo Normativas Páginas Amarillas Contacto El ",
+      "samples": [
+        {
+          "title": "Descargar",
+          "url": "https://www.adascz.com.bo/images/boletin-precios/Boletin-Precios-Avicolas-01sep2026.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ATC",
+    "Institucion": "Administradora de Tarjetas de Crédito",
+    "Url_Original": "https://www.redenlace.com.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.redenlace.com.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "financiero",
+        "documento",
+        "activo"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Compra con Contactless en el NewPOS Compra Sin Contacto POS - Contactless Medidas de Seguridad con tu POS ¿Qué es EON? - Enlázate Online de RED ENLACE Tutorial Transacción QR Simple con RED ENLACE Ve todos los tutoriales Sobre Red Enlace Quiénes somos Memorias Oficinas La Red más Segura de Bolivia Documentos relacionados al Contrato de Adquirencia ",
+      "samples": [
+        {
+          "title": "Documentos relacionados al Contrato de Adquirencia",
+          "url": "https://www.redenlace.com.bo/sobre-red-enlace/documentos-relacionados-al-contrato-de-adquirencia",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "CADEXCO",
+    "Institucion": "Cámara de Exportadores de Cochabamba",
+    "Url_Original": "https://www.cadexco.org.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado",
+      "verificado por contenido"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://cadexco.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.cadexco.org.bo",
+    "mapping_resolved": "https://cadexco.bo/",
+    "mapping_source": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion de contenido propia",
+    "mapping_confidence": 0.9,
+    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+  },
+  {
+    "Fuente": "CNDC",
+    "Institucion": "Comisión Nacional de Defensa de la Competencia",
+    "Url_Original": "https://www.cndc.bo/",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.cndc.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "estadistica",
+        "desarrollo",
+        "mensual",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <link rel=\"apple-touch-icon\" sizes="
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "DGAC",
+    "Institucion": "Dirección General de Aeronáutica Civil",
+    "Url_Original": "https://www.dgac.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.dgac.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 6,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "documento",
+        "archivo",
+        "desarrollo",
+        "activo",
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "DGAC - Dirección General de Aeronáutica Civil - Presidencia Estado Plurinacional de Bolivia original--> --> codigo original--> --> codigo original --> original --> codigo original---> --> cod original--> Dirección General de Aeronáutica Civil Presidencia del Estado Plurinacional de Bolivia codigo original --> --> --> original copia--> Institución D",
+      "samples": [
+        {
+          "title": "Ley N° 1218 Modifica el Artículo 25 de la Ley N°2902",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/08/LEY_1218.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Ley Nº 1415, modificaciones a la Ley Nº 2902",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2023/04/03-LEY_1415_Modifica-Art-82-e-incluye-Art83_Ley-2902.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Ley N° 2341 de Procedimiento Administrativo",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/08/2341.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "DS N° 27113 Reglamento a la Ley Nº 2341",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/08/27113.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Reglamento de Infracciones, Sanciones y Procedimiento Especial Sancion",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/12/RM_224_2019.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Procedimiento para la elaboración de nuevos reglamentos o enmiendas a ",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2024/08/DGAC-PRO-018R5_PROC.-DE-GESTION-DE-REGL-O-ENMIENDAS.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Procedimiento de Otorgación y Gestión de Exenciones a la RAB",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/09/DGAC_PRO_011R1.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Requisitos  Previa Importación de Aeronave",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2020/07/RAB_21_Apendice_2.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Política de Instrucción",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2025/03/Politica-de-Instruccion-Rev.4.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Resolución Administrativa N° 347",
+          "url": "https://www.dgac.gob.bo/wp-content/uploads/2019/09/R_A_347_2019.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "FAM",
+    "Institucion": "Federación de Asociaciones Municipales de Bolivia",
+    "Url_Original": "https://www.fam.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado",
+      "verificado por contenido"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://fam.org.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.fam.bo",
+    "mapping_resolved": "https://fam.org.bo/",
+    "mapping_source": "gemini_best_url+variant",
+    "mapping_confidence": 0.85,
+    "mapping_timestamp": "2026-09-11T13:20:15.733003+00:00"
+  },
+  {
+    "Fuente": "FIFA",
+    "Institucion": "Federación Internacional de Fútbol Asociación",
+    "Url_Original": "https://www.fifa.com",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.fifa.com",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!doctype html><html lang=\"en\" dir=\"ltr\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/><meta name=\"theme-color\" content=\"#020F2A\""
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "FUNDEMPRESA",
+    "Institucion": "Registro de Comercio de Bolivia",
+    "Url_Original": "https://www.fundempresa.org.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "410",
+    "Final_Url": "https://www.fundempresa.org.bo",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!DOCTYPE html><html lang=\"spanish\" data-theme=\"dark\"><head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>fundempresa.org.bo"
+    },
+    "Error_Detail": null,
+    "mapping_note": "Hallazgo de la verificacion en vivo del 2026-09-18: fundempresa.org.bo (con y sin www) devuelve 410 Gone, confirmado con curl directo (no error de red transitorio). Antes registrado como 200 - cambio real detectado ahora. Pendiente: buscar el dominio/ruta de reemplazo del Registro de Comercio de Bolivia.",
+    "mapping_timestamp": "2026-09-18T13:03:29.731437+00:00"
+  },
+  {
+    "Fuente": "ICCO",
+    "Institucion": "International Cocoa Organization",
+    "Url_Original": "https://www.icco.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.icco.org",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "00 --> Home Who we are Vision and Mandate Governance International Cocoa Council Economics Committee Administration and Finance Committee Consultative Board on the World Cocoa Economy The ICCO Secretariat International Cocoa Agreements 2010 2001 1993 1986 1975 1973 Membership Exporting Countries Importing Countries Statistics Economy Consultative B",
+      "samples": [
+        {
+          "title": "How to Become an ICCO Member",
+          "url": "https://icco.org/wp-content/uploads/How-to-become-a-Member-2010-Agreement-Eng-Fre-Rus-Spa-Sept-2010.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ITU",
+    "Institucion": "International Telecommunication Union",
+    "Url_Original": "https://www.itu.int",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.itu.int",
+    "Doc_Links_Found_In_Seed": 2,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "--> ITU: Connecting the world and beyond --> --> --> Committed to connecting the world --> Connecting the world and beyond عربي 中文 Español Français Русский --> --> Advanced Search ITU About ITU Media Centre Events Publications Statistics Action areas",
+      "samples": [
+        {
+          "title": "Report on the implementation of the Strategic plan and the activities ",
+          "url": "https://www.itu.int/dms_pub/itu-s/md/26/cl/c/S26-CL-C-0035%21%21PDF-E.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "ITU and WSIS activities",
+          "url": "https://www.itu.int/en/Documents/ITU-WSIS-global-digital-compact-objectives.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "MDRyT/OAP",
+    "Institucion": "Ministerio de Desarrollo Rural y Tierras - OAP",
+    "Url_Original": "https://www.ruralytierras.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.ruralytierras.gob.bo",
+    "Doc_Links_Found_In_Seed": 3,
+    "Subpage_Keywords_Found": 4,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "archivo",
+        "desarrollo",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Institucional Misión, Visión, Objetivos Institucionales y Principios de la Entidad Reseña Historica Objetivos Institucionales Memoria Intitucional Plan Estratégico Institucional (PEI) Presupuesto Institucional Auditoria Transparencia Rendición Pública de Cuentas Denuncias por Hechos de Corrupción Formulario de Solicitud de Información Tramites y Se",
+      "samples": [
+        {
+          "title": "Informes de Viaje al Exterior",
+          "url": "https://ruralytierras.gob.bo/index.php/informes-de-viaje-al-exterior/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Sanidad para Producir y ExportarCertificamos la calidad sanitaria de t",
+          "url": "https://ruralytierras.gob.bo/wp-content/uploads/1-REQUISITOS-DOCUMENTALES-PARA-LA-OBTENCION-O-RENOVACION-DE-REGISTRO-SANITARIO-PROCESADORAS.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Seguridad Jurídica para tu TierraGarantizamos tu derecho propietario a",
+          "url": "https://ruralytierras.gob.bo/wp-content/uploads/2025/01/lorem-ipsum.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "OTROS HISTORICOS",
+    "Institucion": "Doing Business (Banco Mundial)",
+    "Url_Original": "https://www.doingbusiness.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.doingbusiness.org",
+    "Doc_Links_Found_In_Seed": 3,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "anual"
+      ],
+      "file_type": "ZIP",
+      "quality_score": 3.0,
+      "snippet_text": "Full Report : Arabic | French | Russian | Spanish Download Data Reproducibility Package Download Report Our Mission Project Milestones Meet the B-READY Team FAQ Explore Data Topic Methodology Business Entry Utility Services Business Location Labor Financial Services International Trade Taxation Dispute Resolution Market Competition Business Insolve",
+      "samples": [
+        {
+          "title": "Download Data",
+          "url": "https://www.doingbusiness.org/content/dam/sites/b-ready/documents/excel/B-READY_ALL_DATA_2025.zip",
+          "file_type": "ZIP"
+        },
+        {
+          "title": "B-READY Manual and Guide",
+          "url": "https://thedocs.worldbank.org/en/doc/5d79ca28ad482b1a9bc19b9c3a9c9e19-0540012023/original/B-READY-Manual-and-Guide.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "B-READY Methodology Handbook",
+          "url": "https://thedocs.worldbank.org/en/doc/bc6351803cb0cd5ad4aba96b7e4aed8c-0540012024/original/B-Ready-Methodology-Handbook-Edition-2.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "SABSA",
+    "Institucion": "Servicios de Aeropuertos Bolivianos S.A.",
+    "Url_Original": "https://www.sabsa.aero",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://naabol.gob.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.sabsa.aero",
+    "resolved_from_variant": false,
+    "mapping_resolved": "https://naabol.gob.bo/",
+    "mapping_source": "gemini_verdict+content_check",
+    "mapping_note": "SABSA nacionalizada en 2013; funciones pasaron a NAABOL."
+  },
+  {
+    "Fuente": "SICOES",
+    "Institucion": "Sistema de Contrataciones Estatales",
+    "Url_Original": "https://www.sicoes.gob.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.sicoes.gob.bo",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\r\n\"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html>\r\n<head>\r\n<title>SICOES</title>\r\n<meta http-equiv=\"Content-Type\" cont"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "APS/SOAT",
+    "Institucion": "APS - Seguros SOAT",
+    "Url_Original": "https://www.aps.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.aps.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "estadistica",
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "Inicio Inicio Institucional Acerca de la APS Reseña Histórica Misión y Visión Información de la MAE Valores y Principios Objetivos Institucionales Planificación Información Planificación Programas y Proyectos de Inversión Recursos Humanos Organigrama Nómina de Autoridades Nómina de Personal Escala Salarial Manual de Organización y Funciones Plan Op",
+      "samples": [
+        {
+          "title": "Organigrama",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Organigrama.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Nómina de Autoridades",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Nomina_Autoridades.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Nómina de Personal",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Nomina_Personal.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Escala Salarial",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Escala%20Salarial.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Manual de Organización y Funciones",
+          "url": "https://www.aps.gob.bo/images/webdocs/UPE/mof/Manual%20de%20Organizacion%20y%20Funciones.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Plan Operativo Anual Individual – POAI",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/RAI%20APS%20009%202025%20MANUAL%20DE%20PUESTOS%20-%20PLAN%20OPERATIVO%20ANUAL%20INDIVIDUAL%20POAI%20GESTION%202025.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Perfiles de Cargos",
+          "url": "https://www.aps.gob.bo/images/webdocs/UTH/informacion/Perfil%20Minimo%20de%20Cargos.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Informes de resultados de viajes al exterior",
+          "url": "https://www.aps.gob.bo/index.php/institucional/informes-de-resultados-de-viajes-al-exterior",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Lista de Precios de Atención SOAT",
+          "url": "https://www.aps.gob.bo/images/webdocs/UPCC/otros/Lista%20de%20Precios%20de%20Atencion%20SOAT.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Convocatoria",
+          "url": "https://www.aps.gob.bo/images/webdocs/DP/Convocatoria%20Examen%20Medicos%20Calificadores.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ASFI",
+    "Institucion": "Autoridad de Supervisión del Sistema Financiero",
+    "Url_Original": "https://www.asfi.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.asfi.gob.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 7,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "financiero",
+        "estadistica",
+        "archivo",
+        "activo",
+        "anual",
+        "trimestral"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ASFI - FINRURAL",
+    "Institucion": "ASFI / Finrural",
+    "Url_Original": "https://www.asfi.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.asfi.gob.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 7,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "financiero",
+        "estadistica",
+        "archivo",
+        "activo",
+        "anual",
+        "trimestral"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html>\n<html lang=\"es\" dir=\"ltr\">\n\n  <head>\n    <meta charset=\"utf-8\" />\n<meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org)\" />\n<meta name=\"MobileOptimized"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "BOLCEREALES",
+    "Institucion": "Bolcereales",
+    "Url_Original": "https://www.bolsadecereales.org.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "institucion disuelta",
+      "sin sucesor unico confirmado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "DISUELTA",
+    "Final_Url": "https://www.bbcp.com.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.bolsadecereales.org.bo",
+    "resolved_from_variant": true,
+    "original_url": "https://www.bolsadecereales.org.bo",
+    "mapping_resolved": "https://www.bbcp.com.bo/",
+    "mapping_note": "Sin actividad rastreable en la web ni sucesor unico. Funciones equivalentes de informacion/precios de granos repartidas hoy entre OAP (observatorioagro.gob.bo), INE, CAO/SIPREM (cao.org.bo) e IBCE (ibce.org.bo). No confundir con bolsadecereales.com (Bolsa de Cereales de Buenos Aires, Argentina). Confianza media: ausencia de evidencia, no evidencia de ausencia.",
+    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+  },
+  {
+    "Fuente": "CEPROBOL",
+    "Institucion": "Centro Promoción Bolivia",
+    "Url_Original": "https://www.ceprobol.gob.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.probolivia.gob.bo/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.ceprobol.gob.bo",
+    "resolved_from_variant": false,
+    "mapping_resolved": "https://www.probolivia.gob.bo/",
+    "mapping_source": "gemini_verdict+content_check",
+    "mapping_note": "CEPROBOL disuelto por DS 3432 (2017); funciones pasaron a PRO BOLIVIA."
+  },
+  {
+    "Fuente": "FDTA-Valles",
+    "Institucion": "Fundación para el Desarrollo Tecnológico Agropecuario de los Valles",
+    "Url_Original": "https://www.icco.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.icco.org",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "00 --> Home Who we are Vision and Mandate Governance International Cocoa Council Economics Committee Administration and Finance Committee Consultative Board on the World Cocoa Economy The ICCO Secretariat International Cocoa Agreements 2010 2001 1993 1986 1975 1973 Membership Exporting Countries Importing Countries Statistics Economy Consultative B",
+      "samples": [
+        {
+          "title": "How to Become an ICCO Member",
+          "url": "https://icco.org/wp-content/uploads/How-to-become-a-Member-2010-Agreement-Eng-Fre-Rus-Spa-Sept-2010.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "IBCH",
+    "Institucion": "Instituto Boliviano del Cemento y Hormigón",
+    "Url_Original": "https://www.ibch.org.bo",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado",
+      "verificado por contenido"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.ibch.com/",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": ""
+    },
+    "Error_Detail": "CONN_ERROR",
+    "mapped_from": "https://www.ibch.org.bo",
+    "mapping_resolved": "https://www.ibch.com/",
+    "mapping_source": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion de contenido propia",
+    "mapping_confidence": 0.9,
+    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+  },
+  {
+    "Fuente": "INE",
+    "Institucion": "Instituto Nacional de Estadística",
+    "Url_Original": "https://www.ine.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.ine.gob.bo",
+    "Doc_Links_Found_In_Seed": 3,
+    "Subpage_Keywords_Found": 7,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "estadistica",
+        "archivo",
+        "mensual",
+        "anual",
+        "trimestral"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "INE Instituto Nacional de Estadística INE Instituto Nacional de Estadística 90 Años contando Bolivia ☀️ 🌙 Buscar: Botón de búsqueda Institucional Información de la Institución Misión y Visión Valores y Principios Reseña Historica Informes de gestión Objetivos Estratégicos Institucionales Bolivia Aspectos Políticos y Administrativos Aspectos Históri",
+      "samples": [
+        {
+          "title": "Informes de gestión",
+          "url": "https://www.ine.gob.bo/index.php/institucion/planificacion/planificacion-estrategica-pei/informes-de-gestion/#770-gestion-2024-1763055858",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Reportes de Seguimiento y Evaluación PEI",
+          "url": "https://www.ine.gob.bo/index.php/institucion/planificacion/planificacion-operativa-poa/reportes-de-seguimiento-y-evaluacion-pei/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Reportes de Seguimiento y Evaluación POA",
+          "url": "https://www.ine.gob.bo/index.php/institucion/planificacion/planificacion-operativa-poa/reportes-de-seguimiento-y-evaluacion-poa/",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "MHE",
+    "Institucion": "Ministerio de Hidrocarburos y Energías",
+    "Url_Original": "https://hidrocarburos.org/",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "alternativa seleccionada",
+      "acceso validado"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": 200,
+    "Final_Url": "https://hidrocarburos.org/",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "Hydrocarbons For The Future (55) 5532 2501 (55) 5672 7999 info@hidrocarburos.org Nosotros Servicios Ingeniería de Confiabilidad Investigación de Incidentes (ACR) Análisis de Riesgo de los Procesos Ingeniería para Tanques, Tuberías y Recipientes Instr",
+      "samples": [
+        {
+          "title": "Aviso de Privacidad",
+          "url": "https://hidrocarburos.org/wp-content/uploads/2023/12/FOR-G-HFF-039-AVISO-DE-PRIVACIDAD.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null,
+    "original_url": "https://www.hidrocarburos.gob.bo",
+    "mapped_from": "https://www.hidrocarburos.gob.bo",
+    "resolved_from_variant": true,
+    "mapping_resolved": "https://hidrocarburos.org/"
+  },
+  {
+    "Fuente": "SEPREC",
+    "Institucion": "Servicio Plurinacional de Registro de Comercio",
+    "Url_Original": "https://www.seprec.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.seprec.gob.bo",
+    "Doc_Links_Found_In_Seed": 3,
+    "Subpage_Keywords_Found": 4,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "documento",
+        "archivo",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "SERVICIO PLURINACIONAL DE REGISTRO DE COMERCIO REGISTRO DE COMERCIO EN EL ESTADO PLURINACIONAL DE BOLIVIA --> Institucional Misión, Visión, Valores y Principios de la Entidad Reseña Historica Objetivos Institucionales Memoria Institucional Plan Estratégico Institucional (PEI) Programación Operativa Anual (POA) Presupuesto Institucional Políticas de",
+      "samples": [
+        {
+          "title": "Programación Operativa Anual (POA)",
+          "url": "https://www.seprec.gob.bo/index.php/aprobacion-del-poa-documento-normativo/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Informes de Viaje al Exterior",
+          "url": "https://www.seprec.gob.bo/index.php/informes-de-viaje-al-exterior/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "VER Resolución Administrativa",
+          "url": "https://www.seprec.gob.bo/wp-content/uploads/2025/10/AEMP-RA-55__.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "UNDATA",
+    "Institucion": "United Nations Data",
+    "Url_Original": "https://data.un.org",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://data.un.org",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "UNdata Datamarts Update Calendar Glossary API More About UNdata Advanced search Explorer Documentation Browse Web Service 32 databases - 60 million records Update calendar --> Other UNSD Databases: Popular searches nigeria Sex workers: Popu... unempl",
+      "samples": [
+        {
+          "title": "PDF",
+          "url": "https://data.un.org/_Docs/SYB/PDFs/SYB68_1_202511_Population, Surface Area and Density.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CSV",
+          "url": "https://data.un.org/_Docs/SYB/CSV/SYB68_1_202511_Population, Surface Area and Density.csv",
+          "file_type": "CSV"
+        },
+        {
+          "title": "PDF",
+          "url": "https://data.un.org/_Docs/SYB/PDFs/SYB68_327_202511_International Migrants and Refugees.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CSV",
+          "url": "https://data.un.org/_Docs/SYB/CSV/SYB68_327_202511_International Migrants and Refugees.csv",
+          "file_type": "CSV"
+        },
+        {
+          "title": "PDF",
+          "url": "https://data.un.org/_Docs/SYB/PDFs/SYB68_246_202511_Population Growth, Fertility and Mortality Indicators.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CSV",
+          "url": "https://data.un.org/_Docs/SYB/CSV/SYB68_246_202511_Population Growth, Fertility and Mortality Indicators.csv",
+          "file_type": "CSV"
+        },
+        {
+          "title": "PDF",
+          "url": "https://data.un.org/_Docs/SYB/PDFs/SYB61_253_Population Growth Rates in Urban areas and Capital cities.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CSV",
+          "url": "https://data.un.org/_Docs/SYB/CSV/SYB61_253_Population Growth Rates in Urban areas and Capital cities.csv",
+          "file_type": "CSV"
+        },
+        {
+          "title": "PDF",
+          "url": "https://data.un.org/_Docs/SYB/PDFs/SYB68_230_202511_GDP and GDP Per Capita.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CSV",
+          "url": "https://data.un.org/_Docs/SYB/CSV/SYB68_230_202511_GDP and GDP Per Capita.csv",
+          "file_type": "CSV"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "AE",
+    "Institucion": "Autoridad de Fiscalizacion de Electricidad dey Tecnologia Nuclear",
+    "Url_Original": "https://aetn.gob.bo/",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://aetn.gob.bo/",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "estadistica",
+        "archivo",
+        "activo",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "AETN Autoridad de Fiscalización de Electricidad y Tecnología Nuclear --> Institucional Misión, Visión y Enfoque Institucional Reseña Histórica Principios y Valores Objetivos Institucionales Memoria Institucional Plan Estratégico Institucional (PEI) Programación Operativa Anual (POA) Presupuesto y Ejecución Institucional Fuentes de Financiamiento Pr",
+      "samples": [
+        {
+          "title": "Informes de Viaje al Exterior",
+          "url": "https://aetn.gob.bo/informes-de-viaje-al-exterior/",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ASFI - BCB",
+    "Institucion": "ASFI / Banco Central de Bolivia",
+    "Url_Original": "https://www.bcb.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.bcb.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 8,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "financiero",
+        "documento",
+        "desarrollo",
+        "activo",
+        "mensual",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Banco Central de Bolivia Pasar al contenido principal Menú SOBRE EL BCB SOBRE EL BCB Marco Legal Gobierno Corporativo Instrumentos de Gestión Gestión de Transparencia Institucional Comunicaciones Marco Legal Constitución Política del Estado Leyes Resoluciones Circulares Externas Gobierno Corporativo Historia Misión y Visión Valores y Principios Dir",
+      "samples": [
+        {
+          "title": "Auditoria de TIC",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditoria_informatica",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias Financieras",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_finacieras",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias Operativas",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_operativas",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Auditorias de Cumplimiento",
+          "url": "https://www.bcb.gob.bo/?q=informe_auditorias_especiales",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Informe de Actividades",
+          "url": "https://www.bcb.gob.bo/?q=informe_actividades",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Informes de Seguimiento",
+          "url": "https://www.bcb.gob.bo/?q=informe_seguimiento",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Cuestionario Wolfsberg sobre Prevención de Lavado de Dinero",
+          "url": "https://www.bcb.gob.bo/webdocs/Otros/the_wolfsberg_group.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Reporte de Inflación y Política Monetaria",
+          "url": "https://www.bcb.gob.bo/?q=content/reporte-de-inflaci%C3%B3n-y-pol%C3%ADtica-monetaria",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Operaciones de Mercado Abierto",
+          "url": "https://www.bcb.gob.bo/webdocs/normativaoma/RD_N_109_2026.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Informe de Vigilancia del Sistema de Pagos",
+          "url": "https://www.bcb.gob.bo/?q=informe-vigilancia-sistema-pagos",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "ASOFIN",
+    "Institucion": "Asociación de Instituciones Financieras de Microfinanzas de Bolivia",
+    "Url_Original": "https://www.asofinbolivia.com",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.asofinbolivia.com",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "financiero",
+        "documento",
+        "desarrollo",
+        "activo",
+        "mensual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "ASOFIN ASOFIN Inicio Nosotros Asociación de bancos de Bolivia especializados en microfinanzas y entidad financiera de vivienda, actualmente concentra seis entidades financieras, tres Bancos Múltiples, dos Bancos Pymes y una Entidad financiera de Vivienda, todas ellas supervisadas por la Autoridad de Supervisión del Sistema Financiero ASFI)",
+      "samples": [
+        {
+          "title": "Documentos",
+          "url": "https://www.asofinbolivia.com/index.php/documentos",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null,
+    "mapped_from": null,
+    "resolved_from_variant": false,
+    "original_url": null,
+    "mapping_resolved": null
+  },
+  {
+    "Fuente": "ATT",
+    "Institucion": "Autoridad de Regulación y Fiscalización de Telecomunicaciones y Transportes",
+    "Url_Original": "https://www.att.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.att.gob.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "financiero",
+        "estadistica",
+        "activo",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Autoridad de Regulación y Fiscalización de Telecomunicaciones y Transportes Main navigation \">Inicio Institucional Misión, Visión y Principios Reseña Histórica Objetivos Institucionales Memoria Institucional Plan Estratégico Institucional (PEI) Plan Operativo Anual (POA) Presupuesto Institucional Fuentes de Financiamiento Sectores > Servicio Postal",
+      "samples": [
+        {
+          "title": "Auditorías",
+          "url": "https://www.att.gob.bo/index.php/en/informes-auditoria-v2",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "BBV",
+    "Institucion": "Bolsa Boliviana de Valores",
+    "Url_Original": "https://www.bbv.com.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.bbv.com.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "estadistica",
+        "mensual",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!doctype html>\n<html lang=\"es\">\n\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/x"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "Data.Gov",
+    "Institucion": "Portal de Datos Abiertos USA",
+    "Url_Original": "https://www.data.gov",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.data.gov",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "\n\n<!DOCTYPE html>\n\n<html class=\"no-js datagov\" dir=\"ltr\" lang=\"en\">\n\n\n\n<head>\n  <!-- Basic Page Needs\n    ================================================== -->\n  <meta charset=\"ut"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "IBCE - CAO",
+    "Institucion": "Instituto Boliviano de Comercio Exterior / Cámara Agropecuaria del Oriente",
+    "Url_Original": "https://www.ibce.org.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.ibce.org.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "estadistica",
+        "documento",
+        "desarrollo"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "﻿ Portada del IBCE - Instituto Boliviano de Comercio Exterior --> --> --> --> --> --> Conocer al IBCE --> Red Internacional Enlaces de Interés Preguntas Frecuentes --> Suscribirme gratis al boletín informativo Trabajando por una Bolivia digna, productiva, exportadora y soberana Síguenos en: Open Menu Inicio Información de Mercado Estudios de Mercad",
+      "samples": [
+        {
+          "title": "Informe Especial",
+          "url": "https://www.ibce.org.bo/publicaciones-ibce.php?publicacion=informe_especial&opcion=7",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Documentos de Interés",
+          "url": "https://www.ibce.org.bo/publicaciones-ibce.php?publicacion=documentosInteres&opcion=5",
+          "file_type": "DOC"
+        },
+        {
+          "title": "CE-325-Granos-Altoandinos-Una-alternativa-seguridad-alimentaria.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/CE-325-Granos-Altoandinos-Una-alternativa-seguridad-alimentaria.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Libro_Modelo_Desarrollo_Cruceno.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/Libro_Modelo_Desarrollo_Cruceno.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CE-323-Santa-Cruz-Cifras-demuestran-exito-modelo-desarrollo.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/CE-323-Santa-Cruz-Cifras-demuestran-exito-modelo-desarrollo.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CE-320-Transformando-negocio-protegiendo-planeta.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/CE-320-Transformando-negocio-protegiendo-planeta.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "CE-318-Cifras-Comercio-Exterior-Boliviano-2023.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/CE-318-Cifras-Comercio-Exterior-Boliviano-2023.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "ce-298-cifras-del-comercio-exterior-boliviano-2021.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/ce-298-cifras-del-comercio-exterior-boliviano-2021.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "ce-297-Profin-los-seguros-incluivos.pdf",
+          "url": "https://ibce.org.bo/images/publicaciones/ce-297-Profin-los-seguros-incluivos.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "descarga-intermedia.php?id=2464",
+          "url": "https://ibce.org.bo/descarga-intermedia.php?id=2464",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "MDRyT",
+    "Institucion": "Ministerio de Desarrollo Rural y Tierras",
+    "Url_Original": "https://www.ruralytierras.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.ruralytierras.gob.bo",
+    "Doc_Links_Found_In_Seed": 3,
+    "Subpage_Keywords_Found": 4,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "informe",
+        "archivo",
+        "desarrollo",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Institucional Misión, Visión, Objetivos Institucionales y Principios de la Entidad Reseña Historica Objetivos Institucionales Memoria Intitucional Plan Estratégico Institucional (PEI) Presupuesto Institucional Auditoria Transparencia Rendición Pública de Cuentas Denuncias por Hechos de Corrupción Formulario de Solicitud de Información Tramites y Se",
+      "samples": [
+        {
+          "title": "Informes de Viaje al Exterior",
+          "url": "https://ruralytierras.gob.bo/index.php/informes-de-viaje-al-exterior/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Sanidad para Producir y ExportarCertificamos la calidad sanitaria de t",
+          "url": "https://ruralytierras.gob.bo/wp-content/uploads/1-REQUISITOS-DOCUMENTALES-PARA-LA-OBTENCION-O-RENOVACION-DE-REGISTRO-SANITARIO-PROCESADORAS.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Seguridad Jurídica para tu TierraGarantizamos tu derecho propietario a",
+          "url": "https://ruralytierras.gob.bo/wp-content/uploads/2025/01/lorem-ipsum.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "Min. Educacion",
+    "Institucion": "Ministerio de Educación",
+    "Url_Original": "https://www.minedu.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.minedu.gob.bo",
+    "Doc_Links_Found_In_Seed": 8,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "documento",
+        "desarrollo",
+        "anual"
+      ],
+      "file_type": "PDF",
+      "quality_score": 3.0,
+      "snippet_text": "Ministerio de Educación INICIO MINISTERIO Documentos Normativos Recursos Humanos Sobre el Ministerio de Educación VICEMINISTERIOS Viceministerio de Educación Regular Viceministerio de Educación Alternativa y Especial Viceministerio de Educación Superior y Formación Profesional DIR ... Tarija TRANSPARENCIA Auditoria Denuncias y Quejas Ejecución Pres",
+      "samples": [
+        {
+          "title": "Libro_ilustrado_de_mamiferos_de_Bolivia.pdf",
+          "url": "https://www.minedu.gob.bo/files/Libro_ilustrado_de_mamiferos_de_Bolivia.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "documento",
+          "url": "https://red.minedu.gob.bo/documento",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Reportes Educativos",
+          "url": "https://reportes.sie.gob.bo/",
+          "file_type": "DOC"
+        },
+        {
+          "title": "[+] Convocatoria",
+          "url": "https://www.minedu.gob.bo/files/publicaciones/minedu/Convocatoria-Premio-IILA-Letteratura_XVI_edizione-1.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "[+] Formulario",
+          "url": "https://iila.org/wp-content/uploads/2024/12/Formulario_Premio-IILA-LETTERATURA-1.docx",
+          "file_type": "DOCX"
+        },
+        {
+          "title": "Descargar PDF",
+          "url": "https://www.minedu.gob.bo/files/publicaciones/veaye/Lista_Oficial_Puente.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Descargar PDF",
+          "url": "https://www.minedu.gob.bo/files/publicaciones/veaye/Direccin_Recintos.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Glosario de términos referidos a los Derechos Humanos",
+          "url": "https://www.minedu.gob.bo/files/publicaciones/minedu/glosario-de-terminos-referidos-a-los-derechos-humanos.pdf",
+          "file_type": "PDF"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "SENAMHI",
+    "Institucion": "Servicio Nacional de Meteorología e Hidrología",
+    "Url_Original": "https://www.senamhi.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.senamhi.gob.bo",
+    "Doc_Links_Found_In_Seed": 1,
+    "Subpage_Keywords_Found": 6,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "estadistica",
+        "documento",
+        "desarrollo",
+        "activo"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Inicio Institucional Misión Visión ¿Quiénes Somos? ¿Qué Hacemos? Preguntas Frecuentes Transparencia Recursos Humanos Marco Normativo Organigrama Nómina de Autoridades --> Unidad de Auditoría Interna Convocatoria Pública --> Area de Planificación Reporte de Viajes al Exterior --> Rendición de Cuentas Planilla Haberes --> Lista de Proveedores Contrat",
+      "samples": [
+        {
+          "title": "Reporte de Viajes al Exterior",
+          "url": "https://senamhi.gob.bo/index.php/transparencia/reporte-viajes",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "SIGMA",
+    "Institucion": "Industria Farmacéutica Sigma",
+    "Url_Original": "https://www.sigmacorp.com.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.sigmacorp.com.bo",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 5,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "informe",
+        "desarrollo",
+        "mensual",
+        "anual"
+      ],
+      "file_type": null,
+      "quality_score": 3.0,
+      "snippet_text": "<!DOCTYPE html><html lang=\"es\"><head><link rel=\"apple-touch-icon\" sizes=\"76x76\" href=\"/static/favicons/apple-touch-icon.png\"/><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\""
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "SNIS",
+    "Institucion": "Sistema Nacional de Información en Salud",
+    "Url_Original": "https://snis.minsalud.gob.bo",
+    "Score_Excel": 3.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "documento detectado",
+      "acceso real"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://snis.minsalud.gob.bo",
+    "Doc_Links_Found_In_Seed": 10,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "reporte",
+        "estadistica",
+        "anual"
+      ],
+      "file_type": "DOC",
+      "quality_score": 3.0,
+      "snippet_text": "Está aquí: Inicio Sistema Único de Salud Portal WEB SUS Consulte su Adscripción Orientación SUS Busque su centro de Salud Reporte de atenciones SUS-002 Carpeta Familiar Software SOAPS - Carpeta Familiar Instructivo Carpeta Familiar Instrumento Carpeta Familiar Manual SOAPS v ... 3174 Estadisticas Calendario Epidemiológico Población Producción de Se",
+      "samples": [
+        {
+          "title": "Reporte de atenciones SUS-002",
+          "url": "https://snis.minsalud.gob.bo/reporte-de-atenciones-sus-002",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Instructivo Carpeta Familiar",
+          "url": "https://snis.minsalud.gob.bo/images/CarpetaFamiliar/Instructivo-CARPETA-FAMILIAR-SUS-1.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Instrumento Carpeta Familiar",
+          "url": "https://snis.minsalud.gob.bo/images/CarpetaFamiliar/CARPETA-FAMILIAR-SUS_-1.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Manual SOAPS v. 5.0.1",
+          "url": "https://snis.minsalud.gob.bo/images/CarpetaFamiliar/SOAPS_Manual-v500.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Guía de Visita Familiar",
+          "url": "https://snis.minsalud.gob.bo/images/CarpetaFamiliar/GUA-DE-VISITA-FAMILIAR-1.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Guia de Actualización del SOAPS v. 5.0.1",
+          "url": "https://snis.minsalud.gob.bo/images/Manual-de-procesos-y-procedimientos-para-la-actualizacin-de-SOAPS-500.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Presentación Carpeta Familiar",
+          "url": "https://snis.minsalud.gob.bo/images/CarpetaFamiliar/Presentacion-CF-SUS.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Certificado Médico D.S. 3174",
+          "url": "https://snis.minsalud.gob.bo/images/web/certificado medico.pdf",
+          "file_type": "PDF"
+        },
+        {
+          "title": "Reportes Dinamicos",
+          "url": "https://estadisticas.minsalud.gob.bo/Reportes_Dinamicos/Menu_rep_dinamicos.aspx",
+          "file_type": "DOC"
+        },
+        {
+          "title": "Reportes Dinámicos RUES",
+          "url": "http://reportes-rues.minsalud.gob.bo/",
+          "file_type": "DOC"
+        }
+      ]
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "TRANSTATS",
+    "Institucion": "US Bureau of Transportation Statistics",
+    "Url_Original": "https://www.transtats.bts.gov",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://www.transtats.bts.gov",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "\r\n\r\n<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>OST_R | BTS | Tran"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "manual",
+    "Institucion": "manual",
+    "Url_Original": "https://www.bbcp.com.bo/",
+    "Score_Excel": 2.0,
+    "Diagnosticos_Excel": [
+      "exitoso",
+      "sin enlace directo"
+    ],
+    "Robots_Allowed": true,
+    "HTTP_Status": "200",
+    "Final_Url": "https://bbcp.org",
+    "mapped_from": "https://www.bbcp.com.bo/",
+    "resolved_from_variant": true,
+    "original_url": "https://www.bbcp.com.bo/",
+    "mapping_resolved": "https://bbcp.org",
+    "Doc_Links_Found_In_Seed": 0,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": 2.0,
+      "snippet_text": "<!DOCTYPE html><html><head><script>window.onload=function(){window.location.href=\"/lander\"}</script></head></html>"
+    },
+    "Error_Detail": null
+  },
+  {
+    "Fuente": "SISPAM",
+    "Institucion": "Sistema de Seguimiento e Informacion de la Produccion, el Abastecimiento y Mercados (hoy: Observatorio Agroambiental y Productivo - OAP)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "renombrada a OAP",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://oap.produccion.gob.bo/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "la paz",
+        "santa cruz",
+        "agropecuario"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "El dominio observatorioagro.gob.bo citado en URLsFaltantes.md no resuelve DNS actualmente; se uso el mirror institucional oap.produccion.gob.bo, que si responde 200."
+  },
+  {
+    "Fuente": "SPVS-APS",
+    "Institucion": "Superintendencia de Pensiones, Valores y Seguros (disuelta, Ley 365/2013 + DS 0071/2009) -> funcion pensiones/seguros: APS",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "institucion disuelta con sucesora",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.aps.gob.bo/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 3,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "pensiones",
+        "seguros",
+        "valores"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "SPVS se dividio: pensiones y seguros paso a APS, valores paso a ASFI (ver registro SPVS-ASFI). Base legal: Ley 365 (23/04/2013) y DS 0071 (09/04/2009)."
+  },
+  {
+    "Fuente": "SPVS-ASFI",
+    "Institucion": "Superintendencia de Pensiones, Valores y Seguros (disuelta, Ley 365/2013 + DS 0071/2009) -> funcion valores: ASFI",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "institucion disuelta con sucesora",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.asfi.gob.bo/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "valores"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "Ver SPVS-APS para la funcion de pensiones/seguros. Este registro cubre solo la funcion de supervision del mercado de valores, hoy en ASFI (dominio ya trackeado tambien bajo Fuente=ASFI)."
+  },
+  {
+    "Fuente": "SUPTRANS",
+    "Institucion": "Superintendencia de Transportes (disuelta, DS 0071/2009) -> Autoridad de Regulacion y Fiscalizacion de Telecomunicaciones y Transportes (ATT)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "institucion disuelta con sucesora",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.att.gob.bo/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "transporte"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "Dominio ya trackeado tambien bajo Fuente=ATT; este registro documenta la procedencia SUPTRANS del SPIM."
+  },
+  {
+    "Fuente": "IN",
+    "Institucion": "Impuestos Nacionales (Servicio de Impuestos Nacionales - SIN)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://www.impuestos.gob.bo/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 1,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "impuesto"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00"
+  },
+  {
+    "Fuente": "SICSANTACRUZ",
+    "Institucion": "Sistema de Informacion y Comunicacion Agropecuario Departamental (Santa Cruz)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "dominio caido / re-registrado como parking"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": "DOMINIO_PARKING",
+    "Final_Url": null,
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "ALERTA: URLsFaltantes.md reporto sicsantacruz.com como activo (confianza alta) pero al verificar el 2026-09-17 el dominio sirve una pagina de parking de Namecheap (\"has been recently registered with namecheap.com\"), no el sitio institucional. El dominio expiro y fue re-registrado por un tercero despues de esa investigacion. No usar sin re-verificar.",
+    "mapping_note": "Re-investigado 2026-09-18: el portal general de la Gobernacion (santacruz.gob.bo) esta vivo (200, Next.js/SPA), pero no se encontro en su HTML estatico un enlace directo a la seccion agropecuaria/SIC especifica (probablemente client-side rendering). No se confirma sucesor puntual en esta pasada; requiere exploracion manual del sitio (navegar el menu real) o contactar a la Gobernacion. Se mantiene como pendiente, no se acepta ningun candidato sin verificar contenido (D-01).",
+    "mapping_timestamp": "2026-09-18T13:01:37.086635+00:00"
+  },
+  {
+    "Fuente": "OBA",
+    "Institucion": "Observatorio Bolivia Autonomica (unidad del Servicio Estatal de Autonomias - SEA)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "consolidada bajo SEA",
+      "verificada"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://sea.gob.bo/centro-de-datos-autonomicos",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 0,
+    "Document_Evidence": {
+      "keyword_hits": [],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "La antigua URL propia www.sea-autonomias.gob.bo/oba ya no existe; el OBA opera hoy como seccion del SEA. Confianza media (segun URLsFaltantes.md) por migracion/consolidacion de portales."
+  },
+  {
+    "Fuente": "CADECO",
+    "Institucion": "Camara Departamental de la Construccion (departamento no especificado en el registro original; agrupadas por CABOCO)",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "ambigua: multiples camaras departamentales",
+      "verificada por contenido (La Paz)"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "http://cadecolp.org/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 2,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "la paz",
+        "construccion"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "AMBIGUO: se uso La Paz (cadecolp.org, verificado 200) como representante porque fue el primero confirmado vivo. Tambien viven Cochabamba (cadecocbba.com, 200) y Santa Cruz (cadecocruz.org.bo, 200). NO viven actualmente: Chuquisaca (cadecochuquisaca.org.bo) ni el paraguas CABOCO (caboco.org), ambos con fallo de resolucion DNS al 2026-09-17 pese a que URLsFaltantes.md los reporto activos. Determinar el departamento original del registro SPIM antes de fijar una unica URL definitiva. DECISION CERRADA (verificada contra backup_10.0.0.12, tabla source id=18): el registro original nunca especifico departamento (name generico, homepage vacio, sin archivos ni observaciones asociadas) -> es indeterminable con los datos disponibles, no un dato perdido. Se fija La Paz (cadecolp.org) como registro canonico por decision de politica (sede/capital, verificado vivo), no como hecho recuperado. Si se requiere cobertura completa, desdoblar en entradas por departamento (Cochabamba y Santa Cruz tambien viven).",
+    "decision_status": "cerrada (ambiguedad irrecuperable, decision de politica)",
+    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00"
+  },
+  {
+    "Fuente": "NIH",
+    "Institucion": "National Institute on Drug Abuse (NIDA) - registro SPIM incompleto/mal cargado, NO es institucion boliviana",
+    "Url_Original": null,
+    "Score_Excel": null,
+    "Diagnosticos_Excel": [
+      "fuente nueva (SPIM)",
+      "reclasificada como fuente internacional (EE.UU.)",
+      "verificada por contenido"
+    ],
+    "Robots_Allowed": null,
+    "HTTP_Status": 200,
+    "Final_Url": "https://nida.nih.gov/",
+    "Doc_Links_Found_In_Seed": null,
+    "Subpage_Keywords_Found": 2,
+    "Document_Evidence": {
+      "keyword_hits": [
+        "drug abuse",
+        "nida"
+      ],
+      "file_type": null,
+      "quality_score": null,
+      "snippet_text": null
+    },
+    "Error_Detail": null,
+    "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
+    "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
+    "note": "El registro SPIM \"NIH\" corresponde en realidad a NIDA (National Institute on Drug Abuse), agencia federal de EE.UU. integrada a los NIH en 1992. Posible error de carga en SPIM: revisar si el registro original debia apuntar a otra institucion boliviana. DECISION CERRADA (verificada contra backup_10.0.0.12, tabla source id=46): NIH no tiene homepage ni archivos asociados en SPIM, y fue cargada el mismo dia (2022-11-01) junto a otras 11 fuentes claramente internacionales sin homepage (FMI, BM, OMC, ITU, ICCO, FIFA, UNDATA, Data.Gov, TRANSTATS, Statistics Denmark, DOING BUSINESS). No hay evidencia de que debiera apuntar a una institucion boliviana. Se confirma como fuente internacional de referencia (NIDA, EE.UU.), sin reasignacion pendiente.",
+    "Es_Fuente_Internacional": true,
+    "Pais": "Estados Unidos",
+    "decision_status": "cerrada",
+    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00"
+  }
+]

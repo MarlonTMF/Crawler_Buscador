@@ -1,0 +1,1421 @@
+[
+  {
+    "fuente": "CADEXCO",
+    "institucion": "Cámara de Exportadores de Cochabamba",
+    "original_url": "https://www.cadexco.org.bo",
+    "timestamp": "2026-09-11T13:19:01.919644+00:00",
+    "keywords_used": [
+      "cadexco",
+      "cochabamba"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "unknown",
+          "best_url": null,
+          "reason": "La consulta a Gemini falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE",
+          "alternatives": []
+        }
+      },
+      {
+        "kind": "successor_query",
+        "response": {
+          "successor_name": null,
+          "successor_url": null,
+          "reason": "Consulta falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE"
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "unresolved",
+      "resolved_url": null,
+      "confidence": 0.0,
+      "method": null
+    }
+  },
+  {
+    "fuente": "FAM",
+    "institucion": "Federación de Asociaciones Municipales de Bolivia",
+    "original_url": "https://www.fam.bo",
+    "timestamp": "2026-09-11T13:20:15.733003+00:00",
+    "keywords_used": [
+      "asociaciones",
+      "municipales"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "moved",
+          "best_url": "https://fam.gob.bo/",
+          "reason": "El dominio www.fam.bo no responde (conexión rechazada). La Federación de Asociaciones Municipales de Bolivia (FAM Bolivia) ha migrado su portal institucional oficial a la dirección https://fam.gob.bo/, utilizando el dominio gubernamental de Bolivia.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://fam.gob.bo/",
+        "source": "gemini_best_url",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": null,
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.gob.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.gob.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.gob.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.org/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.org",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.org/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.org",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.com/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.com",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.com/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.com",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.org.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "https://fam.org.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.org.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.org.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "https://fam.com.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.com.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.com.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.com.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.net/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.net",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.net/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.net",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.edu.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://fam.edu.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.edu.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "https://www.fam.edu.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.gob.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.gob.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.gob.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.gob.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.org/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.org",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.org/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.org",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.com/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.com",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.com/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.com",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 403,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.org.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "http://fam.org.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.org.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.org.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [
+          "municipales"
+        ],
+        "verified": true,
+        "note": ""
+      },
+      {
+        "url": "http://fam.com.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.com.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.com.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.com.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.net/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.net",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.net/",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.net",
+        "source": "gemini_best_url+variant",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.edu.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://fam.edu.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.edu.bo/",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      },
+      {
+        "url": "http://www.fam.edu.bo",
+        "source": "gemini_best_url+variant",
+        "reachable": false,
+        "status": 0,
+        "gemini_seed": "https://fam.gob.bo/",
+        "content_checked": false,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://fam.org.bo/",
+      "confidence": 0.85,
+      "method": "gemini_best_url+variant"
+    }
+  },
+  {
+    "fuente": "BOLCEREALES",
+    "institucion": "Bolcereales",
+    "original_url": "https://www.bolsadecereales.org.bo",
+    "timestamp": "2026-09-11T13:22:02.848076+00:00",
+    "keywords_used": [
+      "bolcereales"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "unknown",
+          "best_url": null,
+          "reason": "La consulta a Gemini falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE",
+          "alternatives": []
+        }
+      },
+      {
+        "kind": "successor_query",
+        "response": {
+          "successor_name": null,
+          "successor_url": null,
+          "reason": "Bolcereales (Bolsa de Cereales de Bolivia) operaba principalmente como una entidad de información de mercados para productos agrícolas. Tras su cese de operaciones o la desaparición de su sitio web, no hay evidencia de que una entidad boliviana pública o privada haya asumido formalmente y de manera explícita la totalidad de sus funciones, activos o responsabilidades como sucesora directa. Es más probable que sus funciones se hayan fragmentado y sean ahora cubiertas de forma parcial por distintas instituciones ya existentes, como el Instituto Nacional de Estadística (INE) para estadísticas generales, el Ministerio de Desarrollo Rural y Tierras (MDRyT) para información sectorial, y cámaras agropecuarias o entidades privadas para inteligencia de mercado."
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "unresolved",
+      "resolved_url": null,
+      "confidence": 0.0,
+      "method": null
+    }
+  },
+  {
+    "fuente": "IBCH",
+    "institucion": "Instituto Boliviano del Cemento y Hormigón",
+    "original_url": "https://www.ibch.org.bo",
+    "timestamp": "2026-09-11T13:23:05.620196+00:00",
+    "keywords_used": [
+      "cemento",
+      "hormigon",
+      "ibch"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "unknown",
+          "best_url": null,
+          "reason": "La consulta a Gemini falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE",
+          "alternatives": []
+        }
+      },
+      {
+        "kind": "successor_query",
+        "response": {
+          "successor_name": null,
+          "successor_url": null,
+          "reason": "Consulta falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE"
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "unresolved",
+      "resolved_url": null,
+      "confidence": 0.0,
+      "method": null
+    }
+  },
+  {
+    "fuente": "CADEXCO",
+    "institucion": "Cámara de Exportadores de Cochabamba",
+    "original_url": "https://www.cadexco.org.bo",
+    "timestamp": "2026-09-11T13:25:39.153359+00:00",
+    "keywords_used": [
+      "cadexco",
+      "cochabamba"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "unknown",
+          "best_url": null,
+          "reason": "La consulta a Gemini falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE",
+          "alternatives": []
+        }
+      },
+      {
+        "kind": "successor_query",
+        "response": {
+          "successor_name": null,
+          "successor_url": null,
+          "reason": "Consulta falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE"
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "unresolved",
+      "resolved_url": null,
+      "confidence": 0.0,
+      "method": null
+    }
+  },
+  {
+    "fuente": "BOLCEREALES",
+    "institucion": "Bolcereales",
+    "original_url": "https://www.bolsadecereales.org.bo",
+    "timestamp": "2026-09-11T13:27:14.772172+00:00",
+    "keywords_used": [
+      "bolcereales"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "unknown",
+          "best_url": null,
+          "reason": "La consulta a Gemini falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE",
+          "alternatives": []
+        }
+      },
+      {
+        "kind": "successor_query",
+        "response": {
+          "successor_name": null,
+          "successor_url": null,
+          "reason": "Consulta falló: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key=AIzaSyChWsI5HxZM4FE15oC8QZ6rHj9wkzuv5aE"
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "unresolved",
+      "resolved_url": null,
+      "confidence": 0.0,
+      "method": null
+    }
+  },
+  {
+    "fuente": "IBCH",
+    "institucion": "Instituto Boliviano del Cemento y Hormigón",
+    "original_url": "https://www.ibch.org.bo",
+    "timestamp": "2026-09-11T13:28:41.268071+00:00",
+    "keywords_used": [
+      "cemento",
+      "hormigon",
+      "ibch"
+    ],
+    "ai_queries": [
+      {
+        "kind": "url_verdict",
+        "response": {
+          "status": "moved",
+          "best_url": "https://www.ibce.org.bo/",
+          "reason": "El dominio original ibch.org.bo no resuelve (DNS_PROBE_FINISHED_NXDOMAIN). La institución, Instituto Boliviano de Comercio Exterior, ha migrado o consolidado su presencia web en el dominio ibce.org.bo, que se encuentra operativo y es el portal oficial actual.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.ibce.org.bo/",
+        "source": "gemini_best_url",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": ""
+      }
+    ],
+    "resolution": {
+      "status": "reachable_unverified",
+      "resolved_url": "https://www.ibce.org.bo/",
+      "confidence": 0.3,
+      "method": "gemini_best_url"
+    }
+  },
+  {
+    "fuente": "CADEXCO",
+    "institucion": "Cámara de Exportadores de Cochabamba",
+    "original_url": "https://www.cadexco.org.bo",
+    "timestamp": "2026-09-17T15:39:06.612746+00:00",
+    "keywords_used": [
+      "cochabamba",
+      "exportadores"
+    ],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "moved",
+          "best_url": "https://cadexco.bo/",
+          "reason": "Investigación externa (URLsFaltantes.md) determinó que el dominio migró de .org.bo a .bo. Verificado por contenido propio (mención de Cochabamba y fecha de fundación).",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://cadexco.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "cochabamba"
+        ],
+        "verified": true,
+        "note": "Verificado manualmente con curl + grep de palabra clave antes de aceptar."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://cadexco.bo/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check"
+    }
+  },
+  {
+    "fuente": "IBCH",
+    "institucion": "Instituto Boliviano del Cemento y Hormigón",
+    "original_url": "https://www.ibch.org.bo",
+    "timestamp": "2026-09-17T15:39:06.612746+00:00",
+    "keywords_used": [
+      "cemento",
+      "hormigon"
+    ],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "moved",
+          "best_url": "https://www.ibch.com/",
+          "reason": "Investigación externa (URLsFaltantes.md) determinó que el dominio vigente es ibch.com, no ibch.org.bo ni ibce.org.bo (este último había sido sugerido incorrectamente por Gemini en un intento previo). Verificado por contenido propio (mención de cemento).",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.ibch.com/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "cemento"
+        ],
+        "verified": true,
+        "note": "Verificado manualmente con curl + grep de palabra clave antes de aceptar."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://www.ibch.com/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check"
+    }
+  },
+  {
+    "fuente": "BOLCEREALES",
+    "institucion": "Bolsa Boliviana de Cereales y Productos",
+    "original_url": "https://www.bolsadecereales.org.bo",
+    "timestamp": "2026-09-17T15:39:06.612746+00:00",
+    "keywords_used": [
+      "cereales",
+      "bolsa"
+    ],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "dissolved_no_successor",
+          "best_url": null,
+          "reason": "Investigación externa (URLsFaltantes.md): sin actividad rastreable en la web, sin sucesor único. Dominio bolsadecereales.org.bo confirmado caído (DNS no resuelve). No confundir con bolsadecereales.com (entidad argentina). Confianza media: ausencia de evidencia, no evidencia de ausencia.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [],
+    "resolution": {
+      "status": "dissolved_no_successor",
+      "resolved_url": null,
+      "confidence": 0.5,
+      "method": "external_web_research+content_check"
+    }
+  },
+  {
+    "fuente": "SISPAM",
+    "institucion": "Sistema de Seguimiento e Informacion de la Produccion (hoy OAP)",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://oap.produccion.gob.bo/",
+          "reason": "Renombrada a Observatorio Agroambiental y Productivo; dominio citado en URLsFaltantes.md (observatorioagro.gob.bo) no resuelve, se uso el mirror institucional verificado.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://oap.produccion.gob.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "la paz",
+          "agropecuario"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://oap.produccion.gob.bo/",
+      "confidence": 0.85,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "SPVS-APS",
+    "institucion": "Superintendencia de Pensiones, Valores y Seguros -> APS",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://www.aps.gob.bo/",
+          "reason": "Disuelta por Ley 365/2013 y DS 0071/2009; funcion pensiones/seguros paso a APS.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.aps.gob.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "pensiones",
+          "seguros"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://www.aps.gob.bo/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "SPVS-ASFI",
+    "institucion": "Superintendencia de Pensiones, Valores y Seguros -> ASFI",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://www.asfi.gob.bo/",
+          "reason": "Disuelta por Ley 365/2013 y DS 0071/2009; funcion valores paso a ASFI.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.asfi.gob.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "valores"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://www.asfi.gob.bo/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "SUPTRANS",
+    "institucion": "Superintendencia de Transportes -> ATT",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://www.att.gob.bo/",
+          "reason": "Disuelta por DS 0071/2009; sucesora ATT.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.att.gob.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "transporte"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://www.att.gob.bo/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "IN",
+    "institucion": "Impuestos Nacionales -> SIN",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://www.impuestos.gob.bo/",
+          "reason": "IN es el Servicio de Impuestos Nacionales.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://www.impuestos.gob.bo/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "impuesto"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://www.impuestos.gob.bo/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "SICSANTACRUZ",
+    "institucion": "Sistema de Informacion y Comunicacion Agropecuario Departamental",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "unreachable_parking",
+          "best_url": null,
+          "reason": "URLsFaltantes.md reporto sicsantacruz.com activo (confianza alta) pero al verificar (2026-09-17) el dominio sirve una pagina de parking de Namecheap. El dominio expiro y fue re-registrado por un tercero. Requiere nueva investigacion.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": null,
+        "source": "URLsFaltantes.md",
+        "reachable": false,
+        "status": null,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "unreachable_parking",
+      "resolved_url": null,
+      "confidence": 0.2,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "OBA",
+    "institucion": "Observatorio Bolivia Autonomica -> SEA",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "reachable_unverified",
+          "best_url": "https://sea.gob.bo/centro-de-datos-autonomicos",
+          "reason": "Consolidada como seccion del SEA; confianza media por migracion de portales, sin confirmar que el contenido especifico de OBA siga publicado en esa ruta.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://sea.gob.bo/centro-de-datos-autonomicos",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "reachable_unverified",
+      "resolved_url": "https://sea.gob.bo/centro-de-datos-autonomicos",
+      "confidence": 0.6,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "CADECO",
+    "institucion": "Camara Departamental de la Construccion (departamento ambiguo)",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "reachable_unverified",
+          "best_url": "http://cadecolp.org/",
+          "reason": "Ambiguo: multiples camaras departamentales. Se uso La Paz como representante verificado. CABOCO (caboco.org) y Chuquisaca (cadecochuquisaca.org.bo), citados como vivos en URLsFaltantes.md, no resuelven DNS al verificar.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "http://cadecolp.org/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "la paz"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "reachable_unverified",
+      "resolved_url": "http://cadecolp.org/",
+      "confidence": 0.4,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  },
+  {
+    "fuente": "NIH",
+    "institucion": "National Institute on Drug Abuse (NIDA), EE.UU. - reclasificacion",
+    "original_url": null,
+    "timestamp": "2026-09-17T15:56:28.682554+00:00",
+    "keywords_used": [],
+    "ai_queries": [
+      {
+        "kind": "external_web_research",
+        "response": {
+          "status": "resolved",
+          "best_url": "https://nida.nih.gov/",
+          "reason": "Registro SPIM \"NIH\" corresponde a NIDA (EE.UU.), no a una institucion boliviana. Posible error de carga en el registro original.",
+          "alternatives": []
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "url": "https://nida.nih.gov/",
+        "source": "URLsFaltantes.md",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "nida"
+        ],
+        "verified": true,
+        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+      }
+    ],
+    "resolution": {
+      "status": "resolved",
+      "resolved_url": "https://nida.nih.gov/",
+      "confidence": 0.9,
+      "method": "external_web_research+content_check (registro nuevo)"
+    }
+  }
+]

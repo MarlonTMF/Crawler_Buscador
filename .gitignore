@@ -58,7 +58,7 @@ env.bak/
 venv.bak/
 
 # Project Generated Output
-output/
+output/*
 *.json.bak
 
 # Logs
@@ -101,3 +101,8 @@ Propuesta arquitectura y Backlogs/
 
 # Archivos de análisis local (no son código del proyecto)
 resultadosPrimerCrawleoUnido.xlsx
+
+# Excepciones: datos curados que SON el entregable del proyecto, no artefactos
+# de corrida. El resto de output/ sigue ignorado (crawls, jobs, caches).
+!output/excel_urls_diagnostic.json
+!output/url_resolution_log.json

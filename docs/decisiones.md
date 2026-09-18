@@ -331,3 +331,46 @@ redescubrirlo:
 Adaptadores (`src/crawler/sources/`): `BaseSourceAdapter` (ABC) con
 `is_url_excluded()`/`classify_dataset()` abstractos; `GenericSourceAdapter`
 los implementa desde YAML (ver D-07).
+
+---
+
+## D-09 · El catálogo curado se versiona; el resto de `output/` no
+
+**Contexto.** `.gitignore` excluía `output/` entero, por buenas razones: ahí
+caen los artefactos de cada corrida del crawler (jobs, caches, HTML
+descargado, `inventory.db`). Pero dentro de esa carpeta viven también dos
+archivos que **no son artefactos sino el entregable**:
+
+- `output/excel_urls_diagnostic.json` (90 KB) — el catálogo maestro de las
+  62 fuentes, con su estado, mapeos y evidencia. Es literalmente el dato
+  detrás de la cifra de cobertura.
+- `output/url_resolution_log.json` (44 KB) — la auditoría completa de cada
+  intento de resolución de URL, incluida la respuesta cruda de la IA.
+
+**Descubierto el 2026-09-18**, ordenando el árbol tras la verificación en
+vivo: todo el trabajo de Track A existía únicamente en el disco de una
+máquina. Si ese disco falla, se pierde el catálogo y su trazabilidad, y no
+queda forma de reconstruir por qué cada URL quedó como quedó.
+
+**Decisión.** Cambiar la regla de `output/` a `output/*` y re-incluir esos
+dos archivos por excepción explícita.
+
+**Detalle que importa, porque falló en el primer intento.** Escribir
+`!output/archivo.json` debajo de una regla `output/` **no hace nada**: git no
+puede re-incluir un archivo si su directorio padre está excluido. La regla se
+ve correcta, no da ningún error, y el archivo sigue ignorado. Hay que
+excluir el *contenido* (`output/*`) para que la negación tenga efecto.
+Verificado con `git check-ignore` antes y después — otro caso de la familia
+"parece correcto y no hace nada" que ya documenta `CLAUDE.md`.
+
+**Consecuencia.** El catálogo pasa a tener historial: se puede ver cuándo una
+fuente cambió de estado y por qué. Costo: ~135 KB versionados y un diff por
+cada corrida que actualice el dataset.
+
+**Umbral que reabriría esto.** Si el dataset crece a un tamaño donde el diff
+por corrida sea impracticable (orden de megabytes), o si se migra a una base
+de datos real — en cuyo caso el versionado pasa a ser responsabilidad de esa
+base y estos archivos vuelven a ser exportaciones desechables.
+
+**Verificado el.** 2026-09-18, con `git check-ignore` sobre los tres casos
+(los dos incluidos y uno del resto de `output/`, que sigue ignorado).
