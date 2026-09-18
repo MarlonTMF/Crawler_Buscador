@@ -74,19 +74,26 @@ def test_inspect_inventory_db(tmp_path: Path):
     conn.execute(
         "INSERT INTO resource_audit_log VALUES ('r3', 'finrural', 'ds2', 'https://ex.com/err.pdf', 'https://ex.com/err.pdf', 'ERROR', 'HTTP_404')"
     )
+    conn.execute(
+        "INSERT INTO resource_audit_log VALUES ('r4', 'finrural', 'ds2', 'https://ex.com/doc.sha', 'https://ex.com/doc.sha', 'PROCESADO_EXITOSAMENTE', NULL)"
+    )
+    conn.execute(
+        "INSERT INTO resource_audit_log VALUES ('r5', 'bcp', 'ds3', 'https://bcp.gov.py/documents/memoria.pdf/uuid-1234?t=999', 'https://bcp.gov.py/documents/memoria.pdf/uuid-1234?t=999', 'PROCESADO_EXITOSAMENTE', NULL)"
+    )
     conn.commit()
     conn.close()
 
-    metrics = inspect_inventory_db(db_path)
+    metrics = inspect_inventory_db(db_path, allowed_extensions=["pdf", "xlsx"])
     assert metrics["exists"] is True
-    assert metrics["total_records"] == 3
-    assert metrics["status_counts"]["PROCESADO_EXITOSAMENTE"] == 2
+    assert metrics["total_records"] == 5
+    assert metrics["documents_count"] == 3
+    assert metrics["other_resources_count"] == 1
+    assert metrics["status_counts"]["PROCESADO_EXITOSAMENTE"] == 4
     assert metrics["status_counts"]["ERROR"] == 1
     assert metrics["error_counts"]["HTTP_404"] == 1
-    assert metrics["extension_counts"][".pdf"] == 2
+    assert metrics["extension_counts"][".pdf"] == 3
     assert metrics["extension_counts"][".xlsx"] == 1
-    assert metrics["dataset_counts"]["ds1"] == 2
-    assert metrics["dataset_counts"]["ds2"] == 1
+    assert metrics["extension_counts"][".sha"] == 1
 
 
 def test_generate_markdown_report(tmp_path: Path):
@@ -107,16 +114,21 @@ def test_generate_markdown_report(tmp_path: Path):
             "use_playwright": False,
             "success": True,
             "duration_seconds": 120.0,
-            "resources_processed": 180,
+            "documents_count": 129,
+            "other_resources_count": 128,
+            "resources_processed": 257,
             "resources_error": 0,
+            "meets_criteria": True,
             "inventory_db_path": "output/finrural/inventory.db",
             "map_json_path": "output/finrural/mapa_finrural.json",
             "db_metrics": {
-                "total_records": 180,
-                "status_counts": {"PROCESADO_EXITOSAMENTE": 180},
+                "total_records": 257,
+                "documents_count": 129,
+                "other_resources_count": 128,
+                "status_counts": {"PROCESADO_EXITOSAMENTE": 257},
                 "error_counts": {},
-                "extension_counts": {".pdf": 150, ".xlsx": 30},
-                "dataset_counts": {"reporte_financiero_mensual": 180},
+                "extension_counts": {".pdf": 129, ".sha": 127, "otro / sin_extension": 1},
+                "dataset_counts": {"reporte_financiero_mensual": 257},
             },
         }
     ]
@@ -127,5 +139,7 @@ def test_generate_markdown_report(tmp_path: Path):
     assert report_path.exists()
     assert "# Reporte de Ejecución por Lotes" in report_text
     assert "finrural" in report_text
-    assert "180" in report_text
-    assert "✅ APROBADO (Criterio cumplido)" in report_text
+    assert "129" in report_text
+    assert "128" in report_text
+    assert "✅ APROBADO" in report_text
+

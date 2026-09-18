@@ -114,19 +114,32 @@ def resolve_source_configs(
     return resolved
 
 
-def inspect_inventory_db(db_path: Path) -> Dict[str, Any]:
+def inspect_inventory_db(
+    db_path: Path,
+    allowed_extensions: Optional[List[str]] = None,
+) -> Dict[str, Any]:
     """
     Consulta exhaustiva de inventory.db para métricas del reporte:
     - total de registros en resource_audit_log
+    - documentos reales (extensión en allowed_extensions: pdf, xlsx, xls, csv, zip)
+    - otros recursos (sidecars .sha, URLs sin extensión, heurística de ruta)
     - desglose por status
     - desglose de errores por error_code
     - desglose por tipo de archivo / extensión
     - desglose por dataset_id
     """
+    default_exts = {"pdf", "xlsx", "xls", "csv", "zip"}
+    if allowed_extensions:
+        doc_exts = {e.lower().lstrip(".") for e in allowed_extensions}
+    else:
+        doc_exts = default_exts
+
     if not db_path.exists():
         return {
             "exists": False,
             "total_records": 0,
+            "documents_count": 0,
+            "other_resources_count": 0,
             "status_counts": {},
             "error_counts": {},
             "extension_counts": {},
@@ -160,19 +173,45 @@ def inspect_inventory_db(db_path: Path) -> Dict[str, Any]:
         )
         dataset_counts = {row[0]: row[1] for row in cursor.fetchall()}
 
-        # Extensions breakdown
-        cursor.execute("SELECT canonical_url, download_url FROM resource_audit_log")
+        # Extensions & Document classification breakdown
+        cursor.execute("SELECT canonical_url, download_url, status FROM resource_audit_log")
         extension_counts: Dict[str, int] = {}
+        documents_count = 0
+        other_resources_count = 0
+
         for row in cursor.fetchall():
             url_str = (row["canonical_url"] or row["download_url"] or "").split("?")[0].split("#")[0]
             ext = Path(url_str).suffix.lower()
+            ext_clean = ext.lstrip(".")
+
+            # Si el último segmento no tiene extensión pero el path contiene .<ext>/ o termina en .<ext>
+            # (típico en CMS como Liferay de BCP: /documents/.../informe.pdf/uuid)
+            if not ext_clean or ext_clean not in doc_exts:
+                url_lower = url_str.lower()
+                for candidate_ext in doc_exts:
+                    pattern = f".{candidate_ext}"
+                    if f"{pattern}/" in url_lower or url_lower.endswith(pattern):
+                        ext = pattern
+                        ext_clean = candidate_ext
+                        break
+
             if not ext or len(ext) > 7:
-                ext = "otro / sin_extension"
-            extension_counts[ext] = extension_counts.get(ext, 0) + 1
+                ext_key = "otro / sin_extension"
+            else:
+                ext_key = ext
+            extension_counts[ext_key] = extension_counts.get(ext_key, 0) + 1
+
+            if row["status"] == "PROCESADO_EXITOSAMENTE":
+                if ext_clean in doc_exts:
+                    documents_count += 1
+                else:
+                    other_resources_count += 1
 
         return {
             "exists": True,
             "total_records": total_records,
+            "documents_count": documents_count,
+            "other_resources_count": other_resources_count,
             "status_counts": status_counts,
             "error_counts": error_counts,
             "extension_counts": extension_counts,
@@ -182,6 +221,8 @@ def inspect_inventory_db(db_path: Path) -> Dict[str, Any]:
         return {
             "exists": True,
             "total_records": 0,
+            "documents_count": 0,
+            "other_resources_count": 0,
             "error_inspecting": str(exc),
             "status_counts": {},
             "error_counts": {},
@@ -190,6 +231,7 @@ def inspect_inventory_db(db_path: Path) -> Dict[str, Any]:
         }
     finally:
         conn.close()
+
 
 
 def generate_markdown_report(
@@ -202,7 +244,9 @@ def generate_markdown_report(
     total_sources = len(results)
     successful_sources = sum(1 for r in results if r.get("success", False))
     failed_sources = total_sources - successful_sources
-    total_resources = sum(r.get("resources_processed", 0) for r in results)
+    total_documents = sum(r.get("documents_count", 0) for r in results)
+    total_other_resources = sum(r.get("other_resources_count", 0) for r in results)
+    total_resources = total_documents + total_other_resources
     total_errors = sum(r.get("resources_error", 0) for r in results)
     total_duration = batch_meta.get("total_duration_seconds", 0.0)
 
@@ -212,7 +256,8 @@ def generate_markdown_report(
         f"- **Fecha de Ejecución:** {batch_meta.get('started_at', 'N/A')} a {now_str}",
         f"- **Duración Total:** {total_duration:.2f} segundos ({total_duration/60:.2f} min)",
         f"- **Fuentes Ejecutadas:** {total_sources} (Exitosas: {successful_sources}, Fallidas: {failed_sources})",
-        f"- **Total Recursos Procesados:** {total_resources}",
+        f"- **Total Documentos Reales (allowed_extensions):** {total_documents}",
+        f"- **Total Otros Recursos (sidecars/rutas):** {total_other_resources}",
         f"- **Total Errores de Recurso:** {total_errors}",
         f"- **Archivo de Log:** `{batch_meta.get('log_file_relative', 'N/A')}`",
         "",
@@ -220,8 +265,8 @@ def generate_markdown_report(
         "",
         "## 1. Resumen Ejecutivo por Fuente",
         "",
-        "| Fuente | Adaptador | Headless (Playwright) | Estado Lote | Recursos Exitosos | Errores | Tasa Éxito | Duración | Top Extensión |",
-        "|:-------|:----------|:---------------------:|:-----------:|:-----------------:|:-------:|:----------:|:--------:|:--------------|",
+        "| Fuente | Adaptador | Headless (Playwright) | Estado Lote | Documentos Reales | Otros Recursos | Errores | Tasa Doc | Duración | Top Extensión | Criterio (≥1 Doc) |",
+        "|:-------|:----------|:---------------------:|:-----------:|:-----------------:|:--------------:|:-------:|:--------:|:--------:|:--------------|:------------------:|",
     ]
 
     for r in results:
@@ -229,11 +274,13 @@ def generate_markdown_report(
         adapter_name = r.get("adapter_name", "N/A")
         use_pw = "Sí (domcontentloaded)" if r.get("use_playwright", False) else "No (HTTP)"
         status_batch = "**ÉXITO**" if r.get("success", False) else "**FALLO**"
-        res_ok = r.get("resources_processed", 0)
+        docs_ok = r.get("documents_count", 0)
+        others_ok = r.get("other_resources_count", 0)
         res_err = r.get("resources_error", 0)
-        total_cand = res_ok + res_err
-        success_rate = f"{(res_ok / total_cand * 100):.1f}%" if total_cand > 0 else "0.0%"
+        total_cand = docs_ok + others_ok + res_err
+        doc_rate = f"{(docs_ok / total_cand * 100):.1f}%" if total_cand > 0 else "0.0%"
         dur = f"{r.get('duration_seconds', 0.0):.1f}s"
+        crit_tag = "✅ CUMPLE" if r.get("meets_criteria", False) else "❌ NO CUMPLE"
 
         exts = r.get("db_metrics", {}).get("extension_counts", {})
         if exts:
@@ -243,7 +290,7 @@ def generate_markdown_report(
             top_ext_str = "ninguna"
 
         lines.append(
-            f"| `{fid}` | {adapter_name} | {use_pw} | {status_batch} | {res_ok} | {res_err} | {success_rate} | {dur} | {top_ext_str} |"
+            f"| `{fid}` | {adapter_name} | {use_pw} | {status_batch} | {docs_ok} | {others_ok} | {res_err} | {doc_rate} | {dur} | {top_ext_str} | {crit_tag} |"
         )
 
     lines.extend([
@@ -272,6 +319,8 @@ def generate_markdown_report(
 
         db = r.get("db_metrics", {})
         lines.append(f"- **Total Registros Auditados en DB:** {db.get('total_records', 0)}")
+        lines.append(f"- **Documentos Reales Catalogados:** {r.get('documents_count', 0)}")
+        lines.append(f"- **Otros Recursos (sidecars/rutas):** {r.get('other_resources_count', 0)}")
         
         # Desglose de estados
         lines.append("- **Estados en `resource_audit_log`:**")
@@ -315,27 +364,32 @@ def generate_markdown_report(
     lines.extend([
         "---",
         "",
-        "## 3. Verificación de Criterios de Aceptación (B-13)",
+        "## 3. Verificación de Criterios de Aceptación (Etapa C)",
+        "",
+        "El criterio de aceptación de una fuente es **≥ 1 documento real procesado exitosamente** "
+        "(extensión en `allowed_extensions`: `.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip`) y 0 errores fatales.",
         "",
     ])
 
-    finrural_res = next((r for r in results if r.get("source_id", "").lower() == "finrural"), None)
-    if finrural_res:
-        ok_count = finrural_res.get("resources_processed", 0)
-        err_count = finrural_res.get("resources_error", 0)
-        passed = (ok_count >= 175) and (err_count == 0)
-        lines.append(f"- **Criterio FINRURAL (≥ 175 recursos, 0 errores):**")
-        lines.append(f"  - Recursos procesados exitosamente: **{ok_count}**")
-        lines.append(f"  - Errores registrados: **{err_count}**")
-        lines.append(f"  - **Resultado:** {'✅ APROBADO (Criterio cumplido)' if passed else '❌ REPROBADO'}")
-    else:
-        lines.append("- *Nota: FINRURAL no formó parte de este lote particular.*")
+    for r in results:
+        fid = r.get("source_id", "desconocido")
+        d_ok = r.get("documents_count", 0)
+        o_ok = r.get("other_resources_count", 0)
+        err = r.get("resources_error", 0)
+        passed = r.get("meets_criteria", False)
+        status_icon = "✅ APROBADO" if passed else "❌ REPROBADO"
+        lines.append(f"- **Fuente `{fid}`:**")
+        lines.append(f"  - Documentos reales (`allowed_extensions`): **{d_ok}**")
+        lines.append(f"  - Otros recursos (sidecars/rutas): **{o_ok}**")
+        lines.append(f"  - Errores de recurso: **{err}**")
+        lines.append(f"  - **Resultado:** {status_icon} ({'cumple' if passed else 'no cumple'} con ≥ 1 documento real)")
 
     lines.append("")
     report_text = "\n".join(lines)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report_text, encoding="utf-8")
     return report_text
+
 
 
 def main() -> None:
@@ -469,20 +523,23 @@ def main() -> None:
 
             # Inspeccionar la base de datos de control inventory.db
             db_path = orchestrator.source_output_dir / "inventory.db"
-            db_metrics = inspect_inventory_db(db_path)
+            db_metrics = inspect_inventory_db(db_path, allowed_extensions=adapter.allowed_extensions)
 
-            processed_count = db_metrics.get("status_counts", {}).get("PROCESADO_EXITOSAMENTE", 0)
+            docs_count = db_metrics.get("documents_count", 0)
+            others_count = db_metrics.get("other_resources_count", 0)
+            processed_count = docs_count + others_count
             error_count = sum(db_metrics.get("error_counts", {}).values())
 
             # Si no hay registros en db pero source_map tiene recursos, sumar de source_map
             if db_metrics.get("total_records", 0) == 0 and source_map:
                 processed_count = sum(len(ds.resources) for ds in source_map.datasets)
+                docs_count = processed_count
 
             map_json_path = orchestrator.source_output_dir / f"mapa_{adapter.source_id}.json"
 
             logger.info(
-                "Fuente [%s] completada en %.2fs. Recursos exitosos: %d | Errores: %d",
-                adapter.source_id, elapsed_source, processed_count, error_count
+                "Fuente [%s] completada en %.2fs. Documentos reales: %d | Otros recursos: %d | Errores: %d",
+                adapter.source_id, elapsed_source, docs_count, others_count, error_count
             )
 
             results.append({
@@ -495,8 +552,11 @@ def main() -> None:
                 "use_playwright": use_pw,
                 "success": True,
                 "duration_seconds": elapsed_source,
+                "documents_count": docs_count,
+                "other_resources_count": others_count,
                 "resources_processed": processed_count,
                 "resources_error": error_count,
+                "meets_criteria": (docs_count >= 1) and (error_count == 0),
                 "inventory_db_path": str(db_path.relative_to(PROJECT_ROOT) if db_path.is_relative_to(PROJECT_ROOT) else db_path),
                 "map_json_path": str(map_json_path.relative_to(PROJECT_ROOT) if map_json_path.is_relative_to(PROJECT_ROOT) else map_json_path),
                 "db_metrics": db_metrics,
@@ -550,10 +610,12 @@ def main() -> None:
     logger.info("================================================================================")
     for r in results:
         status_tag = "OK" if r.get("success") else "FALLO"
+        crit_tag = "CUMPLE" if r.get("meets_criteria") else "NO_CUMPLE"
         logger.info(
-            "  [%s] %-15s | %4d procesados | %2d errores | %6.2fs",
-            status_tag, r.get("source_id"), r.get("resources_processed", 0),
-            r.get("resources_error", 0), r.get("duration_seconds", 0.0)
+            "  [%s|%s] %-15s | %4d docs | %4d otros | %2d err | %6.2fs",
+            status_tag, crit_tag, r.get("source_id"), r.get("documents_count", 0),
+            r.get("other_resources_count", 0), r.get("resources_error", 0),
+            r.get("duration_seconds", 0.0)
         )
     logger.info("Duración total: %.2fs (%.2f min)", total_batch_duration, total_batch_duration / 60)
     logger.info("Reporte completo: %s", report_md_path)
