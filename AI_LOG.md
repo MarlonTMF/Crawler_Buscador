@@ -360,4 +360,18 @@ igual.
 - **Por qué:** El nombre de un campo describe la intención de diseño, no necesariamente el cálculo implementado.
 - **Quién tenía razón:** Claude al auditar el algoritmo de firma en `reducer.py`.
 
+---
+
+## E-13 · Un 404 con cara de éxito
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-18
+- **Tipo:** verificación de efecto / estado de la tubería
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El parte declara "1,118 PDFs reales y 0 errores" para AN, SENAMHI, CADEXCO y FAM, con `PROCESADO_EXITOSAMENTE` y `error_code` NULL en las 1126 filas.
+- **Qué encontré o decidí yo:** Descargando el primer kilobyte de los recursos, tres de las diez URLs de CADEXCO responden 404 y ocho de SENAMHI devuelven HTML de visor Joomla en vez de un PDF. El motor nunca pidió los bytes: `content_hashing.enabled: false` en los cuatro YAML deja `content_sha256` NULL en las 1126 filas.
+- **Cómo se resolvió:** El bloque se aprobó con observaciones —el criterio de ≥1 documento real por fuente se cumple y lo verifiqué por bytes—, y desde B-19 el parte debe incluir status HTTP y bytes mágicos de un recurso por dataset. La corrección de fondo (poblar el hash real) queda como bloque propio junto a E-12.
+- **Por qué:** "Éxito" en el `resource_audit_log` significa "la URL fue descubierta y clasificada", no "el documento existe". E-08 estableció que un recurso procesado no es un documento; falta el escalón de abajo: un recurso procesado ni siquiera prueba que la URL esté viva. El chequeo que lo detecta es de dos líneas (`Range: bytes=0-2047` y mirar `%PDF-`) y no está en ninguna parte del pipeline ni de los partes.
+- **Quién tenía razón:** Claude al sondear por bytes en vez de por nombre de archivo.
+- **Corolario de método (falso positivo propio):** mi primer sondeo dio 404 en casi todo SENAMHI y el roto era mi verificador, no el sitio: los `download_url` guardan `/../` sin normalizar, que un navegador resuelve y `urllib` rechaza. Antes de reportar una fuente caída hay que descartar que el que esté roto sea el verificador — la versión espejo de E-03.
+
 
