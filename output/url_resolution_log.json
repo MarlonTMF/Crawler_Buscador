@@ -1270,37 +1270,69 @@
     "fuente": "SICSANTACRUZ",
     "institucion": "Sistema de Informacion y Comunicacion Agropecuario Departamental",
     "original_url": null,
-    "timestamp": "2026-09-17T15:56:28.682554+00:00",
-    "keywords_used": [],
+    "timestamp": "2026-09-18T14:30:00.000000+00:00",
+    "keywords_used": [
+      "sic santa cruz",
+      "precios",
+      "agropecuario"
+    ],
     "ai_queries": [
       {
-        "kind": "external_web_research",
+        "kind": "successor_channel_investigation",
         "response": {
-          "status": "unreachable_parking",
-          "best_url": null,
-          "reason": "URLsFaltantes.md reporto sicsantacruz.com activo (confianza alta) pero al verificar (2026-09-17) el dominio sirve una pagina de parking de Namecheap. El dominio expiro y fue re-registrado por un tercero. Requiere nueva investigacion.",
-          "alternatives": []
+          "status": "resolved_verified",
+          "best_url": "https://ice.santacruz.gob.bo/repositorio",
+          "reason": "Dominio propio sicsantacruz.com expiro y hoy es parking comercial de Namecheap. Subdominios sic, sedacruz, agro, desarrolloproductivo en santacruz.gob.bo fallan DNS (NXDOMAIN/getaddrinfo failed). sica.santacruz.gob.bo (181.188.148.18) descartado por corresponder al Sistema de Inocuidad (sanidad animal, sin datos de precios). Canal sucesor verificado por contenido: Instituto Cruceno de Estadistica (ICE, ice.santacruz.gob.bo/repositorio), que publica los estudios de precios del SIC Santa Cruz con descargas reales de PDFs (18.4 MB y 7.9 MB, magic %PDF-1.4) y base de datos Excel primaria (2.6 MB, magic PK zip). Requiere consultar API Strapi /api/estudios en etapa C.",
+          "alternatives": [
+            "https://ice.santacruz.gob.bo/repositorio"
+          ]
         }
       }
     ],
     "candidates": [
       {
-        "url": null,
-        "source": "URLsFaltantes.md",
-        "reachable": false,
-        "status": null,
+        "url": "http://www.sicsantacruz.com/",
+        "source": "URLsFaltantes.md / dominio previo",
+        "reachable": true,
+        "status": 200,
         "gemini_seed": null,
         "content_checked": true,
         "matched_keywords": [],
         "verified": false,
-        "note": "Fuente nueva agregada al dataset maestro (no exista registro previo en excel_urls_diagnostic.json)."
+        "note": "Descartado: el dominio expiro y sirve una pagina de parking comercial de Namecheap (contiene script de broker y meta referrer origin)."
+      },
+      {
+        "url": "http://sica.santacruz.gob.bo/",
+        "source": "busqueda de subdominios",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [],
+        "verified": false,
+        "note": "Descartado (D-01): corresponde al 'Sistema de Inocuidad' (sanidad animal e inocuidad alimentaria de SEDACRUZ), sin relacion con precios agropecuarios de mercado."
+      },
+      {
+        "url": "https://ice.santacruz.gob.bo/repositorio",
+        "source": "investigacion portal institucional GAD Santa Cruz (B-10)",
+        "reachable": true,
+        "status": 200,
+        "gemini_seed": null,
+        "content_checked": true,
+        "matched_keywords": [
+          "sic santa cruz",
+          "precios",
+          "agropecuario"
+        ],
+        "verified": true,
+        "note": "Canal sucesor verificado con descargas completas: Estudio 105 (Monitoreo de Precios 2024, PDF 18.4 MB %PDF-1.4, XLSX 2.6 MB PK zip citando al SIC en metodologia), Estudio 144 (Boletin Agropecuario 2025, PDF 7.9 MB %PDF-1.4) y Estudio 13 (Monitoreo de Precios 2023). Es canal sucesor, no la misma entidad."
       }
     ],
     "resolution": {
-      "status": "unreachable_parking",
-      "resolved_url": null,
-      "confidence": 0.2,
-      "method": "external_web_research+content_check (registro nuevo)"
+      "status": "resolved_verified",
+      "resolved_url": "https://ice.santacruz.gob.bo/repositorio",
+      "confidence": 0.95,
+      "method": "successor_channel_investigation+content_download_verified (D-01)"
     }
   },
   {
