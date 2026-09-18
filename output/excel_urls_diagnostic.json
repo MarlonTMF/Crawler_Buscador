@@ -1313,8 +1313,8 @@
       "snippet_text": "<html><head>\n<title>Access Denied</title>\n</head><body>\n<h1>Access Denied</h1>\n \nYou don't have permission to access \"http://www.imf.org/en/home\" on this server.<p>\nReference #18.d"
     },
     "Error_Detail": null,
-    "mapping_note": "imf.org es la institucion correcta (verificado). Bloquea 403 incluso con navegador headless real (Playwright, domcontentloaded, UA Chrome) - bloqueo por IP/datacenter, no por Cloudflare-challenge (patron distinto a BCP/D-03). La resolucion previa a imf.com era incorrecta (otra institucion, revertida). No es un dominio muerto: requiere acceso desde IP no-datacenter para confirmar contenido.",
-    "mapping_timestamp": "2026-09-18T13:01:27.132060+00:00"
+    "mapping_note": "imf.org es la institucion correcta (verificado), pero presenta bloqueo perimetral de Akamai EdgeSuite WAF que no cede con navegador real (Playwright da timeout / no-challenge, patron distinto a BCP/D-03). Subdominios probados: data.imf.org comparte el bloqueo 403; elibrary.imf.org responde 200 en listado con 40+ documentos de Bolivia indexados, pero la descarga de PDFs y paginas de articulo bloquea con 202 vacio (0 bytes). Se mantiene imf.org en 403_BOT_BLOCKED como acceso restringido sin mapear a eLibrary (D-01: listado no equivale a documentos obtenibles). Punto de partida si en el futuro se dispone de proxy residencial o acceso institucional.",
+    "mapping_timestamp": "2026-09-18T14:00:00Z"
   },
   {
     "Fuente": "FUNDEMPRESA",

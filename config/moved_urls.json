@@ -3,10 +3,10 @@
     "original": "https://www.imf.org",
     "resolved": null,
     "confidence": 0.0,
-    "reason": "REVERTIDO 2026-09-18: la entrada anterior (imf.com, confianza 0.8, sin reason ni matched_keywords) violaba D-01 y resultó ser incorrecta al verificarla - imf.com redirige a imf-formacion.com, una escuela de negocios espanola sin relacion con el FMI (verificado: contenido no menciona 'monetary fund'). El dominio real imf.org es la institucion correcta, pero devuelve 403 'Access Denied' incluso con navegador headless real (Playwright, wait_until=domcontentloaded, UA de Chrome) - distinto al patron BCP (D-03), donde el bloqueo era solo a clientes HTTP simples. Es un bloqueo real contra trafico automatizado/datacenter, no un dominio muerto ni mal mapeado. Requiere verificacion manual desde una IP residencial o aceptar como fuente con acceso restringido.",
+    "reason": "REVERTIDO Y VERIFICADO 2026-09-18 (B-09): el dominio real imf.org es la institucion correcta pero devuelve 403 'Access Denied' por Akamai EdgeSuite que no cede con navegador headless real (Playwright domcontentloaded da timeout). data.imf.org comparte el 403. elibrary.imf.org responde 200 en listados con 40+ documentos de Bolivia, pero la descarga de PDFs devuelve 202 vacio (0 bytes). Se mantiene resolved=null y estado 403_BOT_BLOCKED sin remapear a eLibrary (D-01: no mapear a sitios cuyos documentos no son obtenibles). Requiere proxy residencial o acceso institucional.",
     "matched_keywords": [],
     "source": "verificacion manual (curl + Playwright headless con navegador real, D-03)",
-    "timestamp": "2026-09-18T13:00:00Z"
+    "timestamp": "2026-09-18T14:00:00Z"
   },
   {
     "original": "https://www.cadexco.org.bo",
