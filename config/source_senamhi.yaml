@@ -1,0 +1,104 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: SENAMHI (Servicio Nacional de Meteorología e Hidrología)
+# Calibrado para B-18 (Etapa C)
+# ==============================================================================
+
+source:
+  id: senamhi
+  name: "Servicio Nacional de Meteorología e Hidrología"
+  base_url: https://senamhi.gob.bo
+  allowed_domains:
+    - www.senamhi.gob.bo
+    - senamhi.gob.bo
+
+crawl:
+  seeds:
+    - https://senamhi.gob.bo/index.php/transparencia/auditoria-interna
+    - https://senamhi.gob.bo/index.php/transparencia/rendicion-cuentas
+    - https://senamhi.gob.bo/index.php/transparencia/area-planificacion
+    - https://senamhi.gob.bo/index.php/transparencia/fuentes-financiamiento
+    - https://senamhi.gob.bo/index.php/transparencia/informacion-estadistica
+  max_depth: 1
+  max_pages: 35
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: false
+  use_wayback: false
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens:
+    - visor_
+    - uai
+    - administracion
+    - planificacion
+    - pdf
+  dataset_rules:
+    - id: auditoria_interna
+      name: "Informes de Auditoría Interna"
+      url_patterns:
+        - "uai"
+    - id: rendicion_cuentas
+      name: "Rendición Pública de Cuentas"
+      url_patterns:
+        - "visor_rendicioncuentas"
+    - id: planificacion_financiera
+      name: "Planificación y Fuentes de Financiamiento"
+      url_patterns:
+        - "planificacion"
+        - "visor_financiera"
+    - id: estadisticas_meteorologicas
+      name: "Información Estadística y Gestión"
+      url_patterns:
+        - "visor_estadistica"
+        - "administracion"
+        - "senamhi.gob.bo"
+  excluded_path_keywords:
+    - "/page/"
+    - "/contacto"
+    - "/login"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "(?P<year>20\\d{2})"
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []

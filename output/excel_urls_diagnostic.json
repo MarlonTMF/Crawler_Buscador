@@ -30,7 +30,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "ada",
+    "crawler_dataset": "boletines_precios"
   },
   {
     "Fuente": "AE",
@@ -100,7 +102,9 @@
     "Error_Detail": null,
     "origin": "SPIM (B-08)",
     "mapping_note": "Resuelta en B-04 a com_boletines. Verificado en vivo: HTTP 200 y t?tulo 'Boletines | Aduana Nacional'.",
-    "spim_file_count": 1
+    "spim_file_count": 1,
+    "crawler_source": "an",
+    "crawler_dataset": "memorias_institucionales"
   },
   {
     "Fuente": "ANAPO",
@@ -619,7 +623,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!doctype html>\n<html lang=\"es\">\n\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/x"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "bbv",
+    "crawler_dataset": "boletines_bursatiles"
   },
   {
     "Fuente": "BCB",
@@ -794,7 +800,9 @@
     "Error_Detail": "Cloudflare challenge (HTTP 403 en request simple; 200 con Headless)",
     "origin": "SPIM (B-08)",
     "mapping_note": "Bloqueado por Cloudflare en HTTP simple (403). Verificado en vivo con Playwright: responde 200 y t?tulo 'Inicio - Banco Central del Paraguay' (D-03). Requiere Headless.",
-    "spim_file_count": 7
+    "spim_file_count": 7,
+    "crawler_source": "bcp",
+    "crawler_dataset": "estadisticas_bcp"
   },
   {
     "Fuente": "BCRP",
@@ -941,7 +949,9 @@
     "mapping_resolved": "https://cadexco.bo/",
     "mapping_source": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion de contenido propia",
     "mapping_confidence": 0.9,
-    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00"
+    "mapping_timestamp": "2026-09-17T15:38:47.977379+00:00",
+    "crawler_source": "cadexco",
+    "crawler_dataset": "memorias_anuales"
   },
   {
     "Fuente": "CEPAL",
@@ -1117,7 +1127,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "dgac",
+    "crawler_dataset": "normativa_aeronautica"
   },
   {
     "Fuente": "DOLARBLUEBOLIVIA",
@@ -1200,7 +1212,9 @@
     "mapping_resolved": "https://fam.org.bo/",
     "mapping_source": "gemini_best_url+variant",
     "mapping_confidence": 0.85,
-    "mapping_timestamp": "2026-09-11T13:20:15.733003+00:00"
+    "mapping_timestamp": "2026-09-11T13:20:15.733003+00:00",
+    "crawler_source": "fam",
+    "crawler_dataset": "publicaciones_municipales"
   },
   {
     "Fuente": "FDTA-Valles",
@@ -1318,7 +1332,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "finrural",
+    "crawler_dataset": "boletines_microfinanzas"
   },
   {
     "Fuente": "FMI",
@@ -1585,7 +1601,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "ine",
+    "crawler_dataset": "estadisticas_sociales"
   },
   {
     "Fuente": "ITU",
@@ -2063,7 +2081,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "senamhi",
+    "crawler_dataset": "estadisticas_meteorologicas"
   },
   {
     "Fuente": "SEPREC",
@@ -2108,7 +2128,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "seprec",
+    "crawler_dataset": "memoria_institucional"
   },
   {
     "Fuente": "SICOES",
