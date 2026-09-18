@@ -66,7 +66,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "ae",
+    "crawler_dataset": "memorias_institucionales"
   },
   {
     "Fuente": "AN",
@@ -125,7 +127,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!doctype html><html lang=\"es\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"profile\" href=\"https://gmpg.org/xfn/11\"><m"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "anapo",
+    "crawler_dataset": "normativas_agropecuarias"
   },
   {
     "Fuente": "APS",
@@ -548,7 +552,9 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "atc",
+    "crawler_dataset": "memorias_institucionales"
   },
   {
     "Fuente": "ATT",
@@ -1797,7 +1803,9 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <!-- <link href='https://fonts.go"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "mmym",
+    "crawler_dataset": "boletines_estadisticos_mineria"
   },
   {
     "Fuente": "Min. Educacion",
