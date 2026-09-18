@@ -374,4 +374,17 @@ igual.
 - **Quién tenía razón:** Claude al sondear por bytes en vez de por nombre de archivo.
 - **Corolario de método (falso positivo propio):** mi primer sondeo dio 404 en casi todo SENAMHI y el roto era mi verificador, no el sitio: los `download_url` guardan `/../` sin normalizar, que un navegador resuelve y `urllib` rechaza. Antes de reportar una fuente caída hay que descartar que el que esté roto sea el verificador — la versión espejo de E-03.
 
+---
+
+## E-14 · Una muestra de uno prueba "≥1", no mide el dataset
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-19
+- **Tipo:** diseño de la evidencia / alcance de un sondeo
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El parte de B-19 cumple el pedido §5 de la auditoría de B-18 —status HTTP y bytes mágicos de un recurso por dataset, diez líneas— y declara los 338 recursos de IN, SNIS, CADECO y MIN_EDUCACION como documentos reales con 0 errores.
+- **Qué encontré o decidí yo:** El pedido funcionó donde se esperaba: sondeando 128 URLs por bytes no hay un solo 404, contra 3 de 10 en CADEXCO el lote anterior. Pero probando los datasets completos aparecen 17 páginas de navegación entre los 338 recursos, y en `boletines_epidemiologicos` de SNIS el único documento real de las 5 filas es exactamente el que el parte citó como evidencia — y es el dataset con el que SNIS quedó registrada en el catálogo.
+- **Cómo se resolvió:** Aprobado con observaciones. Desde B-20 el chequeo por bytes se reporta por dataset con dos números (`<filas> filas / <n> documentos por bytes`), probando todas las filas si el dataset tiene ≤15 y una muestra declarada si es grande.
+- **Por qué:** El criterio de aceptación del bloque es "≥1 documento por fuente" y un ejemplo lo demuestra; la cifra que viaja al informe es "N documentos por fuente" y para esa el ejemplo no dice nada. **Cuando el criterio de aceptación y la cifra publicada no son la misma magnitud, la evidencia del criterio no alcanza para la cifra** — y como la muestra se elige entre los que funcionan, el sesgo siempre va en la dirección optimista. E-13 agregó el chequeo; E-14 agrega su alcance.
+- **Quién tenía razón:** Antigravity al incorporar el chequeo sin discutirlo; Claude al ampliarlo de un ejemplo al dataset entero.
+
 
