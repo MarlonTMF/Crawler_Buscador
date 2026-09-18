@@ -1,0 +1,91 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: ASOFIN (Asociación de Instituciones Financieras de Microfinanzas de Bolivia)
+# Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
+# ==============================================================================
+
+source:
+  id: asofin
+  name: "Asociación de Instituciones Financieras de Microfinanzas de Bolivia"
+  base_url: https://asofinbolivia.com
+  allowed_domains:
+    - asofinbolivia.com
+    - www.asofinbolivia.com
+
+crawl:
+  seeds:
+    - https://asofinbolivia.com/
+    - https://asofinbolivia.com/index.php/boletines/
+  max_depth: 1
+  max_pages: 15
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: false
+  use_wayback: false
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens:
+    - "/wp-content/uploads/"
+    - "Bol_Fin"
+    - "Bol_Soc"
+  dataset_rules:
+    - id: boletines_microfinanzas
+      name: "Boletines Financieros y Estadísticos del Sector Microfinanciero"
+      url_patterns:
+        - "Bol_Fin"
+        - "Bol_Soc"
+        - "wp-content/uploads"
+        - "boletines"
+      title_keywords:
+        - "boletin"
+        - "financiero"
+        - "microfinanzas"
+        - "asofin"
+  excluded_path_keywords:
+    - "/contacto"
+    - "/login"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "" # TODO: definir regex con (?P<year>...) segun nomenclatura de archivos de la fuente
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []

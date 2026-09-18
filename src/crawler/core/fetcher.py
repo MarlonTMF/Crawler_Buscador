@@ -486,7 +486,7 @@ class HttpFetcher:
                 error_name = self._classify_request_error(e)
                 logger.warning(f"HEAD {url} intento {attempt}/{self.max_retries} falló: {error_name} ({e})")
                 if attempt == self.max_retries:
-                    raise
+                    return False, 0, {}
                 time.sleep(1.5 * attempt)
 
         return False, 0, {}
