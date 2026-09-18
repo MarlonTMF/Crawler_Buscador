@@ -374,3 +374,18 @@ base y estos archivos vuelven a ser exportaciones desechables.
 
 **Verificado el.** 2026-09-18, con `git check-ignore` sobre los tres casos
 (los dos incluidos y uno del resto de `output/`, que sigue ignorado).
+
+---
+
+## D-10 · CEPAL: exclusión técnica justificada de Track A por arquitectura DSpace
+
+- **Origen:** Decisión adoptada en auditoría B-17 (`docs/auditorias/B-17.md:392-410`) y formalizada en B-20.
+- **Contexto.** CEPAL (Comisión Económica para América Latina y el Caribe) almacena y distribuye sus publicaciones y documentos oficiales a través de su Repositorio Digital institucional (`repositoriodigital.cepal.org`), implementado sobre la plataforma DSpace. En este repositorio, los documentos no se enlazan como archivos estáticos directos (`.pdf`) en el HTML indexable, sino mediante identificadores handle y bitstreams REST (`/bitstreams/.../content` o llamadas dinámicas OAI-PMH).
+- **Alternativas consideradas.**
+  1. *Forzar rastreo con GenericSourceAdapter (BFS HTML):* Descartado porque el rastreo superficial recorre metadatos y páginas de visor sin descargar el documento real ni resolver la estructura REST del bitstream.
+  2. *Implementar un conector ad-hoc para DSpace en Track A:* Descartado para la Etapa C para mantener la homogeneidad declarativa YAML y el criterio de costo/complejidad de la fase de prospección externa estándar.
+- **Decisión.** CEPAL se clasifica formalmente como **exclusión técnica justificada** para el prospector declarativo HTML de Track A. Se mantiene en el catálogo `output/excel_urls_diagnostic.json` con `crawler_source: null` y nota explicativa, completándose la meta de 25 portales externos de la Etapa C con el Instituto Boliviano del Cemento y Hormigón (IBCH).
+- **Razón.** Una tubería de prospección HTML no debe deformarse para resolver casos de APIs documentales complejas cuando existen suficientes fuentes institucionales nacionales vivas con documentos directamente accesibles.
+- **Consecuencia.** CEPAL queda documentada como candidata prioritaria para un conector de API REST / OAI-PMH en la etapa de conectores especializados (Fase 4). No contabiliza en el subtotal de portales HTML de la Etapa C.
+- **Umbral que reabriría esto.** Si la CEPAL rediseña su portal principal para exponer enlaces directos descargables en páginas HTML estáticas, o cuando se abra formalmente la Fase 4 de adaptadores REST especializados.
+- **Verificado el.** 2026-09-18, contra `https://www.cepal.org/es/publicaciones` y `repositoriodigital.cepal.org`.
