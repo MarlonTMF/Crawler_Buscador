@@ -1,9 +1,12 @@
 [
   {
     "original": "https://www.imf.org",
-    "resolved": "https://www.imf.com",
-    "confidence": 0.8,
-    "timestamp": "2026-08-27T17:23:36.086101Z"
+    "resolved": null,
+    "confidence": 0.0,
+    "reason": "REVERTIDO 2026-09-18: la entrada anterior (imf.com, confianza 0.8, sin reason ni matched_keywords) violaba D-01 y resultó ser incorrecta al verificarla - imf.com redirige a imf-formacion.com, una escuela de negocios espanola sin relacion con el FMI (verificado: contenido no menciona 'monetary fund'). El dominio real imf.org es la institucion correcta, pero devuelve 403 'Access Denied' incluso con navegador headless real (Playwright, wait_until=domcontentloaded, UA de Chrome) - distinto al patron BCP (D-03), donde el bloqueo era solo a clientes HTTP simples. Es un bloqueo real contra trafico automatizado/datacenter, no un dominio muerto ni mal mapeado. Requiere verificacion manual desde una IP residencial o aceptar como fuente con acceso restringido.",
+    "matched_keywords": [],
+    "source": "verificacion manual (curl + Playwright headless con navegador real, D-03)",
+    "timestamp": "2026-09-18T13:00:00Z"
   },
   {
     "original": "https://www.cadexco.org.bo",
