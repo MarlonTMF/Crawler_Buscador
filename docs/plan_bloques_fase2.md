@@ -254,7 +254,7 @@ causa. **No se ajusta la meta para que dé.**
 | B-28 Profundidad en 6 portales | Antigravity | 90 min | 45 min | ✅ Aprob. c/obs (`da93ca9`) |
 | B-29 Headless BCP/BCRP | Antigravity | 50 min | 40 min | ✅ Aprob. c/obs (`141582b`) |
 | B-30 Verificar ZIP | Antigravity | 60 min | | Pendiente |
-| B-31 Sitemaps | Antigravity | 60 min | | Pendiente |
+| B-31 Sitemaps | Antigravity | 60 min | 45 min | ✅ Aprob. c/obs (`dddb969`) |
 | B-32 Wayback | Antigravity | 90 min | | Pendiente |
 | B-33 API y formularios | Claude + Antigravity | 100 min | | Pendiente |
 | B-34 Lote 1 (12 con doc) | Antigravity | 95 min | | Pendiente |

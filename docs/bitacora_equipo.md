@@ -51,6 +51,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-27 | 🅰️ | Cierre Fase 1: README y estado final | 40/35 | Aprob. c/obs | Cierre de 26 bloques; desacoplamiento D-04 verificado |
 | B-28 | 🅰️ | Profundidad en 6 portales (Fase 2) | 90/45 | Aprob. c/obs | ADA (1.090) y DGAC (1.196) superan benchmark; ASFI sube a 582 (ZIPs en JS); fix extractor |
 | B-29 | 🅰️ | Activar headless en BCP y BCRP | 50/40 | Aprob. c/obs | BCP pasa de 25 a 1.711 docs y BCRP de 0 a 223 docs; DBs acumulan corridas previas |
+| B-31 | 🅰️ | Sitemaps en todos los portales | 60/45 | Aprob. c/obs | 15 de 28 portales con sitemap; delta +52 docs en muestra (ibce_cao +34, ae +18); max_sitemaps truncaba |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
