@@ -490,3 +490,30 @@ igual.
 - **Cómo se resolvió:** Se rediseñó `check_url_connectivity` para que ante cualquier fallo en HEAD (código != 200 o excepción) se ejecute un fallback garantizado a `GET stream=True`. Se diferenció el 403 como protección bot / requiere headless (consistente con D-03) y los errores SSL de certificados incompletos como advertencias de infraestructura sin tildarlos de caída del portal. Se ejecutaron dos corridas consecutivas completas sobre las 62 URLs (61 activas en 200, 0 regresiones, 1 advertencia SSL).
 - **Por qué:** HEAD no es un sustituto fiable ni simétrico de GET para probar vida; servidores reales se comportan de forma distinta ante ambos métodos. Cuando el universo completo son 62 URLs y toma menos de dos minutos, verificar una muestra es verificar el artefacto y no el efecto.
 - **Quién tenía razón:** Claude al ejecutar el sondeo sobre el catálogo entero de producción.
+
+---
+
+## E-23 · Un agregado SQL sobre una columna mayormente nula es un "status 200" con otra cara
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-26
+- **Tipo:** agregación de datos / métricas de volumen
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** `scripts/reporte_cobertura.py` sumó `file_size_bytes` de las filas `PROCESADO_EXITOSAMENTE` y reportó "Volumen total procesado: 646.03 MB" presentándolo como "visibilidad completa de la volumetría".
+- **Qué encontré o decidí yo:** Al auditar la procedencia de la suma fuente por fuente, 2.532 de 2.633 filas (96,2%) tenían `file_size_bytes` en NULL o 0. Los 646 MB provenían casi exclusivamente de `asfi` (563,4 MB) y `atc` (82,4 MB); fuentes masivas como `senamhi` (801 filas) aportaban 0. Un `SUM()` sobre una columna mayormente nula no falla, devuelve un número plausible y parece total, pero sólo midió el 3,8% del corpus.
+- **Cómo se resolvió:** Se identificó que la métrica de bytes representa una muestra volumétrica parcial y se estableció la condición para B-27 de rotular la cobertura del dato (`646.03 MB sobre 101 de 2.633 recursos con tamaño registrado`) antes de citarla en el README o artifact.
+- **Por qué:** Es un ejemplar exacto del error canónico del proyecto: algo que no produce error visible y da un resultado sin verificar. Junto a todo agregado SQL (promedio, suma, máximo), se debe reportar explícitamente sobre cuántos registros con dato no nulo se calculó.
+- **Quién tenía razón:** Claude al auditar el porcentaje de filas no nulas en `inventory.db`.
+
+---
+
+## E-24 · El auditor debe recalcular con su propio código, no correr el del autor
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-26
+- **Tipo:** metodología de auditoría / verificación independiente
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** La entrega de B-26 proporcionó comandos y salidas precalculadas para verificación rápida por el auditor (`python scripts/reporte_cobertura.py --strict`).
+- **Qué encontré o decidí yo:** Correr el script del autor solo prueba que el script devuelve lo que el parte afirma (verifica la transcripción, no la medición). Para auditar realmente C-2, el auditor escribió consultas SQL independientes directamente contra SQLite y analizó el JSON maestro con scripts propios, llegando a 2.633 / 2.611 / 677.408.955 de forma desacoplada. Asimismo, inyectó pruebas de mutación (eliminando headless del cálculo y reemplazando `COUNT(DISTINCT)` por `COUNT`), confirmando que los tests de la suite discriminaban efectivamente el error.
+- **Cómo se resolvió:** Se formalizó la práctica de recálculo desacoplado y prueba de mutación como estándar auditor.
+- **Por qué:** Si el auditor usa la misma herramienta que audita, hereda sus mismos sesgos de implementación y posibles trampas invisibles. La independencia radica en recalcular el efecto por una ruta distinta.
+- **Quién tenía razón:** Claude al aplicar recálculo independiente y prueba de mutación.
+
