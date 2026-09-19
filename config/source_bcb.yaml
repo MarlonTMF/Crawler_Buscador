@@ -67,9 +67,12 @@ classification:
     - id: boletines_mensuales
       name: "Boletines Mensuales y Publicaciones"
       url_patterns:
+        - "bolet"
         - "boletin"
         - "boletines"
+        - "sistema_pagos"
       title_keywords:
+        - "bolet"
         - "boletin"
         - "boletines"
         - "cronograma"
