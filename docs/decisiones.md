@@ -59,38 +59,48 @@ lógica de reintento.
 
 ---
 
-## D-03 · Sitios protegidos por Cloudflare/WAF: reintentar con navegador antes de dar por muerto
+## D-03 · Sitios protegidos por Cloudflare/WAF: reintento automático condicional con navegador real ante 403 [CERRADA]
 
-**Contexto.** BCP (Banco Central del Paraguay) devolvía 403 en las 3 URLs de
-documentos y en la portada, con `curl`/`requests` y con distintos headers de
-navegador simulados.
+**Contexto.** BCP (Banco Central del Paraguay) devolvía 403 en las URLs de
+documentos y en la portada con clientes HTTP simples (`curl`/`requests`) y con
+distintos headers simulados, debido a desafíos Cloudflare/WAF de huella TLS/JS.
 
-**Alternativas consideradas.** Marcar el dominio como muerto/bloqueado y
-descartarlo del catálogo.
+**Alternativas descartadas.**
+1. Marcar el dominio como muerto/bloqueado y descartarlo del catálogo.
+2. Forzar renderizado Playwright headless en todas las peticiones de toda la corrida
+   (inviable: el consumo de CPU/memoria y la latencia aumentan en órdenes de magnitud).
+3. Exigir configuración manual obligatoria portal por portal con `use_playwright: true`
+   para cada fuente que presente desafíos WAF sobrevenidos.
 
-**Decisión.** Antes de marcar un dominio como inaccesible por 403, probarlo
-con `HeadlessFetcher` (Playwright, `wait_until="domcontentloaded"`, no
-`"networkidle"` — ver nota de umbral abajo). BCP respondió 200 con navegador
-real y sin ningún ajuste adicional.
+**Decisión (Cerrada en B-23).**
+Se automatiza el reintento condicional con `HeadlessFetcher` (Playwright con
+`wait_until="domcontentloaded"` y User-Agent realista) por defecto en `HttpFetcher`:
+1. El cliente HTTP simple ejecuta la petición ordinaria.
+2. Si y solo si la respuesta del servidor es HTTP 403 (bloqueo WAF/bot challenge),
+   se dispara de forma transparente el reintento automático con navegador headless real.
+3. El resultado exitoso se etiqueta y registra formalmente en la auditoría con la
+   marca `"resuelto_via_headless"` (en logs, `ResourceMetadata.resolved_via_headless = True`,
+   `ResourceEvidence.extraction_methods` y `validate_url_access`), permitiendo total
+   auditoría y trazabilidad.
+4. La bandera declarativa `use_playwright: true` a nivel de configuración YAML queda
+   reservada exclusivamente para portales SPAs dinámicos (donde los enlaces requieren
+   ejecución JavaScript desde la primera carga, aunque el servidor responda HTTP 200).
 
-**Razón.** Un 403 contra un fetcher HTTP simple no prueba que el sitio esté
-caído — Cloudflare y WAFs similares distinguen tráfico de navegador real de
-tráfico de librería HTTP por huella TLS/JS challenge, no por el dominio en
-sí.
+**Razón.** Un 403 contra un fetcher HTTP simple no demuestra que el recurso esté caído
+ni que el portal sea inaccesible; la huella TLS y el JS challenge impiden el paso a
+librerías estándar pero son transparentes para un navegador real con headless Chromium.
+El reintento puramente condicional optimiza rendimiento: no incurre en coste de render
+para peticiones 200/404/5xx ordinarias.
 
-**Consecuencia.** FMI (Fase 0 del plan de cobertura) es candidato a tener el
-mismo patrón — pendiente de probar. El motor de discovery ya tiene
-`HeadlessFetcher` disponible; falta decidir (Fase 3 del plan) si el reintento
-con headless ante un 403 se automatiza por defecto o se activa caso por
-caso.
+**Consecuencia.** Portales que bloquean scrapers por Cloudflare (ej. BCP) recuperan
+sus documentos de forma autónoma sin intervención manual ni cambios de configuración.
 
-**Umbral que cambiaría esto.** Si `wait_until="networkidle"` se usa en lugar
-de `"domcontentloaded"`, el timeout es mucho más probable — un sitio con
-Cloudflare Challenge en background nunca llega a inactividad total de red.
-Verificado empíricamente: con `networkidle` el primer intento contra
-`bcp.gov.py` dio timeout a los 20s; con `domcontentloaded` respondió 200.
+**Umbral que cambiaría esto.** Si un portal implementa protecciones CAPTCHA interactivas
+(ej. Cloudflare Turnstile interactivo obligatorio) que impidan la resolución headless
+no asistida, en cuyo caso se requerirá ruta de contingencia Wayback o descarte fundado.
 
-**Verificado el.** 2026-09-17, contra `https://www.bcp.gov.py/`.
+**Verificado el.** 2026-09-17 (análisis inicial en BCP) y 2026-09-18 (implementación y
+cierre formal en bloque B-23 con suite unitaria e integración en el pipeline).
 
 ---
 

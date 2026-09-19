@@ -149,20 +149,30 @@ class CrawlOrchestrator:
                                 continue
                             processed_keys.add(resource_key)
 
+                            is_headless = False
+                            if hasattr(self.fetcher, "is_resolved_via_headless"):
+                                if self.fetcher.is_resolved_via_headless(cand.url_origin) or self.fetcher.is_resolved_via_headless(canonical_url):
+                                    is_headless = True
+
                             meta = ResourceMetadata(
                                 content_length_bytes=inner.size_bytes,
                                 sha256=inner.sha256,
                                 date_extraction_method=date_res.method,
                                 date_confidence=date_res.confidence,
                                 extracted_from_archive=archive_url_used,
-                                geographic_coverage=["Bolivia"] if "finrural" in self.adapter.source_id else []
+                                geographic_coverage=["Bolivia"] if "finrural" in self.adapter.source_id else [],
+                                resolved_via_headless=is_headless,
                             )
+
+                            archive_methods = [date_res.method, "archive_extraction", fallback_result.method]
+                            if is_headless:
+                                archive_methods.append("resuelto_via_headless")
 
                             evidence = ResourceEvidence(
                                 anchor_text=f"{cand.anchor_text} -> {inner.inner_filename}",
                                 context_text=f"Descomprimido desde {archive_url_used} (archivo {inner.inner_filename})",
                                 discovered_from=cand.url_origin,
-                                extraction_methods=[date_res.method, "archive_extraction", fallback_result.method]
+                                extraction_methods=archive_methods,
                             )
 
                             resource_item = ResourceItem(
@@ -211,20 +221,31 @@ class CrawlOrchestrator:
                 continue
             processed_keys.add(resource_key)
 
+            is_headless = False
+            if hasattr(self.fetcher, "is_resolved_via_headless"):
+                if self.fetcher.is_resolved_via_headless(cand.url_origin) or self.fetcher.is_resolved_via_headless(canonical_url):
+                    is_headless = True
+
             meta = ResourceMetadata(
                 content_length_bytes=http_meta.get("content_length_bytes"),
                 etag=http_meta.get("etag"),
                 last_modified=http_meta.get("last_modified"),
                 date_extraction_method=date_res.method,
                 date_confidence=date_res.confidence,
-                geographic_coverage=["Bolivia"] if "finrural" in self.adapter.source_id else []
+                geographic_coverage=["Bolivia"] if "finrural" in self.adapter.source_id else [],
+                resolved_via_headless=is_headless,
             )
+
+            extraction_methods = [date_res.method]
+            if is_headless:
+                extraction_methods.append("resuelto_via_headless")
+                logger.info("Auditoría: Recurso %s registrado como resuelto vía headless tras bloqueo 403", canonical_url)
 
             evidence = ResourceEvidence(
                 anchor_text=cand.anchor_text,
                 context_text=cand.context_text,
                 discovered_from=cand.url_origin,
-                extraction_methods=[date_res.method]
+                extraction_methods=extraction_methods,
             )
 
             resource_item = ResourceItem(

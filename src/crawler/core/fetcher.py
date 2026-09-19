@@ -74,6 +74,7 @@ class HttpFetcher:
         gemini_model: str = "gemini-2.0-flash",
         use_playwright: bool = False,
         headless_fetcher: Optional[HeadlessFetcher] = None,
+        auto_headless_on_403: bool = True,
     ):
         self.user_agent = user_agent
         self.timeout = timeout
@@ -84,12 +85,32 @@ class HttpFetcher:
         self.gemini_model = gemini_model
         self.use_playwright = use_playwright
         self.headless_fetcher = headless_fetcher
+        self.auto_headless_on_403 = auto_headless_on_403
         
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": self.user_agent})
         
         self._last_request_time: Dict[str, float] = {}
         self._robots_parsers: Dict[str, RobotFileParser] = {}
+        self.resolved_via_headless_urls: Set[str] = set()
+        self.last_fetch_resolved_via_headless: bool = False
+
+    def is_resolved_via_headless(self, url: str) -> bool:
+        """Indica si una URL fue resuelta exitosamente mediante reintento headless ante 403."""
+        return url in self.resolved_via_headless_urls
+
+    def _fetch_html_via_headless(self, url: str) -> Tuple[bool, int, Optional[str]]:
+        """Reintenta la obtención de HTML usando HeadlessFetcher (Playwright) ante bloqueos WAF/403."""
+        if self.headless_fetcher is None:
+            self.headless_fetcher = HeadlessFetcher(timeout_ms=self.timeout * 1000)
+        try:
+            ok, status, result = self.headless_fetcher.fetch(url)
+            if ok and result is not None and result.html:
+                return True, status or 200, result.html
+            return False, status or 0, None
+        except Exception as exc:
+            logger.warning("Error durante reintento headless para %s: %s", url, exc)
+            return False, 0, None
 
     def _get_robots_parser(self, domain: str, base_url: str) -> Optional[RobotFileParser]:
         """Carga y parsea el archivo robots.txt del dominio objetivo."""
@@ -343,7 +364,7 @@ class HttpFetcher:
             if ok and text is not None:
                 has_document_signal, effective_score, doc_links, keyword_hits = self._extract_document_counts(text, url)
                 doc_details = self._extract_document_samples(text, url)
-                return {
+                res_access = {
                     "url": url,
                     "reachable_http": True,
                     "status_code": status,
@@ -361,6 +382,11 @@ class HttpFetcher:
                         "samples": doc_details.get("samples") or [],
                     },
                 }
+                if self.last_fetch_resolved_via_headless:
+                    res_access["browser_fallback_used"] = True
+                    res_access["resolved_via_headless"] = True
+                    logger.info("Auditoría: URL %s validada exitosamente vía headless tras bloqueo 403", url)
+                return res_access
         except Exception as exc:  # pragma: no cover - defensive fallback
             logger.warning("GET validation raised unexpected error for %s: %s", url, exc)
 
@@ -492,7 +518,10 @@ class HttpFetcher:
         return False, 0, {}
 
     def fetch_html(self, url: str) -> Tuple[bool, int, Optional[str]]:
-        """Descarga página HTML respetando robots.txt, rate limits y reintentos con backoff."""
+        """Descarga página HTML respetando robots.txt, rate limits y reintentos con backoff.
+        Ante respuestas HTTP 403 (WAF/Cloudflare), dispara un reintento condicional con navegador real.
+        """
+        self.last_fetch_resolved_via_headless = False
         if not self.is_url_allowed_by_robots(url):
             return False, 403, None
 
@@ -518,6 +547,31 @@ class HttpFetcher:
                 response.encoding = response.apparent_encoding or "utf-8"
                 if response.status_code == 200:
                     return True, 200, response.text
+
+                # Reintento automático condicional con Headless ante 403 (D-03)
+                if response.status_code == 403 and self.auto_headless_on_403:
+                    logger.warning(
+                        "GET HTML %s respondió 403 Forbidden con HTTP simple. Disparando reintento automático condicional con HeadlessFetcher...",
+                        url,
+                    )
+                    h_ok, h_status, h_html = self._fetch_html_via_headless(url)
+                    if h_ok and h_html:
+                        logger.info(
+                            "URL %s respondió 403 en HTTP simple -> resuelta exitosamente vía headless (status %s)",
+                            url,
+                            h_status,
+                        )
+                        self.resolved_via_headless_urls.add(url)
+                        self.last_fetch_resolved_via_headless = True
+                        return True, h_status, h_html
+                    else:
+                        logger.warning(
+                            "Reintento headless para %s ante 403 no tuvo éxito o devolvió contenido vacío (status %s)",
+                            url,
+                            h_status,
+                        )
+                        return False, response.status_code, None
+
                 return False, response.status_code, None
             except requests_exceptions.RequestException as e:
                 error_name = self._classify_request_error(e)
