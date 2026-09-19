@@ -554,6 +554,52 @@ igual.
 - **Qué encontré o decidí yo:** 62 era el conteo de entradas con status 200 sin deduplicar, que ya figuraba en la fila de arriba de la misma tabla. La deduplicación real por clave efectiva (`Final_Url or Url_Original`) comprende 58 URLs únicas. Repetir 62 con otro significado en una nota aclaratoria generó la mayor confusión posible.
 - **Cómo se resolvió:** Se auditó la clave efectiva completa (descubriendo que ASFI tiene 4 entradas, APS 3, y ATT, BCB, ICCO, MDRyT 2 cada una) y se documentó con precisión la cifra exacta de 58 URLs únicas en el README y en el reporte.
 - **Por qué:** Cuando una aclaración introduce una cifra numérica, esa cifra requiere la misma verificación rigurosa contra la fuente que la métrica principal. Dos números idénticos cercanos con significados diferentes en un informe técnico no son una coincidencia inocua: son una trampa de lectura.
-- **Quién tenía razón:** Claude al contrastar la deduplicación por clave efectiva completa.
+---
+
+## E-28 · Leer el JavaScript sirvió, y leer un poco más habría cambiado el plan
+
+- **Fecha / bloque:** 2026-09-19 · auditoría de B-28
+- **Tipo:** ingeniería inversa de fuentes / diagnóstico de canales dinámicos
+- **Herramienta:** Antigravity (diagnóstico inicial), Claude (sondeo de auditoría)
+- **Qué propuso la IA:** Al inspeccionar ASFI, Antigravity abrió `ifd-bol.js` e identificó correctamente que la función `buscarArchivos()` construye los enlaces a los ZIP mensuales en runtime, concluyendo que la falta de enlaces en el HTML estático explicaba por qué BFS no llegaba a 1.200 y delegando la solución a Wayback (B-32).
+- **Qué encontró el Auditor:** El mismo archivo JS contenía la plantilla fija de URL (`/sites/default/files/estadisticaif/int_fin_des/${anio}/${mes}/${archivo}`) y el rango de años (2005 hasta el presente). Al probar la plantilla directamente contra el sitio en vivo, los archivos ZIP respondieron HTTP 200 con magic bytes `PK\x03\x04`. No hacía falta Wayback ni automatizar formularios: son archivos vivos y enumerables por plantilla.
+- **Cómo se resolvió:** Se redefinió el alcance: ASFI-IFD sale de B-32 y entra a B-33 como enumeración por plantilla de URL.
+- **Por qué:** Diagnosticar por qué algo no funciona y descubrir cómo sí funciona suelen estar a tres líneas de distancia en el mismo archivo. Cuando se lee código del cliente para explicar un límite, hay que agotar la lectura de la solución que ese mismo código implementa.
+
+---
+
+## E-29 · Un criterio no alcanzado no es un bloque fallido si el plan previó el fallo
+
+- **Fecha / bloque:** 2026-09-19 · auditoría de B-28
+- **Tipo:** metodología de planificación / criterios de aceptación con fallback
+- **Herramienta:** Claude (diseño del plan B-28), Antigravity (ejecución)
+- **Qué propuso el Plan:** Al fijar el umbral de ASFI ≥ 1.200 documentos, se añadió la regla explícita: *"Si no se llega ni a eso, la causa no era la profundidad: reportarlo en el parte en vez de seguir subiendo números."*
+- **Qué ocurrió:** ASFI llegó a 582 documentos (multiplicando casi por 10 los 61 previos), pero no a 1.200. En lugar de inflar artificialmente `max_pages` o romper el crawl, el ejecutor documentó la causa técnica exacta (`ifd-bol.js`).
+- **Cómo se resolvió:** El bloque fue aprobado con observaciones porque cumplió el criterio por la vía prevista para el fallo, convirtiendo un aparente déficit en un hallazgo operativo de alto valor para B-33.
+- **Por qué:** Los umbrales numéricos en crawling dependen de la estructura de la web viva. Una cláusula de reporte fundamentado previene la trampa de alterar la profundidad para forzar un número que el sitio no expone de esa manera.
+
+---
+
+## E-30 · Pegar la consulta y su salida real ahorra tokens al auditor y evita asunciones
+
+- **Fecha / bloque:** 2026-09-19 · auditoría de B-28
+- **Tipo:** protocolo de entrega / economía de tokens
+- **Herramienta:** Antigravity (parte B-28), Claude (auditoría)
+- **Qué ocurrió:** Para no saturar el contexto, el parte B-28 presentó los datos consolidados en una tabla sin incluir la consulta SQL ni la salida literal de consola.
+- **Qué encontró el Auditor:** El auditor tuvo que reproducir desde cero cada consulta contra las bases de datos y adivinar los clasificadores usados (p. ej. en INE), gastando tokens adicionales de verificación.
+- **Cómo se resolvió:** Regla operativa a partir de B-29: todo parte debe incluir la consulta SQL agregada y su salida literal pegada (una o dos líneas), evitando logs verbosos de crawler pero suministrando evidencia primaria indiscutible.
+- **Por qué:** La evidencia agregada literal (un `COUNT` y dos muestras) es el punto medio óptimo entre el exceso de un log de miles de líneas y la ausencia de evidencia de una tabla sin comando ejecutable.
+
+---
+
+## E-31 · La instrumentación de inventario debe registrar atributos antes de exigirlos
+
+- **Fecha / bloque:** 2026-09-19 · auditoría de B-28
+- **Tipo:** diseño de schema / consistencia de auditoría
+- **Herramienta:** Claude (hallazgo 5 de B-28)
+- **Qué encontró el Auditor:** En 5 de 6 portales, `file_size_bytes` y `content_sha256` quedaron en `NULL`, ya que el modo prospector auditaba la existencia y metadatos sin descargar el cuerpo de los archivos ni registrar cabeceras de tamaño cuando el servidor no las entrega en HEAD.
+- **Consecuencia para B-32:** El criterio de B-32 ("bytes, no solo listados") no puede cumplirse sin resolver previamente la captura o medición de tamaño en el pipeline.
+- **Cómo se resolvió:** Observación anotada para ser saldada antes de ejecutar B-32.
+
 
 

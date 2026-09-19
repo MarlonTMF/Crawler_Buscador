@@ -37,6 +37,19 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-11 | 🅰️→🅲 | Cierre de Track A | 25/15 | Aprob. c/obs | Un "100%" que no era cobertura; una hipótesis convertida en hecho |
 | B-12 | 🅰️ | Generador de YAML | 75/35 | Aprob. c/obs | Tres banderas del YAML que el motor no lee — **error mío** |
 | B-13 | 🅰️ | Runner + headless | —/— | Aprob. c/obs | 127 de 257 "recursos" son checksums de 89 bytes, no documentos |
+| B-14 | 🅰️ | Lote 1 (BCP, INE, ASFI, BCB) | 80/80 | Aprobado | Calibración inicial de primeros portales de Etapa C |
+| B-15 | 🅰️ | Lote 2 (APS, ADA, DGAC, SEPREC) | 80/80 | Aprob. c/obs | Hallazgo de max_depth 0; consolidación de portales |
+| B-16 | 🅰️ | Lote 3 (IBCE-CAO, CNDC, ASOFIN, ATT) | 80/90 | Aprob. c/obs | Subsanación de fetch_head resilience y calibración ASOFIN |
+| B-17 | 🅰️ | Lote 4 (AE, ANAPO, ATC, MMYM) | 80/65 | Aprobado | Extracción masiva en ATC y MMYM |
+| B-18 | 🅰️ | Lote 5 (AN, SENAMHI, CADEXCO, FAM) | 80/55 | Aprobado | SENAMHI supera 800 recursos |
+| B-19 | 🅰️ | Lote 6 (IN, SNIS, CADECO, MIN_EDUCACION) | 80/65 | Aprobado | Cierre de lote de entidades públicas |
+| B-20 | 🅰️ | Lote 7 (IBCH) + cierre Etapa C | 40/45 | Aprobado | Cierre de 25 portales externos en Track B |
+| B-23 | 🅰️ | Calibración de fuentes problemáticas | 60/45 | Aprobado | Ajuste de patrones de descarte y selectores |
+| B-24 | 🅰️ | Calibración volumétrica | 45/30 | Aprobado | Afinamiento de umbrales y consistencia |
+| B-25 | 🅰️ | Re-verificación de Track A | 50/40 | Aprobado | Verificación de 64/67 URLs reproducibles |
+| B-26 | 🅰️ | Reporte de cobertura reproducible | 45/35 | Aprobado | Script reporte_cobertura.py con salida dual y --strict |
+| B-27 | 🅰️ | Cierre Fase 1: README y estado final | 40/35 | Aprob. c/obs | Cierre de 26 bloques; desacoplamiento D-04 verificado |
+| B-28 | 🅰️ | Profundidad en 6 portales (Fase 2) | 90/45 | Aprob. c/obs | ADA (1.090) y DGAC (1.196) superan benchmark; ASFI sube a 582 (ZIPs en JS); fix extractor |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
