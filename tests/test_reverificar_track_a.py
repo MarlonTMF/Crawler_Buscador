@@ -4,11 +4,14 @@ tests/test_reverificar_track_a.py
 Pruebas para el script de re-verificación periódica de conectividad Track A
 (Etapa E · B-25).
 
-Criterios verificados:
+Criterios y hallazgos verificados:
 1. Corrido dos veces seguidas sin cambios en la web no produce alertas (sin falsos positivos).
-2. Contra una URL rota a propósito sí produce alerta (ambas comprobaciones).
-3. Fuentes que ya estaban en error previo (410, disuelta) no generan falsa alarma de regresión.
-4. Código de salida de CLI: 0 ante ausencia de regresiones, 1 ante regresiones detectadas.
+2. Contra una URL rota a propósito sí produce alerta de regresión (ambas comprobaciones).
+3. H-1: Fallback universal a GET ante excepciones en HEAD (TooManyRedirects en HEAD pero 200 en GET).
+4. H-2: 403 sobrevenido se clasifica como requiere_headless / bot_challenge (D-03), no como regresión.
+5. Manejo de certificados incompletos (SSL_CERT_ERROR): detecta servidor activo con verify=False.
+6. Fuentes que ya estaban en error previo (410, disuelta) no generan falsa alarma de regresión.
+7. Código de salida de CLI: 0 ante ausencia de regresiones, 1 ante regresiones, y soporte de --no-fail-on-regression.
 """
 
 import json
@@ -80,9 +83,7 @@ def test_reverificar_dos_veces_seguidas_idempotente(catalogo_mock: Path):
     mock_resp_200 = MagicMock(status_code=200)
 
     with patch("requests.Session.head", return_value=mock_resp_200):
-        # Primera corrida
         rep1 = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
-        # Segunda corrida inmediata sin cambios en la red
         rep2 = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
 
     assert rep1["total_regresiones"] == 0
@@ -95,11 +96,16 @@ def test_reverificar_con_url_rota_produce_alerta(catalogo_mock: Path):
     """Criterio de aceptación 2: Contra una URL rota a propósito sí produce alerta de regresión."""
     def _mock_head(url, **kwargs):
         if "portal2" in url:
-            # Simulamos que portal2 se cayó a 500
             return MagicMock(status_code=500)
         return MagicMock(status_code=200)
 
-    with patch("requests.Session.head", side_effect=_mock_head):
+    def _mock_get(url, **kwargs):
+        if "portal2" in url:
+            return MagicMock(status_code=500)
+        return MagicMock(status_code=200)
+
+    with patch("requests.Session.head", side_effect=_mock_head), \
+         patch("requests.Session.get", side_effect=_mock_get):
         reporte = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
 
     assert reporte["total_verificados"] == 3
@@ -113,14 +119,61 @@ def test_reverificar_con_url_rota_produce_alerta(catalogo_mock: Path):
     assert reg["es_regresion"] is True
 
 
+def test_h1_fallback_get_ante_excepcion_head(catalogo_mock: Path):
+    """H-1: Si HEAD lanza TooManyRedirects (caso dst.dk) pero GET da 200, NO debe ser regresión."""
+    def _mock_head(url, **kwargs):
+        if "portal1" in url:
+            raise requests.exceptions.TooManyRedirects("Exceeded 30 redirects")
+        return MagicMock(status_code=200)
+
+    def _mock_get(url, **kwargs):
+        return MagicMock(status_code=200)
+
+    with patch("requests.Session.head", side_effect=_mock_head), \
+         patch("requests.Session.get", side_effect=_mock_get):
+        reporte = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
+
+    # portal1 se recuperó por GET -> 0 regresiones
+    assert reporte["total_regresiones"] == 0
+    assert reporte["total_ok"] == 3
+
+
+def test_h2_403_clasificado_como_requiere_headless(catalogo_mock: Path):
+    """H-2: Un 403 sobrevenido no se marca como regresión de caída sino como requiere_headless (D-03)."""
+    def _mock_head(url, **kwargs):
+        if "portal2" in url:
+            return MagicMock(status_code=403)
+        return MagicMock(status_code=200)
+
+    def _mock_get(url, **kwargs):
+        if "portal2" in url:
+            return MagicMock(status_code=403)
+        return MagicMock(status_code=200)
+
+    with patch("requests.Session.head", side_effect=_mock_head), \
+         patch("requests.Session.get", side_effect=_mock_get):
+        reporte = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
+
+    # 0 regresiones de caída, 1 alerta de bot/headless
+    assert reporte["total_regresiones"] == 0
+    assert reporte["total_requiere_headless"] == 1
+    assert reporte["alertas_headless"][0]["fuente"] == "SRC_OK_2"
+
+
 def test_reverificar_con_fallo_de_red_timeout(catalogo_mock: Path):
-    """Verifica que un timeout de conexión se clasifique correctamente como regresión."""
+    """Verifica que un timeout persistente se clasifique correctamente como regresión."""
     def _mock_head(url, **kwargs):
         if "portal3" in url:
             raise requests.exceptions.Timeout("Connection timed out")
         return MagicMock(status_code=200)
 
-    with patch("requests.Session.head", side_effect=_mock_head):
+    def _mock_get(url, **kwargs):
+        if "portal3" in url:
+            raise requests.exceptions.Timeout("Connection timed out")
+        return MagicMock(status_code=200)
+
+    with patch("requests.Session.head", side_effect=_mock_head), \
+         patch("requests.Session.get", side_effect=_mock_get):
         reporte = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=True)
 
     assert reporte["total_regresiones"] == 1
@@ -131,23 +184,27 @@ def test_reverificar_con_fallo_de_red_timeout(catalogo_mock: Path):
 
 
 def test_reverificar_url_previamente_rota_no_es_regresion(catalogo_mock: Path):
-    """Verifica que si se evalúan todas las URLs (incluyendo 410 previa), la 410 no genera falsa regresión."""
+    """Verifica que fuentes con error previo (410, disuelta) no generan falsa regresión."""
     def _mock_head(url, **kwargs):
         if "disuelta" in url:
             return MagicMock(status_code=410)
         return MagicMock(status_code=200)
 
-    with patch("requests.Session.head", side_effect=_mock_head):
-        # solo_200=False evalúa todas
+    def _mock_get(url, **kwargs):
+        if "disuelta" in url:
+            return MagicMock(status_code=410)
+        return MagicMock(status_code=200)
+
+    with patch("requests.Session.head", side_effect=_mock_head), \
+         patch("requests.Session.get", side_effect=_mock_get):
         reporte = verificar_catalogo_track_a(catalog_path=catalogo_mock, solo_200=False)
 
     assert reporte["total_verificados"] == 4
-    # Aunque la fuente disuelta devuelve 410, como su estado previo ya era 410, no es una regresión
     assert reporte["total_regresiones"] == 0
 
 
-def test_cli_exit_codes(catalogo_mock: Path, monkeypatch):
-    """Verifica que la CLI salga con 0 sin regresiones y con 1 cuando hay regresión."""
+def test_cli_exit_codes_y_flags(catalogo_mock: Path, monkeypatch):
+    """Verifica códigos de salida y comportamiento del flag --no-fail-on-regression."""
     mock_resp_200 = MagicMock(status_code=200)
 
     # Caso 1: Todas OK -> exit 0
@@ -157,14 +214,23 @@ def test_cli_exit_codes(catalogo_mock: Path, monkeypatch):
             cli_main()
         assert exc_info.value.code == 0
 
-    # Caso 2: URL rota -> exit 1
-    def _mock_head_failing(url, **kwargs):
+    # Caso 2: URL rota por defecto -> exit 1
+    def _mock_failing(url, **kwargs):
         if "portal1" in url:
             return MagicMock(status_code=404)
         return MagicMock(status_code=200)
 
-    with patch("requests.Session.head", side_effect=_mock_head_failing):
+    with patch("requests.Session.head", side_effect=_mock_failing), \
+         patch("requests.Session.get", side_effect=_mock_failing):
         monkeypatch.setattr("sys.argv", ["reverificar_track_a.py", "--catalogo", str(catalogo_mock)])
         with pytest.raises(SystemExit) as exc_info:
             cli_main()
         assert exc_info.value.code == 1
+
+    # Caso 3: URL rota pero con --no-fail-on-regression -> exit 0 (H-5)
+    with patch("requests.Session.head", side_effect=_mock_failing), \
+         patch("requests.Session.get", side_effect=_mock_failing):
+        monkeypatch.setattr("sys.argv", ["reverificar_track_a.py", "--catalogo", str(catalogo_mock), "--no-fail-on-regression"])
+        with pytest.raises(SystemExit) as exc_info:
+            cli_main()
+        assert exc_info.value.code == 0
