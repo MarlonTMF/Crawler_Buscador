@@ -112,7 +112,7 @@ estimación del mismo tipo de trabajo depende de eso.
 | B-17 | Lote 4 — 4 portales (AE, ANAPO, ATC, MMYM) | 80 min | 65 min | ✅ | `feat:` |
 | B-18 | Lote 5 — 4 portales (AN, SENAMHI, CADEXCO, FAM) | 80 min | 55 min | ✅ | `ca7caea` |
 | B-19 | Lote 6 — 4 portales (IN, SNIS, CADECO, MIN_EDUCACION) | 80 min | 65 min | ✅ | `007325b` |
-| B-20 | Lote 7 — 1 portal restante + cierre de onboarding | 40 min | — | ⬜ | `feat:` |
+| B-20 | Lote 7 — 1 portal restante (IBCH) + cierre de onboarding | 40 min | 45 min | ✅ | `f663745` |
 | | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 15 min** | | | |
 
 ### Etapa D · Calibración (Fase 3)

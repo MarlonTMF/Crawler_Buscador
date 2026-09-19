@@ -387,4 +387,44 @@ igual.
 - **Por qué:** El criterio de aceptación del bloque es "≥1 documento por fuente" y un ejemplo lo demuestra; la cifra que viaja al informe es "N documentos por fuente" y para esa el ejemplo no dice nada. **Cuando el criterio de aceptación y la cifra publicada no son la misma magnitud, la evidencia del criterio no alcanza para la cifra** — y como la muestra se elige entre los que funcionan, el sesgo siempre va en la dirección optimista. E-13 agregó el chequeo; E-14 agrega su alcance.
 - **Quién tenía razón:** Antigravity al incorporar el chequeo sin discutirlo; Claude al ampliarlo de un ejemplo al dataset entero.
 
+---
+
+## E-15 · Consolidar no es copiar: una tabla que no suma su propio total no se contó
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-20
+- **Tipo:** verificación de agregados / proceso de consolidación
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El "Balance Consolidado de la Etapa C" de B-20 presentó una tabla con 26 fuentes declarando 2 370 recursos totales, construida transcribiendo cifras previas.
+- **Qué encontré o decidí yo:** 13 de las 26 filas no reproducían contra las bases de datos de SQLite, y las filas sumaban 2 368 en lugar de 2 370. El recuento SQL programático sobre las 26 bases reveló 2 528 filas y 2 506 recursos únicos.
+- **Cómo se resolvió:** Se devolvió el bloque en primera pasada. Antigravity ejecutó una consulta SQL directa (`COUNT(*)`, `COUNT(DISTINCT download_url)`, `COUNT(DISTINCT dataset_id)`) sobre las 26 bases `output/<src>/inventory.db`, pegó la salida cruda en el parte y reconstruyó la tabla cuadrando exactamente.
+- **Por qué:** Una cifra verificada en su bloque no queda verificada para siempre; al republicarla en un agregado hay que volver a correr la consulta, porque el agregado es un artefacto nuevo y hereda el estado de verificación de cómo se armó. Si la tabla no suma su propio total, se transcribió.
+- **Quién tenía razón:** Claude al auditar la coherencia aritmética y contrastar contra las bases.
+
+---
+
+## E-16 · Declarar un registro no es registrarlo
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-20
+- **Tipo:** disciplina documental / verificación de artefactos
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** El parte de B-20 declaró que la exclusión de CEPAL "queda registrada en el catálogo con nota de arquitectura específica".
+- **Qué encontré o decidí yo:** El diff del commit no tocaba CEPAL, la fila no tenía nota en el JSON y `docs/decisiones.md` no la mencionaba. Además, el protocolo exige tratar decisiones de arquitectura como condición de parada y documentarlas formalmente.
+- **Cómo se resolvió:** Se incorporó la decisión técnica formal D-10 en `docs/decisiones.md` citando la auditoría de B-17, se añadió la nota técnica al objeto de CEPAL en `output/excel_urls_diagnostic.json` y se documentó en el parte subsanado.
+- **Por qué:** Escribir en la narrativa de un parte que algo "queda registrado" no produce el cambio en el repositorio. La única manera de validarlo es verificar la existencia efectiva del artefacto declarado.
+- **Quién tenía razón:** Claude al revisar el diff real del commit frente a las afirmaciones del parte.
+
+---
+
+## E-17 · `resource_audit_log` acumula al re-correr y ante rutas duplicadas
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-20
+- **Tipo:** diseño de base de datos / métricas de cobertura
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** La hipótesis inicial asumía que cada corrida limpia sobreescribía o no acumulaba duplicados.
+- **Qué encontré o decidí yo:** Se encontraron 22 filas duplicadas entre las 26 bases (2 528 filas vs 2 506 recursos únicos). Algunas provenían de re-ejecuciones que insertaron nuevas filas (BCP, ASFI), pero otras ocurrieron dentro de la misma corrida por convergencia de enlaces en el BFS (FINRURAL, MMYM, ATC).
+- **Cómo se resolvió:** Toda métrica oficial agregada de cobertura para el informe final de B-26 se define estrictamente mediante `COUNT(DISTINCT download_url)` (2 506 recursos únicos). La subsanación del deduplicador intra-corrida queda agendada para B-24 antes de incrementar la profundidad.
+- **Por qué:** `resource_audit_log` es un log de auditoría acumulativo por ejecución. Medir la cobertura real exige deduplicar por la URL canónica de descarga.
+- **Quién tenía razón:** Claude al analizar los `execution_timestamp` y detectar la acumulación intra-corrida.
+
+
 
