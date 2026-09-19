@@ -53,6 +53,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-29 | 🅰️ | Activar headless en BCP y BCRP | 50/40 | Aprob. c/obs | BCP pasa de 25 a 1.711 docs y BCRP de 0 a 223 docs; DBs acumulan corridas previas |
 | B-31 | 🅰️ | Sitemaps en todos los portales | 60/45 | Aprob. c/obs | 15 de 28 portales con sitemap; delta +52 docs en muestra (ibce_cao +34, ae +18); max_sitemaps truncaba |
 | B-32 | 🅰️ | Series históricas y Wayback (Fase 2) | 90/150 | **Devuelto** → Aprob. c/obs | 206 PDFs históricos reales (188 vivo + 18 Wayback). Fix transversal en allowed_extensions (fuga de .sha) y D-11 |
+| B-30 | 🅰️ | Extracción de ZIP en prod (Fase 2) | 60/40 | Aprob. c/obs | 57 docs extraídos en ASFI y 1 en IN; hallazgo: 11 ZIPs de ASFI (79 MB, .xlsm/.ods) descargados sin extraer ni advertir |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
