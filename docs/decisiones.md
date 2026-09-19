@@ -398,3 +398,23 @@ base y estos archivos vuelven a ser exportaciones desechables.
 - **Consecuencia.** CEPAL queda documentada como candidata prioritaria para un conector de API REST / OAI-PMH en la etapa de conectores especializados (Fase 4). No contabiliza en el subtotal de portales HTML de la Etapa C.
 - **Umbral que reabriría esto.** Si la CEPAL rediseña su portal principal para exponer enlaces directos descargables en páginas HTML estáticas, o cuando se abra formalmente la Fase 4 de adaptadores REST especializados.
 - **Verificado el.** 2026-09-18, contra `https://www.cepal.org/es/publicaciones` y `repositoriodigital.cepal.org`.
+
+---
+
+## D-11 · Recuperación de series históricas: gateway directo Wayback y plantillas determinísticas ante degradación de APIs
+
+- **Origen:** Auditoría y corrección B-32 (`docs/auditorias/B-32.md:210-228`).
+- **Contexto.** Internet Archive CDX API y la API de disponibilidad (`archive.org/wayback/available`) presentan saturación frecuente y respuestas HTTP 429 ("Too Many Requests"). Si un crawler depende exclusivamente de la API `/available` para descubrir snapshots de recursos caídos, un 429 anula la contingencia para todos los recursos subsiguientes. Por otro lado, enumerar miles de URLs mensuales a mano en YAML no escala a las 61 fuentes de prospector.
+- **Alternativas consideradas.**
+  1. *Depender exclusivamente de la API /available de archive.org:* Descartado porque 429 silencia la contingencia y bloquea la recuperación.
+  2. *Descarga manual fuera del crawler:* Descartado porque viola la reproducibilidad y trazabilidad en `resource_audit_log`.
+  3. *Sondeo ciego sin plantilla temporal:* Descartado (D-02 aplicada a documentos).
+- **Decisión.**
+  1. **Fallback de Gateway Directo en `ContingencyEngine`:** Cuando la API de disponibilidad devuelve 429 o falla, el motor conmuta automáticamente al gateway canónico de snapshots `https://web.archive.org/web/{timestamp}id_/{target_url}`. Se prueban variantes de esquema (`http` y `https`) y de prefijo de subdominio (`www`), utilizando el año del documento (si está presente en la URL) para anclar el snapshot al período en que el recurso estaba vivo.
+  2. **Estrategia para series documentales históricas:** Cuando un portal institucional organiza sus publicaciones en rutas determinísticas (ej. `{año}/financiera_{mes}_{año}.pdf`), la enumeración se formula mediante generadores paramétricos de URL (formalizados en B-33 para ASFI-IFD y aplicables a otras fuentes), manteniendo en el YAML las semillas maestras de bootstrapping.
+  3. **Disciplina estricta de documentos vs sidecars:** Ningún recurso con extensión no incluida en `allowed_extensions` (como sidecars de checksum `.sha` de 89 bytes) puede ser clasificado como documento descargable. `_is_download_link` debe verificar y rechazar extensiones estáticas no permitidas antes de aplicar heurísticas de tokens de ruta.
+- **Razón.** Garantiza que la tubería de prospección sea resiliente a fallas transitorias de infraestructura de terceros (archive.org) y que las métricas de cobertura midan documentos reales descargables (`.pdf`, `.xlsx`, etc.) y no artefactos auxiliares.
+- **Consecuencia.** Se recuperan exitosamente boletines y documentos históricos eliminados del sitio vivo (ej. serie `fr-bem` de FINRURAL) conservando la procedencia `wayback_snapshot` en la base de auditoría.
+- **Umbral que reabriría esto.** Si Internet Archive bloquea a nivel de IP el gateway directo web de snapshots, o si los portales implementan ofuscación no determinística de nombres de archivo que impida inferir rutas pasadas.
+- **Verificado el.** 2026-09-19 (bloque B-32, recuperación verificada de 18 boletines `fr-bem` con bytes reales).
+

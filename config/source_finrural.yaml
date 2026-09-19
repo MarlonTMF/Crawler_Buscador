@@ -9,6 +9,24 @@ crawl:
   seeds:
   - https://www.finrural.org.bo/reporte-financiero-mensual-instituciones-financieras-de-desarrollo/
   - https://www.finrural.org.bo/archivo-historico/
+  - https://finrural.org.bo/archivos/fr-bem/2011/fr-bem1109.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2011/fr-bem1110.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2011/fr-bem1111.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2011/fr-bem1112.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1201.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1202.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1203.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1204.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1206.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1208.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1209.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1210.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1211.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2012/fr-bem1212.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2013/fr-bem1301.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2013/fr-bem1302.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2013/fr-bem1303.pdf
+  - https://finrural.org.bo/archivos/fr-bem/2013/fr-bem1304.pdf
   - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_05_2008.pdf
   - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_06_2008.pdf
   - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_07_2008.pdf

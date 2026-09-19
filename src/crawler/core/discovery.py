@@ -6,6 +6,7 @@ semantic scoring while keeping the public API used by the orchestrator stable.
 """
 
 import logging
+import os
 from collections import deque
 from typing import List, Set, Tuple
 from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunparse
@@ -179,11 +180,26 @@ class DiscoveryEngine:
     def _is_download_link(self, href: str, text: str) -> Tuple[bool, str]:
         href_lower = href.lower()
         text_lower = text.lower()
+        allowed_clean = {e.lower().lstrip('.') for e in (getattr(self.adapter, "allowed_extensions", []) or [])}
 
-        for ext in self.adapter.allowed_extensions:
-            ext_clean = ext.lower().strip('.')
-            if f".{ext_clean}" in href_lower:
+        parsed_path = urlparse(href).path
+        _, file_ext = os.path.splitext(parsed_path)
+        ext_clean = file_ext.lower().lstrip('.')
+
+        # Si la URL tiene una extensión explícita en su ruta:
+        if ext_clean:
+            if ext_clean in allowed_clean:
                 return True, ext_clean
+            # Si no es un script dinámico ejecutable (que pueda devolver un doc por query params),
+            # es un archivo estático no permitido (ej. .sha, .html, .jpg, .png, .txt) -> descartar
+            dynamic_scripts = {"php", "aspx", "asp", "jsp", "ashx", "do", "action"}
+            if ext_clean not in dynamic_scripts:
+                return False, ""
+
+        # Si no tiene extensión en la ruta o es script dinámico, buscar allowed_extensions en query o href
+        for ext in allowed_clean:
+            if f".{ext}" in href_lower:
+                return True, ext
 
         path_tokens = [
             "/download",
@@ -227,9 +243,6 @@ class DiscoveryEngine:
         ]
 
         if any(kw in text_lower for kw in text_tokens) and any(kw in href_lower for kw in ["reporte", "informe", "archivo", "boletin", "boletín", "estadistica", "financiera", "download", "descarga", "documentos", "ifd"]):
-            return True, "document"
-
-        if any(kw in href_lower for kw in ["reporte", "informe", "estadistica", "financiera", "boletin", "boletín"]) and any(ext in href_lower for ext in [".pdf", ".xlsx", ".xls", ".csv", ".zip"]):
             return True, "document"
 
         return False, ""

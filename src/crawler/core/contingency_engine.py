@@ -1,6 +1,7 @@
 """Contingency resolution for failed source URLs."""
 
 import logging
+import re
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -29,26 +30,58 @@ class ContingencyEngine:
         self._wayback_rate_limited = False
 
     def latest_wayback_snapshot(self, url: str) -> Optional[str]:
-        if self._wayback_rate_limited:
-            return None
-        api = "https://archive.org/wayback/available"
-        try:
-            response = requests.get(api, params={"url": url}, timeout=self.timeout)
-            if response.status_code == 429:
-                self._wayback_rate_limited = True
-                logger.warning("Wayback availability devolvió 429; silenciando consultas subsiguientes de esta corrida.")
-                return None
-            response.raise_for_status()
-            data = response.json()
-        except Exception as exc:
-            if "429" in str(exc):
-                self._wayback_rate_limited = True
-            logger.warning("Wayback availability lookup failed for %s: %s", url, exc)
-            return None
+        # 1. Intentar API de disponibilidad si no hay rate limiting activo
+        if not self._wayback_rate_limited:
+            api = "https://archive.org/wayback/available"
+            try:
+                response = requests.get(api, params={"url": url}, timeout=self.timeout)
+                if response.status_code == 429:
+                    self._wayback_rate_limited = True
+                    logger.warning("Wayback availability devolvió 429; activando fallback de gateway directo.")
+                elif response.status_code == 200:
+                    data = response.json()
+                    snapshot = data.get("archived_snapshots", {}).get("closest", {})
+                    if snapshot.get("available") and snapshot.get("url"):
+                        return snapshot["url"]
+            except Exception as exc:
+                if "429" in str(exc):
+                    self._wayback_rate_limited = True
+                logger.debug("Wayback availability lookup failed for %s: %s", url, exc)
 
-        snapshot = data.get("archived_snapshots", {}).get("closest", {})
-        if snapshot.get("available") and snapshot.get("url"):
-            return snapshot["url"]
+        # 2. Fallback de gateway directo: web.archive.org/web/{timestamp}id_/{target_url}
+        # Permite resolver snapshots aún si la API /available de archive.org tiene 429 o intermitencias
+        m = re.search(r'/(20\d{2})/', url)
+        year = m.group(1) if m else ""
+        timestamp = f"{year}1231235959" if year else "2"
+
+        base_candidates = [url]
+        if url.startswith("https://"):
+            base_candidates.append(url.replace("https://", "http://", 1))
+        elif url.startswith("http://"):
+            base_candidates.append(url.replace("http://", "https://", 1))
+
+        candidates = []
+        for c in base_candidates:
+            candidates.append(c)
+            if "://www." in c:
+                candidates.append(c.replace("://www.", "://", 1))
+            elif "://" in c:
+                candidates.append(c.replace("://", "://www.", 1))
+        seen = set()
+        unique_candidates = [c for c in candidates if not (c in seen or seen.add(c))]
+
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        for target in unique_candidates:
+            gateway_url = f"https://web.archive.org/web/{timestamp}id_/{target}"
+            try:
+                res = requests.head(gateway_url, headers=headers, timeout=8, allow_redirects=True)
+                if res.status_code == 200:
+                    cl = res.headers.get("content-length")
+                    if cl is None or int(cl) > 1000:
+                        return res.url or gateway_url
+            except Exception:
+                pass
+
         return None
 
     def fetch_bytes_with_fallback(self, url: str) -> ContingencyResult:

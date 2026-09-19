@@ -49,3 +49,23 @@ def test_relative_url_with_empty_netloc_still_passes():
     # sigue tratandose como permitido, solo los esquemas no-HTTP se excluyen.
     engine = _make_engine()
     assert engine._is_allowed_domain("/archivo-historico/") is True
+
+
+def test_sha_sidecar_is_rejected_even_under_archivos():
+    """Regresión B-32: sidecars .sha no deben clasificarse como documento descargable."""
+    engine = _make_engine()
+    engine.adapter.allowed_extensions = ["pdf", "xlsx", "xls", "csv", "zip"]
+    url = "https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_01_2016-pdf.sha"
+    is_doc, ext = engine._is_download_link(url, "Descargar checksum")
+    assert is_doc is False
+    assert ext == ""
+
+
+def test_pdf_document_passes_under_archivos():
+    engine = _make_engine()
+    engine.adapter.allowed_extensions = ["pdf", "xlsx", "xls", "csv", "zip"]
+    url = "https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_01_2016.pdf"
+    is_doc, ext = engine._is_download_link(url, "Reporte financiero")
+    assert is_doc is True
+    assert ext == "pdf"
+

@@ -201,7 +201,7 @@ def inspect_inventory_db(
                 ext_key = ext
             extension_counts[ext_key] = extension_counts.get(ext_key, 0) + 1
 
-            if row["status"] == "PROCESADO_EXITOSAMENTE":
+            if row["status"] in ("PROCESADO_EXITOSAMENTE", "RECUPERADO_VIA_CONTINGENCIA"):
                 if ext_clean in doc_exts:
                     documents_count += 1
                 else:
