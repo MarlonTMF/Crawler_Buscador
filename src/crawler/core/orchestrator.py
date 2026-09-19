@@ -106,10 +106,17 @@ class CrawlOrchestrator:
         # 2. Fase de Extracción, Canonicalización y Procesamiento
         datasets_dict: Dict[str, DatasetItem] = {}
         processed_keys: Set[str] = set()
+        seen_canonical_urls: Set[str] = set()
 
         for cand in candidates:
             canonical_url = self.canonicalizer.canonicalize_url(cand.url)
             retrieved_at = datetime.now(timezone.utc).isoformat()
+
+            # Deduplicación intra-corrida por URL canónica (O-31 / E-17)
+            if not self.archive_extractor.is_archive_extension(cand.file_type):
+                if canonical_url in seen_canonical_urls:
+                    continue
+                seen_canonical_urls.add(canonical_url)
             
             # --- Manejo de Archivos Comprimidos (.zip, .tar, .tar.gz) ---
             if self.archive_extractor.is_archive_extension(cand.file_type):

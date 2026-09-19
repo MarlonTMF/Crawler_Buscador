@@ -16,8 +16,10 @@ source:
 crawl:
   seeds:
     - https://www.bcb.gob.bo
-  max_depth: 0
-  max_pages: 3
+    - https://www.bcb.gob.bo/?q=boletines-mensuales
+    - https://www.bcb.gob.bo/?q=pub_memorias-institucionales
+  max_depth: 1
+  max_pages: 15
   strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
@@ -50,7 +52,31 @@ classification:
     - "/uploads/"
     - "Reservas"
     - "IEF"
+    - "publicacionesbcb"
+    - "boletin"
+    - "DEPEX"
+    - "Otros"
+    - "memoria"
   dataset_rules:
+    - id: boletines_mensuales
+      name: "Boletines Mensuales y Publicaciones"
+      url_patterns:
+        - "boletin"
+        - "boletines"
+        - "publicacionesbcb"
+        - "Otros"
+      title_keywords:
+        - "boletin"
+        - "publicacion"
+        - "cronograma"
+        - "informe"
+    - id: memorias_institucionales
+      name: "Memorias Institucionales y Anuales"
+      url_patterns:
+        - "memoria"
+        - "memorias"
+      title_keywords:
+        - "memoria"
     - id: reservas_internacionales
       name: "Reservas Internacionales Netas (RIN)"
       url_patterns:

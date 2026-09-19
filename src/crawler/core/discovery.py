@@ -299,8 +299,11 @@ class DiscoveryEngine:
     def discover_from_seeds(self) -> List[DiscoveredCandidate]:
         candidates: List[DiscoveredCandidate] = []
         self._add_passive_candidates(candidates)
+        seen_candidate_urls: Set[str] = {c.url for c in candidates}
 
-        queue = deque((seed, 0) for seed in self._build_seed_list())
+        seed_list = self._build_seed_list()
+        queue = deque((seed, 0) for seed in seed_list)
+        enqueued_urls: Set[str] = {self._normalize_visit_url(seed) for seed in seed_list}
         pages_scanned = 0
 
         while queue and pages_scanned < self.max_pages:
@@ -341,21 +344,25 @@ class DiscoveryEngine:
                 dataset_id = self.adapter.classify_dataset(abs_url, anchor_text)
 
                 if is_download and dataset_id:
-                    candidates.append(
-                        DiscoveredCandidate(
-                            url=abs_url,
-                            url_origin=page_url,
-                            anchor_text=anchor_text or href.split("/")[-1],
-                            context_text=context_text,
-                            dataset_id=dataset_id,
-                            file_type=ext,
-                            relevance_score=score,
-                            depth=depth,
+                    # Deduplicación intra-corrida: evitar candidatos duplicados (O-31 / E-17)
+                    if abs_url not in seen_candidate_urls:
+                        seen_candidate_urls.add(abs_url)
+                        candidates.append(
+                            DiscoveredCandidate(
+                                url=abs_url,
+                                url_origin=page_url,
+                                anchor_text=anchor_text or href.split("/")[-1],
+                                context_text=context_text,
+                                dataset_id=dataset_id,
+                                file_type=ext,
+                                relevance_score=score,
+                                depth=depth,
+                            )
                         )
-                    )
                 elif depth < self.max_depth and score >= 0:
                     next_visit = self._normalize_visit_url(abs_url)
-                    if next_visit not in self.visited_urls:
+                    if next_visit not in self.visited_urls and next_visit not in enqueued_urls:
+                        enqueued_urls.add(next_visit)
                         queue.append((next_visit, depth + 1))
 
         candidates.sort(key=lambda item: item.relevance_score, reverse=True)
