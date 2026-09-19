@@ -24,7 +24,7 @@ crawl:
   strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
-  use_sitemaps: false
+  use_sitemaps: true
   use_wayback: false
   use_search_dorking: false
   use_subdomain_enumeration: false
