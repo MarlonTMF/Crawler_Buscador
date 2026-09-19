@@ -271,20 +271,101 @@ real dieron cerca. Tomar estas cifras con ese sesgo conocido.
 
 ---
 
-## Modo de ejecución
+## Modo de ejecución — corrida continua
+
+Decisión de Marlon del 2026-09-19: **el bucle corre los 13 bloques de
+principio a fin**, sin pausas por etapa, hasta terminar o hasta que se agote
+el presupuesto de tokens de cualquiera de los dos asistentes.
 
 Bucle automatizado según `docs/guia_bucle_automatizado.md`, con las tres
-restricciones del acta de B-15: puntero puro y no resumen, auditor sin
-permisos de escritura ni commit, y parada explícita.
+restricciones del acta de B-15 intactas: puntero puro y no resumen, auditor
+sin permisos de escritura ni commit, y paradas explícitas.
 
-**El bucle se detiene y consulta a Marlon cuando:**
+### Qué cambia respecto de las paradas anteriores
 
-- el veredicto es **DEVUELTO**
-- el bloque queda **BLOQUEADO**
-- el acta propone tocar `docs/decisiones.md`
-- **termina una etapa** (F, G, H, I)
-- llega **B-33**, que tiene parada de diseño propia antes de implementar
+Las paradas por fin de etapa **se eliminan**. Las decisiones que antes
+escalaban a Marlon las toma Claude dentro del acta, que es donde ya tiene
+autoridad según `docs/protocolo_equipo.md`:
 
-Al cerrar cada bloque, Antigravity actualiza `docs/bitacora_equipo.md`. Es lo
-que reemplaza la visibilidad que Marlon pierde al no copiar y pegar los
-prompts.
+| Situación | Antes | Ahora |
+|---|---|---|
+| Fin de etapa | Parar y consultar | Seguir |
+| Veredicto DEVUELTO | Parar | Antigravity subsana y reenvía; parar recién al **tercer** DEVUELTO del mismo bloque |
+| Diseño de B-33 | Parar y consultar | Claude decide en el acta si se implementa entero o se parte |
+| El acta propone tocar `docs/decisiones.md` | Parar | **Sigue parando** |
+
+**El bucle se detiene y espera a Marlon solo en tres casos:**
+
+1. El acta propone abrir o modificar una decisión de `docs/decisiones.md`.
+2. Un bloque acumula **tres** veredictos DEVUELTO — señal de que el problema
+   no es de ejecución.
+3. Bloqueo externo insalvable (WAF con captcha, dominio caído, credenciales).
+
+Al cerrar cada bloque, Antigravity actualiza `docs/bitacora_equipo.md`. Sin
+copiar y pegar prompts, ese archivo es la única visibilidad que le queda a
+Marlon sobre lo que está pasando.
+
+---
+
+## Política de tokens
+
+El presupuesto de tokens es el recurso que decide hasta dónde llega esta
+fase, así que se administra explícitamente. Tres principios.
+
+### 1. Orden por valor sobre costo, para que quedarse sin tokens no duela
+
+El orden de los bloques ya no es solo lógico: es **descendente en retorno por
+token gastado**. Si el presupuesto se agota a mitad de camino, lo que quedó
+sin hacer debe ser lo de menor valor.
+
+| Prioridad | Bloques | Por qué en ese orden |
+|---|---|---|
+| **1** | B-28, B-29 | ≈ +3.500 docs esperados con cambios de una línea. La mejor relación del plan por un margen enorme. |
+| **2** | B-31, B-32 | Sitemaps y wayback: alto retorno, costo bajo, aplican a todos los portales a la vez. |
+| **3** | B-30, B-34 | ZIP y el lote de las 12 fuentes con documento ya detectado: retorno alto pero trabajo por fuente. |
+| **4** | B-33 | Alto valor y **alto costo en tokens** — es el único que requiere diseño. Va después de lo barato a propósito. |
+| **5** | B-35 a B-38 | Las 17 fuentes sin documento detectado. Es donde menos se espera encontrar, y es lo aceptable de perder. |
+| **6** | B-39, B-40 | Medición y cierre. **Si el presupuesto está por agotarse, estos dos se ejecutan igual**: sin medir, la fase no tiene resultado reportable. |
+
+**Regla dura:** B-39 y B-40 no se sacrifican. Ante presupuesto ajustado se
+recortan lotes de la Etapa H, nunca el cierre.
+
+### 2. Auditorías por niveles, no todas iguales
+
+Auditar 13 bloques con la misma profundidad gasta tokens míos en verificar
+cambios triviales. Los bloques se agrupan en tres niveles:
+
+| Nivel | Bloques | Alcance de la auditoría |
+|---|---|---|
+| **Completa** | B-28, B-30, B-32, B-33, B-39, B-40 | Parte + `git show --stat` + sondeo independiente. Son los que introducen mecanismo nuevo, criterio nuevo o miden el resultado. |
+| **Ligera** | B-29, B-31 | Solo reproducir el número del criterio de aceptación. Son cambios de bandera con umbral numérico: o el conteo subió o no. |
+| **Agrupada** | B-34 a B-38 | Dos auditorías en total, no cinco: una después de B-35 y otra después de B-38. Son lotes casi idénticos; auditar cada uno por separado repite el mismo trabajo cinco veces. |
+
+Baja las invocaciones de 13 a 9 y concentra el esfuerzo donde un error sería
+caro.
+
+### 3. Lo que no se gasta
+
+**Del lado de Claude (auditor):**
+- Nunca releer el repositorio completo. El protocolo ya dice parte +
+  `git show --stat` + un sondeo; el `--stat` antes que el diff entero, y el
+  diff completo solo de los archivos que el hallazgo exige.
+- No repetir en el acta lo que ya dice el parte. El acta contiene el
+  veredicto, lo que verifiqué por mi cuenta y los hallazgos. Nada más.
+- No reescribir documentos enteros para cambiar un renglón.
+
+**Del lado de Antigravity (ejecutor):**
+- **No pegar logs de corrida en el contexto.** Una corrida de crawler genera
+  miles de líneas y aporta lo mismo que una consulta SQL agregada sobre
+  `inventory.db`. El parte lleva el conteo y dos o tres muestras, no el log.
+- Redirigir la salida de las corridas a archivo y leer solo el agregado.
+- No reexplorar el repositorio en cada bloque: el estado vive en
+  `docs/plan_bloques_fase2.md` y en `docs/bitacora_equipo.md`.
+- Un solo parte por bloque, con evidencia literal pero acotada.
+
+### 4. Si el presupuesto se agota
+
+El trabajo está commiteado bloque a bloque, así que agotarse no pierde nada:
+deja el repositorio en el último bloque cerrado y en verde. El que se quede
+sin tokens deja escrito en `docs/bitacora_equipo.md` **en qué bloque quedó y
+cuál es el siguiente**, para poder retomar sin reconstruir el contexto.
