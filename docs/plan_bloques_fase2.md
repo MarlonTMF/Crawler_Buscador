@@ -252,7 +252,7 @@ causa. **No se ajusta la meta para que dé.**
 | Bloque | Responsable | Estimado | Real | Estado |
 |---|---|---:|---:|---|
 | B-28 Profundidad en 6 portales | Antigravity | 90 min | 45 min | ✅ Aprob. c/obs (`da93ca9`) |
-| B-29 Headless BCP/BCRP | Antigravity | 50 min | | Pendiente |
+| B-29 Headless BCP/BCRP | Antigravity | 50 min | 40 min | ✅ Aprob. c/obs (`141582b`) |
 | B-30 Verificar ZIP | Antigravity | 60 min | | Pendiente |
 | B-31 Sitemaps | Antigravity | 60 min | | Pendiente |
 | B-32 Wayback | Antigravity | 90 min | | Pendiente |
