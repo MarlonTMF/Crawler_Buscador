@@ -477,3 +477,16 @@ igual.
 - **Cómo se resolvió:** Se agregaron los patrones `"bolet"` y `"sistema_pagos"` para rescatar los 12 boletines mensuales reales hacia `boletines_mensuales` (14 recursos en total). Se abrió la base fila por fila, documentando con precisión que `memorias_institucionales` contiene 13 memorias reales y 82 documentos de descarte. La modificación del comportamiento por defecto de `generic_adapter.py:33-34` se escaló formalmente a nivel de arquitectura global en lugar de decidirse silenciosamente en el bloque.
 - **Por qué:** Es la octava variante de "verificar el efecto, no el artefacto", y la primera en que el artefacto engañoso aparece dentro de la corrección de un artefacto engañoso previo. La señal de E-20 era "una regla nueva con 0"; la señal simétrica complementaria es: una regla con un conteo alto tampoco se valida por el número, se valida abriendo e inspeccionando el contenido de las filas.
 - **Quién tenía razón:** Claude al abrir fila por fila las URLs del dataset y auditar el contenido real.
+
+---
+
+## E-22 · Una herramienta de monitoreo se verifica sobre el universo completo, no sobre una muestra
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-25
+- **Tipo:** verificación empírica / diseño de herramientas de salud
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** En la primera entrega de B-25 se verificó el script `reverificar_track_a.py` con una muestra elegida a mano de 5 fuentes (5/5 en 200 limpio) y con tests mockeados.
+- **Qué encontré o decidí yo:** Al correr la herramienta sobre el catálogo completo (62 URLs de Track A), surgieron dos alertas de inmediato: `dst.dk` (donde HEAD entraba en bucle de 30 redirecciones pero GET respondía 200 limpio) y MEFP (donde la cadena SSL intermedia estaba incompleta en el servidor estatal, pero con `verify=False` el servidor respondía 200 con 130 KB). Una muestra elegida a mano padece del mismo sesgo que un mock: confirma lo que el desarrollador espera y oculta los falsos positivos del mundo real.
+- **Cómo se resolvió:** Se rediseñó `check_url_connectivity` para que ante cualquier fallo en HEAD (código != 200 o excepción) se ejecute un fallback garantizado a `GET stream=True`. Se diferenció el 403 como protección bot / requiere headless (consistente con D-03) y los errores SSL de certificados incompletos como advertencias de infraestructura sin tildarlos de caída del portal. Se ejecutaron dos corridas consecutivas completas sobre las 62 URLs (61 activas en 200, 0 regresiones, 1 advertencia SSL).
+- **Por qué:** HEAD no es un sustituto fiable ni simétrico de GET para probar vida; servidores reales se comportan de forma distinta ante ambos métodos. Cuando el universo completo son 62 URLs y toma menos de dos minutos, verificar una muestra es verificar el artefacto y no el efecto.
+- **Quién tenía razón:** Claude al ejecutar el sondeo sobre el catálogo entero de producción.
