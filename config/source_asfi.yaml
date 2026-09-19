@@ -40,7 +40,7 @@ crawl:
   rate_limit_per_second: 0.05
   allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
   use_sitemaps: true
-  use_wayback: false
+  use_wayback: true
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false

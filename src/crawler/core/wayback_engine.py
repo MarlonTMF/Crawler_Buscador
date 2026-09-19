@@ -12,7 +12,7 @@ from urllib.parse import quote_plus
 logger = logging.getLogger(__name__)
 
 
-def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000, timeout: int = 15, max_retries: int = 3, backoff: float = 1.5, cache_ttl: int = 86400) -> List[str]:
+def query_wayback_urls(domain: str, file_types: List[str] = None, limit: int = 1000, timeout: int = 6, max_retries: int = 2, backoff: float = 1.0, cache_ttl: int = 86400) -> List[str]:
     """Query the Wayback CDX API for the given domain and return a list of original URLs.
 
     Args:

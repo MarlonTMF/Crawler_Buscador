@@ -289,8 +289,16 @@ class DiscoveryEngine:
                         crawl_seeds.append(seed_candidate)
 
         if bool(crawl_cfg.get("use_sitemaps", True)):
+            checked_bases = set()
             for seed_url in list(crawl_seeds):
-                for sitemap_url in discover_sitemap_urls(seed_url, self.fetcher):
+                parsed = urlparse(seed_url)
+                if not parsed.scheme or not parsed.netloc:
+                    continue
+                base = f"{parsed.scheme}://{parsed.netloc}"
+                if base in checked_bases:
+                    continue
+                checked_bases.add(base)
+                for sitemap_url in discover_sitemap_urls(base, self.fetcher):
                     if sitemap_url not in crawl_seeds and self._is_allowed_domain(sitemap_url):
                         crawl_seeds.append(sitemap_url)
 
@@ -318,12 +326,36 @@ class DiscoveryEngine:
             self.visited_urls.add(visit_url)
             pages_scanned += 1
 
+            # Si la URL en la cola es directamente un documento, registrarla como candidato y no parsear como HTML
+            url_clean = page_url.split("?")[0].split("#")[0].lower()
+            if any(url_clean.endswith(f".{ext}") for ext in self.adapter.allowed_extensions):
+                dataset_id = self.adapter.classify_dataset(page_url, "")
+                if dataset_id and page_url not in seen_candidate_urls:
+                    seen_candidate_urls.add(page_url)
+                    file_type = url_clean.rsplit(".", 1)[-1] if "." in url_clean else ""
+                    candidates.append(
+                        DiscoveredCandidate(
+                            url=page_url,
+                            url_origin="seed" if depth == 0 else "link",
+                            anchor_text=page_url.split("/")[-1].split("?")[0],
+                            context_text="",
+                            dataset_id=dataset_id,
+                            file_type=file_type,
+                            relevance_score=10.0,
+                        )
+                    )
+                continue
+
             success, status, html = self.fetcher.fetch_html(page_url)
             if not success or not html:
                 logger.error("Could not load %s (HTTP %s)", page_url, status)
                 continue
 
-            soup = BeautifulSoup(html, "html.parser")
+            try:
+                soup = BeautifulSoup(html, "html.parser")
+            except Exception as e:
+                logger.warning("No se pudo parsear HTML de %s: %s", page_url, e)
+                continue
             for a_tag in soup.find_all("a", href=True):
                 href = a_tag["href"].strip()
                 href_lower = href.lower()

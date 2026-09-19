@@ -23,17 +23,26 @@ class ContingencyResult:
 class ContingencyEngine:
     """Attempts mirror/snapshot recovery after 4xx/5xx/timeout failures."""
 
-    def __init__(self, fetcher: HttpFetcher, timeout: int = 15):
+    def __init__(self, fetcher: HttpFetcher, timeout: int = 3):
         self.fetcher = fetcher
         self.timeout = timeout
+        self._wayback_rate_limited = False
 
     def latest_wayback_snapshot(self, url: str) -> Optional[str]:
+        if self._wayback_rate_limited:
+            return None
         api = "https://archive.org/wayback/available"
         try:
             response = requests.get(api, params={"url": url}, timeout=self.timeout)
+            if response.status_code == 429:
+                self._wayback_rate_limited = True
+                logger.warning("Wayback availability devolvió 429; silenciando consultas subsiguientes de esta corrida.")
+                return None
             response.raise_for_status()
             data = response.json()
         except Exception as exc:
+            if "429" in str(exc):
+                self._wayback_rate_limited = True
             logger.warning("Wayback availability lookup failed for %s: %s", url, exc)
             return None
 

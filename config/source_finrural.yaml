@@ -3,77 +3,294 @@ source:
   name: FINRURAL
   base_url: https://www.finrural.org.bo
   allowed_domains:
-    - www.finrural.org.bo
-    - finrural.org.bo
-
+  - www.finrural.org.bo
+  - finrural.org.bo
 crawl:
   seeds:
-    - https://www.finrural.org.bo/reporte-financiero-mensual-instituciones-financieras-de-desarrollo/
-    - https://www.finrural.org.bo/archivo-historico/
+  - https://www.finrural.org.bo/reporte-financiero-mensual-instituciones-financieras-de-desarrollo/
+  - https://www.finrural.org.bo/archivo-historico/
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_05_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_06_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_07_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_08_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_09_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_10_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_11_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_12_2008.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_01_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_02_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_03_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_04_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_05_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_06_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_07_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_08_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_09_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_10_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_11_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2009/financiera_12_2009.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_01_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_02_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_03_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_04_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_05_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_06_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_07_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_08_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_09_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_10_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_11_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2010/financiera_12_2010.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_01_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_02_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_03_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_04_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_05_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_06_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_07_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_08_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_09_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_10_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_11_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2011/financiera_12_2011.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_01_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_02_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_03_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_04_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_05_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_06_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_07_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_08_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_09_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_10_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_11_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2012/financiera_12_2012.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_01_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_02_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_03_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_04_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_05_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_06_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_07_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_08_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_09_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_10_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_11_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2013/financiera_12_2013.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_01_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_02_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_03_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_04_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_05_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_06_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_07_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_08_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_09_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_10_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_11_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2014/financiera_12_2014.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_01_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_02_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_03_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_04_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_05_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_06_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_07_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_08_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_09_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_10_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_11_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2015/financiera_12_2015.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_01_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_02_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_03_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_04_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_05_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_06_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_07_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_08_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_09_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_10_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_11_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2016/financiera_12_2016.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_01_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_02_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_03_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_04_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_05_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_06_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_07_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_08_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_09_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_10_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_11_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2017/financiera_12_2017.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_01_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_02_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_03_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_04_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_05_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_06_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_07_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_08_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_09_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_10_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_11_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2018/financiera_12_2018.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_01_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_02_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_03_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_04_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_05_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_06_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_07_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_08_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_09_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_10_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_11_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2019/financiera_12_2019.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_01_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_02_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_03_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_04_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_05_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_06_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_07_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_08_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_09_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_10_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_11_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2020/financiera_12_2020.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_01_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_02_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_03_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_04_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_05_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_06_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_07_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_08_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_09_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_10_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_11_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2021/financiera_12_2021.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_01_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_02_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_03_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_04_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_05_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_06_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_07_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_08_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_09_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_10_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_11_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2022/financiera_12_2022.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_01_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_02_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_03_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_04_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_05_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_06_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_07_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_08_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_09_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_10_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_11_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2023/financiera_12_2023.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_01_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_02_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_03_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_04_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_05_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_06_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_07_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_08_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_09_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_10_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_11_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2024/financiera_12_2024.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_01_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_02_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_03_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_04_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_05_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_06_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_07_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_08_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_09_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_10_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_11_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2025/financiera_12_2025.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_01_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_02_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_03_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_04_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_05_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_06_2026.pdf
+  - https://www.finrural.org.bo/archivos/info_financiera/2026/financiera_07_2026.pdf
   max_depth: 2
-  max_pages: 120
+  max_pages: 300
   strategy: bfs
   rate_limit_per_second: 1.0
-  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  allowed_extensions:
+  - pdf
+  - xlsx
+  - xls
+  - csv
+  - zip
   use_sitemaps: true
-  use_wayback: false
+  use_wayback: true
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false
-
 audit:
   enabled: true
-
 content_hashing:
-  enabled: false
-
+  enabled: true
 monitoring:
-  drift_threshold: 0.30
+  drift_threshold: 0.3
   historical_resource_counts: []
-
 search_dorking:
   provider: none
   max_results: 50
-
 classification:
   document_path_tokens:
-    - "reporte"
-    - "informe"
-    - "archivos"
-    - "documentos"
-    - "boletin"
-    - "estadistica"
-    - "financiera"
-    - "ifd"
-    - "descarga"
-    - "download"
+  - reporte
+  - informe
+  - archivos
+  - documentos
+  - boletin
+  - estadistica
+  - financiera
+  - ifd
+  - descarga
+  - download
   dataset_rules:
-    - id: reporte_financiero_mensual
-      name: Reporte Financiero Mensual
-      url_patterns:
-        - "/reporte-financiero-mensual"
-        - "/archivos/info_financiera/"
-      title_keywords:
-        - "reporte financiero mensual"
-        - "información financiera"
-        - "boletín financiero ifd"
-    - id: archivo_historico
-      name: Archivo Histórico
-      url_patterns:
-        - "/archivo-historico"
-      title_keywords:
-        - "archivo histórico"
-        - "historico"
+  - id: reporte_financiero_mensual
+    name: Reporte Financiero Mensual
+    url_patterns:
+    - /reporte-financiero-mensual
+    - /archivos/info_financiera/
+    title_keywords:
+    - reporte financiero mensual
+    - información financiera
+    - boletín financiero ifd
+  - id: archivo_historico
+    name: Archivo Histórico
+    url_patterns:
+    - /archivo-historico
+    title_keywords:
+    - archivo histórico
+    - historico
   excluded_path_keywords:
-    - "/historia/"
-    - "/mision-y-vision/"
-    - "/estructura-organizacional/"
-    - "/glosario-de-microfinanzas/"
-    - "/manifiesto-de-las-microfinanzas/"
-    - "/que-son-las-ifd/"
-    - "/enlaces-de-interes/"
-    - "/impro-ifd/"
-
+  - /historia/
+  - /mision-y-vision/
+  - /estructura-organizacional/
+  - /glosario-de-microfinanzas/
+  - /manifiesto-de-las-microfinanzas/
+  - /que-son-las-ifd/
+  - /enlaces-de-interes/
+  - /impro-ifd/
 period_extraction:
   months_es:
     enero: 1
@@ -88,13 +305,12 @@ period_extraction:
     octubre: 10
     noviembre: 11
     diciembre: 12
-  filename_pattern: "financiera_(?P<month>0[1-9]|1[0-2])_(?P<year>20\\d{2})\\.pdf"
-
+  filename_pattern: financiera_(?P<month>0[1-9]|1[0-2])_(?P<year>20\d{2})\.pdf
 canonicalization:
   drop_query_parameters:
-    - utm_source
-    - utm_medium
-    - utm_campaign
-    - fbclid
-    - x16877
+  - utm_source
+  - utm_medium
+  - utm_campaign
+  - fbclid
+  - x16877
   preserve_query_parameters: []

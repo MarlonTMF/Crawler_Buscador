@@ -65,8 +65,10 @@ class CrawlOrchestrator:
 
             self.fetcher = _SyncAsyncFetcherWrapper(async_client)
         else:
+            rl_per_sec = self.adapter.rate_limit
+            rl_seconds = (1.0 / rl_per_sec) if rl_per_sec > 0 else 1.0
             self.fetcher = HttpFetcher(
-                rate_limit_seconds=self.adapter.rate_limit,
+                rate_limit_seconds=rl_seconds,
                 use_playwright=use_playwright,
             )
         self.discovery = DiscoveryEngine(self.fetcher, self.adapter)

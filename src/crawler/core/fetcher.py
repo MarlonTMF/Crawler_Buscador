@@ -497,7 +497,8 @@ class HttpFetcher:
         self._apply_rate_limit(url)
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.session.head(url, timeout=self.timeout, allow_redirects=True)
+                head_timeout = min(float(self.timeout), 5.0)
+                response = self.session.head(url, timeout=(3.0, head_timeout), allow_redirects=True)
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 5 * attempt))
                     logger.warning(f"Rate limit 429 recibido en HEAD {url}. Esperando {retry_after}s...")
@@ -591,7 +592,8 @@ class HttpFetcher:
         self._apply_rate_limit(url)
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.session.get(url, timeout=self.timeout)
+                bytes_timeout = min(float(self.timeout), 10.0)
+                response = self.session.get(url, timeout=(4.0, bytes_timeout))
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 5 * attempt))
                     logger.warning(f"Rate limit 429 recibido en GET bytes {url}. Esperando {retry_after}s...")

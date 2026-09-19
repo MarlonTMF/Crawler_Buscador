@@ -23,7 +23,7 @@ def _xml_urls(xml_text: str) -> List[str]:
     return urls
 
 
-def discover_sitemap_urls(seed_url: str, fetcher: HttpFetcher, max_sitemaps: int = 10) -> List[str]:
+def discover_sitemap_urls(seed_url: str, fetcher: HttpFetcher, max_sitemaps: int = 50) -> List[str]:
     """Finds URLs listed in sitemap.xml or robots.txt sitemap declarations."""
     parsed = urlparse(seed_url)
     if not parsed.scheme or not parsed.netloc:
@@ -39,13 +39,21 @@ def discover_sitemap_urls(seed_url: str, fetcher: HttpFetcher, max_sitemaps: int
                 sitemap_candidates.add(line.split(":", 1)[1].strip())
 
     discovered: List[str] = []
-    for sitemap_url in list(sitemap_candidates)[:max_sitemaps]:
+    processed_sitemaps: Set[str] = set()
+
+    while sitemap_candidates and len(processed_sitemaps) < max_sitemaps:
+        sitemap_url = sitemap_candidates.pop()
+        if sitemap_url in processed_sitemaps:
+            continue
+        processed_sitemaps.add(sitemap_url)
+
         ok, _, xml_text = fetcher.fetch_html(sitemap_url)
         if not ok or not xml_text:
             continue
         for loc in _xml_urls(xml_text):
-            if loc.endswith(".xml") and len(sitemap_candidates) < max_sitemaps:
-                sitemap_candidates.add(loc)
+            if loc.endswith(".xml"):
+                if len(processed_sitemaps) + len(sitemap_candidates) < max_sitemaps:
+                    sitemap_candidates.add(loc)
             else:
                 discovered.append(loc)
 

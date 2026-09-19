@@ -40,7 +40,13 @@ class FinruralAdapter(BaseSourceAdapter):
         url_lower = url.lower()
         anchor_lower = anchor_text.lower()
 
-        if "archivo-historico" in url_lower or "histórico" in anchor_lower or "historico" in anchor_lower:
+        is_hist_year = any(f"/{y}/" in url_lower or f"_{y}" in url_lower or f"{y}." in url_lower for y in range(2000, 2024))
+        if (
+            "archivo-historico" in url_lower
+            or "histórico" in anchor_lower
+            or "historico" in anchor_lower
+            or is_hist_year
+        ):
             return "archivo_historico"
 
         if (
