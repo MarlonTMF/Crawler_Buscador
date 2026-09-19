@@ -15,10 +15,14 @@ source:
 crawl:
   seeds:
     - https://www.dgac.gob.bo
-  max_depth: 0
-  max_pages: 5
+    - https://www.dgac.gob.bo/anuario-estadistico-dta/
+    - https://www.dgac.gob.bo/autorizaciones-de-vuelos/
+    - https://www.dgac.gob.bo/informes-mensuales-de-trafico-aereo-2026/
+    - https://www.dgac.gob.bo/informes-mensuales-de-trafico-aereo-en-bolivia-2025/
+  max_depth: 2
+  max_pages: 50
   strategy: bfs
-  rate_limit_per_second: 1.0
+  rate_limit_per_second: 0.1
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: false
   use_wayback: false

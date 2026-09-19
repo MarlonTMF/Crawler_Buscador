@@ -19,10 +19,25 @@ crawl:
     - https://www.asfi.gob.bo/la/seguimiento-y-evaluacion-al-poa
     - https://www.asfi.gob.bo/la/documentos-y-formularios
     - https://www.asfi.gob.bo/la/entidades-intermediacion-financiera-licencia-funcionamiento
-  max_depth: 0
-  max_pages: 10
+    - https://www.asfi.gob.bo/la/anuario-estadistico
+    - https://www.asfi.gob.bo/pb/boletines-estadisticos
+    - https://www.asfi.gob.bo/pb/boletines-estadisticos-mercado-valores
+    - https://www.asfi.gob.bo/la/boletines-estadisticos-mercado-valores-2026
+    - https://www.asfi.gob.bo/la/inversiones
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2025
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2024
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2023
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2022
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2021
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2020
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2019
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2018
+    - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2017
+    - https://www.asfi.gob.bo/pb/instituciones-financieras-desarrollo
+  max_depth: 2
+  max_pages: 120
   strategy: bfs
-  rate_limit_per_second: 1.0
+  rate_limit_per_second: 0.05
   allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
   use_sitemaps: false
   use_wayback: false

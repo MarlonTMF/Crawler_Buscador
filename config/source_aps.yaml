@@ -15,10 +15,14 @@ source:
 crawl:
   seeds:
     - https://www.aps.gob.bo
-  max_depth: 0
-  max_pages: 5
+    - https://www.aps.gob.bo/index.php/component/rsfiles/files?Itemid=437&folder=UNE%252FDP%252FEstadisticas%252FBoletin%2BEstadistico%2BMensual%2Bdel%2BSistema%2BIntegral%2Bde%2BPensiones%252F2026
+    - https://www.aps.gob.bo/index.php/component/rsfiles/files?Itemid=437&folder=UNE%252FDP%252FEstadisticas%252FBoletin%2BEstadistico%2BMensual%2Bdel%2BSistema%2BIntegral%2Bde%2BPensiones%252F2025
+    - https://www.aps.gob.bo/index.php/component/rsfiles/files?Itemid=437&folder=UNE%252FDP%252FEstadisticas%252FBoletin%2BTrimestral%2BEstadistico%2Bde%2BPensiones%252F2026
+    - https://www.aps.gob.bo/index.php/component/rsfiles/files?Itemid=437&folder=DP%2FRenta
+  max_depth: 2
+  max_pages: 50
   strategy: bfs
-  rate_limit_per_second: 1.0
+  rate_limit_per_second: 0.1
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: false
   use_wayback: false

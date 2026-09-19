@@ -6,6 +6,7 @@ Aplica un orden de costo creciente: URL pattern -> DOM context -> HTTP Metadata 
 import re
 import hashlib
 import calendar
+from urllib.parse import urlparse
 from typing import Optional, Dict, Any, Tuple, List
 from crawler.core.fetcher import HttpFetcher
 from crawler.sources.base_adapter import BaseSourceAdapter
@@ -97,13 +98,16 @@ class MetadataExtractor:
 
     def extract_date_layer3_http(self, url: str) -> Tuple[Optional[DateExtractionResult], Dict[str, Any]]:
         """Capa 3: Consulta headers HTTP (HEAD) para obtener Last-Modified, Content-Length, ETag."""
-        success, status, headers = self.fetcher.fetch_head(url)
         http_meta: Dict[str, Any] = {
             "content_length_bytes": None,
             "etag": None,
             "last_modified": None
         }
+        parsed = urlparse(url)
+        if not parsed.scheme or parsed.scheme.lower() not in ("http", "https"):
+            return None, http_meta
 
+        success, status, headers = self.fetcher.fetch_head(url)
         if not success or not headers:
             return None, http_meta
 

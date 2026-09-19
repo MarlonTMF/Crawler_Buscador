@@ -16,10 +16,14 @@ crawl:
   seeds:
     - https://www.ine.gob.bo/index.php/institucion/planificacion/planificacion-estrategica-pei/plan-estrategico-institucional-pei-2016-2020/
     - https://www.ine.gob.bo/index.php/institucion/escala-salarial/
-  max_depth: 0
-  max_pages: 5
+    - https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/cuadro-de-cuentas-economicas-integradas/
+    - https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/cuentas-consolidadas-de-la-nacion/
+    - https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/matrices/matrices-de-insumo-producto/
+    - https://www.ine.gob.bo/index.php/metadatos-y-microdatos/
+  max_depth: 2
+  max_pages: 50
   strategy: bfs
-  rate_limit_per_second: 1.0
+  rate_limit_per_second: 0.1
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: false
   use_wayback: false
@@ -68,8 +72,6 @@ classification:
         - "escala"
         - "salarial"
   excluded_path_keywords:
-    - "/estadisticas-economicas/"
-    - "/estadisticas-sociales/"
     - "/contacto"
     - "/login"
     - "wp-admin"
