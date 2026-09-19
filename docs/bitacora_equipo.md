@@ -52,6 +52,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-28 | 🅰️ | Profundidad en 6 portales (Fase 2) | 90/45 | Aprob. c/obs | ADA (1.090) y DGAC (1.196) superan benchmark; ASFI sube a 582 (ZIPs en JS); fix extractor |
 | B-29 | 🅰️ | Activar headless en BCP y BCRP | 50/40 | Aprob. c/obs | BCP pasa de 25 a 1.711 docs y BCRP de 0 a 223 docs; DBs acumulan corridas previas |
 | B-31 | 🅰️ | Sitemaps en todos los portales | 60/45 | Aprob. c/obs | 15 de 28 portales con sitemap; delta +52 docs en muestra (ibce_cao +34, ae +18); max_sitemaps truncaba |
+| B-32 | 🅰️ | Series históricas y Wayback (Fase 2) | 90/150 | **Devuelto** → Aprob. c/obs | 206 PDFs históricos reales (188 vivo + 18 Wayback). Fix transversal en allowed_extensions (fuga de .sha) y D-11 |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
