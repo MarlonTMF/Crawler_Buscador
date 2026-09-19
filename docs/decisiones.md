@@ -95,12 +95,11 @@ para peticiones 200/404/5xx ordinarias.
 **Consecuencia.** Portales que bloquean scrapers por Cloudflare (ej. BCP) recuperan
 sus documentos de forma autónoma sin intervención manual ni cambios de configuración.
 
-**Umbral que cambiaría esto.** Si un portal implementa protecciones CAPTCHA interactivas
-(ej. Cloudflare Turnstile interactivo obligatorio) que impidan la resolución headless
-no asistida, en cuyo caso se requerirá ruta de contingencia Wayback o descarte fundado.
+**Umbral que cambiaría esto.**
+1. Si `wait_until="networkidle"` se usa en lugar de `"domcontentloaded"`, el timeout es mucho más probable — un sitio con Cloudflare Challenge en background nunca llega a inactividad total de red. Verificado empíricamente: con `networkidle` el primer intento contra `bcp.gov.py` dio timeout a los 20s; con `domcontentloaded` respondió 200.
+2. Si un portal implementa protecciones CAPTCHA interactivas (ej. Cloudflare Turnstile interactivo obligatorio) que impidan la resolución headless no asistida, en cuyo caso se requerirá ruta de contingencia Wayback o descarte fundado.
 
-**Verificado el.** 2026-09-17 (análisis inicial en BCP) y 2026-09-18 (implementación y
-cierre formal en bloque B-23 con suite unitaria e integración en el pipeline).
+**Verificado el.** 2026-09-17 (análisis inicial en BCP con medición de `networkidle` vs `domcontentloaded`) y 2026-09-18 (subsanación B-23: corrida real sobre BCP con `use_playwright: false` que recuperó 36 documentos reales vía fallback automático 403, 75/75 tests passing).
 
 ---
 
