@@ -438,3 +438,29 @@ igual.
 - **Cómo se resolvió:** Se corrigió la cifra en `docs/decisiones.md` (D-03) y en la tabla del parte, reflejando "25 documentos reales (PDF) entre 36 recursos exportados". Se ratificó el cierre de D-03 con `auto_headless_on_403 = True` por defecto, fundamentado en que 1 de 26 fuentes sufre 403 y esa única fuente rinde idéntico sin la bandera manual.
 - **Por qué:** Es la sexta variante de "verificar el artefacto, no el efecto" que encuentra el proyecto. Un mapa exportado puede rotular como recurso una página institucional de navegación si las reglas de exclusión no filtran el path; contar filas del JSON sin pasar por el clasificador por tipo/bytes infla la cifra a favor del reporte. La métrica verídica de documentos requiere siempre la inspección por extensión y contenido.
 - **Quién tenía razón:** Claude al correr el clasificador por tipo de recurso y auditar las URLs reales de la base.
+
+---
+
+## E-19 · Un antes/después con tres variables movidas no mide ninguna
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-24
+- **Tipo:** metodología empírica / aislamiento de variables
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** B-24 reportó "+102 documentos (+785%) por calibrar profundidad y páginas" comparando la corrida inicial de BCB de B-20 (16 filas, 13 docs) contra la nueva corrida (118 filas, 115 docs).
+- **Qué encontré o decidí yo:** Al agrupar `evidence.discovered_from` en `output/bcb/mapa_bcb.json`, se evidenció que 93 de los recursos venían directamente de dos semillas nuevas introducidas en el mismo commit (semillas de profundidad 0), mientras que el salto de profundidad aportó únicamente 10 recursos. El commit movió límites, semillas y reglas a la vez, atribuyendo todo el incremento a la calibración de límites.
+- **Cómo se resolvió:** Se aisló la variable ejecutando una medición en tres columnas: conservador original (13 docs) vs semillas nuevas con límites viejos (106 docs) vs calibrado (116 docs). El aporte neto aislado de la calibración de límites (`max_depth: 0->1`, `max_pages: 3->15`) es de exactamente +10 documentos reales (+9.4%), mientras que las semillas aportaron +93.
+- **Por qué:** Es la séptima variante de "verificar el efecto, no el artefacto", y la segunda seguida en que un artefacto inflado favorece la conclusión del reporte. El campo `evidence.discovered_from` que audita la procedencia de cada recurso en el mapa es la única vía para contrastar la atribución causal.
+- **Quién tenía razón:** Claude al auditar el origen por semilla en el JSON.
+
+---
+
+## E-20 · Una regla de clasificación nueva puede capturar 0 y aun así cambiar todo
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-24
+- **Tipo:** lógica de clasificación / configuración en cascada
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** Se agregó la regla `memorias_institucionales` en `config/source_bcb.yaml` y se reportó "+1 dataset estructurado".
+- **Qué encontré o decidí yo:** `memorias_institucionales` capturaba 0 recursos porque `boletines_mensuales` estaba ubicada primera con el patrón `"publicacionesbcb"`, el cual englobaba toda URL bajo `/webdocs/publicacionesbcb/`. Por `generic_adapter.py:25-34`, la primera regla que matchea gana y además actúa como valor por defecto si ninguna regla aplica. 75 memorias terminaron clasificadas espuriamente como boletines.
+- **Cómo se resolvió:** Se reordenaron las reglas colocando `memorias_institucionales` antes de `boletines_mensuales`, y se removieron patrones anchos (`publicacionesbcb`, `Otros`) de los patrones de URL de boletines. Con este ajuste, `memorias_institucionales` captura 107 documentos reales y `boletines_mensuales` 2 boletines auténticos.
+- **Por qué:** En sistemas de clasificación en cascada (first-match-wins) con un bucket por defecto asociado a la primera regla, una regla amplia al principio enmascara a todas las posteriores y convierte al primer dataset en un cajón de sastre inadvertido.
+- **Quién tenía razón:** Claude al advertir que `dataset_counts` no contenía `memorias_institucionales`.
