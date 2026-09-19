@@ -36,7 +36,9 @@ Mide la disponibilidad y el estado HTTP de las entidades registradas en el catá
 | **Catálogo Auditado y Clasificado** | `67 / 67` | 100.0% | Ninguna entidad queda sin diagnóstico o explicación técnica |
 | **Entradas Onboardeadas a Track B** | `33 / 67` | 49.25% | Entradas con `crawler_source` asignado a adaptadores YAML activos |
 
-> **Nota metodológica Track A:** Las **67 entradas** corresponden a la granularidad de la entidad (`Fuente`) en el catálogo maestro. Al deduplicar URLs compartidas (e.g. ASFI aparece en 3 entradas; APS, BCB, ICCO y MDRyT en 2 cada una), el universo físico comprende **62 URLs únicas monitoreadas**.
+> **Nota metodológica Track A (H-4):** Las **67 entradas** corresponden a la granularidad institucional (`Fuente`) en el catálogo maestro. Al deduplicar por URL efectiva (`Final_Url or Url_Original`), el universo físico comprende **58 URLs únicas**: ASFI concentra 4 entradas (`ASFI`, `ASFI - FINRURAL`, `ASFI-Valores`, `SPVS-ASFI`); APS 3 (`APS`, `APS/SOAT`, `SPVS-APS`); y BCB (`ASFI - BCB`, `BCB`), ATT (`ATT`, `SUPTRANS`), ICCO (`FDTA-Valles`, `ICCO`) y MDRyT (`MDRyT`, `MDRyT/OAP`) 2 cada una.
+>
+> **Destino de las 34 entradas no onboardeadas en Track B (O-6):** De las 67 entradas totales, 33 están asignadas a adaptadores YAML de Track B (26 fuentes activas con extracción verificada). De las 34 entradas restantes: **5 cadenas de retail** están segregadas a la espera de definición de negocio (`output/fuentes_pendientes_decision_negocio.json`), **3 corresponden a exclusiones técnicas justificadas** (FMI por Akamai WAF, FUNDEMPRESA por 410 Gone, BOLCEREALES por disolución institucional), y **26 son entidades de Track A** con diagnóstico de conectividad activo y verificado, programadas para onboarding progresivo en fases futuras.
 
 ---
 
@@ -108,7 +110,7 @@ python scripts/reporte_cobertura.py --strict
 ```
 
 ### 2. Re-verificación Periódica de Conectividad de Track A (`scripts/reverificar_track_a.py`)
-Verifica la salud de las 62 URLs del catálogo maestro, detectando regresiones cuando una URL que estaba en 200 deja de responder (B-25). Implementa fallback universal de `HEAD` a `GET stream=True`, clasificación de desafíos Cloudflare/WAF y advertencias de infraestructura SSL:
+Verifica la salud de las 62 entradas en estado 200 del catálogo maestro (correspondientes a 53 URLs físicas distintas tras deduplicar), detectando regresiones cuando una URL que estaba en 200 deja de responder (B-25). Implementa fallback universal de `HEAD` a `GET stream=True`, clasificación de desafíos Cloudflare/WAF y advertencias de infraestructura SSL:
 
 ```bash
 # Verificación silenciosa (solo emite alertas si hay caídas)

@@ -517,3 +517,43 @@ igual.
 - **Por qué:** Si el auditor usa la misma herramienta que audita, hereda sus mismos sesgos de implementación y posibles trampas invisibles. La independencia radica en recalcular el efecto por una ruta distinta.
 - **Quién tenía razón:** Claude al aplicar recálculo independiente y prueba de mutación.
 
+---
+
+## E-25 · El documento de cierre es el menos verificado del proyecto, y es el único que alguien de afuera va a leer
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-27
+- **Tipo:** metodología de entrega / verificación de artefactos documentales
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** En la primera versión de cierre de B-27 se entregaron las tablas y balances documentales sin una verificación mecánica estricta de cada hash, conteo y subtotal.
+- **Qué encontré o decidí yo:** Al auditar línea por línea, aparecieron cuatro errores de hecho: un hash inexistente (`655bc6f` en vez de `a59b6e3`), un conteo que decía "27 de 27" contra una tabla de 26 filas reales (B-21 y B-22 disueltos), un subtotal de 615 min que contradecía las filas individuales (655 min), y una deduplicación reportada como 62 en vez de las 58 URLs únicas reales.
+- **Cómo se resolvió:** Se corrigieron los cuatro puntos en un commit correctivo de cierre, restableciendo la consistencia aritmética y documental exacta.
+- **Por qué:** Los 26 bloques anteriores se auditaron contra criterios de aceptación ejecutables (scripts, DBs, tests). Un cierre documental sin pruebas automatizadas corre el riesgo de degradar en "leer y asentir". A todo criterio de aceptación cualitativo hay que fabricarle comprobaciones mecánicas antes de darlo por cerrado (resolver cada hash, sumar cada columna, recontar cada conjunto).
+- **Quién tenía razón:** Claude al auditar mecánicamente cada número y hash citado en el plan.
+
+---
+
+## E-26 · Ablandar una aserción es una mutación; hay que volver a correr las mutaciones después
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-27
+- **Tipo:** diseño de tests de regresión / pruebas de mutación
+- **Herramienta:** Claude (recomendación O-3), Antigravity (implementación)
+- **Qué propuso la IA / Auditor:** Para evitar que un futuro aumento de cobertura pusiera la suite en rojo, se cambió la aserción de volumen de `==` a `>=`.
+- **Qué encontré o decidí yo:** Al volver a correr la prueba de mutación (sustituyendo `COUNT(DISTINCT)` por `COUNT`), la detección de la mutación cayó de 6 fallos a 1 solo fallo (el test de mock sintético), porque los tests contra datos reales vieron un aumento y `>=` aceptó la cifra inflada.
+- **Cómo se resolvió:** Se complementó el ratchet `>=` con un invariante de relación que no depende de la magnitud: `assert res["recursos_unicos"] <= res["filas_totales_db"]`.
+- **Por qué:** Un operador `>=` solo protege contra caídas de volumen pero es ciego ante la inflación de datos (el error más costoso en prospección). Toda aserción relajada debe ser re-auditada bajo mutación y acompañada de invariantes relacionales.
+- **Quién tenía razón:** Claude al auto-auditar el efecto de su propia recomendación.
+
+---
+
+## E-27 · Una cifra correcta en un lugar equivocado confunde más que una cifra ausente
+
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-27
+- **Tipo:** comunicación técnica / consistencia semántica de métricas
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** Para aclarar la duda entre 67 entradas de catálogo y URLs deduplicadas, la nota metodológica original usó el número 62.
+- **Qué encontré o decidí yo:** 62 era el conteo de entradas con status 200 sin deduplicar, que ya figuraba en la fila de arriba de la misma tabla. La deduplicación real por clave efectiva (`Final_Url or Url_Original`) comprende 58 URLs únicas. Repetir 62 con otro significado en una nota aclaratoria generó la mayor confusión posible.
+- **Cómo se resolvió:** Se auditó la clave efectiva completa (descubriendo que ASFI tiene 4 entradas, APS 3, y ATT, BCB, ICCO, MDRyT 2 cada una) y se documentó con precisión la cifra exacta de 58 URLs únicas en el README y en el reporte.
+- **Por qué:** Cuando una aclaración introduce una cifra numérica, esa cifra requiere la misma verificación rigurosa contra la fuente que la métrica principal. Dos números idénticos cercanos con significados diferentes en un informe técnico no son una coincidencia inocua: son una trampa de lectura.
+- **Quién tenía razón:** Claude al contrastar la deduplicación por clave efectiva completa.
+
+

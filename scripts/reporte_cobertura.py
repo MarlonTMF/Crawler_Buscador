@@ -160,6 +160,7 @@ def calcular_track_b(
     total_bytes_acum = 0
     fuentes_activas = 0
     fuentes_sin_documentos = 0
+    total_filas_con_tamano = 0
 
     for db_path in db_paths:
         fuente_id = db_path.parent.name
@@ -200,7 +201,7 @@ def calcular_track_b(
 
             cur.execute(
                 "SELECT COUNT(*) FROM resource_audit_log "
-                "WHERE file_size_bytes IS NOT NULL AND file_size_bytes > 0"
+                "WHERE file_size_bytes IS NOT NULL AND file_size_bytes > 0 AND status = 'PROCESADO_EXITOSAMENTE'"
             )
             rows_with_size = cur.fetchone()[0]
 
@@ -216,7 +217,7 @@ def calcular_track_b(
             total_recursos_unicos += uniq_cnt
             total_datasets_acum += datasets_cnt
             total_bytes_acum += size_bytes
-            total_filas_con_tamano = total_filas_con_tamano + rows_with_size if "total_filas_con_tamano" in locals() else rows_with_size
+            total_filas_con_tamano += rows_with_size
 
             fuentes_data.append({
                 "fuente": fuente_id,
@@ -247,7 +248,6 @@ def calcular_track_b(
             })
             fuentes_sin_documentos += 1
 
-    total_with_size = total_filas_con_tamano if "total_filas_con_tamano" in locals() else 0
     return {
         "total_fuentes_escaneadas": len(fuentes_data),
         "fuentes_onboardeadas_activas": fuentes_activas,
@@ -257,8 +257,8 @@ def calcular_track_b(
         "total_datasets": total_datasets_acum,
         "total_bytes": total_bytes_acum,
         "total_mb": round(total_bytes_acum / (1024 * 1024), 2),
-        "recursos_con_tamano": total_with_size,
-        "pct_recursos_con_tamano": round(total_with_size / total_filas * 100, 2) if total_filas else 0.0,
+        "recursos_con_tamano": total_filas_con_tamano,
+        "pct_recursos_con_tamano": round(total_filas_con_tamano / total_filas * 100, 2) if total_filas else 0.0,
         "fuentes": fuentes_data,
     }
 
@@ -347,7 +347,7 @@ def formatear_reporte_markdown(track_a: Dict[str, Any], track_b: Dict[str, Any],
     lines.append(f"| **Catálogo Clasificado** | `{track_a['total_clasificado']}` | {track_a['pct_total_clasificado']}% | 100% auditado y categorizado |")
     lines.append(f"| **Entradas Onboardeadas Track B** | `{track_a['entradas_con_crawler_source']}` | {track_a['pct_entradas_con_crawler_source']}% | Entradas asignadas a fuentes con crawler configurado |")
     lines.append("")
-    lines.append("> **Nota metodológica Track A (O-4):** Las 67 entradas corresponden a la granularidad de la entidad (`Fuente`) en el catálogo maestro. Al deduplicar URLs compartidas (e.g. ASFI, APS, BCB, ICCO), el universo comprende 62 URLs únicas monitoreadas.")
+    lines.append("> **Nota metodológica Track A (H-4 / D-04):** Las 67 entradas corresponden a la granularidad de entidad (`Fuente`) en el catálogo maestro. Al deduplicar por URL efectiva (`Final_Url or Url_Original`), el universo físico comprende **58 URLs únicas**: ASFI concentra 4 entradas (`ASFI`, `ASFI - FINRURAL`, `ASFI-Valores`, `SPVS-ASFI`); APS 3 (`APS`, `APS/SOAT`, `SPVS-APS`); y BCB (`ASFI - BCB`, `BCB`), ATT (`ATT`, `SUPTRANS`), ICCO (`FDTA-Valles`, `ICCO`) y MDRyT (`MDRyT`, `MDRyT/OAP`) 2 cada una.")
     lines.append("")
     lines.append("### Detalle de Registros no 200")
     lines.append("")

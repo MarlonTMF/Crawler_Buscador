@@ -121,6 +121,7 @@ def test_calcular_track_b_con_output_real():
     assert res["fuentes_onboardeadas_activas"] >= 26
     assert res["recursos_unicos"] >= 2611
     assert res["filas_totales_db"] >= 2633
+    assert res["recursos_unicos"] <= res["filas_totales_db"]  # Invariante relacional (O-7)
     assert res["total_datasets"] >= 59
     assert res["total_mb"] > 600.0
 
@@ -193,6 +194,7 @@ def test_cli_json_y_output_file(tmp_path):
     assert data["criterio"] == "D-04 (Track A y Track B medidos por separado)"
     assert data["track_a"]["verificadas_accesibles"] == 64
     assert data["track_b"]["recursos_unicos"] >= 2611
+    assert data["track_b"]["recursos_unicos"] <= data["track_b"]["filas_totales_db"]
 
 
 def test_cli_strict_exito_y_fallo(tmp_path):

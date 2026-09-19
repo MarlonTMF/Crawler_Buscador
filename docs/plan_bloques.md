@@ -106,14 +106,14 @@ estimación del mismo tipo de trabajo depende de eso.
 |---|---|---|---|---|---|
 | B-12 | Generador de esqueletos YAML desde el diagnóstico | 75 min | 35 min | ✅ | `6f12eea` |
 | B-13 | Runner por lotes con reporte de cobertura | 60 min | 40 min | ✅ | `bf65a8f` |
-| B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `655bc6f` |
+| B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `a59b6e3` |
 | B-15 | Lote 2 — 4 fuentes (APS, ADA, DGAC, SEPREC) + consolidación de portales | 80 min | 80 min | ✅ | `cb2c76c` |
 | B-16 | Lote 3 — 4 portales (IBCE-CAO, CNDC, ASOFIN, ATT) | 80 min | 90 min | ✅ | `1aec46c` |
 | B-17 | Lote 4 — 4 portales (AE, ANAPO, ATC, MMYM) | 80 min | 65 min | ✅ | `ad445c3` |
 | B-18 | Lote 5 — 4 portales (AN, SENAMHI, CADEXCO, FAM) | 80 min | 55 min | ✅ | `ca7caea` |
 | B-19 | Lote 6 — 4 portales (IN, SNIS, CADECO, MIN_EDUCACION) | 80 min | 65 min | ✅ | `007325b` |
 | B-20 | Lote 7 — 1 portal restante (IBCH) + cierre de onboarding | 40 min | 45 min | ✅ | `f663745` |
-| | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 15 min** | **9 h 15 min** | ✅ | *(Desvío: -9.8%)* |
+| | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 55 min** | **9 h 15 min** | ✅ | *(Desvío: -15.3%)* |
 
 ### Etapa D · Calibración (Fase 3)
 
@@ -129,17 +129,15 @@ estimación del mismo tipo de trabajo depende de eso.
 |---|---|---|---|---|---|
 | B-25 | Script de re-verificación de Track A | 50 min | 40 min | ✅ | `f9231aa` |
 | B-26 | Reporte de cobertura reproducible | 45 min | 35 min | ✅ | `3813c8d` |
-| B-27 | Cierre: README, artifact y estado final | 40 min | 35 min | ✅ | `docs:` |
+| B-27 | Cierre: README, artifact y estado final | 40 min | 35 min | ✅ | `dc9db9d` |
 | | **Subtotal etapa E** | **2 h 15 min** | **1 h 50 min** | ✅ | *(Desvío: -18.5%)* |
 
 **Balance Consolidado del Plan:**
-- **Estimado inicial:** 20 h 50 min (1,250 min)
+- **Estimado inicial:** 20 h 50 min (1,250 min acumulados)
 - **Tiempo real medido:** **16 h 38 min (998 min)**
-- **Desvío global:** **-20.2%** (3 etapas cerradas bajo tiempo presupuestado, 2 etapas ajustadas al estimado)
-- **Tasa de éxito:** 27 de 27 bloques aprobados y cerrados sin deudas técnicas abiertas.
-
-**Total estimado: 23 horas de trabajo efectivo** (≈ 3 jornadas). Las etapas A y
-B (4 h 50 min) desbloquean todo lo demás y no dependen de nada externo.
+- **Desvío global:** **-20.2%** (plan completado bajo presupuesto de tiempo)
+- **Tasa de éxito:** 26 bloques ejecutados y aprobados (la numeración llega a B-27; B-21 y B-22 se disolvieron al reajustar la Etapa C de 34 fuentes a 25 portales externos).
+- **Estado de deuda técnica:** Sin bloqueos pendientes; las observaciones operativas menores (umbrales CI parametrizables, invariantes relacionales) quedan documentadas en las actas de auditoría.
 
 > Aviso honesto sobre estas cifras: son **estimaciones, no mediciones**. La
 > única cifra medida acá es el tiempo de corrida del crawler sobre FINRURAL
