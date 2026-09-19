@@ -1,28 +1,30 @@
 # ==============================================================================
 # Configuración del Prospector Externo — DataX Web Prospector
-# Fuente: BCP (Banco Central del Paraguay)
+# Fuente: BCRP (Banco Central de Reserva del Per?)
 # Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
 # ==============================================================================
 
 source:
-  id: bcp
-  name: "Banco Central del Paraguay"
-  base_url: https://www.bcp.gov.py
+  id: bcrp
+  name: "Banco Central de Reserva del Perú"
+  base_url: https://www.bcrp.gob.pe
   allowed_domains:
-    - www.bcp.gov.py
-    - bcp.gov.py
+    - www.bcrp.gob.pe
+    - bcrp.gob.pe
 
 crawl:
   seeds:
-    - https://www.bcp.gov.py/web/institucional/memorias-y-balances
-    - https://www.bcp.gov.py/boletin-estadistico-mensual-html-i1335
-    - https://www.bcp.gov.py/informe-economico-html-i1336
+    - https://www.bcrp.gob.pe/
+    - https://www.bcrp.gob.pe/publicaciones.html
+    - https://www.bcrp.gob.pe/estadisticas.html
+    - https://www.bcrp.gob.pe/publicaciones/memoria-anual.html
+    - https://www.bcrp.gob.pe/publicaciones/reporte-de-inflacion.html
   # Fuente protegida por Cloudflare/WAF bot detection (D-03).
   # Requiere navegador real (Playwright domcontentloaded) para acceder a los datos.
   max_depth: 2
   max_pages: 50
   strategy: bfs
-  rate_limit_per_second: 0.2
+  rate_limit_per_second: 0.5
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: false
   use_wayback: false
@@ -48,24 +50,12 @@ search_dorking:
   max_results: 50
 
 classification:
-  document_path_tokens:
-    - "/documents/"
-    - "Memoria"
-    - "Balance"
-  dataset_rules:
-    - id: memorias_y_balances
-      name: "Memorias y Balances Anuales"
-      url_patterns:
-        - "Memoria"
-        - "Balance"
-        - "memorias-y-balances"
-      title_keywords:
-        - "memoria"
-        - "balance"
-        - "anual"
-  excluded_path_keywords:
-    - "/contacto"
-    - "/login"
+  document_path_tokens: []
+    # TODO: completar tras explorar el sitio (ej. tokens en URL que indican documentos)
+  dataset_rules: []
+    # TODO: completar tras explorar el sitio (definir grupos logicos de documentos)
+  excluded_path_keywords: []
+    # TODO: completar tras explorar el sitio (rutas institucionales o no relevantes a omitir)
 
 period_extraction:
   months_es:
