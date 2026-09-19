@@ -127,7 +127,7 @@ estimación del mismo tipo de trabajo depende de eso.
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-25 | Script de re-verificación de Track A | 50 min | — | ⬜ | `feat:` |
+| B-25 | Script de re-verificación de Track A | 50 min | 40 min | ✅ | `f9231aa` |
 | B-26 | Reporte de cobertura reproducible | 45 min | — | ⬜ | `feat:` |
 | B-27 | Cierre: README, artifact y estado final | 40 min | — | ⬜ | `docs:` |
 | | **Subtotal etapa E** | **2 h 15 min** | | | |
