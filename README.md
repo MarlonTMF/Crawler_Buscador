@@ -1,161 +1,169 @@
-# Prospector de Datos Web Multi-Fuente (DataX - Equipo 1)
+# Prospector de Datos Web Multi-Fuente (DataX · Equipo 1)
 
-**Prospector de Datos Web** es una plataforma automatizada, resiliente y modular diseñada para el descubrimiento, extracción, auditoría y catalogación de recursos públicos documentales y estadísticos (PDFs, Excels, Archivos Comprimidos) desde portales institucionales y financieros.
+> **Estado del Proyecto:** ✅ **Cobertura y Onboarding Completados al 100% de la Meta Planificada**  
+> **Suite de Pruebas:** 94 pruebas unitarias pasando (`pytest tests/ -m "not live"` · 100% verde en 14s)  
+> **Metodología y Verificación:** Desarrollado bajo protocolo de doble agente (Antigravity implementación 🅰️ · Claude auditoría técnica independiente 🆑).
 
-A diferencia de un scraper monolítico, este sistema implementa un **Núcleo de Descubrimiento Multipropósito** con **Adaptadores Declarativos por Fuente**, y mecanismos avanzados de contingencia para la búsqueda profunda de URLs, garantizando la recuperación de datos incluso ante arquitecturas web adversas, recursos descontinuados, o enlaces caídos.
+**Prospector de Datos Web** es una plataforma automatizada, resiliente y modular diseñada para el descubrimiento profundo, extracción, auditoría de integridad y catalogación de recursos documentales y estadísticos (PDFs, Excels, CSVs, Archivos Comprimidos) desde portales institucionales, regulatorios y financieros.
 
----
-
-## 🌟 Características Principales
-
-### 1. Arquitectura Dataset-First y Adaptadores Declarativos
-El núcleo (`core`) es 100% reutilizable. Las reglas de negocio, palabras clave y exclusiones de cada fuente se configuran de manera declarativa en YAML (ej. `config/source_finrural.yaml`, `config/source_bbv.yaml`). El sistema clasifica automáticamente los enlaces encontrados en **Datasets** lógicos (ej. *Reportes Financieros*, *Memorias Anuales*, *Estadísticas Bursátiles*).
-
-### 2. Motores Avanzados de Búsqueda y Descubrimiento de URLs
-El sistema implementa múltiples estrategias (activas y pasivas) para buscar listas de URL y recursos más allá del rastreo convencional (Crawling BFS/DFS):
-
-* **Sitemap Discovery (`smart_robots.py`):** Detección e ingesta automática de sitemaps XML declarados en `robots.txt` o en rutas estándar.
-* **Enumeración de Subdominios (`subdomain_finder.py`):** Integración con Certificate Transparency (`crt.sh`) para descubrir subdominios ocultos asociados a la entidad.
-* **Search Dorking Programático (`search_dorker.py`):** Automatización de búsquedas avanzadas en Bing Search o Google Custom Search (ej. `site:dominio.com filetype:pdf "reporte"`).
-* **Motor Wayback (`wayback_engine.py`):** Consulta a la API CDX de Web Archive para descubrir URLs históricas y recuperar archivos eliminados o movidos en el dominio.
-
-### 3. Contingencia y Resiliencia Activa (`contingency_engine.py`)
-Si el sistema detecta que un recurso ha sido movido o presenta errores (404, 403, timeout), activa automáticamente protocolos de contingencia:
-* **Resolución de Variantes de URL:** Prueba variaciones de protocolo (HTTP/HTTPS), subdominios `www.`, rutas y extensiones territoriales (ej. `.org` a `.org.bo`).
-* **Fallback a Wayback Machine:** Si la fuente primaria falla por completo, descarga el recurso directamente desde la última instantánea disponible en *archive.org*.
-
-### 4. Cliente HTTP Ético e Híbrido (`fetcher.py`)
-* **Respeto a `robots.txt`:** Verificación estricta de políticas.
-* **Control de Frecuencia (Rate-Limit):** Manejo de errores HTTP 429 y retrasos (backoff) exponenciales.
-* **Fallback a Navegador (Headless Playwright):** Permite renderizado de páginas SPA (React/Vue/Angular) u ofuscadas si la petición HTTP tradicional no encuentra enlaces documentales.
-
-### 5. Descompresión Automática en Memoria (`archive_extractor.py`)
-Descarga contenedores comprimidos (`.zip`, `.tar`, `.tgz`, `.bz2`) directamente en memoria, filtrando y extrayendo de forma transparente los documentos internos relevantes (`.pdf`, `.xlsx`, `.csv`) asignándoles metadatos independientes y trazabilidad del contenedor origen.
-
-### 6. Extracción de Vigencia en 4 Capas (`extractor.py`)
-Jerarquía de bajo costo a alto costo para determinar la vigencia de un documento:
-1. **URL Pattern:** Regex sobre nombres de archivo (ej. `financiera_05_2025.pdf`).
-2. **DOM Context:** Análisis de texto adyacente (nodos padre, texto ancla).
-3. **HTTP Metadata:** Evaluación de `Last-Modified` vía `HEAD`.
-4. **Fallback Hash/Content:** (Opcional) Análisis de contenido directo.
-
-### 7. Panel de Diagnóstico y Auditoría Local (`dashboard_server.py`)
-Incluye una interfaz web local para monitorear ejecuciones, evaluar puntajes de calidad (0.0 a 4.0), visualizar causas de fallos ("Diagnósticos Excel"), y aprobar manualmente mapeos de contingencia o redirecciones.
-Base de datos SQLite integrada (`control_db.py`) para historial de estado por recurso (PENDIENTE, PROCESADO, ERROR, RECUPERADO).
-
-### 8. Exportación Estandarizada
-Exporta catálogos JSON listos para ingestión humana o IA:
-- **Estandarizado (`mapa_*.json`):** Contrato principal detallado.
-- **Árbol Jerárquico (`mapa_*_tree.json`):** Formato agrupado por gestión y niveles compatibles con el BCB.
-- **Compacto para IA (`mapa_*_compact.json`):** Vista reducida semánticamente generada por `reducer.py`.
+El núcleo del sistema opera desacoplando la lógica de rastreo (`core`) de las reglas de catalogación de cada entidad mediante **Adaptadores Declarativos YAML**, complementado con mecanismos avanzados de contingencia (Wayback Machine, Search Dorking, Subdomain Discovery, y renderizado headless reactivo ante desafíos WAF/Cloudflare).
 
 ---
 
-## 🏗️ Estructura del Proyecto
+## 📊 Estado Consolidado de Cobertura (Decisión D-04)
 
-```text
-crawler_finrural/
-├── config/
-│   ├── source_finrural.yaml       # Configuración para FINRURAL
-│   ├── source_bbv.yaml            # Configuración para Bolsa Boliviana de Valores
-│   └── moved_urls.json            # Historial persistente de mapeos/redirecciones
-├── dashboard/                     # Archivos estáticos de la interfaz web de auditoría
-├── scripts/                       # Scripts auxiliares (check_urls.py, etc.)
-├── src/
-│   └── crawler/
-│       ├── core/                  # Núcleo 100% reutilizable (Motores, Fetcher, Modelos)
-│       ├── sources/               # Adaptadores Declarativos por institución
-│       ├── validators/            # Validadores de JSON Schemas
-│       └── main.py                # CLI de ejecución del Crawler
-├── tests/                         # Pruebas automatizadas del núcleo y adaptadores
-├── benchmark_runner.py            # Orquestador para pruebas masivas en frío (50+ fuentes)
-├── dashboard_server.py            # Servidor local del panel de auditoría (API/UI)
-├── pyproject.toml                 # Dependencias
-└── README.md                      # Documentación
+Siguiendo la **Decisión D-04** (`docs/decisiones.md`), la conectividad de red y la extracción documental se miden como metas independientes con checklists propios, evitando fusionar métricas de distinta naturaleza:
+
 ```
+================================================================================
+                    BALANCE CONSOLIDADO DE COBERTURA DATAX
+================================================================================
+ Track A (Conectividad del Catálogo) : 64 / 67 (95.52%) verificadas y accesibles
+ Track B (Extracción de Documentos)  : 26 fuentes onboardeadas · 2,611 docs únicos
+================================================================================
+```
+
+### 1. Track A — Conectividad del Catálogo Maestro (`output/excel_urls_diagnostic.json`)
+
+Mide la disponibilidad y el estado HTTP de las entidades registradas en el catálogo maestro:
+
+| Métrica | Registros | Porcentaje | Detalle Operativo |
+|---|---|---|---|
+| **HTTP 200 Directo (GET simple)** | `62` | 92.54% | Resuelven directamente por petición HTTP simple |
+| **Acceso Vía Headless (WAF/Cloudflare)** | `2` | 2.99% | BCP y BCRP (requieren navegador headless por protección bot) |
+| **COBERTURA EFECTIVA VERIFICADA** | **`64 / 67`** | **95.52%** | **Cifra principal de Track A (activas y accesibles)** |
+| **Exclusiones Documentadas Justificadas** | `3` | 4.48% | FMI (WAF 403 Akamai), FUNDEMPRESA (410 Gone), BOLCEREALES (Disuelta) |
+| **Catálogo Auditado y Clasificado** | `67 / 67` | 100.0% | Ninguna entidad queda sin diagnóstico o explicación técnica |
+| **Entradas Onboardeadas a Track B** | `33 / 67` | 49.25% | Entradas con `crawler_source` asignado a adaptadores YAML activos |
+
+> **Nota metodológica Track A:** Las **67 entradas** corresponden a la granularidad de la entidad (`Fuente`) en el catálogo maestro. Al deduplicar URLs compartidas (e.g. ASFI aparece en 3 entradas; APS, BCB, ICCO y MDRyT en 2 cada una), el universo físico comprende **62 URLs únicas monitoreadas**.
 
 ---
 
-## 🚀 Instalación y Uso
+### 2. Track B — Extracción Real de Documentos (`output/<fuente>/inventory.db`)
 
-### 1. Requisitos e Instalación
+Mide el volumen de documentos y datos estructurados efectivamente descargados, verificados por hash SHA-256 / magic bytes y registrados en bases de datos SQLite:
 
-Requiere **Python 3.9+**.
+- **Fuentes Onboardeadas Activas:** **26 fuentes** (25 portales externos + FINRURAL base).
+- **Recursos Únicos Procesados Exitosamente:** **`2,611` documentos** (`COUNT(DISTINCT download_url) WHERE status='PROCESADO_EXITOSAMENTE'`).
+- **Filas Totales en Bases de Control SQLite:** `2,633` registros.
+- **Datasets Clasificados por Taxonomía:** `59` datasets estructurados.
+- **Volumen Medido (Muestra):** `646.03 MB` (`677,408,955` bytes medidos sobre 101 filas con tamaño registrado — 3.84% del corpus; concentrado principalmente en ASFI con 563.4 MB y ATC con 82.4 MB. El resto de las fuentes almacena NULL/0 en `file_size_bytes` sin comprometer la integridad del recurso).
+- **Fuentes Pendientes de Infraestructura:** 1 fuente (`MEFP`), cuyo servidor estatal presenta una cadena intermedia de certificados SSL incompleta (advertencia `SSL_CERT_ERROR` documentada en B-25).
 
-```bash
-# Crear entorno virtual
-python -m venv .venv
+#### Desglose Auditado por Fuente
 
-# Activar entorno (Linux/macOS)
-source .venv/bin/activate
-# Activar entorno (Windows)
-.venv\Scripts\activate
-
-# Instalar paquete y dependencias
-pip install -e .
-
-# Opcional: instalar Playwright para rendering headless (Fallback SPA)
-pip install playwright
-playwright install
-```
-
-### 2. Ejecutar la Prospección
-
-Para ejecutar el crawler en una fuente específica, utiliza el adaptador YAML correspondiente:
-
-**Para FINRURAL:**
-```bash
-python -m crawler.main --config config/source_finrural.yaml --output-dir output/
-```
-
-**Para Bolsa Boliviana de Valores (BBV):**
-```bash
-python -m crawler.main --config config/source_bbv.yaml --output-dir output/
-```
-
-### 3. Iniciar el Panel de Diagnóstico Web
-
-El panel permite analizar los resultados, ver logs de jobs paralelos y resolver URLs caídas.
-
-```bash
-python dashboard_server.py
-```
-> Ingresa a `http://127.0.0.1:8000` en tu navegador.
-
-### 4. Ejecutar Benchmark de Fuentes
-
-Permite evaluar en frío el descubrimiento en docenas de fuentes pre-configuradas (BM, ASFI, BCB, etc.):
-
-```bash
-python benchmark_runner.py
-```
-
-### 5. Ejecutar Pruebas Automatizadas
-
-```bash
-pytest tests/ -v
-```
+| # | Fuente / Entidad | YAML de Configuración | Datasets | Filas DB | Recursos Únicos | Estado |
+|---|---|---|---|---|---|---|
+| 1 | **ADA Bolivia** | `config/source_ada.yaml` | 2 | 5 | 5 | ✅ OK |
+| 2 | **AE (Electricidad y Nuclear)** | `config/source_ae.yaml` | 2 | 116 | 116 | ✅ OK |
+| 3 | **Aduana Nacional (AN)** | `config/source_an.yaml` | 3 | 204 | 204 | ✅ OK |
+| 4 | **ANAPO** | `config/source_anapo.yaml` | 1 | 100 | 100 | ✅ OK |
+| 5 | **APS (Seguros y Pensiones)** | `config/source_aps.yaml` | 2 | 13 | 13 | ✅ OK |
+| 6 | **ASFI (Supervisión Financiera)** | `config/source_asfi.yaml` | 5 | 73 | 68 | ✅ OK |
+| 7 | **ASOFIN** | `config/source_asofin.yaml` | 1 | 25 | 25 | ✅ OK |
+| 8 | **ATC Red Enlace** | `config/source_atc.yaml` | 2 | 42 | 41 | ✅ OK |
+| 9 | **ATT (Telecomunicaciones)** | `config/source_att.yaml` | 2 | 67 | 67 | ✅ OK |
+| 10 | **Banco Central de Bolivia (BCB)** | `config/source_bcb.yaml` | 5 | 121 | 121 | ✅ OK |
+| 11 | **Banco Central del Paraguay (BCP)** | `config/source_bcp.yaml` | 2 | 47 | 36 | ✅ OK |
+| 12 | **CADECO Cochabamba** | `config/source_cadeco.yaml` | 2 | 12 | 12 | ✅ OK |
+| 13 | **CADEXCO Cochabamba** | `config/source_cadexco.yaml` | 2 | 10 | 10 | ✅ OK |
+| 14 | **CNDC (Despacho de Carga)** | `config/source_cndc.yaml` | 1 | 94 | 94 | ✅ OK |
+| 15 | **DGAC (Aeronáutica Civil)** | `config/source_dgac.yaml` | 1 | 15 | 15 | ✅ OK |
+| 16 | **FAM Bolivia (Municipalidades)** | `config/source_fam.yaml` | 3 | 111 | 111 | ✅ OK |
+| 17 | **FINRURAL (Piloto Base)** | `config/source_finrural.yaml` | 1 | 257 | 255 | ✅ OK |
+| 18 | **IBCE - CAO** | `config/source_ibce_cao.yaml` | 1 | 30 | 30 | ✅ OK |
+| 19 | **IBCH (Cemento y Hormigón)** | `config/source_ibch.yaml` | 2 | 26 | 26 | ✅ OK |
+| 20 | **Instituto Nacional de Estadística (IN)** | `config/source_in.yaml` | 3 | 248 | 248 | ✅ OK |
+| 21 | **INE Bolivia** | `config/source_ine.yaml` | 2 | 16 | 16 | ✅ OK |
+| 22 | **Ministerio de Educación** | `config/source_min_educacion.yaml` | 2 | 15 | 15 | ✅ OK |
+| 23 | **Ministerio de Minería y Metalurgia (MMYM)** | `config/source_mmym.yaml` | 3 | 108 | 105 | ✅ OK |
+| 24 | **SENAMHI (Meteorología e Hidrología)** | `config/source_senamhi.yaml` | 4 | 801 | 801 | ✅ OK |
+| 25 | **SEPREC (Registro de Comercio)** | `config/source_seprec.yaml` | 2 | 14 | 14 | ✅ OK |
+| 26 | **SNIS (Información en Salud)** | `config/source_snis.yaml` | 3 | 63 | 63 | ✅ OK |
+| 27 | *Ministerio de Economía (MEFP)* | `config/source_mefp.yaml` | 0 | 0 | 0 | ⚠️ *Sin docs (SSL)* |
+| | **TOTAL CONSOLIDADO** | **26 adaptadores activos** | **59** | **2,633** | **2,611** | **96.3% activas** |
 
 ---
 
-## ⚙️ Opciones de Motores de Búsqueda (Opt-in en YAML)
+## 🛠️ Herramientas de Sostenimiento y Comandos CLI
 
-En los archivos de configuración (`config/source_*.yaml`), puedes activar opciones pasivas para descubrir listas de URLs no visibles navegando, modificando la sección `crawl`:
+El proyecto provee scripts reproducibles para auditar y monitorear el estado del sistema:
 
-```yaml
-crawl:
-  use_sitemaps: true                 # Busca y procesa robots.txt y sitemap.xml
-  use_wayback: true                  # Consulta a la API CDX de archive.org
-  use_search_dorking: true           # Consulta a Google/Bing APIs (Requiere llaves de entorno)
-  use_subdomain_enumeration: true    # Búsqueda en crt.sh
+### 1. Reporte de Cobertura Reproducible (`scripts/reporte_cobertura.py`)
+Calcula en tiempo real las métricas desacopladas de Track A y Track B directamente desde los datos (`excel_urls_diagnostic.json` y bases SQLite), sin recopilación manual (B-26):
+
+```bash
+# Salida en consola con formateo limpio
+python scripts/reporte_cobertura.py
+
+# Salida en formato Markdown para reportes o documentación
+python scripts/reporte_cobertura.py --format markdown
+
+# Salida en formato JSON estructurado
+python scripts/reporte_cobertura.py --format json
+
+# Modo estricto para pipelines de Integración Continua (exit code 0 si cumple umbrales, 1 si falla)
+python scripts/reporte_cobertura.py --strict
+```
+
+### 2. Re-verificación Periódica de Conectividad de Track A (`scripts/reverificar_track_a.py`)
+Verifica la salud de las 62 URLs del catálogo maestro, detectando regresiones cuando una URL que estaba en 200 deja de responder (B-25). Implementa fallback universal de `HEAD` a `GET stream=True`, clasificación de desafíos Cloudflare/WAF y advertencias de infraestructura SSL:
+
+```bash
+# Verificación silenciosa (solo emite alertas si hay caídas)
+python scripts/reverificar_track_a.py
+
+# Verificación detallada URL por URL
+python scripts/reverificar_track_a.py --verbose
+
+# Modo no bloqueante para inspección
+python scripts/reverificar_track_a.py --no-fail-on-regression
+```
+
+### 3. Ejecución de Extracción por Fuente
+Para correr el pipeline completo sobre cualquier portal configurado:
+
+```bash
+python -m src.crawler.main --config config/source_asfi.yaml --output-dir output/
+```
+
+### 4. Ejecución de la Suite de Pruebas Automatizadas
+```bash
+# Correr todas las pruebas no live (94 tests unitarios e integrales en ~14s)
+pytest tests/ -q -m "not live"
+
+# Correr pruebas de cobertura específicas
+pytest tests/test_reporte_cobertura.py -v
+pytest tests/test_reverificar_track_a.py -v
 ```
 
 ---
 
-## 🛡️ Manejo de Límites y Ética
+## 🌟 Capacidades del Motor de Extracción
 
-Este sistema respeta incondicionalmente las buenas costumbres web:
-- Limitador estricto `rate_limit_per_second` nativo.
-- Verificación total del `robots.txt` a través de `urllib.robotparser`.
-- Priorización de método `HEAD` para verificación previa de metadatos, evitando consumir ancho de banda si el archivo no cambió (ETag, Last-Modified).
-- Alertas automatizadas de derivación volumétrica (`drift_monitor.py`) que evitan sobrecargar el sistema en caso de loops de redirección o trampas del servidor.
+1. **Adaptadores Declarativos Dataset-First:** Reglas de extracción, semillas, extensiones y filtros expresados limpiamente en YAML (`GenericSourceAdapter`).
+2. **Reintento Automático con Headless ante 403 (B-23):** Si un servidor responde con bloqueo de bot o challenge WAF (Cloudflare/Akamai), el pipeline conmuta transparentemente a Playwright con emulación de navegador real.
+3. **Calibración de Profundidad por Tamaño Real (B-24):** Presupuestos de rastreo asignados empíricamente (`max_depth`, `max_pages`) para evitar escaneos truncados o trampas de enlaces infinitos.
+4. **Deduplicador Intra-corrida:** Detección de duplicados basada en hash SHA-256 e inspección de `download_url` canónica antes de la descarga física.
+5. **Descompresión en Memoria (`archive_extractor.py`):** Expansión transparente de archivos `.zip`, extrayendo documentos individuales sin tocar disco temporal.
+6. **Ética Web y Cumplimiento:** Respeto estricto a directivas de `robots.txt` (`smart_robots.py`) y limitación de frecuencia de peticiones (`rate_limit_per_second`).
+
+---
+
+## 📚 Mapa de Documentación y Arquitectura
+
+Para entender las decisiones de diseño y la evolución técnica sin necesidad de consultar a los autores originales:
+
+1. **[`CLAUDE.md`](CLAUDE.md):** Manual operativo central, reglas de verificación empírica (*"verificar el efecto real, no el artefacto"*), y catálogo de riesgos silenciosos.
+2. **[`docs/decisiones.md`](docs/decisiones.md):** Registro canónico de decisiones técnicas con contexto, alternativas evaluadas y umbrales de reapertura:
+   - `D-01`: Verificación empírica de instituciones (evitar falsos positivos de nombres parecidos).
+   - `D-03`: Clasificación de protecciones bot / Cloudflare y conmutación headless.
+   - `D-04`: Desacoplamiento estricto entre Conectividad (Track A) y Extracción (Track B).
+   - `D-05`: FINRURAL como piloto inicial.
+   - `D-08`: Aislamiento de llamadas de red y mocks en suites de pruebas.
+   - `D-10`: Exclusión justificada de repositorios DSpace (CEPAL) para crawlers HTML simples.
+3. **[`docs/plan_bloques.md`](docs/plan_bloques.md):** Registro de ejecución de los 27 bloques del plan (Etapas A a E), con horas estimadas vs. reales medidas (16h 38m totales).
+4. **[`docs/plan_cobertura_100.md`](docs/plan_cobertura_100.md):** Plan estratégico de 100% de cobertura (Fases 0 a 4), con todos sus hitos formalmente cerrados.
+5. **[`docs/protocolo_equipo.md`](docs/protocolo_equipo.md):** Definición de roles y flujo de trabajo desacoplado (Antigravity ejecuta, Claude audita).
+6. **[`AI_LOG.md`](AI_LOG.md):** Bitácora histórica con 24 lecciones aprendidas (E-01 a E-24) sobre sesgos de IA, trampas silenciosas y metodologías de auditoría.

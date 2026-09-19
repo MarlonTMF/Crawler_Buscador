@@ -198,6 +198,12 @@ def calcular_track_b(
             )
             pipeline_errors = cur.fetchone()[0]
 
+            cur.execute(
+                "SELECT COUNT(*) FROM resource_audit_log "
+                "WHERE file_size_bytes IS NOT NULL AND file_size_bytes > 0"
+            )
+            rows_with_size = cur.fetchone()[0]
+
             conn.close()
 
             is_active = uniq_cnt > 0
@@ -210,6 +216,7 @@ def calcular_track_b(
             total_recursos_unicos += uniq_cnt
             total_datasets_acum += datasets_cnt
             total_bytes_acum += size_bytes
+            total_filas_con_tamano = total_filas_con_tamano + rows_with_size if "total_filas_con_tamano" in locals() else rows_with_size
 
             fuentes_data.append({
                 "fuente": fuente_id,
@@ -219,6 +226,7 @@ def calcular_track_b(
                 "datasets_count": datasets_cnt,
                 "tamano_bytes": size_bytes,
                 "tamano_mb": round(size_bytes / (1024 * 1024), 2),
+                "recursos_con_tamano": rows_with_size,
                 "pipeline_errors": pipeline_errors,
                 "estado": "OK" if is_active else "SIN_DOCUMENTOS",
             })
@@ -233,11 +241,13 @@ def calcular_track_b(
                 "datasets_count": 0,
                 "tamano_bytes": 0,
                 "tamano_mb": 0.0,
+                "recursos_con_tamano": 0,
                 "pipeline_errors": 1,
                 "estado": f"ERROR_DB: {e}",
             })
             fuentes_sin_documentos += 1
 
+    total_with_size = total_filas_con_tamano if "total_filas_con_tamano" in locals() else 0
     return {
         "total_fuentes_escaneadas": len(fuentes_data),
         "fuentes_onboardeadas_activas": fuentes_activas,
@@ -247,6 +257,8 @@ def calcular_track_b(
         "total_datasets": total_datasets_acum,
         "total_bytes": total_bytes_acum,
         "total_mb": round(total_bytes_acum / (1024 * 1024), 2),
+        "recursos_con_tamano": total_with_size,
+        "pct_recursos_con_tamano": round(total_with_size / total_filas * 100, 2) if total_filas else 0.0,
         "fuentes": fuentes_data,
     }
 
@@ -285,9 +297,8 @@ def formatear_reporte_texto(track_a: Dict[str, Any], track_b: Dict[str, Any], ti
     lines.append(subsep)
     lines.append(f"  • Portales/Fuentes onboardeadas activas: {track_b['fuentes_onboardeadas_activas']}")
     lines.append(f"  • Recursos únicos procesados con éxito : {track_b['recursos_unicos']:,}")
-    lines.append(f"  • Total registros en bases SQLite      : {track_b['filas_totales_db']:,}")
-    lines.append(f"  • Total datasets clasificados          : {track_b['total_datasets']}")
-    lines.append(f"  • Volumen total procesado              : {track_b['total_mb']} MB ({track_b['total_bytes']:,} bytes)")
+    lines.append(f"  • Volumen medido (muestra): {track_b['total_mb']} MB ({track_b['total_bytes']:,} bytes sobre {track_b.get('recursos_con_tamano', 0)} de {track_b['filas_totales_db']:,} filas — {track_b.get('pct_recursos_con_tamano', 0.0)}%)")
+    lines.append(f"    (Nota O-1 / E-23: Medición parcial sobre filas con tamaño registrado; ASFI y ATC concentran los bytes)")
     lines.append("")
     lines.append("  Desglose por fuente (output/<fuente>/inventory.db):")
     lines.append(f"  {'#':2} | {'Fuente':15} | {'Filas':6} | {'Unicos':6} | {'Datasets':8} | {'MB':6} | {'Estado':12}")
@@ -336,6 +347,8 @@ def formatear_reporte_markdown(track_a: Dict[str, Any], track_b: Dict[str, Any],
     lines.append(f"| **Catálogo Clasificado** | `{track_a['total_clasificado']}` | {track_a['pct_total_clasificado']}% | 100% auditado y categorizado |")
     lines.append(f"| **Entradas Onboardeadas Track B** | `{track_a['entradas_con_crawler_source']}` | {track_a['pct_entradas_con_crawler_source']}% | Entradas asignadas a fuentes con crawler configurado |")
     lines.append("")
+    lines.append("> **Nota metodológica Track A (O-4):** Las 67 entradas corresponden a la granularidad de la entidad (`Fuente`) en el catálogo maestro. Al deduplicar URLs compartidas (e.g. ASFI, APS, BCB, ICCO), el universo comprende 62 URLs únicas monitoreadas.")
+    lines.append("")
     lines.append("### Detalle de Registros no 200")
     lines.append("")
     lines.append("| Fuente | Estado HTTP | Clasificación | Detalle / Causa |")
@@ -352,7 +365,7 @@ def formatear_reporte_markdown(track_a: Dict[str, Any], track_b: Dict[str, Any],
     lines.append(f"- **Recursos Únicos Procesados Exitosamente:** **`{track_b['recursos_unicos']:,}`** documentos")
     lines.append(f"- **Filas Totales en Bases SQLite:** `{track_b['filas_totales_db']:,}` filas")
     lines.append(f"- **Datasets Clasificados:** `{track_b['total_datasets']}` datasets")
-    lines.append(f"- **Volumen de Datos Procesado:** `{track_b['total_mb']} MB` (`{track_b['total_bytes']:,}` bytes)")
+    lines.append(f"- **Volumen Medido (Muestra):** `{track_b['total_mb']} MB` (`{track_b['total_bytes']:,}` bytes calculados sobre `{track_b.get('recursos_con_tamano', 0)}` de `{track_b['filas_totales_db']:,}` filas con tamaño registrado — `{track_b.get('pct_recursos_con_tamano', 0.0)}%` del corpus; ASFI y ATC concentran los registros)")
     lines.append("")
     lines.append("### Desglose por Fuente (`output/<fuente>/inventory.db`)")
     lines.append("")

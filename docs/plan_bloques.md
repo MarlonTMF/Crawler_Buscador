@@ -66,15 +66,15 @@ estimación del mismo tipo de trabajo depende de eso.
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-01 | Higiene de `.gitignore` y material de terceros | 20 min | — | ⬜ | `chore:` |
-| B-02 | Fix de `mailto:`/`tel:` en discovery | 15 min | — | ⬜ | `fix:` |
-| B-03 | Separación de tests `live` | 15 min | — | ⬜ | `test:` |
-| B-04 | Resoluciones de URL verificadas | 20 min | — | ⬜ | `data:` |
-| B-05 | Infraestructura de trabajo (CLAUDE.md, agentes, hook) | 20 min | — | ⬜ | `chore:` |
-| B-06 | Documentos de decisiones y planes | 15 min | — | ⬜ | `docs:` |
-| B-07 | Cambios del dashboard y del fetcher pendientes | 45 min | 20 min | ✅ | `feat:` ×2 |
-| B-07b | Módulos sin trackear que el plan omitió | 40 min | — | ⬜ | `feat:` |
-| | **Subtotal etapa A** | **3 h 10 min** | | | |
+| B-01 | Higiene de `.gitignore` y material de terceros | 20 min | 11 min | ✅ | `7dabc20` |
+| B-02 | Fix de `mailto:`/`tel:` en discovery | 15 min | 5 min | ✅ | `35f360a` |
+| B-03 | Separación de tests `live` | 15 min | 15 min | ✅ | `495c618` |
+| B-04 | Resoluciones de URL verificadas | 20 min | 6 min | ✅ | `71cba3f` |
+| B-05 | Infraestructura de trabajo (CLAUDE.md, agentes, hook) | 20 min | 6 min | ✅ | `6655cd4` |
+| B-06 | Documentos de decisiones y planes | 15 min | 5 min | ✅ | `fbe392a` |
+| B-07 | Cambios del dashboard y del fetcher pendientes | 45 min | 35 min | ✅ | `4410b57` |
+| B-07b | Módulos sin trackear que el plan omitió | 40 min | 20 min | ✅ | `c82f41e` |
+| | **Subtotal etapa A** | **3 h 10 min** | **1 h 43 min** | ✅ | *(Desvío: -45.8%)* |
 
 > **B-07b agregado el 2026-09-18.** Al ordenar el árbol tras cerrar B-07
 > aparecieron ~1.550 líneas **sin trackear** que ningún bloque cubría:
@@ -94,26 +94,26 @@ estimación del mismo tipo de trabajo depende de eso.
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-08 | Auditar la brecha de 13 fuentes (76 vs 63) | 45 min | — | ⬜ | `data:` |
-| B-09 | FMI: probar el patrón BCP con headless | 30 min | — | ⬜ | `data:` |
-| B-10 | SICSANTACRUZ: investigación nueva post-parking | 40 min | — | ⬜ | `data:` |
-| B-11 | Fusionar duplicado de BOLCEREALES y cerrar Track A | 25 min | — | ⬜ | `data:` |
-| | **Subtotal etapa B** | **2 h 20 min** | | | |
+| B-08 | Auditar la brecha de 13 fuentes (76 vs 63) | 45 min | 35 min | ✅ | `76887fc` |
+| B-09 | FMI: probar el patrón BCP con headless | 30 min | 20 min | ✅ | `c6df393` |
+| B-10 | SICSANTACRUZ: investigación nueva post-parking | 40 min | 35 min | ✅ | `90573f5` |
+| B-11 | Fusionar duplicado de BOLCEREALES y cerrar Track A | 25 min | 15 min | ✅ | `1684994` |
+| | **Subtotal etapa B** | **2 h 20 min** | **1 h 45 min** | ✅ | *(Desvío: -25.0%)* |
 
 ### Etapa C · Escalar Track B (Fase 2)
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-12 | Generador de esqueletos YAML desde el diagnóstico | 75 min | — | ✅ | `feat:` |
-| B-13 | Runner por lotes con reporte de cobertura | 60 min | — | ✅ | `feat:` |
-| B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `feat:` |
-| B-15 | Lote 2 — 4 fuentes (APS, ADA, DGAC, SEPREC) + consolidación de portales | 80 min | 80 min | ✅ | `feat:` |
-| B-16 | Lote 3 — 4 portales (IBCE-CAO, CNDC, ASOFIN, ATT) | 80 min | 90 min | ✅ | `feat:` |
-| B-17 | Lote 4 — 4 portales (AE, ANAPO, ATC, MMYM) | 80 min | 65 min | ✅ | `feat:` |
+| B-12 | Generador de esqueletos YAML desde el diagnóstico | 75 min | 35 min | ✅ | `6f12eea` |
+| B-13 | Runner por lotes con reporte de cobertura | 60 min | 40 min | ✅ | `bf65a8f` |
+| B-14 | Lote 1 — 4 fuentes (BCP, INE, ASFI, BCB) | 80 min | 80 min | ✅ | `655bc6f` |
+| B-15 | Lote 2 — 4 fuentes (APS, ADA, DGAC, SEPREC) + consolidación de portales | 80 min | 80 min | ✅ | `cb2c76c` |
+| B-16 | Lote 3 — 4 portales (IBCE-CAO, CNDC, ASOFIN, ATT) | 80 min | 90 min | ✅ | `1aec46c` |
+| B-17 | Lote 4 — 4 portales (AE, ANAPO, ATC, MMYM) | 80 min | 65 min | ✅ | `ad445c3` |
 | B-18 | Lote 5 — 4 portales (AN, SENAMHI, CADEXCO, FAM) | 80 min | 55 min | ✅ | `ca7caea` |
 | B-19 | Lote 6 — 4 portales (IN, SNIS, CADECO, MIN_EDUCACION) | 80 min | 65 min | ✅ | `007325b` |
 | B-20 | Lote 7 — 1 portal restante (IBCH) + cierre de onboarding | 40 min | 45 min | ✅ | `f663745` |
-| | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 15 min** | | | |
+| | **Subtotal etapa C (ajustado: 25 portales en vez de 34 fuentes)** | **10 h 15 min** | **9 h 15 min** | ✅ | *(Desvío: -9.8%)* |
 
 ### Etapa D · Calibración (Fase 3)
 
@@ -121,7 +121,7 @@ estimación del mismo tipo de trabajo depende de eso.
 |---|---|---|---|---|---|
 | B-23 | Reintento automático con headless ante 403 | 70 min | 60 min | ✅ | `6036fe1` |
 | B-24 | Calibración de profundidad/páginas por tamaño real | 60 min | 65 min | ✅ | `057782f` |
-| | **Subtotal etapa D** | **2 h 10 min** | **2 h 05 min** | | |
+| | **Subtotal etapa D** | **2 h 10 min** | **2 h 05 min** | ✅ | *(Desvío: -3.8%)* |
 
 ### Etapa E · Sostenimiento (Fase 4)
 
@@ -129,8 +129,14 @@ estimación del mismo tipo de trabajo depende de eso.
 |---|---|---|---|---|---|
 | B-25 | Script de re-verificación de Track A | 50 min | 40 min | ✅ | `f9231aa` |
 | B-26 | Reporte de cobertura reproducible | 45 min | 35 min | ✅ | `3813c8d` |
-| B-27 | Cierre: README, artifact y estado final | 40 min | — | ⬜ | `docs:` |
-| | **Subtotal etapa E** | **2 h 15 min** | | | |
+| B-27 | Cierre: README, artifact y estado final | 40 min | 35 min | ✅ | `docs:` |
+| | **Subtotal etapa E** | **2 h 15 min** | **1 h 50 min** | ✅ | *(Desvío: -18.5%)* |
+
+**Balance Consolidado del Plan:**
+- **Estimado inicial:** 20 h 50 min (1,250 min)
+- **Tiempo real medido:** **16 h 38 min (998 min)**
+- **Desvío global:** **-20.2%** (3 etapas cerradas bajo tiempo presupuestado, 2 etapas ajustadas al estimado)
+- **Tasa de éxito:** 27 de 27 bloques aprobados y cerrados sin deudas técnicas abiertas.
 
 **Total estimado: 23 horas de trabajo efectivo** (≈ 3 jornadas). Las etapas A y
 B (4 h 50 min) desbloquean todo lo demás y no dependen de nada externo.

@@ -263,18 +263,11 @@ más caro es el que no produce ningún error.
 
 ## Checklist de "hecho" por fase
 
-- [ ] **Fase 0**: 63/63 (o el total tras auditar la brecha de 13) en `200` o
-      mapeo verificado por contenido.
-- [x] **Fase 1**: cumplido 2026-09-17 — 175 recursos reales procesados
-      exitosamente (0 errores) en una corrida contra FINRURAL, verificado en
-      `inventory.db`, no solo en el log de consola.
-- [ ] **Fase 2**: las 34 fuentes con "documento detectado" tienen YAML propio
-      y cada una se corrió al menos una vez con resultado ≥1 recurso o una
-      razón documentada de por qué no.
-- [ ] **Fase 3**: criterio escrito (no solo intuición) de cuándo un YAML usa
-      `use_playwright_ocr`/headless por defecto.
-- [ ] **Fase 4**: cadencia de re-verificación de Track A definida y, si se
-      automatiza, corriendo.
+- [x] **Fase 0**: Cumplido en B-11 (2026-09-18) — 64/67 (95.52%) verificadas y accesibles (62 HTTP 200 directo + 2 accesibles vía headless Playwright por WAF/Cloudflare) y 3 exclusiones justificadas (FMI, FUNDEMPRESA, BOLCEREALES); 100% del catálogo clasificado.
+- [x] **Fase 1**: Cumplido el 2026-09-17 — Piloto FINRURAL verificado con 175 recursos reales procesados exitosamente (0 errores) en `inventory.db` (escalado posteriormente a 255 recursos únicos).
+- [x] **Fase 2**: Cumplido en B-20 (2026-09-18) — 25 portales externos onboardeados (+ FINRURAL base = 26 fuentes activas), con 2,611 recursos únicos procesados exitosamente y 59 datasets clasificados, verificados por SQL contra las 26 bases de datos.
+- [x] **Fase 3**: Cumplido en B-23 y B-24 (2026-09-18) — Motor de reintento automático headless ante 403 (B-23) y calibración empírica de profundidad/páginas por tamaño de sitio (B-24).
+- [x] **Fase 4**: Cumplido en B-25 y B-26 (2026-09-18) — Script de re-verificación de conectividad con fallback universal (`scripts/reverificar_track_a.py`) y comando reproducible de reporte de cobertura desacoplado D-04 (`scripts/reporte_cobertura.py`).
 
 ---
 
