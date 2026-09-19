@@ -59,6 +59,8 @@ def test_discovery_deduplicates_candidate_urls():
 
 def test_discovery_deduplicates_bfs_queue():
     """Verifica que una misma URL de navegación no se encole múltiples veces en BFS."""
+    from collections import deque
+
     mock_fetcher = MagicMock(spec=HttpFetcher)
     def _mock_fetch(url):
         if url == "https://example.com":
@@ -75,11 +77,20 @@ def test_discovery_deduplicates_bfs_queue():
         "crawl": {"seeds": ["https://example.com"], "max_depth": 1, "max_pages": 5, "use_sitemaps": False}
     })
 
-    discovery = DiscoveryEngine(mock_fetcher, adapter)
-    candidates = discovery.discover_from_seeds()
+    appended_items = []
+    class TrackingDeque(deque):
+        def append(self, item):
+            appended_items.append(item)
+            super().append(item)
+
+    with patch("crawler.core.discovery.deque", side_effect=lambda *args, **kwargs: TrackingDeque(*args, **kwargs)):
+        discovery = DiscoveryEngine(mock_fetcher, adapter)
+        candidates = discovery.discover_from_seeds()
 
     assert len(candidates) == 1
-    # /seccion solo debió escanearse 1 vez (total páginas escaneadas: 2 = portada + seccion)
+    # /seccion aparece 2 veces en el HTML, pero solo debió encolarse 1 vez en la cola BFS
+    seccion_enqueued = [url for url, depth in appended_items if "/seccion" in url]
+    assert len(seccion_enqueued) == 1, f"/seccion se encoló {len(seccion_enqueued)} veces en BFS (esperado: 1)"
     assert len(discovery.visited_urls) == 2
 
 
@@ -113,13 +124,15 @@ audit:
     })
     orchestrator = CrawlOrchestrator(adapter, output_dir=tmp_path / "output")
 
-    # Inyectamos artificialmente candidatos duplicados en el discovery
+    # Inyectamos artificialmente candidatos que comparten la misma URL canónica pero distinto dataset_id.
+    # Pre-fix: processed_keys chequeaba `resource_key` (que incluye dataset_id), por lo que sin
+    # seen_canonical_urls ambos candidatos se procesaban y auditaban, duplicando la fila en la BD.
     c1 = DiscoveredCandidate(
         url="https://example.com/doc.pdf",
         url_origin="https://example.com",
         anchor_text="Doc 1",
         context_text="",
-        dataset_id="dataset_test",
+        dataset_id="dataset_a",
         file_type="pdf",
     )
     c2 = DiscoveredCandidate(
@@ -127,7 +140,7 @@ audit:
         url_origin="https://example.com/otra_pagina",
         anchor_text="Doc 2",
         context_text="",
-        dataset_id="dataset_test",
+        dataset_id="dataset_b",
         file_type="pdf",
     )
     orchestrator.discovery.discover_from_seeds = MagicMock(return_value=[c1, c2])
@@ -138,8 +151,9 @@ audit:
     with patch.object(orchestrator.fetcher.session, "head", return_value=mock_head_resp):
         source_map = orchestrator.run()
 
-    # En el dataset exportado debe haber exactamente 1 recurso
-    assert len(source_map.datasets[0].resources) == 1
+    # En los datasets exportados debe haber exactamente 1 recurso en total
+    total_resources = sum(len(ds.resources) for ds in source_map.datasets)
+    assert total_resources == 1, f"Se esperaban 1 recurso, se obtuvieron {total_resources}"
 
     # En la base inventory.db debe haber exactamente 1 fila
     conn = sqlite3.connect(db_file)
