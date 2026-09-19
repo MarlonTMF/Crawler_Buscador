@@ -46,3 +46,25 @@ def test_fetch_head_network_error_resilience(monkeypatch):
     assert fetcher.session.head.call_count == 2
 
 
+def test_extract_date_layer3_http_scheme_guard():
+    """Regresión B-28 / B-30: extract_date_layer3_http no debe invocar fetch_head
+    ante URLs sin esquema http/https (ej. nombres internos de archivo en ZIP o rutas locales)."""
+    from unittest.mock import MagicMock
+    adapter = FinruralAdapter()
+    fetcher = HttpFetcher()
+    fetcher.fetch_head = MagicMock()
+    extractor = MetadataExtractor(fetcher, adapter)
+
+    # 1. Nombre de archivo interno de ZIP sin esquema HTTP
+    res1, meta1 = extractor.extract_date_layer3_http("reporte_mensual_2025.xlsx")
+    assert res1 is None
+    assert meta1["content_length_bytes"] is None
+    fetcher.fetch_head.assert_not_called()
+
+    # 2. Esquema no-HTTP (file://, mailto:, etc.)
+    res2, meta2 = extractor.extract_date_layer3_http("file:///local/archive/doc.pdf")
+    assert res2 is None
+    fetcher.fetch_head.assert_not_called()
+
+
+

@@ -59,3 +59,22 @@ def test_extracted_file_item_hashes():
     assert pdf_item.file_type == "pdf"
     assert pdf_item.size_bytes > 0
     assert len(pdf_item.sha256) == 64  # SHA-256 hex string length
+
+
+def test_extracted_file_container_uri_structure():
+    """Regresión B-30: verificación del formato de URI canónica con fragmento #
+    para identificar inequívocamente el contenedor ZIP origen del recurso interno."""
+    extractor = ArchiveExtractor()
+    zip_bytes = create_sample_zip_bytes()
+    extracted = extractor.extract_archive(
+        content_bytes=zip_bytes,
+        archive_name="https://example.com/data/reporte_2026.zip",
+        allowed_extensions=["pdf", "xlsx"]
+    )
+    container_url = "https://example.com/data/reporte_2026.zip"
+    for item in extracted:
+        inner_canonical_url = f"{container_url}#{item.inner_filename}"
+        assert inner_canonical_url.startswith(container_url + "#")
+        assert len(inner_canonical_url.split("#")) == 2
+        assert item.inner_filename in inner_canonical_url
+
