@@ -461,6 +461,19 @@ igual.
 - **Herramienta:** Antigravity (ejecución), Claude (auditoría)
 - **Qué propuso la IA:** Se agregó la regla `memorias_institucionales` en `config/source_bcb.yaml` y se reportó "+1 dataset estructurado".
 - **Qué encontré o decidí yo:** `memorias_institucionales` capturaba 0 recursos porque `boletines_mensuales` estaba ubicada primera con el patrón `"publicacionesbcb"`, el cual englobaba toda URL bajo `/webdocs/publicacionesbcb/`. Por `generic_adapter.py:25-34`, la primera regla que matchea gana y además actúa como valor por defecto si ninguna regla aplica. 75 memorias terminaron clasificadas espuriamente como boletines.
-- **Cómo se resolvió:** Se reordenaron las reglas colocando `memorias_institucionales` antes de `boletines_mensuales`, y se removieron patrones anchos (`publicacionesbcb`, `Otros`) de los patrones de URL de boletines. Con este ajuste, `memorias_institucionales` captura 107 documentos reales y `boletines_mensuales` 2 boletines auténticos.
+- **Cómo se resolvió:** Se reordenaron las reglas colocando `memorias_institucionales` antes de `boletines_mensuales`, y se añadieron patrones `bolet` y `sistema_pagos` para capturar los boletines mensuales reales con y sin tilde (14 recursos en `boletines_mensuales`, 12 de ellos boletines mensuales reales). `memorias_institucionales` contiene 95 recursos (13 memorias reales y 82 documentos institucionales, leyes y decretos que caen en el primer dataset por el default de `generic_adapter.py`). Se escala la decisión sobre el default de `generic_adapter.py:33-34` como decisión de arquitectura global para no decidirla en caliente dentro del bloque.
 - **Por qué:** En sistemas de clasificación en cascada (first-match-wins) con un bucket por defecto asociado a la primera regla, una regla amplia al principio enmascara a todas las posteriores y convierte al primer dataset en un cajón de sastre inadvertido.
 - **Quién tenía razón:** Claude al advertir que `dataset_counts` no contenía `memorias_institucionales`.
+
+---
+
+## E-21 · Un conteo que sube no valida la regla que lo produjo
+
+- **Fecha / bloque:** 2026-09-18 · re-auditoría de B-24
+- **Tipo:** taxonomía / verificación profunda vs métricas superficiales
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** La primera subsanación de E-20 movió `memorias_institucionales` al primer lugar en el YAML; su conteo en `dataset_counts` pasó de 0 a 107 y se reportó como resuelto ("captura 107 documentos reales").
+- **Qué encontré o decidí yo:** Al abrir las filas de los 107 recursos, 94 no eran memorias: eran leyes, decretos, notas de prensa y 12 boletines mensuales reales con tilde (`Boletín mensual...`) que caían al default silencioso de `generic_adapter.py:33-34` (que devuelve la primera regla cuando ninguna matchea). Reordenar un sistema first-match-wins no desactiva el cajón por defecto: lo muda.
+- **Cómo se resolvió:** Se agregaron los patrones `"bolet"` y `"sistema_pagos"` para rescatar los 12 boletines mensuales reales hacia `boletines_mensuales` (14 recursos en total). Se abrió la base fila por fila, documentando con precisión que `memorias_institucionales` contiene 13 memorias reales y 82 documentos de descarte. La modificación del comportamiento por defecto de `generic_adapter.py:33-34` se escaló formalmente a nivel de arquitectura global en lugar de decidirse silenciosamente en el bloque.
+- **Por qué:** Es la octava variante de "verificar el efecto, no el artefacto", y la primera en que el artefacto engañoso aparece dentro de la corrección de un artefacto engañoso previo. La señal de E-20 era "una regla nueva con 0"; la señal simétrica complementaria es: una regla con un conteo alto tampoco se valida por el número, se valida abriendo e inspeccionando el contenido de las filas.
+- **Quién tenía razón:** Claude al abrir fila por fila las URLs del dataset y auditar el contenido real.
