@@ -99,7 +99,7 @@ sus documentos de forma autónoma sin intervención manual ni cambios de configu
 1. Si `wait_until="networkidle"` se usa en lugar de `"domcontentloaded"`, el timeout es mucho más probable — un sitio con Cloudflare Challenge en background nunca llega a inactividad total de red. Verificado empíricamente: con `networkidle` el primer intento contra `bcp.gov.py` dio timeout a los 20s; con `domcontentloaded` respondió 200.
 2. Si un portal implementa protecciones CAPTCHA interactivas (ej. Cloudflare Turnstile interactivo obligatorio) que impidan la resolución headless no asistida, en cuyo caso se requerirá ruta de contingencia Wayback o descarte fundado.
 
-**Verificado el.** 2026-09-17 (análisis inicial en BCP con medición de `networkidle` vs `domcontentloaded`) y 2026-09-18 (subsanación B-23: corrida real sobre BCP con `use_playwright: false` que recuperó 36 documentos reales vía fallback automático 403, 75/75 tests passing).
+**Verificado el.** 2026-09-17 (análisis inicial en BCP con medición de `networkidle` vs `domcontentloaded`) y 2026-09-18 (subsanación B-23: corrida real sobre BCP con `use_playwright: false` que recuperó 25 documentos reales (PDF) entre 36 recursos exportados, el mismo rendimiento que con `use_playwright: true` forzado, 75/75 tests passing).
 
 ---
 

@@ -426,5 +426,15 @@ igual.
 - **Por qué:** `resource_audit_log` es un log de auditoría acumulativo por ejecución. Medir la cobertura real exige deduplicar por la URL canónica de descarga.
 - **Quién tenía razón:** Claude al analizar los `execution_timestamp` y detectar la acumulación intra-corrida.
 
+---
 
+## E-18 · Rotular como recurso lo que es una página de navegación: el artefacto inflado
 
+- **Fecha / bloque:** 2026-09-18 · auditoría de B-23
+- **Tipo:** taxonomía / verificación de efecto vs artefacto
+- **Herramienta:** Antigravity (ejecución), Claude (auditoría)
+- **Qué propuso la IA:** En la primera pasada, un test de integración con todo mockeado afirmó `resolved_via_headless is True` sobre un recurso ficticio que nunca se descargó; en la segunda pasada, el parte reportó "36 documentos reales" en BCP a partir del conteo de filas de `mapa_bcp.json`.
+- **Qué encontré o decidí yo:** Al pasar la base por `inspect_inventory_db`, 11 de los 36 recursos eran páginas HTML de sección del portal (`/web/institucional/<sección>`) sin extensión en la URL, catalogadas genéricamente como `other_resources` (document). El número real de documentos (PDFs) era exactamente 25 — idéntico al de B-14. La mejora "25 → 36" no existía: el fallback automático ante 403 rinde exactamente igual que el Playwright forzado.
+- **Cómo se resolvió:** Se corrigió la cifra en `docs/decisiones.md` (D-03) y en la tabla del parte, reflejando "25 documentos reales (PDF) entre 36 recursos exportados". Se ratificó el cierre de D-03 con `auto_headless_on_403 = True` por defecto, fundamentado en que 1 de 26 fuentes sufre 403 y esa única fuente rinde idéntico sin la bandera manual.
+- **Por qué:** Es la sexta variante de "verificar el artefacto, no el efecto" que encuentra el proyecto. Un mapa exportado puede rotular como recurso una página institucional de navegación si las reglas de exclusión no filtran el path; contar filas del JSON sin pasar por el clasificador por tipo/bytes infla la cifra a favor del reporte. La métrica verídica de documentos requiere siempre la inspección por extensión y contenido.
+- **Quién tenía razón:** Claude al correr el clasificador por tipo de recurso y auditar las URLs reales de la base.

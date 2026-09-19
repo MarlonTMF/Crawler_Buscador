@@ -119,7 +119,7 @@ estimación del mismo tipo de trabajo depende de eso.
 
 | # | Bloque | Estimado | Real | Estado | Commit |
 |---|---|---|---|---|---|
-| B-23 | Reintento automático con headless ante 403 | 70 min | — | ⬜ | `feat:` |
+| B-23 | Reintento automático con headless ante 403 | 70 min | 60 min | ✅ | `6036fe1` |
 | B-24 | Calibración de profundidad/páginas por tamaño real | 60 min | — | ⬜ | `feat:` |
 | | **Subtotal etapa D** | **2 h 10 min** | | | |
 
