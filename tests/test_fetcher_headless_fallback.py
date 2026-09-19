@@ -1,4 +1,4 @@
-﻿"""
+"""
 tests/test_fetcher_headless_fallback.py
 =======================================
 Pruebas unitarias para el reintento automatico con navegador real (HeadlessFetcher)
@@ -197,7 +197,14 @@ audit:
     mock_resp_403.status_code = 403
     mock_resp_403.apparent_encoding = "utf-8"
 
-    with patch.object(orchestrator.fetcher.session, "get", return_value=mock_resp_403):
+    mock_head_resp = MagicMock(spec=requests.Response)
+    mock_head_resp.status_code = 200
+    mock_head_resp.headers = {"Content-Length": "2048", "Content-Type": "application/pdf"}
+
+    orchestrator.fetcher.honor_robots_txt = False
+
+    with patch.object(orchestrator.fetcher.session, "get", return_value=mock_resp_403), \
+         patch.object(orchestrator.fetcher.session, "head", return_value=mock_head_resp):
         source_map = orchestrator.run()
 
     assert len(source_map.datasets) == 1

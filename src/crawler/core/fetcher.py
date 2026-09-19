@@ -102,7 +102,8 @@ class HttpFetcher:
     def _fetch_html_via_headless(self, url: str) -> Tuple[bool, int, Optional[str]]:
         """Reintenta la obtención de HTML usando HeadlessFetcher (Playwright) ante bloqueos WAF/403."""
         if self.headless_fetcher is None:
-            self.headless_fetcher = HeadlessFetcher(timeout_ms=self.timeout * 1000)
+            # Mantener 30s por defecto para challenges de Cloudflare que requieren tiempo de resolución
+            self.headless_fetcher = HeadlessFetcher(timeout_ms=max(30000, self.timeout * 1000))
         try:
             ok, status, result = self.headless_fetcher.fetch(url)
             if ok and result is not None and result.html:

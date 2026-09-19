@@ -27,9 +27,9 @@ crawl:
   use_search_dorking: false
   use_subdomain_enumeration: false
   use_async_fetcher: false
-  use_playwright: true
-  use_playwright_ocr: true
-  headless: true
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
 
 audit:
   enabled: true
