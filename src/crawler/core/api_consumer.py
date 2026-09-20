@@ -50,16 +50,18 @@ class ApiConsumer:
             netloc = netloc.split(":")[0]
         if not netloc:
             return False
-        return netloc in self.allowed_domains or netloc.lstrip("www.") in self.allowed_domains
+        return netloc in self.allowed_domains or netloc.removeprefix("www.") in self.allowed_domains
 
     def extract_candidates_from_payload(
         self,
         payload: Any,
         endpoint_url: str,
+        seen_urls: Optional[Set[str]] = None,
     ) -> List[DiscoveredCandidate]:
         """Recorre recursivamente cualquier estructura de datos JSON y extrae URLs de documentos."""
         discovered: List[DiscoveredCandidate] = []
-        seen_urls: Set[str] = set()
+        if seen_urls is None:
+            seen_urls = set()
 
         def _traverse(node: Any, parent_key: str = "", context_title: str = ""):
             if isinstance(node, dict):
@@ -143,6 +145,7 @@ class ApiConsumer:
                 f"[ApiConsumer] Procesando endpoint de API: {raw_url} (tipo paginación: {pagination_type}, max_pages: {max_pages})"
             )
 
+            endpoint_seen_urls: Set[str] = set()
             current_page = 1
             consecutive_empty_pages = 0
 
@@ -158,7 +161,9 @@ class ApiConsumer:
                 try:
                     resp = requests.get(target_url, headers=headers, timeout=self.timeout)
                     if resp.status_code != 200:
-                        logger.warning(f"[ApiConsumer] HTTP {resp.status_code} al consultar API: {target_url}")
+                        logger.warning(
+                            f"[ApiConsumer] HTTP {resp.status_code} al consultar API página {current_page}: {target_url} (fin de paginación o error del servidor)"
+                        )
                         break
 
                     try:
@@ -167,7 +172,9 @@ class ApiConsumer:
                         logger.warning(f"[ApiConsumer] Respuesta no es JSON válido en {target_url}: {json_err}")
                         break
 
-                    page_candidates = self.extract_candidates_from_payload(payload, endpoint_url=target_url)
+                    page_candidates = self.extract_candidates_from_payload(
+                        payload, endpoint_url=target_url, seen_urls=endpoint_seen_urls
+                    )
                     logger.info(
                         f"[ApiConsumer] Página {current_page} de {raw_url}: {len(page_candidates)} candidatos encontrados."
                     )

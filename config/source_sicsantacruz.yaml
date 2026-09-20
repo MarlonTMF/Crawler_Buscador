@@ -38,7 +38,7 @@ audit:
   enabled: true
 
 content_hashing:
-  enabled: false
+  enabled: true
 
 monitoring:
   drift_threshold: 0.30
@@ -63,21 +63,52 @@ classification:
         - "agropecuario"
         - "produccion"
         - "canasta"
+        - "ipc"
+        - "estaciones"
+        - "datos_sic"
+        - "datossic"
     - id: boletines_estadisticos_ice
       name: Boletines y Estudios Estadísticos Departamentales
       url_patterns:
         - "boletin"
         - "estudio"
-        - "estadistica"
+        - "estadistic"
         - "censo"
         - "poblacion"
         - "salud"
         - "cancer"
-    - id: repositorio_institucional_ice
-      name: Repositorio General de Estudios
+        - "cruceno"
+        - "bbdd"
+        - "datos_"
+        - "regalias"
+        - "mineria"
+        - "hidrocarburos"
+        - "educacion"
+        - "clima"
+        - "lluvia"
+        - "temperatura"
+        - "forestal"
+        - "incendio"
+        - "violencia"
+        - "trabajo_infantil"
+        - "turismo"
+        - "mypes"
+        - "mipymes"
+        - "demanda_laboral"
+        - "actividad"
+    - id: marco_legal_institucional
+      name: Marco Legal y Normativa Departamental
+      url_patterns:
+        - "ley-"
+        - "estatuto"
+        - "constitucion"
+        - "marco-legal"
+        - "normativ"
+    - id: repositorio_general_ice
+      name: Repositorio General de Estudios y Documentos ICE
       url_patterns:
         - "/uploads/"
-        - "ice"
+        - "/pdfs/"
   excluded_path_keywords:
     - "/login"
     - "/admin"
