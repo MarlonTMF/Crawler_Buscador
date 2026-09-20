@@ -740,7 +740,8 @@
     "Error_Detail": null,
     "origin": "SPIM (B-08)",
     "mapping_note": "Verificado en vivo: HTTP 200 y contenido institucional confirmado.",
-    "spim_file_count": 2
+    "spim_file_count": 2,
+    "crawler_source": "bcb_brasil"
   },
   {
     "Fuente": "BCCH",
@@ -771,7 +772,8 @@
     "Error_Detail": null,
     "origin": "SPIM (B-08)",
     "mapping_note": "Redirecciona a /inicio. HTTP simple devuelve SPA shell (212 bytes); verificado en vivo con Playwright: t?tulo 'Inicio - Banco Central de Chile'.",
-    "spim_file_count": 5
+    "spim_file_count": 5,
+    "crawler_source": "bcch"
   },
   {
     "Fuente": "BCP",
@@ -1020,7 +1022,8 @@
     "resolved_from_variant": false,
     "mapping_resolved": "https://www.probolivia.gob.bo/",
     "mapping_source": "gemini_verdict+content_check",
-    "mapping_note": "CEPROBOL disuelto por DS 3432 (2017); funciones pasaron a PRO BOLIVIA."
+    "mapping_note": "CEPROBOL disuelto por DS 3432 (2017); funciones pasaron a PRO BOLIVIA.",
+    "crawler_source": "ceprobol"
   },
   {
     "Fuente": "CNDC",
@@ -1168,7 +1171,8 @@
     "is_institutional": false,
     "source_type": "mercado_no_institucional",
     "mapping_note": "Fuente de mercado no oficial (tracker informal de tipo de cambio paralelo). Verificado en vivo: HTTP 200.",
-    "spim_file_count": 1
+    "spim_file_count": 1,
+    "crawler_source": "dolarbluebolivia"
   },
   {
     "Fuente": "Data.Gov",

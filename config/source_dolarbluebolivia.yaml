@@ -1,0 +1,58 @@
+source:
+  id: dolarbluebolivia
+  name: Cotización Dólar Blue Bolivia
+  base_url: https://www.dolarbluebolivia.click
+  allowed_domains:
+    - dolarbluebolivia.click
+    - www.dolarbluebolivia.click
+
+crawl:
+  seeds:
+    - https://www.dolarbluebolivia.click/
+    - https://www.dolarbluebolivia.click/about/
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "data"
+    - "dolar"
+    - "cotizacion"
+    - "historico"
+  dataset_rules:
+    - id: cotizacion_dolar_blue
+      name: Cotización y Estadísticas Dólar Blue
+      url_patterns:
+        - "dolar"
+        - "cotizacion"
+        - "blue"
+    - id: repositorio_general_dolarblue
+      name: Repositorio General Dólar Blue
+      url_patterns:
+        - "dolarbluebolivia"
+  excluded_path_keywords: []
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

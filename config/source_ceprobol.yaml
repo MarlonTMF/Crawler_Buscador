@@ -1,0 +1,72 @@
+source:
+  id: ceprobol
+  name: Pro-Bolivia (CEPROBOL)
+  base_url: https://www.probolivia.gob.bo
+  allowed_domains:
+    - probolivia.gob.bo
+    - www.probolivia.gob.bo
+
+crawl:
+  seeds:
+    - https://www.probolivia.gob.bo/
+    - https://www.probolivia.gob.bo/rendicion-publica-de-cuentas/
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "wp-content"
+    - "uploads"
+    - "informe"
+    - "rpc"
+    - "rendicion"
+  dataset_rules:
+    - id: rendicion_cuentas_probolivia
+      name: Rendición Pública de Cuentas e Informes
+      url_patterns:
+        - "rpc"
+        - "informe"
+        - "rendicion"
+        - "memoria"
+    - id: publicaciones_normativa_probolivia
+      name: Publicaciones y Normativa Pro-Bolivia
+      url_patterns:
+        - "reglamento"
+        - "norma"
+        - "manual"
+        - "resolucion"
+    - id: repositorio_general_probolivia
+      name: Repositorio General de Documentos Pro-Bolivia
+      url_patterns:
+        - "/uploads/"
+        - "/wp-content/"
+  excluded_path_keywords:
+    - "/wp-admin/"
+    - "/wp-includes/"
+    - "/tag/"
+    - "/category/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

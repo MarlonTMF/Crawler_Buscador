@@ -1,0 +1,69 @@
+source:
+  id: bcch
+  name: Banco Central de Chile (BCCh)
+  base_url: https://www.bcentral.cl
+  allowed_domains:
+    - bcentral.cl
+    - www.bcentral.cl
+    - si3.bcentral.cl
+
+crawl:
+  seeds:
+    - https://www.bcentral.cl/inicio
+    - https://www.bcentral.cl/areas/estadisticas
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "documents"
+    - "estadisticas"
+    - "Metodologias"
+    - "publicaciones"
+  dataset_rules:
+    - id: metodologias_paridades_bcch
+      name: Metodologías y Paridades Cambiarias BCCh
+      url_patterns:
+        - "metodologia"
+        - "paridades"
+        - "dolar"
+        - "uf"
+    - id: publicaciones_estadisticas_bcch
+      name: Publicaciones y Estudios Estadísticos BCCh
+      url_patterns:
+        - "documents"
+        - "publicacion"
+        - "informe"
+        - "estadistica"
+    - id: repositorio_general_bcch
+      name: Repositorio General de Documentos BCCh
+      url_patterns:
+        - "/documents/"
+        - "bcentral.cl"
+  excluded_path_keywords:
+    - "/_Incapsula_Resource"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

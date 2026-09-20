@@ -1,0 +1,72 @@
+source:
+  id: bcb_brasil
+  name: Banco Central do Brasil (BCB)
+  base_url: https://www.bcb.gov.br
+  allowed_domains:
+    - bcb.gov.br
+    - www.bcb.gov.br
+
+crawl:
+  seeds:
+    - https://www.bcb.gov.br/
+    - https://www.bcb.gov.br/publicacoes
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+  use_playwright: true
+  headless: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "content"
+    - "publicacoes"
+    - "Documents"
+    - "relatorio"
+    - "estatisticas"
+  dataset_rules:
+    - id: publicaciones_cadip_bcb
+      name: Publicaciones y Manuales CADIP BCB
+      url_patterns:
+        - "cadip"
+        - "manual"
+        - "publicacoes"
+    - id: relatorios_estatisticas_bcb
+      name: Relatorios y Estadísticas BCB
+      url_patterns:
+        - "relatorio"
+        - "estatistica"
+        - "boletim"
+    - id: repositorio_general_bcb
+      name: Repositorio General de Documentos BCB
+      url_patterns:
+        - "/content/"
+        - "/Documents/"
+  excluded_path_keywords:
+    - "/_catalogs"
+    - "/Lists/"
+    - "/Forms/"
+    - "/_layouts/"
+
+period_extraction:
+  months_es:
+    janeiro: 1
+    fevereiro: 2
+    marco: 3
+    abril: 4
+    maio: 5
+    junho: 6
+    julho: 7
+    agosto: 8
+    setembro: 9
+    outubro: 10
+    novembro: 11
+    dezembro: 12
