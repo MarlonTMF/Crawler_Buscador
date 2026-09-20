@@ -2209,7 +2209,8 @@
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
     "note": "ALERTA: URLsFaltantes.md reporto sicsantacruz.com como activo (confianza alta) pero al verificar el 2026-09-17 el dominio sirve una pagina de parking de Namecheap (\"has been recently registered with namecheap.com\"), no el sitio institucional. El dominio expiro y fue re-registrado por un tercero despues de esa investigacion. No usar sin re-verificar.",
     "mapping_note": "Resuelto 2026-09-18 (B-10, Opcion 1 aprobada en docs/auditorias/B-10.md): (a) El portal propio sicsantacruz.com expiro y hoy es parking comercial de Namecheap. (b) El dato se publica a traves del Instituto Cruceno de Estadistica (ICE, ice.santacruz.gob.bo/repositorio), con el SIC nombrado como origen en la metodologia de los estudios 13, 105 y 144, verificado mediante descarga real de PDFs y XLSX primarios (%PDF-1.4 y PK zip). (c) Es un canal sucesor, no la misma entidad: si el ICE se incorpora alguna vez como fuente propia, hay que deduplicar contra esta fila. (d) Para la etapa C, usar la API /api/estudios, no el HTML de la SPA.",
-    "mapping_timestamp": "2026-09-18T14:30:00.000000+00:00"
+    "mapping_timestamp": "2026-09-18T14:30:00.000000+00:00",
+    "crawler_source": "sicsantacruz"
   },
   {
     "Fuente": "SIGMA",

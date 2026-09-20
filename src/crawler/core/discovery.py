@@ -288,6 +288,28 @@ class DiscoveryEngine:
                     )
                 )
 
+    def _add_api_candidates(self, candidates: List[DiscoveredCandidate]) -> None:
+        crawl_cfg = getattr(self.adapter, "config", {}).get("crawl", {}) if hasattr(self.adapter, "config") else {}
+        api_endpoints = crawl_cfg.get("api_endpoints") or getattr(self.adapter, "api_endpoints", [])
+        if not api_endpoints:
+            return
+
+        from crawler.core.api_consumer import ApiConsumer
+
+        consumer = ApiConsumer(
+            base_url=self.adapter.base_url,
+            allowed_domains=self.adapter.allowed_domains,
+            allowed_extensions=self.adapter.allowed_extensions,
+            is_url_excluded_cb=self.adapter.is_url_excluded,
+            rate_limit_per_second=getattr(self.adapter, "rate_limit_per_second", 1.0),
+        )
+
+        api_candidates = consumer.discover_from_endpoints(api_endpoints)
+        for cand in api_candidates:
+            dataset_id = self.adapter.classify_dataset(cand.url, cand.anchor_text)
+            cand.dataset_id = dataset_id
+            candidates.append(cand)
+
     def _build_seed_list(self) -> List[str]:
         crawl_seeds = list(dict.fromkeys(self.adapter.seeds))
         crawl_cfg = self.adapter.config.get("crawl", {})
@@ -320,6 +342,7 @@ class DiscoveryEngine:
     def discover_from_seeds(self) -> List[DiscoveredCandidate]:
         candidates: List[DiscoveredCandidate] = []
         self._add_passive_candidates(candidates)
+        self._add_api_candidates(candidates)
         seen_candidate_urls: Set[str] = {c.url for c in candidates}
 
         seed_list = self._build_seed_list()
