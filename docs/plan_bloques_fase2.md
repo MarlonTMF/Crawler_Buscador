@@ -286,7 +286,7 @@ causa. **No se ajusta la meta para que dé.**
 | B-31 Sitemaps | Antigravity | 60 min | 45 min | ✅ Aprob. c/obs (`dddb969`) |
 | B-32 Wayback | Antigravity | 90 min | 150 min | ✅ Aprob. c/obs (`ee1f183`) |
 | B-33a API declarativa + SICSANTACRUZ | Antigravity | 70 min | 70 min | ✅ Aprob. c/obs (`bd13515`) |
-| B-33b Formularios GET | Antigravity | 45 min | | Pendiente, condicionado al Paso 0 |
+| B-33b Formularios GET | Antigravity | 45 min | 15 min | ✅ Cerrado s/impl (Paso 0, D-12) |
 | B-34 Lote 1 (12 con doc) | Antigravity | 95 min | 75 min | Entregado (aud. agrupada) |
 | B-35 Lote 2 | Antigravity | 95 min | | Pendiente |
 | B-36 Lote 3 | Antigravity | 95 min | | Pendiente |

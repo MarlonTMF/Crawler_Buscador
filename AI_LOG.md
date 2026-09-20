@@ -636,5 +636,18 @@ igual.
 - **Cómo se resolvió:** Se dejó explícito en `docs/decision_b33_api_formularios.md` que los generadores paramétricos no entran ni en B-33a ni en B-33b —son un tercer mecanismo, con su propio riesgo de sondeo ciego— y quedan como pendiente sin bloque asignado.
 - **Por qué:** Una decisión que delega su implementación a un bloque ajeno crea una deuda invisible: el bloque cierra cumpliendo su propio criterio y la promesa de la decisión queda sin dueño. Si una decisión necesita trabajo nuevo, ese trabajo entra al plan como bloque, no como frase dentro de la decisión.
 
+---
+
+## E-35 · No agregar maquinaria al motor para cero usuarios: cierre de B-33b en Paso 0
+
+- **Fecha / bloque:** 2026-09-20 · Paso 0 de B-33b
+- **Tipo:** descarte temprano / economía de complejidad
+- **Herramienta:** Antigravity (sondeo automatizado en vivo del catálogo)
+- **Qué ocurrió:** Se ejecutó el Paso 0 obligatorio fijado por D-12 para identificar fuentes con `<form method="get">` reales cuyas combinaciones devuelvan documentos con bytes.
+- **Qué se encontró:** De 66 fuentes sondeadas en vivo, ninguna posee formularios GET con selectores paramétricos de documentos. Los formularios GET existentes son exclusivamente barras de búsqueda de texto libre de CMS (Drupal, WP, Google CSE). SENAMHI posee selectores interactivos sin atributos `name`/`action`/`method` (manejados por JavaScript en cliente), y SICOES/INE fueron descartados por requerir POST con ViewState.
+- **Cómo se resolvió:** B-33b se cierra formalmente como **no implementado** con evidencia fehaciente documentada en `docs/entregas/B-33b.md`, invirtiendo 15 minutos en vez de los 45 presupuestados.
+- **Por qué:** Evitar la introducción de código muerto y complejidad no utilizada en `DiscoveryEngine` ("cero maquinaria para cero usuarios"), respetando el principio de diseño mínimo de D-07 y D-12.
+
+
 
 

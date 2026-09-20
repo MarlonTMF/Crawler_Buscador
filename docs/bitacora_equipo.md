@@ -121,6 +121,7 @@ pero falle en un checkout aislado.
 | Tras redefinir la métrica | 64/68 · 94.1% | Dejar de contar como falla lo que funciona con navegador |
 | Tras B-11 | **64/67 · 95.5%** | Registro basura depurado |
 | Tras B-33a | **SICSANTACRUZ integrado** | Onboarding vía API Strapi: 201 docs con bytes y SHA verificados |
+| Tras B-33b | **64/67 · 95.5%** | Paso 0: sin fuentes con formularios GET en catálogo; cerrado s/impl |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
