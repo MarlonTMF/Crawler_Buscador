@@ -257,7 +257,7 @@ causa. **No se ajusta la meta para que dé.**
 | B-31 Sitemaps | Antigravity | 60 min | 45 min | ✅ Aprob. c/obs (`dddb969`) |
 | B-32 Wayback | Antigravity | 90 min | 150 min | ✅ Aprob. c/obs (`ee1f183`) |
 | B-33 API y formularios | Claude + Antigravity | 100 min | | Pendiente |
-| B-34 Lote 1 (12 con doc) | Antigravity | 95 min | | Pendiente |
+| B-34 Lote 1 (12 con doc) | Antigravity | 95 min | 75 min | Entregado (aud. agrupada) |
 | B-35 Lote 2 | Antigravity | 95 min | | Pendiente |
 | B-36 Lote 3 | Antigravity | 95 min | | Pendiente |
 | B-37 Lote 4 | Antigravity | 95 min | | Pendiente |

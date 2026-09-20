@@ -624,7 +624,7 @@
       "snippet_text": "<!doctype html>\n<html lang=\"es\">\n\n<head>\n\t<meta charset=\"UTF-8\">\n\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\t<link rel=\"profile\" href=\"https://gmpg.org/x"
     },
     "Error_Detail": null,
-    "crawler_source": null,
+    "crawler_source": "bbv",
     "crawler_dataset": null
   },
   {
@@ -862,7 +862,8 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "bm"
   },
   {
     "Fuente": "BOLCEREALES",
@@ -1252,8 +1253,11 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": null,
-    "crawler_dataset": null
+    "crawler_source": "icco",
+    "crawler_dataset": null,
+    "note": "URL asignada en catalogo (https://www.icco.org) ya trackeada bajo Fuente=ICCO.",
+    "crawler_no_onboard": true,
+    "crawler_no_onboard_reason": "Misma URL institucional que ICCO; cubierto por crawler_source: icco."
   },
   {
     "Fuente": "FEGASACRUZ",
@@ -1533,7 +1537,7 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": null,
+    "crawler_source": "icco",
     "crawler_dataset": null
   },
   {
@@ -1647,7 +1651,8 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "itu"
   },
   {
     "Fuente": "MDRyT",
@@ -1693,7 +1698,7 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": null,
+    "crawler_source": "mdryt",
     "crawler_dataset": null
   },
   {
@@ -1740,8 +1745,11 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": null,
-    "crawler_dataset": null
+    "crawler_source": "mdryt",
+    "crawler_dataset": null,
+    "note": "Dominio ya trackeado bajo Fuente=MDRyT.",
+    "crawler_no_onboard": true,
+    "crawler_no_onboard_reason": "Mismo portal institucional que MDRyT; cubierto por crawler_source: mdryt."
   },
   {
     "Fuente": "MEFP",
@@ -1771,7 +1779,8 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html><html lang=\"es\" dir=\"ltr\" prefix=\"content: http://purl.org/rss/1.0/modules/content/  dc: http://purl.org/dc/terms/  foaf: http://xmlns.com/foaf/0.1/  og: http://ogp."
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "mefp"
   },
   {
     "Fuente": "MHE",
@@ -2028,7 +2037,8 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "otros_historicos"
   },
   {
     "Fuente": "SABSA",
@@ -2228,7 +2238,8 @@
       "quality_score": 3.0,
       "snippet_text": "<!DOCTYPE html><html lang=\"es\"><head><link rel=\"apple-touch-icon\" sizes=\"76x76\" href=\"/static/favicons/apple-touch-icon.png\"/><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\""
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "sigma"
   },
   {
     "Fuente": "SISPAM",
@@ -2460,7 +2471,8 @@
       "quality_score": 3.0,
       "snippet_text": "\r\n<!DOCTYPE html>\r\n<html lang=\"da\">\r\n<head>\r\n    <title>\r\n        Danmarks Statistik\r\n\r\n    </title>\r\n    \r\n    <link rel=\"shortcut icon\" href=\"/Site/Dst/Images/favicon2013.ico\" />"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "statistics_denmark"
   },
   {
     "Fuente": "TRANSTATS",
@@ -2557,7 +2569,8 @@
         }
       ]
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "undata"
   },
   {
     "Fuente": "VIPFE",

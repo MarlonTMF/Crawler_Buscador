@@ -1,0 +1,101 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: MDRyT (Ministerio de Desarrollo Rural y Tierras)
+# Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
+# ==============================================================================
+
+source:
+  id: mdryt
+  name: "Ministerio de Desarrollo Rural y Tierras"
+  base_url: https://www.ruralytierras.gob.bo
+  allowed_domains:
+    - www.ruralytierras.gob.bo
+    - ruralytierras.gob.bo
+
+crawl:
+  seeds:
+    - https://ruralytierras.gob.bo
+    - https://ruralytierras.gob.bo/index.php/informes-de-viaje-al-exterior/
+    - https://ruralytierras.gob.bo/index.php/manual-de-organizacion/
+    - https://ruralytierras.gob.bo/index.php/manuales-de-procedimiento/
+  max_depth: 2
+  max_pages: 120
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
+  use_sitemaps: true
+  use_wayback: true
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens:
+    - "uploads"
+    - "informes"
+    - "manual"
+    - "requisitos"
+    - "documentos"
+  dataset_rules:
+    - id: normativa_y_manuales
+      name: Normativa y Manuales Institucionales
+      url_patterns:
+        - "manual"
+        - "procedimiento"
+        - "organizacion"
+    - id: informes_mdryt
+      name: Informes y Auditorías
+      url_patterns:
+        - "informes"
+        - "viaje"
+        - "auditoria"
+    - id: resoluciones_y_registros
+      name: Resoluciones y Registros Sanitarios
+      url_patterns:
+        - "requisitos"
+        - "registro"
+        - "resolucion"
+  excluded_path_keywords:
+    - "/contacto/"
+    - "/noticias/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "" # TODO: definir regex con (?P<year>...) segun nomenclatura de archivos de la fuente
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []

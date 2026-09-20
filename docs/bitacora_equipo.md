@@ -54,6 +54,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-31 | 🅰️ | Sitemaps en todos los portales | 60/45 | Aprob. c/obs | 15 de 28 portales con sitemap; delta +52 docs en muestra (ibce_cao +34, ae +18); max_sitemaps truncaba |
 | B-32 | 🅰️ | Series históricas y Wayback (Fase 2) | 90/150 | **Devuelto** → Aprob. c/obs | 206 PDFs históricos reales (188 vivo + 18 Wayback). Fix transversal en allowed_extensions (fuga de .sha) y D-11 |
 | B-30 | 🅰️ | Extracción de ZIP en prod (Fase 2) | 60/40 | Aprob. c/obs | 57 docs extraídos en ASFI y 1 en IN; hallazgo: 11 ZIPs de ASFI (79 MB, .xlsm/.ods) descargados sin extraer ni advertir |
+| B-34 | 🅰️ | Onboarding Lote 1 (12 con doc) | 95/75 | Entregado (aud. agrupada) | Onboarding 12 fuentes con sitemap y wayback a profundidad 2; +2.060 docs reales (BBV 326, BM 106, ICCO 852, ITU 143, MDRyT 170, UNDATA 66, OTROS HIST 392, DST 5) |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de

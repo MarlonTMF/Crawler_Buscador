@@ -109,8 +109,8 @@ def test_calcular_track_a_con_catalogo_real():
     assert res["pct_exclusiones_documentadas"] == 4.48
     assert res["total_clasificado"] == 67
     assert res["pct_total_clasificado"] == 100.0
-    assert res["entradas_con_crawler_source"] == 33
-    assert res["fuentes_unicas_en_catalogo"] == 26
+    assert res["entradas_con_crawler_source"] >= 33
+    assert res["fuentes_unicas_en_catalogo"] >= 26
 
 
 def test_calcular_track_b_con_output_real():

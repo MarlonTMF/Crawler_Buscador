@@ -1,0 +1,92 @@
+# ==============================================================================
+# Configuración del Prospector Externo — DataX Web Prospector
+# Fuente: MEFP (Ministerio de Economía y Finanzas Públicas)
+# Esqueleto autogenerado por scripts/generar_yaml_fuente.py (Etapa C / B-12)
+# ==============================================================================
+
+source:
+  id: mefp
+  name: "Ministerio de Economía y Finanzas Públicas"
+  base_url: https://www.economiayfinanzas.gob.bo
+  allowed_domains:
+    - www.economiayfinanzas.gob.bo
+    - economiayfinanzas.gob.bo
+
+crawl:
+  seeds:
+    - https://www.economiayfinanzas.gob.bo
+    - https://www.economiayfinanzas.gob.bo/index.php/informe-gestion
+    - https://www.economiayfinanzas.gob.bo/index.php/informes-auditoria-interna
+  max_depth: 2
+  max_pages: 120
+  strategy: bfs
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
+  use_sitemaps: true
+  use_wayback: true
+  use_search_dorking: false
+  use_subdomain_enumeration: false
+  use_async_fetcher: false
+  use_playwright: false
+  use_playwright_ocr: false
+  headless: false
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: false
+
+monitoring:
+  drift_threshold: 0.30
+  historical_resource_counts: []
+
+search_dorking:
+  provider: none
+  max_results: 50
+
+classification:
+  document_path_tokens:
+    - "files"
+    - "comunicado"
+    - "informe"
+    - "gestion"
+    - "auditoria"
+    - "poa"
+  dataset_rules:
+    - id: informe_gestion
+      name: Informes de Gestión
+      url_patterns:
+        - "informe-gestion"
+        - "informe"
+    - id: auditoria_interna
+      name: Informes de Auditoría
+      url_patterns:
+        - "auditoria"
+  excluded_path_keywords:
+    - "/contact/"
+    - "/form/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
+  filename_pattern: "" # TODO: definir regex con (?P<year>...) segun nomenclatura de archivos de la fuente
+
+canonicalization:
+  drop_query_parameters:
+    - utm_source
+    - utm_medium
+    - utm_campaign
+    - fbclid
+  preserve_query_parameters: []
