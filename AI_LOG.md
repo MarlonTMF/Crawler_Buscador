@@ -601,5 +601,40 @@ igual.
 - **Consecuencia para B-32:** El criterio de B-32 ("bytes, no solo listados") no puede cumplirse sin resolver previamente la captura o medición de tamaño en el pipeline.
 - **Cómo se resolvió:** Observación anotada para ser saldada antes de ejecutar B-32.
 
+---
+
+## E-32 · Un bloque con dos mecanismos y un solo criterio de aceptación mete la mitad sin evidencia
+
+- **Fecha / bloque:** 2026-09-19 · parada obligatoria de B-33
+- **Tipo:** dimensionamiento de bloques / criterio de aceptación
+- **Herramienta:** Antigravity (diagnóstico), Claude (decisión)
+- **Qué ocurrió:** El diagnóstico de B-33 recomendó implementar acotado —API y formularios juntos— argumentando que entraba en el bloque. La estimación de tiempo era razonable; el problema era otro.
+- **Qué encontró el Auditor:** El criterio de aceptación de B-33 ("SICSANTACRUZ ≥ 10 documentos vía API") solo mide el camino de API. La mitad de formularios habría entrado al motor de extracción sin ninguna evidencia que la respalde, en el mismo commit y bajo el paraguas de un criterio que no la toca.
+- **Cómo se resolvió:** Bloque partido en B-33a y B-33b, cada uno con su criterio propio (D-12).
+- **Por qué:** "Entra en el tiempo" y "se puede verificar" son preguntas distintas. La regla de dimensionamiento de `CLAUDE.md` —un bloque que no cierra con un commit que se sostenga solo está mal dimensionado— se lee mejor al revés: **un commit se sostiene solo cuando hay un criterio que lo mide**. Dos mecanismos independientes necesitan dos criterios, y por lo tanto dos bloques, aunque juntos entren en 100 minutos.
+
+---
+
+## E-33 · Un módulo escrito y sin usar no es media solución; puede ser la parte cara y equivocada
+
+- **Fecha / bloque:** 2026-09-19 · parada obligatoria de B-33
+- **Tipo:** reutilización de código muerto
+- **Herramienta:** Claude (decisión D-12)
+- **Qué ocurrió:** B-33 se planteó como "hay 583 líneas de `api_detector.py` que nadie llama, conectémoslas". La intuición de que código escrito es trabajo ya hecho hizo que el objetivo del bloque fuera *conectar el módulo* en vez de *extraer documentos de SICSANTACRUZ*.
+- **Qué encontró el Auditor:** `api_detector.py` sondea ~25 rutas a ciegas por dominio y no produce candidatos descargables. Conectarlo no ahorra escribir la capa JSON → candidato (que es todo el trabajo real) y agrega sondeo especulativo — D-02 trasladado de URLs a APIs. Para SICSANTACRUZ el endpoint ya estaba verificado: era un dato para escribir en el YAML, no algo para re-descubrir en cada corrida.
+- **Cómo se resolvió:** El módulo se deja donde está, cumpliendo su función diagnóstica. Se reutiliza solo `RobotsGate`. El consumo de API se implementa nuevo y declarativo (D-12).
+- **Por qué:** La pregunta útil frente a código sin usar no es "¿cómo lo conecto?" sino "¿qué parte del problema resuelve realmente?". Acá resolvía la parte barata (encontrar el endpoint, que ya estaba hecho a mano) y no la cara (traducir el payload).
+
+---
+
+## E-34 · Una decisión cerrada dejó una promesa colgada de un bloque que no la contenía
+
+- **Fecha / bloque:** 2026-09-19 · parada obligatoria de B-33
+- **Tipo:** desincronización entre decisiones y plan
+- **Herramienta:** Claude
+- **Qué encontró el Auditor:** D-11, punto 2, dice que los generadores paramétricos de URL para series históricas quedan "formalizados en B-33 para ASFI-IFD". B-33 nunca tuvo eso en su enunciado —es API y formularios—, y un `grep` sobre `src/` y `config/` confirma que no hay nada parecido implementado. La referencia se escribió apuntando a un bloque que no iba a cumplirla.
+- **Cómo se resolvió:** Se dejó explícito en `docs/decision_b33_api_formularios.md` que los generadores paramétricos no entran ni en B-33a ni en B-33b —son un tercer mecanismo, con su propio riesgo de sondeo ciego— y quedan como pendiente sin bloque asignado.
+- **Por qué:** Una decisión que delega su implementación a un bloque ajeno crea una deuda invisible: el bloque cierra cumpliendo su propio criterio y la promesa de la decisión queda sin dueño. Si una decisión necesita trabajo nuevo, ese trabajo entra al plan como bloque, no como frase dentro de la decisión.
+
 
 

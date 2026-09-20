@@ -161,22 +161,51 @@ documentos) — y el inventario distingue vigente de histórico.
 
 ---
 
-### B-33 · Conectar API y formularios al pipeline — Claude decide, Antigravity implementa — 100 min
+### B-33 · Conectar API y formularios al pipeline — PARTIDO en B-33a y B-33b
 
-**Objetivo.** `api_detector.py` (583 líneas) y `form_automator.py` están
-implementados y no los llama nadie. Desbloquean los casos sin salida:
-SICSANTACRUZ (API Strapi), SICOES e INE (formularios de consulta).
+**Parada obligatoria resuelta el 2026-09-19.** Antigravity entregó el
+diagnóstico (`docs/diagnostico_b33_api_formularios.md`) y Claude decidió
+**partir el bloque** (`docs/decision_b33_api_formularios.md`, cerrada como
+D-12). Las pautas de implementación de ambos sub-bloques están en el documento
+de decisión; lo de abajo es solo el resumen ejecutable.
 
-**Parada obligatoria antes de implementar.** Este es el bloque con más riesgo
-de desbordarse. Antigravity entrega primero un diagnóstico —qué expone cada
-módulo, qué haría falta en el orchestrator, si entra en un bloque— y Claude
-decide si se implementa entero o se parte. Toca el motor de extracción, así
-que aplica la regla de `CLAUDE.md`: plan aprobado antes del cambio.
+Dos cosas cambian respecto del enunciado original: `api_detector.py` **no** se
+conecta al pipeline (sondeo ciego = D-02 aplicado a APIs; solo se reutiliza
+`RobotsGate`), y SICOES e INE **dejan de ser casos objetivo** porque usan POST
+con `__VIEWSTATE`, que `FormAutomator` no puede expresar.
+
+---
+
+#### B-33a · Consumo declarativo de endpoints JSON — Antigravity — 70 min
+
+**Objetivo.** Sección nueva `crawl.api_endpoints` en el YAML, módulo nuevo
+`src/crawler/core/api_consumer.py` y un único enganche en `DiscoveryEngine`,
+con el mismo patrón que wayback. Sin la sección, comportamiento idéntico al
+actual.
 
 **Criterio de aceptación.** SICSANTACRUZ pasa de 0 a ≥ 10 documentos
-descargados vía la API, con los primeros bytes verificados.
+descargados vía la API, contados **leyendo `inventory.db`** y con los primeros
+bytes de 3 archivos verificados. Más las dos pruebas nuevas vistas en rojo
+antes del fix, una de ellas la de no-regresión (YAML sin `api_endpoints` ⇒ 0
+peticiones).
 
-**Commit.** `feat: descubrimiento por api y formularios en el pipeline de extraccion`
+**Commit.** `feat: consumo declarativo de endpoints json en el descubrimiento`
+
+---
+
+#### B-33b · Expansión de formularios GET — Antigravity — 45 min — CONDICIONADO
+
+**Paso 0 obligatorio (15 min).** Encontrar en el catálogo al menos una fuente
+con `<form method="get">` real cuyas combinaciones devuelvan documentos. Si no
+aparece ninguna, el bloque cierra como **no implementado** con esa evidencia
+—resultado válido— y se registra en `AI_LOG.md`.
+
+**Criterio de aceptación.** La fuente hallada en el Paso 0 pasa de N a > N
+documentos verificados por bytes, **y** una fuente sin formularios no cambia su
+conteo entre dos corridas. Detrás de `crawl.expand_get_forms: false` por
+defecto, con las URLs generadas contando contra `max_pages`.
+
+**Commit.** `feat: expansion de formularios get en el descubrimiento`
 
 ---
 
@@ -256,7 +285,8 @@ causa. **No se ajusta la meta para que dé.**
 | B-30 Verificar ZIP | Antigravity | 60 min | 40 min | ✅ Aprob. c/obs (`172b76c`) |
 | B-31 Sitemaps | Antigravity | 60 min | 45 min | ✅ Aprob. c/obs (`dddb969`) |
 | B-32 Wayback | Antigravity | 90 min | 150 min | ✅ Aprob. c/obs (`ee1f183`) |
-| B-33 API y formularios | Claude + Antigravity | 100 min | | Pendiente |
+| B-33a API declarativa + SICSANTACRUZ | Antigravity | 70 min | | Pendiente (diseño cerrado, D-12) |
+| B-33b Formularios GET | Antigravity | 45 min | | Pendiente, condicionado al Paso 0 |
 | B-34 Lote 1 (12 con doc) | Antigravity | 95 min | 75 min | Entregado (aud. agrupada) |
 | B-35 Lote 2 | Antigravity | 95 min | | Pendiente |
 | B-36 Lote 3 | Antigravity | 95 min | | Pendiente |
@@ -291,7 +321,7 @@ autoridad según `docs/protocolo_equipo.md`:
 |---|---|---|
 | Fin de etapa | Parar y consultar | Seguir |
 | Veredicto DEVUELTO | Parar | Antigravity subsana y reenvía; parar recién al **tercer** DEVUELTO del mismo bloque |
-| Diseño de B-33 | Parar y consultar | Claude decide en el acta si se implementa entero o se parte |
+| Diseño de B-33 | Parar y consultar | ✅ Resuelto 2026-09-19: partido en B-33a y B-33b (`docs/decision_b33_api_formularios.md`, D-12) |
 | El acta propone tocar `docs/decisiones.md` | Parar | **Sigue parando** |
 
 **El bucle se detiene y espera a Marlon solo en tres casos:**
@@ -323,7 +353,7 @@ sin hacer debe ser lo de menor valor.
 | **1** | B-28, B-29 | ≈ +3.500 docs esperados con cambios de una línea. La mejor relación del plan por un margen enorme. |
 | **2** | B-31, B-32 | Sitemaps y wayback: alto retorno, costo bajo, aplican a todos los portales a la vez. |
 | **3** | B-30, B-34 | ZIP y el lote de las 12 fuentes con documento ya detectado: retorno alto pero trabajo por fuente. |
-| **4** | B-33 | Alto valor y **alto costo en tokens** — es el único que requiere diseño. Va después de lo barato a propósito. |
+| **4** | B-33a, B-33b | Alto valor y **alto costo en tokens**. El diseño ya está cerrado (D-12), así que lo que queda es ejecución. B-33a primero: es el que tiene el criterio medible. |
 | **5** | B-35 a B-38 | Las 17 fuentes sin documento detectado. Es donde menos se espera encontrar, y es lo aceptable de perder. |
 | **6** | B-39, B-40 | Medición y cierre. **Si el presupuesto está por agotarse, estos dos se ejecutan igual**: sin medir, la fase no tiene resultado reportable. |
 
@@ -337,7 +367,7 @@ cambios triviales. Los bloques se agrupan en tres niveles:
 
 | Nivel | Bloques | Alcance de la auditoría |
 |---|---|---|
-| **Completa** | B-28, B-30, B-32, B-33, B-39, B-40 | Parte + `git show --stat` + sondeo independiente. Son los que introducen mecanismo nuevo, criterio nuevo o miden el resultado. |
+| **Completa** | B-28, B-30, B-32, B-33a, B-33b, B-39, B-40 | Parte + `git show --stat` + sondeo independiente. Son los que introducen mecanismo nuevo, criterio nuevo o miden el resultado. |
 | **Ligera** | B-29, B-31 | Solo reproducir el número del criterio de aceptación. Son cambios de bandera con umbral numérico: o el conteo subió o no. |
 | **Agrupada** | B-34 a B-38 | Dos auditorías en total, no cinco: una después de B-35 y otra después de B-38. Son lotes casi idénticos; auditar cada uno por separado repite el mismo trabajo cinco veces. |
 

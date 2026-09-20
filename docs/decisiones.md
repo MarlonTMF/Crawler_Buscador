@@ -418,3 +418,73 @@ base y estos archivos vuelven a ser exportaciones desechables.
 - **Umbral que reabriría esto.** Si Internet Archive bloquea a nivel de IP el gateway directo web de snapshots, o si los portales implementan ofuscación no determinística de nombres de archivo que impida inferir rutas pasadas.
 - **Verificado el.** 2026-09-19 (bloque B-32, recuperación verificada de 18 boletines `fr-bem` con bytes reales).
 
+---
+
+## D-12 · Las APIs se consumen por configuración declarativa; `api_detector.py` no se conecta al pipeline de extracción
+
+- **Origen:** Parada obligatoria de B-33 (`docs/plan_bloques_fase2.md:170-175`). Diagnóstico en `docs/diagnostico_b33_api_formularios.md`, decisión y pautas en `docs/decision_b33_api_formularios.md`.
+
+**Contexto.** `api_detector.py` (583 líneas) y `form_automator.py` (49 líneas)
+están implementados y no los llama nadie. B-33 proponía conectarlos al motor de
+extracción para desbloquear SICSANTACRUZ (API Strapi), SICOES e INE
+(formularios). El diagnóstico previo estableció dos hechos que cambian el
+planteo: `api_detector` es un catalogador diagnóstico que no produce
+`DownloadCandidate`, y `FormAutomator` no maneja POST ni `__VIEWSTATE`, que es
+justamente lo que usan SICOES e INE.
+
+**Alternativas descartadas.**
+
+1. *Conectar `probe_domain_for_apis` al pipeline para autodescubrir endpoints.*
+   Descartado: son ~25 sondeos ciegos por dominio, que en la mayoría de los
+   portales devuelven 404. Es D-02 —sondeo especulativo sin señal previa—
+   trasladado de URLs a APIs. Además no ahorra trabajo: la capa de traducción
+   JSON → candidato hay que escribirla igual.
+2. *Implementar API y formularios en un solo bloque y un solo commit.*
+   Descartado: el criterio de aceptación de B-33 solo mide la mitad API, con lo
+   cual la mitad de formularios entraría al motor sin evidencia. Y los riesgos
+   son de distinta naturaleza — el camino API es aditivo y aislado, mientras
+   que la expansión de formularios escribe dentro del bucle BFS con producto
+   cartesiano, que es la forma exacta del bug D-06.
+3. *Configurar la ruta del documento dentro del JSON con JSONPath o un
+   mini-lenguaje de rutas.* Descartado: la ruta de Strapi
+   (`attributes.documento.data.attributes.url`) es específica de una fuente y
+   de una versión. Un barrido recursivo del payload que recoge strings
+   resolubles a `allowed_extensions` cubre Strapi, CKAN y OData con menos
+   código y sin configuración por fuente.
+
+**Decisión.**
+
+1. Los endpoints de API se **declaran verificados en el YAML de la fuente**
+   (`crawl.api_endpoints`), no se autodescubren en tiempo de corrida. La
+   ausencia de la sección equivale a comportamiento idéntico al actual.
+2. La traducción JSON → `DiscoveredCandidate` vive en un módulo nuevo
+   (`api_consumer.py`) enganchado en un solo punto de `DiscoveryEngine`, con el
+   mismo patrón que wayback y search dorking. Procedencia `url_origin="api"`.
+3. `api_detector.py` conserva su rol actual —generar `output/reporte_apis.md`—
+   y no participa de la extracción. Lo único que se reutiliza de él es
+   `RobotsGate`.
+4. B-33 se parte en **B-33a** (API + SICSANTACRUZ, aprobado) y **B-33b**
+   (formularios GET, condicionado a encontrar antes un caso GET real en el
+   catálogo). SICOES e INE dejan de ser casos objetivo de B-33b.
+
+**Razón.** Un endpoint verificado es un dato, y los datos verificados se
+escriben, no se re-descubren en cada corrida. Separar los dos mecanismos
+permite además que cada uno cierre con evidencia propia, que es la única forma
+de que la auditoría pueda decir algo sobre ellos.
+
+**Consecuencia.** El motor gana un canal de descubrimiento por API utilizable
+por cualquier fuente futura con endpoint JSON conocido —incluida CEPAL, que
+D-10 dejó pendiente de un conector REST/OAI-PMH— sin agregar sondeo
+especulativo. Los formularios POST con estado (SICOES, INE) quedan
+explícitamente diferidos a la fase de conectores especializados.
+
+**Umbral que reabriría esto.** Si aparecen tres o más fuentes con API cuyo
+endpoint no se pueda determinar por inspección manual, el autodescubrimiento
+pasa a tener caso y se evalúa como bloque propio. Si el barrido recursivo
+sobre-recoge en alguna fuente, se agrega un `items_path` opcional sin cambiar
+el resto de la decisión.
+
+**Verificado el.** 2026-09-19, contra `src/crawler/core/api_detector.py`,
+`src/crawler/core/form_automator.py`, `src/crawler/core/discovery.py:320-414`
+y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
+
