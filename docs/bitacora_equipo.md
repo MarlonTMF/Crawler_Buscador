@@ -93,6 +93,24 @@ una diferencia de un solo acento.
 
 ---
 
+**El estado PROCESADO_EXITOSAMENTE no significa descargado (B-33a).** Con
+`content_hashing.enabled: false`, el pipeline finaliza con 201 filas en estado
+exitoso pero con `file_size_bytes` y `content_sha256` en NULL, sin tocar la red
+para transferir los archivos. La verificación real de inventario exige filtrar
+por `file_size_bytes > 0`.
+
+**El nombre del host dentro de las reglas de clasificación es un catch-all encubierto (B-33a).**
+Incluir `"ice"` en `dataset_rules` matcheó `ice.santacruz.gob.bo`, capturando el
+80% de los documentos en una sola categoría. Los patrones de dataset deben
+apuntar a rutas temáticas y nombres de archivo, nunca a subcadenas del dominio.
+
+**Imports con prefijo `src.` anulan la verificación de entorno limpio (B-33a).**
+Usar `from src.crawler...` en vez de `from crawler...` resuelve por directorio
+local en vez de `PYTHONPATH`, haciendo que un test pase en el árbol de trabajo
+pero falle en un checkout aislado.
+
+---
+
 ## Cómo evolucionó la cifra de cobertura
 
 | Momento | Cifra | Qué cambió |
@@ -102,6 +120,7 @@ una diferencia de un solo acento.
 | Tras B-08 | 62/68 · 91.2% | El universo creció: entraron 6 fuentes que faltaban |
 | Tras redefinir la métrica | 64/68 · 94.1% | Dejar de contar como falla lo que funciona con navegador |
 | Tras B-11 | **64/67 · 95.5%** | Registro basura depurado |
+| Tras B-33a | **SICSANTACRUZ integrado** | Onboarding vía API Strapi: 201 docs con bytes y SHA verificados |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su

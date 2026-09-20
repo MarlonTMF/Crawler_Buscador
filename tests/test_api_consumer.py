@@ -215,7 +215,7 @@ def test_discovery_engine_integrates_api_consumer():
     discovery = DiscoveryEngine(fetcher=mock_fetcher, adapter=mock_adapter)
 
     with patch.object(ApiConsumer, "discover_from_endpoints") as mock_api:
-        from src.crawler.core.discovery import DiscoveredCandidate
+        from crawler.core.discovery import DiscoveredCandidate
         mock_api.return_value = [
             DiscoveredCandidate(
                 url="https://ice.santacruz.gob.bo/uploads/doc.pdf",
