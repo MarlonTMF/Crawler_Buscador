@@ -648,6 +648,18 @@ igual.
 - **Cómo se resolvió:** B-33b se cierra formalmente como **no implementado** con evidencia fehaciente documentada en `docs/entregas/B-33b.md`, invirtiendo 15 minutos en vez de los 45 presupuestados.
 - **Por qué:** Evitar la introducción de código muerto y complejidad no utilizada en `DiscoveryEngine` ("cero maquinaria para cero usuarios"), respetando el principio de diseño mínimo de D-07 y D-12.
 
+---
+
+## E-36 · Un token en español clasificó páginas en inglés como documentos: `"/reporte"` capturó `"reported"`
+
+- **Fecha / bloque:** 2026-09-20 · auditoría agrupada B-36 + B-37 + B-38
+- **Tipo:** falso positivo de clasificación / cifra no verificada
+- **Herramienta:** Claude (auditor)
+- **Qué encontró el Auditor:** De los 907 "documentos descargados con bytes reales y SHA-256" que declaran los tres partes, 16 son páginas HTML. NIH lo es al 100% (5 de 5): sus filas son notas de prensa del NIDA, `Content-Type: text/html`, verificadas re-descargándolas. La causa está en `discovery.py:204-246`, `_is_download_link()`: una URL sin extensión se declara documento si su path contiene por **subcadena** alguno de 18 tokens en español. `"/reporte"` es prefijo de `"/reported"`, y las noticias del NIDA se llaman `reported-use-…`. En portales en español el token acierta el tema pero no el tipo: `boletin-diario-page/` es la página que *lista* los boletines, y se contó además de los PDF que ella misma enlaza.
+- **Cómo se detectó:** No por el conteo —los 12 conteos SQL de los partes se reproducen exactos— sino agrupando las URLs descargadas por extensión del último segmento. Tres fuentes mostraron un bloque `SIN-EXT` que no debía existir dado `allowed_extensions: [pdf, xlsx, xls, csv, zip]`.
+- **Cómo se resolvió:** Grupo DEVUELTO con cifras corregidas (891, no 907) y NIH reclasificada como portal sin documentos. El arreglo del motor no entra en la corrección: cambia qué cuenta como documento en todas las fuentes ya onboardeadas, así que va como decisión propia (propuesta D-14) y bloque propio.
+- **Por qué:** Es la misma clase de error de siempre con una piel nueva. Acá el artefacto verificado fue *más* fuerte que de costumbre —bytes reales, SHA-256 que reproduje byte a byte— y aun así no probaba lo que se afirmaba, porque nadie preguntó qué era el archivo. Un hash correcto de una página HTML es un hash correcto. La verificación tiene que llegar hasta el tipo de contenido, no detenerse en que hubo bytes.
+
 
 
 

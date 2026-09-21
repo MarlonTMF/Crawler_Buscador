@@ -115,6 +115,15 @@ que toda fuente nueva se configura con hashing activado. El onboarding del
 Lote 1 (rebote) alcanzó 902 documentos con bytes verificados y SHA-256; y el
 Lote 2 aportó 79 documentos con bytes reales (53 CEPROBOL, 26 BCB_BRASIL).
 
+**Criterio de documento real vs página HTML (D-14 / B-36..B-38 Ronda 2).**
+Páginas HTML de navegación o artículos sin extensión no se computan como
+documentos (16 páginas depuradas: NIH 5 artículos web, SABSA 2 índices, SISPAM 5
+índices, TRANSTATS 4 temas). Total real de documentos binarios descargados con
+bytes > 0 y SHA-256 en los Lotes 3, 4 y 5: **891 documentos** (75 en Lote 3, 138
+en Lote 4, 678 en Lote 5). Estabilidad comprobada en las 12 fuentes entre dos
+corridas independientes (100% idéntico en VIPFE a 667 docs, OBA a 106 docs, MHE
+a 13 docs, etc.).
+
 ---
 
 ## Cómo evolucionó la cifra de cobertura
@@ -129,10 +138,9 @@ Lote 2 aportó 79 documentos con bytes reales (53 CEPROBOL, 26 BCB_BRASIL).
 | Tras B-33a | **SICSANTACRUZ integrado** | Onboarding vía API Strapi: 201 docs con bytes y SHA verificados |
 | Tras B-33b | **64/67 · 95.5%** | Paso 0: sin fuentes con formularios GET en catálogo; cerrado s/impl |
 | Tras B-34 / B-35 (Rebote) | **49/67 con crawler_source** | Lote 1 re-descargado (902 docs c/bytes) + Lote 2 (79 docs c/bytes) · Aprobados (`ac89f06`) |
-| Tras B-36 (Lote 3) | **53/67 con crawler_source** | Lote 3 onboarded: MHE (13 docs c/bytes), FIFA (62 docs c/bytes), Data.Gov (0, portal info), FEGASACRUZ (0, sitio en construcción) |
-| Tras B-37 (Lote 4) | **57/67 con crawler_source** | Lote 4 onboarded: OBA (106 docs c/bytes), SABSA (24 docs c/bytes), OMC (10 docs c/bytes), NIH (5 docs c/bytes) |
-| Tras B-38 (Lote 5) | **61/67 con crawler_source** | Lote 5 onboarded: VIPFE (667 docs c/bytes), SISPAM (10 docs c/bytes), TRANSTATS (10 docs c/bytes), SICOES (0, ASPX POST) |
+| Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 891 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en las 12 fuentes. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
 definición — y uno que solo sube probablemente no se está midiendo bien.
+

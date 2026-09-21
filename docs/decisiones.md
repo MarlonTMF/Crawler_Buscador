@@ -509,4 +509,27 @@ y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 
 **Verificado el.** 2026-09-20, acordado entre Antigravity y Claude CLI y aprobado por Marlon.
 
+---
+
+## D-14 · Criterio de qué cuenta como documento: contenido digital real (extensión o MIME documental), no heurística de URL
+
+**Contexto.** En la auditoría agrupada de B-36 + B-37 + B-38 (`docs/auditorias/B-36_B-37_B-38.md`), se identificó el hallazgo H-1: 16 de los 907 "documentos descargados con bytes reales y SHA-256" correspondían en realidad a **páginas HTML de navegación** (`text/html`, cuerpo `<!DOCTYPE html>`). Una fuente completa (NIH / NIDA) aportaba 5 filas que eran exclusivamente artículos y notas de prensa web sin extensión de documento, capturadas porque `_is_download_link()` en `src/crawler/core/discovery.py:204-246` clasificaba como documento cualquier URL cuyo path contuviera subcadenas como `/reporte`, coincidiendo accidentalmente con el participio en inglés `"reported"` (`reported-use-...`). De igual modo, en portales en español capturó páginas índice (`boletin-diario-page/`) duplicándolas junto a los PDFs enlazados.
+
+**Opciones consideradas.**
+1. *Contar cualquier recurso transferido con status 200 y bytes > 0.* Descartado: infla artificialmente el conteo incorporando páginas HTML de navegación o artículos web que no constituyen archivos documentales binarios.
+2. *Modificar inmediatamente la heurística de `_is_download_link()` en el motor.* Descartado para la entrega de los lotes: modificar el core del motor alteraría de forma retrospectiva los conteos de todas las fuentes ya cerradas en fases previas sin un bloque de calibración y regresión dedicado.
+3. *Adopción de D-14 en la capa de auditoría y métricas, con reclasificación estricta de documentos y tarea técnica diferida para el motor.* Opción adoptada: los conteos de cobertura y documentos reales se miden únicamente sobre recursos con extensión o MIME documental verificable (`.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip`). El ajuste del motor se programa como bloque técnico propio.
+
+**Decisión.**
+1. **Qué cuenta como documento:** Una fila en `inventory.db` cuenta formalmente como documento si y solo si su contenido corresponde a un formato documental o binario permitido (`.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip` o `Content-Type` documental equivalente).
+2. Las páginas HTML sin extensión capturadas por heurística de subcadenas de path se clasifican como **páginas de navegación / índice**, y **no se computan** en las cifras de documentos reales descargados.
+3. Los tokens de path y texto de `discovery.py` se definen formalmente como mecanismos para **priorizar rastreo**, nunca como determinantes taxonómicos de documento final.
+4. Las fuentes que solo aporten páginas HTML sin archivos documentales descargables (como NIH) cierran válidamente como **portales sin documentos detectados**, documentando fehacientemente la causa técnica.
+5. El refactor de `_is_download_link()` en el motor se ejecutará en un bloque técnico posterior para salvaguardar la estabilidad de las suites de prueba de la Fase 2.
+
+**Razón.** Una métrica de inventario documental no puede mezclar páginas web con archivos descargables. El valor analítico de los datos depende de la pureza del inventario.
+
+**Verificado el.** 2026-09-21, acordado en acta de auditoría B-36..B-38 y aprobado por Marlon.
+
+
 

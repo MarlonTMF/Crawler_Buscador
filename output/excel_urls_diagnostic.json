@@ -1289,7 +1289,9 @@
     "resolved_from_variant": false,
     "original_url": null,
     "mapping_resolved": null,
-    "crawler_source": "fegasacruz"
+    "crawler_source": "fegasacruz",
+    "verification_status": "reachable_unverified",
+    "mapping_note": "Dominio fegasacruz.org.bo caido (NXDOMAIN). Dominio alternativo fegasacruz.org responde 200 pero sirve una landing de pagina en construccion sin contenido institucional verificable. Marcado como reachable_unverified segun O-3 de auditoria B-36..B-38."
   },
   {
     "Fuente": "FIFA",
@@ -1956,7 +1958,9 @@
     "Pais": "Estados Unidos",
     "decision_status": "cerrada",
     "decision_timestamp": "2026-09-17T16:06:38.814903+00:00",
-    "crawler_source": "nih"
+    "crawler_source": "nih",
+    "document_status": "sin_documentos_detectados",
+    "d14_note": "Bajo decision D-14, clasificada como portal sin documentos binarios descargables: sus reportes y estadisticas se publican como articulos web HTML (text/html) sin archivos adjuntos descargables."
   },
   {
     "Fuente": "OBA",
