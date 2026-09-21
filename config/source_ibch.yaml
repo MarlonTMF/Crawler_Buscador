@@ -16,8 +16,11 @@ crawl:
   seeds:
     - https://www.ibch.com/
     - https://www.ibch.com/boletin/
-  max_depth: 1
-  max_pages: 35
+    - https://www.ibch.com/pub/
+    - https://www.ibch.com/pavimentos/dossier/
+    - https://www.ibch.com/pavimentos/publicaciones/
+  max_depth: 3
+  max_pages: 50
   strategy: bfs
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]

@@ -34,10 +34,10 @@ crawl:
     - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2018
     - https://www.asfi.gob.bo/la/estados-financieros-resumidos-gestion-2017
     - https://www.asfi.gob.bo/pb/instituciones-financieras-desarrollo
-  max_depth: 2
-  max_pages: 120
+  max_depth: 3
+  max_pages: 200
   strategy: bfs
-  rate_limit_per_second: 0.05
+  rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
   use_sitemaps: true
   use_wayback: true

@@ -14,15 +14,23 @@ source:
 
 crawl:
   seeds:
+    - https://asofinbolivia.com/
     - https://asofinbolivia.com/index.php/boletines/
+    - https://asofinbolivia.com/index.php/category/boletin_financiero/
+    - https://asofinbolivia.com/index.php/category/boletin_social/
+    - https://asofinbolivia.com/index.php/category/documentos/
+    - https://asofinbolivia.com/index.php/indicadores-financieros-2/
+    - https://asofinbolivia.com/index.php/indicadores-sociales/
+    - https://asofinbolivia.com/index.php/cobertura-paf/
+    - https://asofinbolivia.com/index.php/benchmarking/
     - https://asofinbolivia.com/index.php/2026/09/16/no-252/
     - https://asofinbolivia.com/index.php/2026/08/13/no-251/
     - https://asofinbolivia.com/index.php/2026/08/13/no-250/
     - https://asofinbolivia.com/index.php/2025/08/11/memoria-2024/
-  max_depth: 1
-  max_pages: 35
+  max_depth: 3
+  max_pages: 120
   strategy: bfs
-  rate_limit_per_second: 1.0
+  rate_limit_per_second: 2.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: true
   use_wayback: true

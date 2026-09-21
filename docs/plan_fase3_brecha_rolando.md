@@ -92,7 +92,7 @@ La capacidad C-1 (generación de patrones) rozaba la prohibición de **D-02** (s
 | Bloque | Denominación y Alcance | Estimado | Retorno Proyectado | Estado |
 |---|---|---:|---:|---|
 | **B-41** | Script de diff de brecha contra Rolando + verificación del HTML de IFD en ASFI | 1 h | Diagnóstico instrumental | ✅ Aprobado (`docs/auditorias/B-41.md`) |
-| **B-42** | Recalibración de presupuestos y semillas en YAML (BCB, ASOFIN, IBCH, ASFI) | 2 h | **+400 a +600 docs** | ⏳ Pendiente |
+| **B-42** | Recalibración de presupuestos y semillas en YAML (BCB, ASOFIN, IBCH, ASFI) | 2 h | **+400 a +600 docs** | ✅ Aprobado (`docs/auditorias/B-42.md`) |
 | **B-43** | Paginación HTML en `discovery.py` (`rel=next`, `?page=N`, `/page/N/`) | 4 h | **+300 a +500 docs** | ⏳ Pendiente |
 | **B-44** | Frontera con prioridad real (`heapq` ordenado por `_score_link`) | 3 h | Optimización transversal | ⏳ Pendiente |
 | **B-45** | Reparación de MEFP + resolución de IP `200.75.171.4` bajo D-01 | 2 h | +1 a +7 docs | ⏳ Pendiente |
