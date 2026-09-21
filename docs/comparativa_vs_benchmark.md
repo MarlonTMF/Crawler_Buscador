@@ -124,6 +124,7 @@ MEDICIÓN OFICIAL DE LOS 4 OBJETIVOS DE FASE 2 (scripts/medir_objetivos_fase2.py
 Estado de bases evaluadas: 54 bases inventory.db en output/
 Catálogo general: 67 fuentes (6 excluidas formalmente: ['BCRP', 'BOLCEREALES', 'CEPAL', 'FDTA-Valles', 'FMI', 'FUNDEMPRESA'])
 Fuentes accesibles configuradas en catálogo: 61
+Fuentes del catálogo accesibles cubiertas con doc: 53 de 61
 
 OBJETIVO 1 · Documentos Totales (Meta: > 6.000):
   - Criterio D-14 (Catálogo de URLs documentales): 10985 docs -> Veredicto: ALCANZADO
@@ -132,6 +133,7 @@ OBJETIVO 1 · Documentos Totales (Meta: > 6.000):
 
 OBJETIVO 2 · Fuentes con al menos un documento (Meta: >= 60 de 61 accesibles):
   - Bases con >= 1 documento (D-14): 46 de 54
+  - Fuentes del catálogo accesibles cubiertas: 53 de 61
   - Bases con 0 documentos binarios (8): ['bcch', 'datagov', 'dolarbluebolivia', 'fegasacruz', 'mefp', 'nih', 'sicoes', 'sigma']
   - Veredicto: NO ALCANZADO (46 de 60 requeridas)
 
@@ -143,11 +145,12 @@ OBJETIVO 3 · Portales donde igualamos o superamos a Rolando (Meta: 20 de 22 com
 OBJETIVO 4 · Errores de recurso y de integridad (Meta: 0 no negociable):
   - Documentos con file_size_bytes > 0: 2922 de 10985 (26.60%)
   - Documentos con content_sha256 (64 hex): 2363 de 10985 (21.51%)
-  - Filas catalogadas sin bytes/hash persistidos (pre-D-13): 8622
-  - Documentos físicos corruptos entregados: 0
+  - Filas sin descarga física de bytes (pre-D-13): 8063
+  - Filas sin hash SHA-256 (pre-D-13): 8622
+  - Documentos físicos corruptos o vacíos: 0
   - Errores de red / enlaces rotos en servidores de origen (status=ERROR en audit_log): 222
-  - Veredicto de integridad del motor: ALCANZADO (0 corruptos, 0 crashes)
-  - Veredicto de persistencia D-13: NO ALCANZADO (8.063 filas pre-D-13 sin bytes locales)
+  - Veredicto de integridad del motor: ALCANZADO (0 corruptos detectados, 0 crashes de motor)
+  - Veredicto de persistencia D-13: NO ALCANZADO (8063 filas sin bytes / 8622 filas sin hash de Fase 1)
 ================================================================================
 ```
 
@@ -157,19 +160,19 @@ OBJETIVO 4 · Errores de recurso y de integridad (Meta: 0 no negociable):
 
 #### Objetivo 1 · Documentos Totales (Meta: > 6.000)
 - **Bajo D-14:** **ALCANZADO** con **10.985 documentos binarios válidos** a nivel global (+4.985 docs, +83% sobre la meta). En los 22 portales comunes se logran **5.411 documentos** (superando los 5.403 de Rolando).
-- **Bajo D-13:** **NO ALCANZADO** con **2.363 documentos con hash físico** (2.922 con bytes > 0). Las 8.622 filas restantes corresponden a inventarios de Fase 1 donde no se persistieron los bytes en disco.
+- **Bajo D-13:** **NO ALCANZADO** con **2.363 documentos con hash físico** (2.922 con bytes > 0). Las 8.063 filas sin bytes transferidos y 8.622 filas sin hash corresponden a inventarios de Fase 1 donde no se persistieron los bytes en disco local.
 
 #### Objetivo 2 · Fuentes con ≥ 1 Documento (Meta: ≥ 60 de 61 accesibles)
-- **Veredicto:** **NO ALCANZADO (46 de 60 requeridas)**.
-- 46 bases de crawling tienen ≥ 1 documento binario. Las 8 bases con 0 documentos corresponden a barreras de diseño del portal remoto (artículos HTML en NIH; landing en construcción en FEGASACRUZ; metadatos externos en Data.Gov; cotizaciones dinámicas en DolarBlueBolivia; bloqueos de red en BCCH; formularios ASPX en MEFP/SICOES; e intranet en SIGMA).
+- **Veredicto:** **NO ALCANZADO (46 de 60 requeridas en bases / 53 de 61 en fuentes de catálogo)**.
+- 46 bases de crawling tienen ≥ 1 documento binario (cubriendo 53 fuentes accesibles del catálogo). Las 8 bases con 0 documentos corresponden a barreras de diseño del portal remoto (artículos HTML en NIH; landing en construcción en FEGASACRUZ; metadatos externos en Data.Gov; cotizaciones dinámicas en DolarBlueBolivia; bloqueos de red en BCCH; formularios ASPX en MEFP/SICOES; e intranet en SIGMA).
 
 #### Objetivo 3 · Portales donde igualamos o superamos a Rolando (Meta: 20 de 22)
 - **Portales Individuales:** **NO ALCANZADO (16 de 20 requeridos)**. Ganamos o empatamos en 16 y Rolando queda arriba en 6.
 - **Acumulado Total:** **SUPERADO bajo D-14** (**5.411 vs 5.403** de Rolando).
 
 #### Objetivo 4 · Errores de Recurso e Integridad (Meta: 0 no negociable)
-- **Integridad del Motor:** **ALCANZADO** (0 crashes no controlados, 0 documentos físicos corruptos y 222 errores de red remota aislados en servidores de origen).
-- **Persistencia Física D-13:** **NO ALCANZADO**, debido a que el inventario consolidado arrastra 8.622 filas catalogadas sin descarga de bytes de la Fase 1 previa a D-13.
+- **Integridad del Motor:** **ALCANZADO** (0 crashes de motor, 0 documentos físicos corruptos o vacíos y 222 errores de red remota aislados en servidores de origen).
+- **Persistencia Física D-13:** **NO ALCANZADO**, debido a que el inventario consolidado arrastra 8.063 filas sin bytes y 8.622 filas sin hash catalogadas de la Fase 1 previa a D-13.
 
 ---
 
