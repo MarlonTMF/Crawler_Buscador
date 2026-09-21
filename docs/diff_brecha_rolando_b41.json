@@ -1,0 +1,253 @@
+[
+  {
+    "portal": "asfi",
+    "rolando_total": 2428,
+    "nuestro_total": 596,
+    "comunes": 223,
+    "solo_rolando": 2205,
+    "solo_nuestro": 373,
+    "solo_rolando_ext": {
+      ".xlsx": 437,
+      ".zip": 1616,
+      ".xls": 47,
+      ".ods": 90,
+      "(sin_extension)": 15
+    },
+    "solo_rolando_prefixes": [
+      [
+        "www.asfi.gob.bo/sites/default",
+        1666
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/publicacionesbcb",
+        202
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sistema_pagos",
+        180
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sector_externo",
+        84
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sector_monetario",
+        56
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "https://www.asfi.gob.bo/node/498",
+      "https://www.asfi.gob.bo/node/499",
+      "https://www.asfi.gob.bo/node/500",
+      "https://www.asfi.gob.bo/node/501",
+      "https://www.asfi.gob.bo/node/502",
+      "https://www.asfi.gob.bo/node/503",
+      "https://www.asfi.gob.bo/node/504",
+      "https://www.asfi.gob.bo/node/505",
+      "https://www.asfi.gob.bo/node/506",
+      "https://www.asfi.gob.bo/node/507"
+    ]
+  },
+  {
+    "portal": "bcb",
+    "rolando_total": 818,
+    "nuestro_total": 121,
+    "comunes": 1,
+    "solo_rolando": 817,
+    "solo_nuestro": 120,
+    "solo_rolando_ext": {
+      ".xlsx": 731,
+      ".ods": 78,
+      "(sin_extension)": 6,
+      ".pdf": 1,
+      ".php": 1
+    },
+    "solo_rolando_prefixes": [
+      [
+        "www.bcb.gob.bo/webdocs/publicacionesbcb",
+        451
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sistema_pagos",
+        216
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sector_externo",
+        83
+      ],
+      [
+        "www.bcb.gob.bo/webdocs/sector_monetario",
+        56
+      ],
+      [
+        "www.bcb.gob.bo/",
+        6
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "https://www.bcb.gob.bo/?q=indicadores_inflacion",
+      "https://www.bcb.gob.bo/?q=indicadores_inflacion&qt-indicadores_de_inflaci_n=0",
+      "https://www.bcb.gob.bo/?q=indicadores_inflacion&qt-indicadores_de_inflaci_n=1",
+      "https://www.bcb.gob.bo/?q=inflacion_anual",
+      "https://www.bcb.gob.bo/?q=inflacion_mensual",
+      "https://www.bcb.gob.bo/?q=servicios%2Fufv%2Fdatos_estadisticos",
+      "https://www.bcb.gob.bo/bcb_estadisticas/index.php",
+      "https://www.bcb.gob.bo/webdocs/Documentos%20Adjuntos/Titulos%20publicos.xlsx",
+      "https://www.bcb.gob.bo/webdocs/publicacionesbcb/0.%20Resumen%20de%20Cifras_2025.xlsx",
+      "https://www.bcb.gob.bo/webdocs/publicacionesbcb/1.%20BOP_2025.xlsx"
+    ]
+  },
+  {
+    "portal": "asofin",
+    "rolando_total": 197,
+    "nuestro_total": 25,
+    "comunes": 2,
+    "solo_rolando": 195,
+    "solo_nuestro": 23,
+    "solo_rolando_ext": {
+      ".pdf": 193,
+      ".html": 2
+    },
+    "solo_rolando_prefixes": [
+      [
+        "www.asofinbolivia.com/wp-content/uploads",
+        186
+      ],
+      [
+        "asofinbolivia.com/wp-content/uploads",
+        7
+      ],
+      [
+        "www.asofinbolivia.com/graficos/indicadores_sociales",
+        1
+      ],
+      [
+        "www.asofinbolivia.com/graficos/indicadores_financieros",
+        1
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "http://www.asofinbolivia.com/wp-content/uploads/2022/05/201-v3.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/01/Bol_Fin-112025_compressed.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/02/Boletin-Financiero-202512_compressed.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/02/Boletin-Social-202512_compressed.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/03/Bol_Fin-022026v1.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/04/Boletin-Financiero-0126_compressed-1.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/05/Bol_Fin-032026v1_compressed.pdf",
+      "https://asofinbolivia.com/wp-content/uploads/2026/06/Bol_Fin-042026v1_compressed.pdf",
+      "https://www.asofinbolivia.com/graficos/indicadores_financieros/Reporte-Financiero.html",
+      "https://www.asofinbolivia.com/graficos/indicadores_sociales/Reporte-Social.html"
+    ]
+  },
+  {
+    "portal": "ibch",
+    "rolando_total": 33,
+    "nuestro_total": 26,
+    "comunes": 19,
+    "solo_rolando": 14,
+    "solo_nuestro": 7,
+    "solo_rolando_ext": {
+      ".pdf": 13,
+      "(sin_extension)": 1
+    },
+    "solo_rolando_prefixes": [
+      [
+        "www.ibch.com/wp-content/uploads",
+        13
+      ],
+      [
+        "www.ibch.com/pavimentos/publicaciones",
+        1
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "https://www.ibch.com/pavimentos/publicaciones/",
+      "https://www.ibch.com/wp-content/uploads/boletin/a10n10.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a11n11.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a12n12.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a1n1.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a1n2.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a1n3.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a2n4.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a3n5.pdf",
+      "https://www.ibch.com/wp-content/uploads/boletin/a4n5.pdf"
+    ]
+  },
+  {
+    "portal": "mefp",
+    "rolando_total": 12,
+    "nuestro_total": 0,
+    "comunes": 0,
+    "solo_rolando": 12,
+    "solo_nuestro": 0,
+    "solo_rolando_ext": {
+      "(sin_extension)": 5,
+      ".xlsx": 7
+    },
+    "solo_rolando_prefixes": [
+      [
+        "200.75.171.4/sites/default",
+        6
+      ],
+      [
+        "media.economiayfinanzas.gob.bo/boletines",
+        3
+      ],
+      [
+        "www.economiayfinanzas.gob.bo/boletines",
+        1
+      ],
+      [
+        "www.economiayfinanzas.gob.bo/index.php/boletines",
+        1
+      ],
+      [
+        "www.economiayfinanzas.gob.bo/sites/default",
+        1
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "https://200.75.171.4/sites/default/files/2022-09/Deuda_P%C3%BAblica_con_Cron__de_las_ETA_y_UP_2018.xlsx",
+      "https://200.75.171.4/sites/default/files/2022-09/Deuda_P%C3%BAblica_con_Cron__de_las_ETA_y_UP_2019.xlsx",
+      "https://200.75.171.4/sites/default/files/2022-11/Deuda_P%C3%BAblica_con_Cron__de_las_ETA_y_UP_2021%20%281%29.xlsx",
+      "https://200.75.171.4/sites/default/files/2025-02/Deuda_P%C3%BAblica_con_Cron__de_las_ETA_y_UP_2022%20VF.xlsx",
+      "https://200.75.171.4/sites/default/files/2025-02/Deuda_P%C3%BAblica_con_Cron__de_las_ETA_y_UP_2023_0.xlsx",
+      "https://200.75.171.4/sites/default/files/2026-04/Deuda%20P%C3%BAblica%20con%20Cronogramas%20de%20Pagos%20de%20las%20Entidades%20Territoriales%20Aut%C3%B3nomas%20%28ETA%29%20y%20Universidades%20P%C3%BAblicas%20%28UP%29%20de%20la%20gesti%C3%B3n%202024.xlsx",
+      "https://media.economiayfinanzas.gob.bo/boletines",
+      "https://media.economiayfinanzas.gob.bo/boletines?field_gestion_value=&field_viceministerio_target_id=All&order=field_fecha_de_publicacion&sort=asc&title=&type_1=All",
+      "https://media.economiayfinanzas.gob.bo/boletines?field_gestion_value=&field_viceministerio_target_id=All&order=field_gestion&sort=asc&title=&type_1=All",
+      "https://www.economiayfinanzas.gob.bo/boletines"
+    ]
+  },
+  {
+    "portal": "finrural",
+    "rolando_total": 583,
+    "nuestro_total": 241,
+    "comunes": 219,
+    "solo_rolando": 364,
+    "solo_nuestro": 22,
+    "solo_rolando_ext": {
+      ".zip": 218,
+      ".pdf": 126,
+      "(sin_extension)": 20
+    },
+    "solo_rolando_prefixes": [
+      [
+        "www.finrural.org.bo/archivos/info_financiera",
+        364
+      ]
+    ],
+    "ejemplos_solo_rolando": [
+      "https://www.finrural.org.bo/archivos/info_financiera/",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_05_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_06_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_07_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_08_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_09_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_10_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_11_2008.zip",
+      "https://www.finrural.org.bo/archivos/info_financiera/2008/financiera_12_2008.zip"
+    ]
+  }
+]

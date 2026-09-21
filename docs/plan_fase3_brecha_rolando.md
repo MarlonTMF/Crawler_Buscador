@@ -89,16 +89,16 @@ La capacidad C-1 (generación de patrones) rozaba la prohibición de **D-02** (s
 
 ## 5. Plan de Bloques para la Fase 3
 
-| Bloque | Denominación y Alcance | Estimado | Retorno Proyectado |
-|---|---|---:|---:|
-| **B-41** | Script de diff de brecha contra Rolando + verificación del HTML de IFD en ASFI | 1 h | Diagnóstico instrumental |
-| **B-42** | Recalibración de presupuestos y semillas en YAML (BCB, ASOFIN, IBCH, ASFI) | 2 h | **+400 a +600 docs** |
-| **B-43** | Paginación HTML en `discovery.py` (`rel=next`, `?page=N`, `/page/N/`) | 4 h | **+300 a +500 docs** |
-| **B-44** | Frontera con prioridad real (`heapq` ordenado por `_score_link`) | 3 h | Optimización transversal |
-| **B-45** | Reparación de MEFP + resolución de IP `200.75.171.4` bajo D-01 | 2 h | +1 a +7 docs |
-| **B-46** | Incorporación de `.ods` y `.xlsm` (enmienda formal a D-14) | 2 h | **+90 docs** |
-| **B-47** | Extrapolación de series observadas en ASFI bajo D-17 | 6 h | **+1.600 docs** |
-| **B-48** | Doble métrica en comparador (**D-16**): volumen bruto vs documentos únicos | 2 h | Transparencia (FINRURAL ganado) |
+| Bloque | Denominación y Alcance | Estimado | Retorno Proyectado | Estado |
+|---|---|---:|---:|---|
+| **B-41** | Script de diff de brecha contra Rolando + verificación del HTML de IFD en ASFI | 1 h | Diagnóstico instrumental | ✅ Aprobado (`docs/auditorias/B-41.md`) |
+| **B-42** | Recalibración de presupuestos y semillas en YAML (BCB, ASOFIN, IBCH, ASFI) | 2 h | **+400 a +600 docs** | ⏳ Pendiente |
+| **B-43** | Paginación HTML en `discovery.py` (`rel=next`, `?page=N`, `/page/N/`) | 4 h | **+300 a +500 docs** | ⏳ Pendiente |
+| **B-44** | Frontera con prioridad real (`heapq` ordenado por `_score_link`) | 3 h | Optimización transversal | ⏳ Pendiente |
+| **B-45** | Reparación de MEFP + resolución de IP `200.75.171.4` bajo D-01 | 2 h | +1 a +7 docs | ⏳ Pendiente |
+| **B-46** | Incorporación de `.ods` y `.xlsm` (enmienda formal a D-14) | 2 h | **+90 docs** | ⏳ Pendiente |
+| **B-47** | Extrapolación de series observadas en ASFI bajo D-17 | 6 h | **+1.600 docs** | ⏳ Pendiente |
+| **B-48** | Doble métrica en comparador (**D-16**): volumen bruto vs documentos únicos | 2 h | Transparencia (FINRURAL ganado) | ⏳ Pendiente |
 
 ### Proyección de Resultados
 - **Sin B-47 (solo calibración y paginación):** ASFI ~900, BCB ~750, ASOFIN ~195, IBCH ~33, MEFP ~7, FINRURAL 240. Ganamos o empatamos en 20 de 22 portales.
