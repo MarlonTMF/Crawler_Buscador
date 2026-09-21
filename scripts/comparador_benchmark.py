@@ -25,7 +25,25 @@ import os
 from pathlib import Path
 import sqlite3
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+try:
+    from scripts.diff_brecha_rolando import (
+        deduplicar_recursos_d16,
+        extraer_recursos_rolando,
+        PORTALES_ROLANDO_MAP,
+    )
+except ImportError:
+    try:
+        from diff_brecha_rolando import (  # type: ignore
+            deduplicar_recursos_d16,
+            extraer_recursos_rolando,
+            PORTALES_ROLANDO_MAP,
+        )
+    except ImportError:
+        deduplicar_recursos_d16 = None  # type: ignore
+        extraer_recursos_rolando = None  # type: ignore
+        PORTALES_ROLANDO_MAP = {}  # type: ignore
 
 logger = logging.getLogger("comparador_benchmark")
 
@@ -165,15 +183,65 @@ def contar_documentos_db(db_path: Path, solo_d13: bool = False) -> int:
         return 0
 
 
+def contar_documentos_unicos_d16(db_path: Path) -> int:
+    """
+    Cuenta documentos únicos en inventory.db bajo Decisión D-16:
+    Aplica deduplicación canónica (remoción de parámetros espurios de tracking
+    y unificación de contenedores .pdf/.zip con idéntico stem de ruta).
+    """
+    if not db_path.exists():
+        return 0
+
+    if deduplicar_recursos_d16 is None:
+        return contar_documentos_db(db_path, solo_d13=False)
+
+    try:
+        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='resource_audit_log'")
+        if not cur.fetchone():
+            conn.close()
+            return 0
+
+        cur.execute("""
+            SELECT canonical_url FROM resource_audit_log
+            WHERE (
+                lower(canonical_url) LIKE '%.pdf%' OR
+                lower(canonical_url) LIKE '%.xlsx%' OR
+                lower(canonical_url) LIKE '%.xls%' OR
+                lower(canonical_url) LIKE '%.csv%' OR
+                lower(canonical_url) LIKE '%.zip%' OR
+                lower(canonical_url) LIKE '%.ods%' OR
+                lower(canonical_url) LIKE '%.xlsm%' OR
+                lower(canonical_url) LIKE '%.doc%' OR
+                lower(canonical_url) LIKE '%.docx%'
+            )
+            AND status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
+        """)
+        rows = cur.fetchall()
+        conn.close()
+        urls = [r[0] for r in rows if r[0]]
+        return len(deduplicar_recursos_d16(urls))
+    except Exception as e:
+        logger.warning(f"Error consultando base {db_path} para D-16: {e}")
+        return 0
+
+
 def generar_comparativa(
     output_dir: Path,
     benchmark_path: Path,
+    rolando_dir: Optional[Path] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Genera la tabla comparativa completa portal por portal.
+    Genera la tabla comparativa completa portal por portal, incorporando métrica dual D-16.
     """
     bench = cargar_benchmark(benchmark_path)
     rows: List[Dict[str, Any]] = []
+
+    if rolando_dir is None:
+        default_rdir = Path("Elecciones De Crawler por URL/Rolando/extracted/output")
+        if default_rdir.exists():
+            rolando_dir = default_rdir
 
     for portal, codes in PORTALES_BENCHMARK_MAP.items():
         b_data = bench.get(portal, {"douglas": 0, "rolando": 0, "nosotros_sep": 0})
@@ -182,34 +250,92 @@ def generar_comparativa(
         db_path = output_dir / portal / "inventory.db"
         actual_d14 = contar_documentos_db(db_path, solo_d13=False)
         actual_d13 = contar_documentos_db(db_path, solo_d13=True)
+        nosotros_d16 = contar_documentos_unicos_d16(db_path)
+
+        # Cálculo de Rolando único D-16 si existe el dump raw
+        rolando_d16 = b_data["rolando"]
+        if rolando_dir and rolando_dir.exists() and extraer_recursos_rolando and deduplicar_recursos_d16:
+            archivos = PORTALES_ROLANDO_MAP.get(portal, [f"{portal}.json"])
+            urls_rol = []
+            for a in archivos:
+                p_file = rolando_dir / a
+                if p_file.exists():
+                    recs = extraer_recursos_rolando(p_file)
+                    urls_rol.extend([r["url_descarga"] for r in recs if "url_descarga" in r])
+            if urls_rol:
+                rolando_d16 = len(deduplicar_recursos_d16(urls_rol))
+
+        delta_d16 = nosotros_d16 - rolando_d16
 
         rows.append({
             "portal": portal,
             "douglas": b_data["douglas"],
             "rolando": b_data["rolando"],
+            "rolando_d16": rolando_d16,
             "nosotros_sep": b_data["nosotros_sep"],
             "nosotros_baseline": baseline,
             "nosotros_actual": actual_d14,
             "nosotros_d13": actual_d13,
+            "nosotros_d16": nosotros_d16,
             "delta_vs_baseline": actual_d14 - baseline,
+            "delta_d16": delta_d16,
             "gana_a_rolando_actual": actual_d14 > b_data["rolando"],
+            "gana_a_rolando_d16": nosotros_d16 >= rolando_d16,
         })
 
     return rows
 
 
-def formatear_markdown(rows: List[Dict[str, Any]], incluir_baseline: bool = True) -> str:
+def formatear_markdown(
+    rows: List[Dict[str, Any]],
+    incluir_baseline: bool = True,
+    dual_d16: bool = False,
+) -> str:
     """
     Formatea los resultados en una tabla Markdown clara y reproducible.
+    Si dual_d16=True, muestra la comparativa bajo Decisión D-16 (volumen bruto vs único canónico).
     """
     tot_douglas = sum(r["douglas"] for r in rows)
     tot_rolando = sum(r["rolando"] for r in rows)
+    tot_rolando_d16 = sum(r.get("rolando_d16", r["rolando"]) for r in rows)
     tot_sep = sum(r["nosotros_sep"] for r in rows)
     tot_baseline = sum(r["nosotros_baseline"] for r in rows)
     tot_actual = sum(r["nosotros_actual"] for r in rows)
     tot_d13 = sum(r.get("nosotros_d13", 0) for r in rows)
+    tot_d16 = sum(r.get("nosotros_d16", r["nosotros_actual"]) for r in rows)
 
     lineas = []
+
+    if dual_d16:
+        lineas.append("| Portal | Douglas | Rolando Bruto | Rolando (D-16) | **Nosotros (D-14)** | **Nosotros (D-16)** | Δ Único D-16 | Estado D-16 |")
+        lineas.append("|---|---:|---:|---:|---:|---:|---:|:---:|")
+
+        for r in rows:
+            r_d16 = r.get("rolando_d16", r["rolando"])
+            n_d16 = r.get("nosotros_d16", r["nosotros_actual"])
+            diff_u = n_d16 - r_d16
+            diff_str = f"+{diff_u}" if diff_u > 0 else str(diff_u)
+            if diff_u > 0:
+                est = f"GANADO (+{diff_u})"
+            elif diff_u == 0:
+                est = "EMPATADO"
+            else:
+                est = f"PERDIDO ({diff_u})"
+
+            lineas.append(
+                f"| {r['portal']} | {r['douglas']} | {r['rolando']} | {r_d16} | "
+                f"**{r['nosotros_actual']}** | **{n_d16}** | {diff_str} | {est} |"
+            )
+
+        tot_diff_u = tot_d16 - tot_rolando_d16
+        tot_diff_str = f"+{tot_diff_u}" if tot_diff_u > 0 else str(tot_diff_u)
+        tot_est = f"GANADO ({tot_diff_str})" if tot_diff_u > 0 else ("EMPATADO" if tot_diff_u == 0 else f"PERDIDO ({tot_diff_str})")
+        lineas.append(
+            f"| **TOTAL** | **{tot_douglas}** | **{tot_rolando}** | **{tot_rolando_d16}** | "
+            f"**{tot_actual}** | **{tot_d16}** | **{tot_diff_str}** | **{tot_est}** |"
+        )
+        return "\n".join(lineas)
+
     lineas.append("| Portal | Douglas | Rolando | Nosotros (sep) | Baseline (19-sep) | **Nosotros (D-14)** | Nosotros (D-13 c/hash) | Δ vs Baseline |")
     lineas.append("|---|---:|---:|---:|---:|---:|---:|---:|")
 
@@ -298,6 +424,19 @@ def main() -> int:
         help="Formato de salida (default: markdown)",
     )
     parser.add_argument(
+        "--d16",
+        "--dual",
+        dest="dual_d16",
+        action="store_true",
+        help="Muestra comparativa con métrica dual bajo Decisión D-16 (volumen bruto vs único canónico)",
+    )
+    parser.add_argument(
+        "--rolando-dir",
+        type=Path,
+        default=Path("Elecciones De Crawler por URL/Rolando/extracted/output"),
+        help="Directorio con los archivos JSON de Rolando para cálculo D-16",
+    )
+    parser.add_argument(
         "--verify",
         action="store_true",
         help="Ejecuta aserciones de verificación de reproducibilidad",
@@ -312,7 +451,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        rows = generar_comparativa(args.output_dir, args.benchmark_path)
+        rows = generar_comparativa(args.output_dir, args.benchmark_path, rolando_dir=args.rolando_dir)
     except Exception as e:
         print(f"ERROR al generar la comparativa: {e}", file=sys.stderr)
         return 1
@@ -337,12 +476,18 @@ def main() -> int:
     elif args.format == "summary":
         tot_d = sum(r["douglas"] for r in rows)
         tot_r = sum(r["rolando"] for r in rows)
+        tot_r_d16 = sum(r.get("rolando_d16", r["rolando"]) for r in rows)
         tot_b = sum(r["nosotros_baseline"] for r in rows)
         tot_a = sum(r["nosotros_actual"] for r in rows)
+        tot_a_d16 = sum(r.get("nosotros_d16", r["nosotros_actual"]) for r in rows)
         ganadas = sum(1 for r in rows if r["gana_a_rolando_actual"])
-        print(f"Douglas: {tot_d} | Rolando: {tot_r} | Baseline: {tot_b} | Actual: {tot_a} (Ganadas: {ganadas}/22)")
+        ganadas_d16 = sum(1 for r in rows if r.get("gana_a_rolando_d16", False))
+        if args.dual_d16:
+            print(f"Douglas: {tot_d} | Rolando Bruto: {tot_r} | Rolando D-16: {tot_r_d16} | Nosotros D-14: {tot_a} | Nosotros D-16: {tot_a_d16} (Ganadas D-16: {ganadas_d16}/22)")
+        else:
+            print(f"Douglas: {tot_d} | Rolando: {tot_r} | Baseline: {tot_b} | Actual: {tot_a} (Ganadas: {ganadas}/22)")
     else:
-        md = formatear_markdown(rows)
+        md = formatear_markdown(rows, dual_d16=args.dual_d16)
         print(md)
         if args.save:
             with open(args.save, "w", encoding="utf-8") as f:

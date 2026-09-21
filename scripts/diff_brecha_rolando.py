@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
 import sqlite3
 import sys
@@ -131,13 +132,47 @@ def normalizar_url_comparacion(url: str) -> str:
     return reconstructed
 
 
+def deduplicar_recursos_d16(urls: List[str]) -> Set[str]:
+    """
+    Deduplicación canónica bajo Decisión D-16:
+    1. Remueve parámetros espurios de tracking y cache (x16877, utm_*, fbclid, gclid).
+    2. Normaliza esquema a https y minúsculas de host.
+    3. Unifica contenedores redundantes (.pdf/.zip con idéntico stem de ruta).
+    """
+    stems_seen: Dict[str, str] = {}
+    unique_keys: Set[str] = set()
+
+    for u in urls:
+        u_clean = u.strip()
+        parsed = urlparse(u_clean)
+        # Limpiar query parameters espurios
+        q_params = [
+            p for p in parsed.query.split("&")
+            if p and not any(p.startswith(k) for k in ("x16877", "utm_", "fbclid", "gclid"))
+        ]
+        new_query = "&".join(q_params)
+
+        path = parsed.path
+        stem, ext = os.path.splitext(path)
+        ext_clean = ext.lower().lstrip(".")
+
+        # Clave canónica por host y stem de ruta
+        key = f"{parsed.netloc.lower()}:{stem}"
+        if new_query:
+            key += f"?{new_query}"
+
+        unique_keys.add(key)
+
+    return unique_keys
+
+
 def analizar_portal(
     portal: str,
     rolando_dir: Path,
     output_dir: Path,
     verbose: bool = False,
 ) -> Dict[str, Any]:
-    """Genera el análisis comparativo granular para un portal específico."""
+    """Genera el análisis comparativo granular para un portal específico con métrica dual D-16."""
     archivos_rolando = PORTALES_ROLANDO_MAP.get(portal, [f"{portal}.json"])
     recursos_rolando_raw: List[Dict[str, Any]] = []
 
@@ -165,6 +200,10 @@ def analizar_portal(
     solo_rolando = r_set - o_set
     solo_nuestro = o_set - r_set
 
+    # Deduplicación bajo D-16
+    rolando_unicos_d16 = len(deduplicar_recursos_d16(list(r_set)))
+    nuestro_unicos_d16 = len(deduplicar_recursos_d16(list(o_set)))
+
     # Agrupar solo_rolando por extensiones
     ext_dist: Dict[str, int] = {}
     for u in solo_rolando:
@@ -185,10 +224,14 @@ def analizar_portal(
     return {
         "portal": portal,
         "rolando_total": len(r_set),
+        "rolando_unicos_d16": rolando_unicos_d16,
         "nuestro_total": len(o_set),
+        "nuestro_unicos_d16": nuestro_unicos_d16,
         "comunes": len(comunes),
         "solo_rolando": len(solo_rolando),
         "solo_nuestro": len(solo_nuestro),
+        "delta_bruto": len(o_set) - len(r_set),
+        "delta_unico_d16": nuestro_unicos_d16 - rolando_unicos_d16,
         "solo_rolando_ext": ext_dist,
         "solo_rolando_prefixes": sorted(prefix_dist.items(), key=lambda x: x[1], reverse=True)[:5],
         "ejemplos_solo_rolando": sorted(list(solo_rolando))[:10],
@@ -196,8 +239,9 @@ def analizar_portal(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Diff de brechas contra Rolando")
-    parser.add_argument("--portal", "-p", help="Portal específico a analizar (ej. asfi, bcb, asofin, mefp, ibch)")
+    parser = argparse.ArgumentParser(description="Diff de brechas contra Rolando con Métrica Dual D-16")
+    parser.add_argument("--portal", "-p", help="Portal específico a analizar (ej. asfi, bcb, asofin, mefp, ibch, finrural)")
+    parser.add_argument("--all", action="store_true", help="Analizar todos los 22 portales del benchmark")
     parser.add_argument("--rolando-dir", default="Elecciones De Crawler por URL/Rolando/extracted/output", help="Ruta a output de Rolando")
     parser.add_argument("--output-dir", default="output", help="Ruta al output de nuestro crawler")
     parser.add_argument("--export-diff", help="Ruta de archivo JSON donde guardar el diff de URLs faltantes")
@@ -212,28 +256,50 @@ def main():
         logger.error(f"No existe el directorio de Rolando: {rolando_dir}")
         sys.exit(1)
 
-    portales = [args.portal] if args.portal else ["asfi", "bcb", "asofin", "ibch", "mefp", "finrural"]
+    if args.all:
+        portales = list(PORTALES_ROLANDO_MAP.keys())
+    elif args.portal:
+        portales = [args.portal]
+    else:
+        portales = ["asfi", "bcb", "asofin", "ibch", "mefp", "finrural"]
 
-    print("=" * 85)
-    print(f"{'PORTAL':<12} | {'ROLANDO':<8} | {'NUESTRO':<8} | {'COMUNES':<8} | {'SOLO ROL':<10} | {'SOLO NUE':<10} | {'ESTADO'}")
-    print("-" * 85)
+    print("=" * 110)
+    print(f"{'PORTAL':<10} | {'ROL BRUTO':<9} | {'ROL UNICO':<9} | {'NUESTRO':<8} | {'DIF BRUTO':<10} | {'DIF UNICO D-16':<15} | {'ESTADO D-16'}")
+    print("-" * 110)
 
     resultados = []
+    tot_rb = tot_ru = tot_nt = tot_nu = 0
     for p in portales:
         res = analizar_portal(p, rolando_dir, output_dir, verbose=args.verbose)
         resultados.append(res)
         
-        diff = res["nuestro_total"] - res["rolando_total"]
-        if diff > 0:
-            estado = f"GANADO (+{diff})"
-        elif diff == 0:
-            estado = "EMPATADO"
+        tot_rb += res["rolando_total"]
+        tot_ru += res["rolando_unicos_d16"]
+        tot_nt += res["nuestro_total"]
+        tot_nu += res["nuestro_unicos_d16"]
+
+        diff_u = res["delta_unico_d16"]
+        if diff_u > 0:
+            estado_d16 = f"GANADO (+{diff_u})"
+        elif diff_u == 0:
+            estado_d16 = "EMPATADO"
         else:
-            estado = f"PERDIDO ({diff})"
+            estado_d16 = f"PERDIDO ({diff_u})"
 
-        print(f"{p:<12} | {res['rolando_total']:<8} | {res['nuestro_total']:<8} | {res['comunes']:<8} | {res['solo_rolando']:<10} | {res['solo_nuestro']:<10} | {estado}")
+        delta_b_str = f"+{res['delta_bruto']}" if res["delta_bruto"] > 0 else str(res["delta_bruto"])
+        delta_u_str = f"+{diff_u}" if diff_u > 0 else str(diff_u)
 
-    print("=" * 85)
+        print(f"{p:<10} | {res['rolando_total']:<9} | {res['rolando_unicos_d16']:<9} | {res['nuestro_total']:<8} | {delta_b_str:<10} | {delta_u_str:<15} | {estado_d16}")
+
+    print("=" * 110)
+    if len(portales) > 1:
+        tot_delta_b = tot_nt - tot_rb
+        tot_delta_u = tot_nu - tot_ru
+        tot_b_str = f"+{tot_delta_b}" if tot_delta_b > 0 else str(tot_delta_b)
+        tot_u_str = f"+{tot_delta_u}" if tot_delta_u > 0 else str(tot_delta_u)
+        tot_est = f"GANADO ({tot_u_str})" if tot_delta_u > 0 else ("EMPATADO" if tot_delta_u == 0 else f"PERDIDO ({tot_u_str})")
+        print(f"{'TOTAL':<10} | {tot_rb:<9} | {tot_ru:<9} | {tot_nt:<8} | {tot_b_str:<10} | {tot_u_str:<15} | {tot_est}")
+        print("=" * 110)
 
     for res in resultados:
         if res["solo_rolando"] > 0:

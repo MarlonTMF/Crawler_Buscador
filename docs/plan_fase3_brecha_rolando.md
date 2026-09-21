@@ -98,7 +98,7 @@ La capacidad C-1 (generación de patrones) rozaba la prohibición de **D-02** (s
 | **B-45** | Reparación de MEFP + resolución de IP `200.75.171.4` bajo D-01 | 2 h | +1 a +7 docs | ✅ Aprobado (`docs/auditorias/B-45.md`) |
 | **B-46** | Incorporación de `.ods` y `.xlsm` (enmienda formal a D-14) | 2 h | **+90 docs** | ✅ Aprobado (`docs/auditorias/B-46.md`) |
 | **B-47** | Extrapolación de series observadas en ASFI bajo D-17 | 6 h | **+1.600 docs** | ✅ Aprobado (`docs/auditorias/B-47.md`) |
-| **B-48** | Doble métrica en comparador (**D-16**): volumen bruto vs documentos únicos | 2 h | Transparencia (FINRURAL ganado) | ⏳ Pendiente |
+| **B-48** | Doble métrica en comparador (**D-16**): volumen bruto vs documentos únicos | 2 h | Transparencia (FINRURAL ganado) | ✅ Aprobado (`docs/auditorias/B-48.md`) |
 
 ### Proyección de Resultados
 - **Sin B-47 (solo calibración y paginación):** ASFI ~900, BCB ~750, ASOFIN ~195, IBCH ~33, MEFP ~7, FINRURAL 240. Ganamos o empatamos en 20 de 22 portales.
