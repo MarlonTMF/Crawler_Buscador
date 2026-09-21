@@ -292,7 +292,7 @@ causa. **No se ajusta la meta para que dé.**
 | B-36 Lote 3 | Antigravity | 95 min | 45 min | ✅ Aprob. c/obs (`b6cb16a`) |
 | B-37 Lote 4 | Antigravity | 95 min | 40 min | ✅ Aprob. c/obs (`b6cb16a`) |
 | B-38 Lote 5 | Antigravity | 95 min | 40 min | ✅ Aprob. c/obs (`b6cb16a`) |
-| B-39 Comparador | Antigravity | 70 min | | Pendiente |
+| B-39 Comparador | Antigravity | 70 min | 35 min | Listo para auditoría |
 | B-40 Cierre | Claude | 60 min | | Pendiente |
 | **Total** | | **~17 h** | | |
 

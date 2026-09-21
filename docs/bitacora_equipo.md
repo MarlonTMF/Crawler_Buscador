@@ -140,6 +140,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-33b | **64/67 · 95.5%** | Paso 0: sin fuentes con formularios GET en catálogo; cerrado s/impl |
 | Tras B-34 / B-35 (Rebote) | **49/67 con crawler_source** | Lote 1 re-descargado (902 docs c/bytes) + Lote 2 (79 docs c/bytes) · Aprobados (`ac89f06`) |
 | Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 910 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en 11 fuentes; FIFA no estable por contingencia Wayback. |
+| Tras B-39 (Comparador) | **61/67 con crawler_source** | Comparador reproducible implementado: valida 22 portales comunes pasando de 1.864 a 5.411 docs (+3.547 vs baseline). |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
