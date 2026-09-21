@@ -384,6 +384,15 @@ class DiscoveryEngine:
             cand.dataset_id = dataset_id
             candidates.append(cand)
 
+    def _add_series_extrapolated_candidates(self, candidates: List[DiscoveredCandidate]) -> None:
+        from crawler.core.series_extrapolator import SeriesExtrapolator
+
+        extrapolator = SeriesExtrapolator(self.fetcher, self.adapter)
+        if extrapolator.is_enabled():
+            series_candidates = extrapolator.extrapolate_series()
+            for cand in series_candidates:
+                candidates.append(cand)
+
     def _build_seed_list(self) -> List[str]:
         crawl_seeds = list(dict.fromkeys(self.adapter.seeds))
         crawl_cfg = self.adapter.config.get("crawl", {})
@@ -398,15 +407,8 @@ class DiscoveryEngine:
                         crawl_seeds.append(seed_candidate)
 
         if bool(crawl_cfg.get("use_sitemaps", True)):
-            checked_bases = set()
-            for seed_url in list(crawl_seeds):
-                parsed = urlparse(seed_url)
-                if not parsed.scheme or not parsed.netloc:
-                    continue
-                base = f"{parsed.scheme}://{parsed.netloc}"
-                if base in checked_bases:
-                    continue
-                checked_bases.add(base)
+            for domain in self.adapter.allowed_domains:
+                base = f"{urlparse(self.adapter.base_url).scheme or 'https'}://{domain}"
                 for sitemap_url in discover_sitemap_urls(base, self.fetcher):
                     if sitemap_url not in crawl_seeds and self._is_allowed_domain(sitemap_url):
                         crawl_seeds.append(sitemap_url)
@@ -417,6 +419,7 @@ class DiscoveryEngine:
         candidates: List[DiscoveredCandidate] = []
         self._add_passive_candidates(candidates)
         self._add_api_candidates(candidates)
+        self._add_series_extrapolated_candidates(candidates)
         seen_candidate_urls: Set[str] = {c.url for c in candidates}
 
         seed_list = self._build_seed_list()

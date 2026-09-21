@@ -47,6 +47,39 @@ crawl:
   use_playwright: false
   use_playwright_ocr: false
   headless: false
+  series_extrapolation:
+    enabled: true
+    template: "https://www.asfi.gob.bo/sites/default/files/estadisticaif/int_fin_des/{year}/{month:02d}/{year}{month:02d}_{serie}.zip"
+    url_origin: "https://www.asfi.gob.bo/pb/instituciones-financieras-desarrollo"
+    dataset_id: "instituciones_financieras_desarrollo"
+    file_type: "zip"
+    start_year: 2016
+    end_year: 2026
+    end_month: 7
+    series:
+      - "IFD_Agencias"
+      - "IFD_CalificacionCartera"
+      - "IFD_ClasifCarContDeptoEstadoDestino"
+      - "IFD_ClasifCarContEntidadEstadoDestino"
+      - "IFD_ClasifCarContEntidadEstadoTipo"
+      - "IFD_ClasifCarContTipoGarantia"
+      - "IFD_ClasifCarContTipoObjCredito"
+      - "IFD_ClasifCarteraActividadEconomica"
+      - "IFD_ClasifCarteraTipoCredito"
+      - "IFD_ClasifContingActividadEconomica"
+      - "IFD_EstadosFinancieros"
+      - "IFD_EstadosFinancierosDesagregados"
+      - "IFD_EstadosFinancierosMoneda"
+      - "IFD_EstadosFinancieros_Evolutivo"
+      - "IFD_EstratifCarContEntidadEstado"
+      - "IFD_EstratifCarContMontoNumeroPrestatarios"
+      - "IFD_EstratificacionDepTotal"
+      - "IFD_IndicadoresFinancieros"
+      - "IFD_IndicadoresFinancieros_Evolutivo"
+      - "IFD_ObligCarteraContingenteTotal"
+      - "IFD_PAFs_x_Depto"
+      - "IFD_PonderacionActivos"
+      - "SNB_EncajeLegal"
 
 audit:
   enabled: true

@@ -555,3 +555,45 @@ y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 **Razón.** Transparencia metodológica absoluta: el software debe llamarse por lo que hace y medirse contra sus competidores bajo las mismas reglas.
 
 **Verificado el.** 2026-09-21, aprobado por Marlon en el escalamiento de B-40.
+
+---
+
+## D-16 · Doble métrica en comparador: Volumen Bruto Homólogo vs Documentos Únicos Deduplicados
+
+**Contexto.** En portales como FINRURAL, el benchmark de Rolando reportaba 583 URLs, de las cuales 218 correspondían a archivos `.pdf` canónicos, 218 a archivos `.zip` redundantes y 126 a URLs con parámetros de tracking y caché (`?x16877=`). El prospector institucional de DataX deduplica estrictamente estos parámetros mediante `canonicalizer.py`, reportando 241 documentos únicos. Al comparar por conteo bruto de URLs, el sistema era penalizado artificialmente por su rigor taxonómico.
+
+**Decisión.**
+1. El comparador de benchmark y los reportes de Fase 3 reportarán una **métrica dual transparente**:
+   - **Volumen Bruto Homólogo (Estándar Histórico):** Mide el total de URLs y variantes documentales catalogadas por el prospector frente al baseline de los competidores.
+   - **Documentos Únicos Canónicos (Estándar DataX):** Mide la cantidad de documentos distintos y deduplicados tras normalización rigurosa de parámetros y contenedores redundantes.
+2. Ninguna optimización de motor deberá inflar los conteos agregando parámetros espurios de URL (`?utm_*`, `?x16877=`) solo para ganar por volumen bruto en el benchmark.
+
+**Razón.** Rigor metodológico: un sistema de grado de producción debe ser auditable por la veracidad de su contenido único sin desfavorecer su posición en benchmarks comparativos históricos.
+
+**Verificado el.** 2026-09-21, aprobado por Claude y Marlon en el diagnóstico forense de Fase 3.
+
+---
+
+## D-17 · Extrapolación Controlada de Series Temporales Observadas vs Sondeo Especulativo (D-02)
+
+**Contexto.** Portales institucionales clave como ASFI (`/pb/instituciones-financieras-desarrollo`) renderizan sus catálogos documentales dinámicamente en el cliente mediante scripts JavaScript (`ifd-bol.js`), construyendo rutas deterministas sobre la plantilla `/sites/default/files/estadisticaif/int_fin_des/{YYYY}/{MM}/{YYYYMM}_{Serie}.zip`. Estas URLs no existen en el HTML inicial descargado por un parser estático. La Decisión D-02 prohíbe el sondeo especulativo ciego (probar variantes aleatorias o no fundamentadas de URLs fallidas). Se requería formalizar la distinción técnica entre el sondeo prohibido y la extrapolación legítima de series temporales sistemáticas observadas.
+
+**Decisión.**
+1. **Diferenciación conceptual estricta:**
+   - **Sondeo Especulativo (Prohibido bajo D-02):** Probar variaciones heurísticas, aleatorias o ciegas sobre URLs que respondieron error, sin fundamento en la estructura del portal.
+   - **Extrapolación Controlada de Serie Observada (Autorizada bajo D-17):** Cuando la existencia de una serie estructurada esté demostrada fehacientemente (por presencia de scripts oficiales del portal como `ifd-bol.js`, o por detección de ≥3 URLs canónicas activas que compartan una plantilla idéntica parametrizada por fecha `{YYYY}/{MM}` y serie `{Serie}`), se autoriza la generación de candidatos sobre la serie temporal.
+2. **Obligatoriedad de Validación HEAD/GET previa a la admisión:**
+   - Ninguna URL extrapolada bajo D-17 ingresará a la base de control (`inventory.db`) ni al mapa de la fuente sin una petición HTTP `HEAD` (o fallback `GET` en caso de status 405) previa y exitosa.
+   - Requisitos indispensables para admisión en el catálogo:
+     * Código de respuesta HTTP 200 (o 206).
+     * `Content-Length > 0` (o bytes reales transferidos mayores a cero).
+     * `Content-Type` o extensión correspondiente a formatos documentales autorizados bajo D-14.
+   - Toda combinación extrapolada que devuelva HTTP 404, 403 u otro error es inmediatamente descartada en memoria sin persistir registros ni considerarse anomalía.
+3. **Corte y Aborto Histórico:**
+   - Las rutinas de extrapolación temporal hacia el pasado deben incorporar una ventana de corte por inactividad (por defecto: 24 períodos mensuales vacíos consecutivos) para detener el sondeo cuando la serie estadística aún no había sido creada por la institución.
+4. **Respeto a Rate Limiting y Concurrencia:**
+   - La validación de candidatos extrapolados debe acatar estrictamente el `rate_limit_per_second` de la fuente para no degradar el servicio de los servidores públicos.
+
+**Razón.** Esta distinción permite superar los bloqueos de renderizado en cliente de la banca y el Estado boliviano con pleno respaldo empírico de red, cerrando la mayor brecha técnica frente a Rolando (+1.606 archivos ZIP en ASFI) sin violar la ética de scraping ni ingresar datos fantasma al catálogo.
+
+**Verificado el.** 2026-09-21, acordado en el plan de Fase 3 diseñado por Claude Opus 5 y aprobado por Marlon.
