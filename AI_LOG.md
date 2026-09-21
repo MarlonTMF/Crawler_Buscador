@@ -660,6 +660,18 @@ igual.
 - **Cómo se resolvió:** Grupo DEVUELTO con cifras corregidas (891, no 907) y NIH reclasificada como portal sin documentos. El arreglo del motor no entra en la corrección: cambia qué cuenta como documento en todas las fuentes ya onboardeadas, así que va como decisión propia (propuesta D-14) y bloque propio.
 - **Por qué:** Es la misma clase de error de siempre con una piel nueva. Acá el artefacto verificado fue *más* fuerte que de costumbre —bytes reales, SHA-256 que reproduje byte a byte— y aun así no probaba lo que se afirmaba, porque nadie preguntó qué era el archivo. Un hash correcto de una página HTML es un hash correcto. La verificación tiene que llegar hasta el tipo de contenido, no detenerse en que hubo bytes.
 
+---
+
+## E-37 · Una fuente "inestable" que en realidad estaba mal ruteada: FIFA por Wayback teniendo el sitio vivo
+
+- **Fecha / bloque:** 2026-09-21 · Ronda 3 de la auditoría agrupada B-36 + B-37 + B-38 (APROBADO CON OBSERVACIONES, `b6cb16a`)
+- **Tipo:** causa mal atribuida / observación de motor
+- **Herramienta:** Claude (auditor)
+- **Qué ocurrió:** FIFA fue la única de las 12 fuentes que falló el criterio de estabilidad de la Etapa H: 62 documentos en la corrida 1 y 81 en la corrida 2 (+31%). La subsanación la declaró formalmente no estable y atribuyó la causa a que el 100% de sus filas con bytes están en `RECUPERADO_VIA_CONTINGENCIA`, o sea que el resultado depende de la tasa de acierto de Wayback ese día. La base confirma el dato: 81 de 81 por contingencia, 0 por el camino directo.
+- **Qué encontró el Auditor:** El sondeo de la Ronda 3 re-descargó el `download_url` de una fila —apunta a `web.archive.org`— y hoy devuelve una página HTML de 9.9 KB. Pero el `canonical_url` del **mismo registro**, `digitalhub.fifa.com/m/.../original/...pdf`, entrega el PDF byte a byte idéntico al de la base: 6.777.259 bytes, SHA-256 coincidente. El host original sirve los archivos con 200. El motor ruteó la fuente entera por el archivo histórico sin necesitarlo.
+- **Cómo se resolvió:** No reabre el veredicto —la declaración de no estabilidad describe bien el estado de la base de hoy— pero la causa queda anotada como O-11 del acta y entra al bloque de motor pendiente, junto con el refactor de `_is_download_link()` (D-14) y la persistencia de `error_code` (O-8). Si FIFA se recorre por el camino directo, es esperable que pase a estable.
+- **Por qué:** "El resultado es inestable porque la fuente es inestable" es una explicación que cierra el caso y detiene la investigación. Comparar `download_url` contra `canonical_url` de la misma fila costó una descarga y mostró que la inestabilidad la introdujo el motor, no el sitio. Cuando una fuente se declara defectuosa, vale la pena verificar que el defecto no sea del camino que elegimos para llegar a ella. Dato de cierre del grupo: 910 documentos descargados, 905 únicos por hash.
+
 
 
 
