@@ -531,5 +531,22 @@ y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 
 **Verificado el.** 2026-09-21, acordado en acta de auditoría B-36..B-38 y aprobado por Marlon.
 
+---
 
+## D-15 · Definición del entregable de Fase 2: Catálogo Verificado de Recursos con Hash vs Corpus de Archivos en Disco
 
+**Contexto.** En la auditoría de cierre de la Fase 2 (B-40), se evidenció que la arquitectura del prospector descarga bytes a memoria (`orchestrator.py:313-333`) para calcular el hash criptográfico SHA-256 e ingresarlo en `inventory.db` (`resource_audit_log`), pero no persiste los archivos `.pdf`, `.xlsx` o `.zip` en el sistema de archivos local. D-13 definió el criterio de aceptación sobre columnas de la base de datos (`file_size_bytes > 0 AND content_sha256 IS NOT NULL`), no sobre archivos en disco. El benchmark histórico de Rolando y Douglas tampoco guardaba los archivos; listaba y catalogaba URLs de recursos. Esto generó una ambigüedad terminológica al usar la frase "descarga física de documentos".
+
+**Opciones consideradas.**
+1. *Detener el cierre de Fase 2 e implementar persistencia masiva en disco antes de cerrar.* Descartado: cambiaría retroactivamente el alcance de la Fase 2, exigiría re-descargar decenas de gigabytes contra servidores públicos de Bolivia y desalinearía la comparativa con Rolando.
+2. *Formalizar el entregable de la Fase 2 como Catálogo Verificado de Recursos Documentales (Opción A).* Opción adoptada: reconoce la naturaleza del prospector, valida la victoria homóloga contra el benchmark de Rolando (5.411 vs 5.403 en los 22 portales comunes bajo D-14) y transparenta las métricas de integridad sin ambigüedad.
+
+**Decisión.**
+1. **Entregable de la Fase 2:** Es formalmente un **Catálogo Estructurado y Verificado de Recursos Documentales** contenido en las bases SQLite `inventory.db`.
+2. **Uso riguroso del vocabulario:** Se prohíbe el uso de la expresión "descarga física en disco" para referirse a filas de `inventory.db`. Las columnas `file_size_bytes` y `content_sha256` representan metadatos de verificación obtenidos en memoria o transferidos por red.
+3. **Validez del Benchmark:** La comparación contra Rolando y Douglas se mantiene legítima y válida bajo la Decisión **D-14** (5.411 vs 5.403 en los 22 portales comunes, y 10.985 globales), pues todos los participantes se miden bajo el mismo estándar de catalogación de URLs documentales.
+4. **Fase 3 (Data Lake / Almacenamiento Masivo):** La descarga y almacenamiento persistente de los archivos binarios al sistema de archivos local (o almacenamiento en la nube S3/GCS) se define explícitamente como el alcance de la Fase 3 del proyecto.
+
+**Razón.** Transparencia metodológica absoluta: el software debe llamarse por lo que hace y medirse contra sus competidores bajo las mismas reglas.
+
+**Verificado el.** 2026-09-21, aprobado por Marlon en el escalamiento de B-40.
