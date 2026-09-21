@@ -21,7 +21,7 @@ crawl:
     - https://www.ibch.com/pavimentos/publicaciones/
   max_depth: 3
   max_pages: 50
-  strategy: bfs
+  strategy: priority
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: true

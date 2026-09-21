@@ -30,7 +30,7 @@ crawl:
     - https://www.bcb.gob.bo/?q=servicios%2Fufv%2Fdatos_estadisticos
   max_depth: 4
   max_pages: 150
-  strategy: bfs
+  strategy: priority
   rate_limit_per_second: 2.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: true

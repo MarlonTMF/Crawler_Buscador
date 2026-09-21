@@ -5,6 +5,7 @@ Combines controlled BFS/DFS crawling, optional passive discovery channels and
 semantic scoring while keeping the public API used by the orchestrator stable.
 """
 
+import heapq
 import logging
 import os
 import re
@@ -58,6 +59,7 @@ class DiscoveryEngine:
         crawl_cfg = self.adapter.config.get("crawl", {})
         self.max_depth = int(crawl_cfg.get("max_depth", 1))
         self.max_pages = int(crawl_cfg.get("max_pages", 100))
+        # Por defecto bfs (retrocompatibilidad); priority se activa con 'priority' o 'prio'
         self.strategy = str(crawl_cfg.get("strategy", "bfs")).lower()
         self.semantic_keywords = self._load_semantic_keywords()
 
@@ -416,12 +418,28 @@ class DiscoveryEngine:
         seen_candidate_urls: Set[str] = {c.url for c in candidates}
 
         seed_list = self._build_seed_list()
-        queue = deque((seed, 0) for seed in seed_list)
+        use_priority = self.strategy in ("priority", "prio")
+        
+        entry_seq = 0
+        pqueue: List[Tuple[float, int, str, int]] = []
+        fifo_queue = deque()
+
+        if use_priority:
+            for seed in seed_list:
+                heapq.heappush(pqueue, (-100.0, entry_seq, seed, 0))
+                entry_seq += 1
+        else:
+            fifo_queue = deque((seed, 0) for seed in seed_list)
+
         enqueued_urls: Set[str] = {self._normalize_visit_url(seed) for seed in seed_list}
         pages_scanned = 0
 
-        while queue and pages_scanned < self.max_pages:
-            page_url, depth = queue.popleft() if self.strategy != "dfs" else queue.pop()
+        while (pqueue if use_priority else fifo_queue) and pages_scanned < self.max_pages:
+            if use_priority:
+                neg_score, _, page_url, depth = heapq.heappop(pqueue)
+            else:
+                page_url, depth = fifo_queue.popleft() if self.strategy != "dfs" else fifo_queue.pop()
+
             visit_url = self._normalize_visit_url(page_url)
             if visit_url in self.visited_urls:
                 continue
@@ -501,15 +519,23 @@ class DiscoveryEngine:
                     next_visit = self._normalize_visit_url(abs_url)
                     if next_visit not in self.visited_urls and next_visit not in enqueued_urls:
                         enqueued_urls.add(next_visit)
-                        queue.append((next_visit, depth + 1))
+                        if use_priority:
+                            heapq.heappush(pqueue, (-score, entry_seq, next_visit, depth + 1))
+                            entry_seq += 1
+                        else:
+                            fifo_queue.append((next_visit, depth + 1))
 
             # Encolar enlaces de paginación descubiertos en la página
             pagination_links = self._extract_pagination_links(soup, page_url)
             for p_url in pagination_links:
                 if p_url not in self.visited_urls and p_url not in enqueued_urls:
                     enqueued_urls.add(p_url)
-                    # Paginación preserva el depth actual (mismo nivel temático)
-                    queue.append((p_url, depth))
+                    # Paginación preserva el depth actual y tiene alta prioridad
+                    if use_priority:
+                        heapq.heappush(pqueue, (-80.0, entry_seq, p_url, depth))
+                        entry_seq += 1
+                    else:
+                        fifo_queue.append((p_url, depth))
 
         candidates.sort(key=lambda item: item.relevance_score, reverse=True)
         return candidates

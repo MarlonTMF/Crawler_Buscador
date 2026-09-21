@@ -29,7 +29,7 @@ crawl:
     - https://asofinbolivia.com/index.php/2025/08/11/memoria-2024/
   max_depth: 3
   max_pages: 120
-  strategy: bfs
+  strategy: priority
   rate_limit_per_second: 2.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: true
