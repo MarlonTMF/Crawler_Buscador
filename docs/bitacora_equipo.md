@@ -119,10 +119,11 @@ Lote 2 aportó 79 documentos con bytes reales (53 CEPROBOL, 26 BCB_BRASIL).
 Páginas HTML de navegación o artículos sin extensión no se computan como
 documentos (16 páginas depuradas: NIH 5 artículos web, SABSA 2 índices, SISPAM 5
 índices, TRANSTATS 4 temas). Total real de documentos binarios descargados con
-bytes > 0 y SHA-256 en los Lotes 3, 4 y 5: **891 documentos** (75 en Lote 3, 138
-en Lote 4, 678 en Lote 5). Estabilidad comprobada en las 12 fuentes entre dos
+bytes > 0 y SHA-256 en los Lotes 3, 4 y 5: **910 documentos** (94 en Lote 3 [MHE 13, FIFA 81],
+138 en Lote 4, 678 en Lote 5). Estabilidad comprobada en 11 de las 12 fuentes entre dos
 corridas independientes (100% idéntico en VIPFE a 667 docs, OBA a 106 docs, MHE
-a 13 docs, etc.).
+a 13 docs, etc.). FIFA se declara formalmente no estable (+31% variación) por
+dependencia al 100% de la contingencia Wayback.
 
 ---
 
@@ -138,7 +139,7 @@ a 13 docs, etc.).
 | Tras B-33a | **SICSANTACRUZ integrado** | Onboarding vía API Strapi: 201 docs con bytes y SHA verificados |
 | Tras B-33b | **64/67 · 95.5%** | Paso 0: sin fuentes con formularios GET en catálogo; cerrado s/impl |
 | Tras B-34 / B-35 (Rebote) | **49/67 con crawler_source** | Lote 1 re-descargado (902 docs c/bytes) + Lote 2 (79 docs c/bytes) · Aprobados (`ac89f06`) |
-| Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 891 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en las 12 fuentes. |
+| Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 910 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en 11 fuentes; FIFA no estable por contingencia Wayback. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
