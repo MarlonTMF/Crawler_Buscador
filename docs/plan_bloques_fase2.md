@@ -293,8 +293,8 @@ causa. **No se ajusta la meta para que dé.**
 | B-37 Lote 4 | Antigravity | 95 min | 40 min | ✅ Aprob. c/obs (`b6cb16a`) |
 | B-38 Lote 5 | Antigravity | 95 min | 40 min | ✅ Aprob. c/obs (`b6cb16a`) |
 | B-39 Comparador | Antigravity | 70 min | 35 min | ✅ Aprob. c/obs (`bd90814`) |
-| B-40 Cierre | Claude | 60 min | | Pendiente |
-| **Total** | | **~17 h** | | |
+| B-40 Cierre | Claude / Antigravity | 60 min | 45 min | ✅ Medido y entregado (`docs: resultado final medido contra el benchmark`) |
+| **Total** | | **~17 h** | **~12 h** | **Fase 2 Completa (B-28 a B-40)** |
 
 En la Etapa C los bloques mecánicos se estimaron ~50% cortos y los de trabajo
 real dieron cerca. Tomar estas cifras con ese sesgo conocido.

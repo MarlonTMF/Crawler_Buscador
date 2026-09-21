@@ -54,7 +54,15 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-31 | 🅰️ | Sitemaps en todos los portales | 60/45 | Aprob. c/obs | 15 de 28 portales con sitemap; delta +52 docs en muestra (ibce_cao +34, ae +18); max_sitemaps truncaba |
 | B-32 | 🅰️ | Series históricas y Wayback (Fase 2) | 90/150 | **Devuelto** → Aprob. c/obs | 206 PDFs históricos reales (188 vivo + 18 Wayback). Fix transversal en allowed_extensions (fuga de .sha) y D-11 |
 | B-30 | 🅰️ | Extracción de ZIP en prod (Fase 2) | 60/40 | Aprob. c/obs | 57 docs extraídos en ASFI y 1 en IN; hallazgo: 11 ZIPs de ASFI (79 MB, .xlsm/.ods) descargados sin extraer ni advertir |
-| B-34 | 🅰️ | Onboarding Lote 1 (12 con doc) | 95/75 | Entregado (aud. agrupada) | Onboarding 12 fuentes con sitemap y wayback a profundidad 2; +2.060 docs reales (BBV 326, BM 106, ICCO 852, ITU 143, MDRyT 170, UNDATA 66, OTROS HIST 392, DST 5) |
+| B-33a | 🅰️ | API declarativa + SICSANTACRUZ | 70/70 | Aprob. c/obs | Onboarding Strapi REST: 201 docs con bytes > 0 y SHA-256 verificado (`bd13515`) |
+| B-33b | 🅰️ | Formularios GET (Fase 2) | 45/15 | Cerrado s/impl | Paso 0 (D-12): no hay fuentes con formularios GET simples en el catálogo |
+| B-34 | 🅰️ | Onboarding Lote 1 (12 con doc) | 95/75 | Aprob. c/obs | Re-descarga con hashing D-13: 902 docs c/bytes y SHA (`ac89f06`) |
+| B-35 | 🅰️ | Onboarding Lote 2 | 95/55 | Aprob. c/obs | Lote 2 auditado con Lote 1: +79 docs reales (53 CEPROBOL, 26 BCB_BRASIL) (`ac89f06`) |
+| B-36 | 🅰️ | Onboarding Lote 3 | 95/45 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 94 docs (MHE 13, FIFA 81) bajo D-14 (`63b231d`) |
+| B-37 | 🅰️ | Onboarding Lote 4 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 138 docs (VIPFE 667, OBA 106, SABSA 22, etc.) (`63b231d`) |
+| B-38 | 🅰️ | Onboarding Lote 5 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 678 docs. 11/12 estables; FIFA declarada no estable (`63b231d`) |
+| B-39 | 🅰️ | Comparador reproducible benchmark | 70/35 | Aprob. c/obs | Script comparador_benchmark.py: reproduce baseline (1.864 docs) y mide 5.411 actuales (`2a0b179`) |
+| B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | En auditoría | Medición de los 4 objetivos: 10.985 docs globales, 5.411 en 22 comunes (supera a Rolando: 5.403), 16/22 portales ganados, 0 errores no controlados. |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
@@ -141,8 +149,10 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-34 / B-35 (Rebote) | **49/67 con crawler_source** | Lote 1 re-descargado (902 docs c/bytes) + Lote 2 (79 docs c/bytes) · Aprobados (`ac89f06`) |
 | Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 910 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en 11 fuentes; FIFA no estable por contingencia Wayback. |
 | Tras B-39 (Comparador) | **61/67 con crawler_source** | Comparador reproducible implementado: valida 22 portales comunes pasando de 1.864 a 5.411 docs (+3.547 vs baseline). |
+| Tras B-40 (Cierre Fase 2) | **61/67 con crawler_source** | Cierre de Fase 2: 5.411 docs en 22 comunes (supera a Rolando: 5.403), 10.985 docs globales, 46 fuentes con ≥1 doc real, 16/22 portales ganados/empatados, 0 errores no controlados. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
 definición — y uno que solo sube probablemente no se está midiendo bien.
+
 
