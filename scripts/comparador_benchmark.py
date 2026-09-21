@@ -106,9 +106,9 @@ def cargar_benchmark(benchmark_path: Path) -> Dict[str, Dict[str, int]]:
 
         # Para Nosotros (sep): ASFI y APS en el benchmark de septiembre tenían duplicados consolidados
         if portal == "asfi":
-            nosotros_sep = by_code.get("asfi_bcb", {}).get("mio_resources", 103)
+            nosotros_sep = by_code["asfi_bcb"]["mio_resources"] if "asfi_bcb" in by_code else 0
         elif portal == "aps":
-            nosotros_sep = by_code.get("aps", {}).get("mio_resources", 18)
+            nosotros_sep = by_code["aps"]["mio_resources"] if "aps" in by_code else 0
         else:
             nosotros_sep = sum(by_code[c].get("mio_resources", 0) for c in codes if c in by_code)
 
