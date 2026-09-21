@@ -488,3 +488,25 @@ el resto de la decisión.
 `src/crawler/core/form_automator.py`, `src/crawler/core/discovery.py:320-414`
 y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 
+---
+
+## D-13 · `content_hashing: enabled: true` como default obligatorio para toda fuente nueva en el prospector
+
+**Contexto.** En la arquitectura del prospector, `orchestrator.py:313-317` cortaba la ejecución devolviendo `ResourceStatus.PROCESSED` sin transferir bytes ni calcular el hash cuando `content_hashing.enabled` era `false`. En ese modo, `inventory.db` acumulaba filas catalogadas con `file_size_bytes` y `content_sha256` en `NULL`. La plantilla `config/source_finrural.example.yaml` y los primeros lotes de fuentes nuevas salieron con `enabled: false`, provocando que miles de URLs se reportaran como documentos reales sin haber transferido ni un solo byte de la red (reprobado en B-33a y en la auditoría agrupada B-34/B-35).
+
+**Opciones consideradas.**
+1. *Mantener content_hashing opt-in (default false).* Descartado: provocó la devolución sucesiva de B-33a y B-34, e indujo a reportar métricas infladas de cobertura basadas en URLs catalogadas en lugar de documentos efectivamente descargados y verificados.
+2. *Eliminar el flag y forzar descarga incondicional siempre.* Descartado: fuentes excepcionales con archivos masivos de gigabytes o bloqueos puntuales podrían requerir modo liviano de catálogo de forma justificada.
+3. *Default `enabled: true` para toda fuente nueva, con apagado explícito y justificado por fuente.* Opción adoptada: garantiza que cada fila en `inventory.db` represente contenido digital real con tamaño y hash criptográfico verificable.
+
+**Decisión.**
+1. **`content_hashing.enabled: true` es el valor por defecto y obligatorio** para todas las fuentes nuevas que se configuren en el prospector.
+2. En toda corrida de onboarding y auditoría, el criterio de aceptación se mide estrictamente sobre **filas con `file_size_bytes > 0` y `content_sha256` no nulo** (`SELECT count(*) WHERE file_size_bytes > 0`).
+3. La plantilla base `config/source_finrural.example.yaml` y todas las fuentes activas se actualizan con `content_hashing: enabled: true`.
+4. El apagado de `content_hashing` (`enabled: false`) solo es permisible como excepción justificada por escrito (ej. repositorios de archivos masivos donde el almacenamiento o ancho de banda esté restringido), documentado en la bitácora y en el YAML respectivo.
+
+**Razón.** El valor del inventario reside en los documentos reales transferibles y analizables, no en meras listas de URLs. Medir filas sin bytes es el mismo error conceptual que D-01 (aceptar URLs por status 200 sin verificar contenido).
+
+**Verificado el.** 2026-09-20, acordado entre Antigravity y Claude CLI y aprobado por Marlon.
+
+

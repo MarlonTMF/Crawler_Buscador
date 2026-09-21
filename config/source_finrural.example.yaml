@@ -27,7 +27,7 @@ audit:
   enabled: true
 
 content_hashing:
-  enabled: false
+  enabled: true
 
 monitoring:
   drift_threshold: 0.30

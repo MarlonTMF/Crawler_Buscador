@@ -1257,11 +1257,11 @@
       ]
     },
     "Error_Detail": null,
-    "crawler_source": "icco",
+    "crawler_source": null,
     "crawler_dataset": null,
-    "note": "URL asignada en catalogo (https://www.icco.org) ya trackeada bajo Fuente=ICCO.",
+    "note": "URL errónea en catálogo de origen; escalado a decisión técnica sin asignar a ICCO.",
     "crawler_no_onboard": true,
-    "crawler_no_onboard_reason": "Misma URL institucional que ICCO; cubierto por crawler_source: icco."
+    "crawler_no_onboard_reason": "URL errónea en el catálogo de origen (asignada https://www.icco.org correspondiente a International Cocoa Organization, no a la Fundación para el Desarrollo Tecnológico Agropecuario de los Valles); escalado a decisión técnica."
   },
   {
     "Fuente": "FEGASACRUZ",

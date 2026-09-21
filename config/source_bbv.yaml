@@ -20,6 +20,12 @@ crawl:
   use_sitemaps: true
   use_wayback: true
 
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
 classification:
   document_path_tokens:
     - "estadisticas"
