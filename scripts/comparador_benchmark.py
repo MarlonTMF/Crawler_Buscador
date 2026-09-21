@@ -121,10 +121,11 @@ def cargar_benchmark(benchmark_path: Path) -> Dict[str, Dict[str, int]]:
     return benchmark_por_portal
 
 
-def contar_documentos_db(db_path: Path) -> int:
+def contar_documentos_db(db_path: Path, solo_d13: bool = False) -> int:
     """
-    Cuenta documentos reales en inventory.db aplicando estrictamente el criterio D-14
-    (extensiones permitidas y estado exitoso/contingencia).
+    Cuenta documentos en inventory.db aplicando:
+    - Criterio D-14: extensiones documentales válidas y estado exitoso/contingencia.
+    - Criterio D-13 (si solo_d13=True): exige además file_size_bytes > 0 y content_sha256 no nulo.
     """
     if not db_path.exists():
         return 0
@@ -133,12 +134,14 @@ def contar_documentos_db(db_path: Path) -> int:
         conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
         cur = conn.cursor()
 
-        # Verificar existencia de tabla resource_audit_log
         cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='resource_audit_log'")
         if not cur.fetchone():
+            conn.close()
             return 0
 
-        cur.execute("""
+        d13_clause = "AND file_size_bytes > 0 AND content_sha256 IS NOT NULL AND length(content_sha256) = 64" if solo_d13 else ""
+
+        cur.execute(f"""
             SELECT count(*) FROM resource_audit_log
             WHERE (
                 lower(canonical_url) LIKE '%.pdf%' OR
@@ -148,6 +151,7 @@ def contar_documentos_db(db_path: Path) -> int:
                 lower(canonical_url) LIKE '%.zip%'
             )
             AND status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
+            {d13_clause}
         """)
         count = cur.fetchone()[0]
         conn.close()
@@ -172,7 +176,8 @@ def generar_comparativa(
         baseline = BASELINE_20260919.get(portal, 0)
 
         db_path = output_dir / portal / "inventory.db"
-        actual = contar_documentos_db(db_path)
+        actual_d14 = contar_documentos_db(db_path, solo_d13=False)
+        actual_d13 = contar_documentos_db(db_path, solo_d13=True)
 
         rows.append({
             "portal": portal,
@@ -180,9 +185,10 @@ def generar_comparativa(
             "rolando": b_data["rolando"],
             "nosotros_sep": b_data["nosotros_sep"],
             "nosotros_baseline": baseline,
-            "nosotros_actual": actual,
-            "delta_vs_baseline": actual - baseline,
-            "gana_a_rolando_actual": actual > b_data["rolando"],
+            "nosotros_actual": actual_d14,
+            "nosotros_d13": actual_d13,
+            "delta_vs_baseline": actual_d14 - baseline,
+            "gana_a_rolando_actual": actual_d14 > b_data["rolando"],
         })
 
     return rows
@@ -197,22 +203,23 @@ def formatear_markdown(rows: List[Dict[str, Any]], incluir_baseline: bool = True
     tot_sep = sum(r["nosotros_sep"] for r in rows)
     tot_baseline = sum(r["nosotros_baseline"] for r in rows)
     tot_actual = sum(r["nosotros_actual"] for r in rows)
+    tot_d13 = sum(r.get("nosotros_d13", 0) for r in rows)
 
     lineas = []
-    lineas.append("| Portal | Douglas | Rolando | Nosotros (sep) | Baseline (19-sep) | **Nosotros (actual)** | Δ vs Baseline |")
-    lineas.append("|---|---:|---:|---:|---:|---:|---:|")
+    lineas.append("| Portal | Douglas | Rolando | Nosotros (sep) | Baseline (19-sep) | **Nosotros (D-14)** | Nosotros (D-13 c/hash) | Δ vs Baseline |")
+    lineas.append("|---|---:|---:|---:|---:|---:|---:|---:|")
 
     for r in rows:
         delta_str = f"+{r['delta_vs_baseline']}" if r["delta_vs_baseline"] > 0 else str(r["delta_vs_baseline"])
         lineas.append(
             f"| {r['portal']} | {r['douglas']} | {r['rolando']} | {r['nosotros_sep']} | "
-            f"{r['nosotros_baseline']} | **{r['nosotros_actual']}** | {delta_str} |"
+            f"{r['nosotros_baseline']} | **{r['nosotros_actual']}** | {r.get('nosotros_d13', 0)} | {delta_str} |"
         )
 
     delta_tot = f"+{tot_actual - tot_baseline}" if (tot_actual - tot_baseline) > 0 else str(tot_actual - tot_baseline)
     lineas.append(
         f"| **TOTAL** | **{tot_douglas}** | **{tot_rolando}** | **{tot_sep}** | "
-        f"**{tot_baseline}** | **{tot_actual}** | **{delta_tot}** |"
+        f"**{tot_baseline}** | **{tot_actual}** | **{tot_d13}** | **{delta_tot}** |"
     )
 
     return "\n".join(lineas)
