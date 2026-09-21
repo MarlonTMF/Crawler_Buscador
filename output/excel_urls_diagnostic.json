@@ -1955,7 +1955,8 @@
     "Es_Fuente_Internacional": true,
     "Pais": "Estados Unidos",
     "decision_status": "cerrada",
-    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00"
+    "decision_timestamp": "2026-09-17T16:06:38.814903+00:00",
+    "crawler_source": "nih"
   },
   {
     "Fuente": "OBA",
@@ -1981,7 +1982,8 @@
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
-    "note": "La antigua URL propia www.sea-autonomias.gob.bo/oba ya no existe; el OBA opera hoy como seccion del SEA. Confianza media (segun URLsFaltantes.md) por migracion/consolidacion de portales."
+    "note": "La antigua URL propia www.sea-autonomias.gob.bo/oba ya no existe; el OBA opera hoy como seccion del SEA. Confianza media (segun URLsFaltantes.md) por migracion/consolidacion de portales.",
+    "crawler_source": "oba"
   },
   {
     "Fuente": "OMC",
@@ -2003,7 +2005,8 @@
       "quality_score": 2.0,
       "snippet_text": "<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\r\n    <title>World Trade Organization - Home page - Global trade</title>\r\n  "
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "omc"
   },
   {
     "Fuente": "OTROS HISTORICOS",
@@ -2073,7 +2076,8 @@
     "resolved_from_variant": false,
     "mapping_resolved": "https://naabol.gob.bo/",
     "mapping_source": "gemini_verdict+content_check",
-    "mapping_note": "SABSA nacionalizada en 2013; funciones pasaron a NAABOL."
+    "mapping_note": "SABSA nacionalizada en 2013; funciones pasaron a NAABOL.",
+    "crawler_source": "sabsa"
   },
   {
     "Fuente": "SENAMHI",

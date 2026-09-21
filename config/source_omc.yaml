@@ -1,0 +1,72 @@
+source:
+  id: omc
+  name: Organización Mundial del Comercio (OMC / WTO)
+  base_url: https://www.wto.org
+  allowed_domains:
+    - wto.org
+    - www.wto.org
+
+crawl:
+  seeds:
+    - https://www.wto.org/
+    - https://www.wto.org/spanish/res_s/statis_s/statis_s.htm
+    - https://www.wto.org/spanish/res_s/publications_s/publications_s.htm
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "dol2fe"
+    - "statis"
+    - "publications"
+    - "res"
+    - "pdf"
+  dataset_rules:
+    - id: estadisticas_comercio_omc
+      name: Estadísticas de Comercio Mundial OMC
+      url_patterns:
+        - "statis"
+        - "tariff"
+        - "trade"
+    - id: informes_publicaciones_omc
+      name: Informes y Publicaciones OMC
+      url_patterns:
+        - "publication"
+        - "report"
+        - "informe"
+        - "res_s"
+    - id: repositorio_general_omc
+      name: Repositorio General de Documentos OMC
+      url_patterns:
+        - "/dol2fe/"
+        - "/files/"
+        - "pdf"
+  excluded_path_keywords:
+    - "/photos/"
+    - "/audio/"
+    - "/video/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
