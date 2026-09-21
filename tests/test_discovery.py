@@ -69,3 +69,36 @@ def test_pdf_document_passes_under_archivos():
     assert is_doc is True
     assert ext == "pdf"
 
+
+def test_extract_pagination_links_rel_next_and_params():
+    from bs4 import BeautifulSoup
+    engine = _make_engine()
+    engine.adapter.allowed_domains = ["www.bcb.gob.bo", "asofinbolivia.com"]
+    engine.adapter.allowed_extensions = ["pdf", "xlsx"]
+
+    html = """
+    <html>
+        <head>
+            <link rel="next" href="https://www.bcb.gob.bo/?q=reporte-estadistico&page=2" />
+        </head>
+        <body>
+            <ul class="pagination">
+                <li><a href="?q=reporte-estadistico&page=1">1</a></li>
+                <li><a href="?q=reporte-estadistico&page=2">2</a></li>
+                <li><a href="?q=reporte-estadistico&page=3">Siguiente »</a></li>
+            </ul>
+            <div class="nav-links">
+                <a class="page-numbers" href="https://asofinbolivia.com/index.php/category/boletin_financiero/page/2/">2</a>
+            </div>
+            <a href="/docs/reporte.pdf">Descargar PDF</a>
+        </body>
+    </html>
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    links = engine._extract_pagination_links(soup, "https://www.bcb.gob.bo/?q=reporte-estadistico")
+
+    assert "https://www.bcb.gob.bo/?page=2&q=reporte-estadistico" in links or "https://www.bcb.gob.bo/?q=reporte-estadistico&page=2" in links
+    assert any("page/2" in u for u in links)
+    assert not any("reporte.pdf" in u for u in links)
+
+

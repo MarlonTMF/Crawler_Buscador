@@ -7,6 +7,7 @@ semantic scoring while keeping the public API used by the orchestrator stable.
 
 import logging
 import os
+import re
 from collections import deque
 from typing import List, Set, Tuple
 from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunparse
@@ -176,6 +177,75 @@ class DiscoveryEngine:
 
         score -= depth * 0.25
         return score
+
+    def _extract_pagination_links(self, soup: BeautifulSoup, current_url: str) -> List[str]:
+        """
+        Extrae enlaces de paginación HTML en base a:
+        1. <a rel="next"> o <link rel="next">
+        2. Clases CSS comunes de paginación (.pagination, .pager, etc.)
+        3. Enlaces con parámetros de consulta de página (?page=N, ?p=N, etc.)
+        4. Enlaces con patrones de ruta (/page/N/, /p/N/)
+        5. Texto de paginación ("Siguiente", "Next", ">", "»", o dígitos aislados)
+        """
+        pagination_links: List[str] = []
+        seen: Set[str] = set()
+
+        # 1. rel="next" en link o a
+        for tag in soup.find_all(["a", "link"], rel=lambda r: r and "next" in str(r).lower()):
+            href = tag.get("href")
+            if href:
+                full_url = urljoin(current_url, href.strip())
+                norm = self._normalize_visit_url(full_url)
+                if norm not in seen and self._is_allowed_domain(norm):
+                    seen.add(norm)
+                    pagination_links.append(norm)
+
+        # 2. Análisis heurístico de etiquetas <a>
+        page_param_regex = re.compile(r"[?&](page|p|pagina|paged|offset|start)=(\d+)", re.I)
+        page_path_regex = re.compile(r"/(?:page|p|pagina)/(\d+)/?", re.I)
+        next_text_regex = re.compile(r"^(siguiente|next|>|»|›|página\s*\d+|\d+)$", re.I)
+
+        for a_tag in soup.find_all("a", href=True):
+            href = a_tag["href"].strip()
+            if not href or href.startswith("#") or href.lower().startswith(
+                ("javascript:", "mailto:", "tel:")
+            ):
+                continue
+
+            full_url = urljoin(current_url, href)
+            norm = self._normalize_visit_url(full_url)
+            if norm in seen or not self._is_allowed_domain(norm):
+                continue
+
+            # Descartar si es enlace directo de archivo descargable por extensión
+            parsed_path = urlparse(href).path
+            _, file_ext = os.path.splitext(parsed_path)
+            allowed_clean = {e.lower().lstrip('.') for e in (getattr(self.adapter, "allowed_extensions", []) or [])}
+            ext_clean = file_ext.lower().lstrip('.')
+            if ext_clean in allowed_clean or any(f".{ext}" in href.lower() for ext in allowed_clean):
+                continue
+
+            text = a_tag.get_text(strip=True).lower()
+            classes = " ".join(a_tag.get("class", [])).lower()
+            parent_classes = " ".join(a_tag.parent.get("class", [])).lower() if a_tag.parent else ""
+
+            is_pagination = False
+
+            # Heurística A: Patrón en query o path
+            if page_param_regex.search(norm) or page_path_regex.search(norm):
+                is_pagination = True
+            # Heurística B: Clases CSS de paginación
+            elif any(c in classes or c in parent_classes for c in ["pagination", "pager", "nav-links", "page-numbers"]):
+                is_pagination = True
+            # Heurística C: Texto típico de paginador
+            elif next_text_regex.match(text):
+                is_pagination = True
+
+            if is_pagination:
+                seen.add(norm)
+                pagination_links.append(norm)
+
+        return pagination_links
 
     def _is_download_link(self, href: str, text: str) -> Tuple[bool, str]:
         href_lower = href.lower()
@@ -432,6 +502,14 @@ class DiscoveryEngine:
                     if next_visit not in self.visited_urls and next_visit not in enqueued_urls:
                         enqueued_urls.add(next_visit)
                         queue.append((next_visit, depth + 1))
+
+            # Encolar enlaces de paginación descubiertos en la página
+            pagination_links = self._extract_pagination_links(soup, page_url)
+            for p_url in pagination_links:
+                if p_url not in self.visited_urls and p_url not in enqueued_urls:
+                    enqueued_urls.add(p_url)
+                    # Paginación preserva el depth actual (mismo nivel temático)
+                    queue.append((p_url, depth))
 
         candidates.sort(key=lambda item: item.relevance_score, reverse=True)
         return candidates
