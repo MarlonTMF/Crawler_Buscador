@@ -1194,7 +1194,8 @@
       "quality_score": 2.0,
       "snippet_text": "\n\n<!DOCTYPE html>\n\n<html class=\"no-js datagov\" dir=\"ltr\" lang=\"en\">\n\n\n\n<head>\n  <!-- Basic Page Needs\n    ================================================== -->\n  <meta charset=\"ut"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "datagov"
   },
   {
     "Fuente": "FAM",
@@ -1287,7 +1288,8 @@
     "mapped_from": null,
     "resolved_from_variant": false,
     "original_url": null,
-    "mapping_resolved": null
+    "mapping_resolved": null,
+    "crawler_source": "fegasacruz"
   },
   {
     "Fuente": "FIFA",
@@ -1309,7 +1311,8 @@
       "quality_score": 2.0,
       "snippet_text": "<!doctype html><html lang=\"en\" dir=\"ltr\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/><meta name=\"theme-color\" content=\"#020F2A\""
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "fifa"
   },
   {
     "Fuente": "FINRURAL",
@@ -1817,7 +1820,8 @@
     "original_url": "https://www.hidrocarburos.gob.bo",
     "mapped_from": "https://www.hidrocarburos.gob.bo",
     "resolved_from_variant": true,
-    "mapping_resolved": "https://hidrocarburos.org/"
+    "mapping_resolved": "https://hidrocarburos.org/",
+    "crawler_source": "mhe"
   },
   {
     "Fuente": "MMYM",

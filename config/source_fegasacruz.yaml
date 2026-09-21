@@ -1,0 +1,63 @@
+source:
+  id: fegasacruz
+  name: Federación de Ganaderos de Santa Cruz (FEGASACRUZ)
+  base_url: https://www.fegasacruz.org
+  allowed_domains:
+    - fegasacruz.org
+    - www.fegasacruz.org
+
+crawl:
+  seeds:
+    - https://www.fegasacruz.org/
+    - http://www.fegasacruz.org/
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "wp-content"
+    - "uploads"
+    - "estadisticas"
+    - "informe"
+    - "revista"
+  dataset_rules:
+    - id: estadisticas_fegasacruz
+      name: Estadísticas e Informes FEGASACRUZ
+      url_patterns:
+        - "estadistica"
+        - "informe"
+        - "revista"
+        - "boletin"
+    - id: repositorio_general_fegasacruz
+      name: Repositorio General FEGASACRUZ
+      url_patterns:
+        - "/uploads/"
+        - "/wp-content/"
+  excluded_path_keywords:
+    - "/wp-admin/"
+    - "/wp-includes/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

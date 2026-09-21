@@ -1,0 +1,72 @@
+source:
+  id: fifa
+  name: Federación Internacional de Fútbol Asociación (FIFA)
+  base_url: https://www.fifa.com
+  allowed_domains:
+    - fifa.com
+    - www.fifa.com
+    - digitalhub.fifa.com
+
+crawl:
+  seeds:
+    - https://www.fifa.com/
+    - https://www.fifa.com/legal
+    - https://www.fifa.com/technical
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "legal"
+    - "technical"
+    - "documents"
+    - "m"
+    - "reports"
+  dataset_rules:
+    - id: documentos_legales_fifa
+      name: Documentos Legales y Reglamentos FIFA
+      url_patterns:
+        - "legal"
+        - "regulations"
+        - "statutes"
+        - "governance"
+    - id: reportes_tecnicos_fifa
+      name: Reportes Técnicos y Estadísticas FIFA
+      url_patterns:
+        - "technical"
+        - "report"
+        - "financial"
+    - id: repositorio_general_fifa
+      name: Repositorio General de Documentos FIFA
+      url_patterns:
+        - "digitalhub"
+        - "/m/"
+        - "/document/"
+  excluded_path_keywords:
+    - "/tickets/"
+    - "/hospitality/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

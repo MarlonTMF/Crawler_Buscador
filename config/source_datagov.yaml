@@ -1,0 +1,66 @@
+source:
+  id: datagov
+  name: Data.Gov (USA Open Data)
+  base_url: https://data.gov
+  allowed_domains:
+    - data.gov
+    - www.data.gov
+
+crawl:
+  seeds:
+    - https://data.gov/
+    - https://data.gov/metrics/
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip, json]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "metrics"
+    - "reports"
+    - "data"
+    - "download"
+    - "files"
+  dataset_rules:
+    - id: data_gov_metricas_reportes
+      name: Metricas y Reportes Data.Gov
+      url_patterns:
+        - "metrics"
+        - "report"
+        - "annual"
+    - id: data_gov_repositorio_general
+      name: Repositorio General Data.Gov
+      url_patterns:
+        - "/download/"
+        - "/files/"
+        - "/uploads/"
+        - "/data/"
+  excluded_path_keywords:
+    - "/wp-admin/"
+    - "/wp-includes/"
+    - "/tag/"
+    - "/category/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12
