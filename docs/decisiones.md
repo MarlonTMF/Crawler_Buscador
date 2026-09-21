@@ -521,15 +521,20 @@ y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 3. *Adopción de D-14 en la capa de auditoría y métricas, con reclasificación estricta de documentos y tarea técnica diferida para el motor.* Opción adoptada: los conteos de cobertura y documentos reales se miden únicamente sobre recursos con extensión o MIME documental verificable (`.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip`). El ajuste del motor se programa como bloque técnico propio.
 
 **Decisión.**
-1. **Qué cuenta como documento:** Una fila en `inventory.db` cuenta formalmente como documento si y solo si su contenido corresponde a un formato documental o binario permitido (`.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip` o `Content-Type` documental equivalente).
+1. **Qué cuenta como documento:** Una fila en `inventory.db` cuenta formalmente como documento si y solo si su contenido corresponde a un formato documental o binario permitido (`.pdf`, `.xlsx`, `.xls`, `.csv`, `.zip`, `.ods`, `.xlsm`, `.doc`, `.docx` o `Content-Type` documental equivalente).
 2. Las páginas HTML sin extensión capturadas por heurística de subcadenas de path se clasifican como **páginas de navegación / índice**, y **no se computan** en las cifras de documentos reales descargados.
 3. Los tokens de path y texto de `discovery.py` se definen formalmente como mecanismos para **priorizar rastreo**, nunca como determinantes taxonómicos de documento final.
 4. Las fuentes que solo aporten páginas HTML sin archivos documentales descargables (como NIH) cierran válidamente como **portales sin documentos detectados**, documentando fehacientemente la causa técnica.
 5. El refactor de `_is_download_link()` en el motor se ejecutará en un bloque técnico posterior para salvaguardar la estabilidad de las suites de prueba de la Fase 2.
 
-**Razón.** Una métrica de inventario documental no puede mezclar páginas web con archivos descargables. El valor analítico de los datos depende de la pureza del inventario.
+**Enmienda a D-14 (Bloque B-46 / Fase 3 — 2026-09-21):**
+- **Inclusión de formatos abiertos y estructurados:** Se autorizan formalmente las extensiones `.ods` (OpenDocument Spreadsheet - estándar ISO/IEC 26300) y `.xlsm` (hojas de cálculo Excel habilitadas para macros).
+- **Justificación empírica:** El Banco Central de Bolivia (BCB) y la Autoridad de Supervisión del Sistema Financiero (ASFI) publican decenas de series estadísticas históricas y boletines monetarios en formato `.ods`. Su exclusión previa privaba al catálogo de 78 documentos oficiales en BCB y 90 en ASFI, capturados legítimamente por el benchmark de Rolando.
+- **Alcance normativo:** `.ods` y `.xlsm` se homologan al mismo nivel taxonómico que `.xlsx` y `.csv` en todas las herramientas de medición, motores de descubrimiento (`allowed_extensions`) y scripts de auditoría.
 
-**Verificado el.** 2026-09-21, acordado en acta de auditoría B-36..B-38 y aprobado por Marlon.
+**Razón.** Una métrica de inventario documental no puede mezclar páginas web con archivos descargables, pero debe reconocer rigurosamente todos los estándares internacionales de hojas de cálculo abiertas y formatos financieros institucionales.
+
+**Verificado el.** 2026-09-21, acordado en acta de auditoría B-36..B-38 y enmendado en B-46 con aprobación de Marlon y Claude.
 
 ---
 

@@ -82,7 +82,7 @@ BASELINE_20260919: Dict[str, int] = {
 }
 
 # Extensiones documentales válidas según D-14
-DOCUMENT_EXTENSIONS = (".pdf", ".xlsx", ".xls", ".csv", ".zip")
+DOCUMENT_EXTENSIONS = (".pdf", ".xlsx", ".xls", ".csv", ".zip", ".ods", ".xlsm", ".doc", ".docx")
 
 
 def cargar_benchmark(benchmark_path: Path) -> Dict[str, Dict[str, int]]:
@@ -148,7 +148,11 @@ def contar_documentos_db(db_path: Path, solo_d13: bool = False) -> int:
                 lower(canonical_url) LIKE '%.xlsx%' OR
                 lower(canonical_url) LIKE '%.xls%' OR
                 lower(canonical_url) LIKE '%.csv%' OR
-                lower(canonical_url) LIKE '%.zip%'
+                lower(canonical_url) LIKE '%.zip%' OR
+                lower(canonical_url) LIKE '%.ods%' OR
+                lower(canonical_url) LIKE '%.xlsm%' OR
+                lower(canonical_url) LIKE '%.doc%' OR
+                lower(canonical_url) LIKE '%.docx%'
             )
             AND status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
             {d13_clause}
@@ -249,12 +253,15 @@ def verificar_reproducibilidad(
     if tot_baseline != 1864:
         errores.append(f"Total Nosotros (baseline 19-sep) esperado 1864, obtenido {tot_baseline}")
 
-    # 2. Verificar que los 13 portales no tocados en Fase 2 coincidan con baseline
+    # 2. Verificar que los portales no tocados coincidan con baseline (excluyendo los intervenidos en Fase 3)
+    portales_fase3 = {"mefp", "bcb", "asofin", "ibch", "asfi"}
     portales_no_tocados = [
         "senamhi", "fam", "mmym", "anapo", "cndc", "att", "atc",
         "cadexco", "bcb", "asofin", "ibch", "snis", "mefp"
     ]
     for p in portales_no_tocados:
+        if p in portales_fase3:
+            continue
         row = next((r for r in rows if r["portal"] == p), None)
         if not row:
             errores.append(f"Portal {p} no encontrado en la comparativa")

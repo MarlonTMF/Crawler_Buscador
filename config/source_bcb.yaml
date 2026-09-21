@@ -32,7 +32,7 @@ crawl:
   max_pages: 150
   strategy: priority
   rate_limit_per_second: 2.0
-  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  allowed_extensions: [pdf, xlsx, xls, csv, zip, ods, xlsm, doc, docx]
   use_sitemaps: true
   use_wayback: true
   use_search_dorking: false

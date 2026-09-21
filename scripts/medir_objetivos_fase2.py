@@ -17,8 +17,8 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-# Extensiones binarias estrictas según Decisión D-14
-DOCUMENT_EXTENSIONS = (".pdf", ".xlsx", ".xls", ".csv", ".zip")
+# Extensiones binarias estrictas según Decisión D-14 (enmendada en B-46)
+DOCUMENT_EXTENSIONS = (".pdf", ".xlsx", ".xls", ".csv", ".zip", ".ods", ".xlsm", ".doc", ".docx")
 
 def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]:
     db_paths = sorted(output_dir.glob("*/inventory.db"))
@@ -55,7 +55,11 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
                     lower(canonical_url) LIKE '%.xlsx%' OR
                     lower(canonical_url) LIKE '%.xls%' OR
                     lower(canonical_url) LIKE '%.csv%' OR
-                    lower(canonical_url) LIKE '%.zip%'
+                    lower(canonical_url) LIKE '%.zip%' OR
+                    lower(canonical_url) LIKE '%.ods%' OR
+                    lower(canonical_url) LIKE '%.xlsm%' OR
+                    lower(canonical_url) LIKE '%.doc%' OR
+                    lower(canonical_url) LIKE '%.docx%'
                 )
                 AND status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
             """)

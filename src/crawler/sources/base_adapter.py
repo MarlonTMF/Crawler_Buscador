@@ -44,7 +44,10 @@ class BaseSourceAdapter(ABC):
 
     @property
     def allowed_extensions(self) -> List[str]:
-        return self.config["crawl"].get("allowed_extensions", ["pdf", "xlsx", "xls", "csv"])
+        return self.config["crawl"].get(
+            "allowed_extensions",
+            ["pdf", "xlsx", "xls", "csv", "zip", "ods", "xlsm", "doc", "docx"],
+        )
 
     @property
     def rate_limit(self) -> float:

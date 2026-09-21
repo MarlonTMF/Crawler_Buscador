@@ -88,6 +88,8 @@ class DiscoveryEngine:
             "xls",
             "pdf",
             "zip",
+            "ods",
+            "xlsm",
             "mensual",
             "trimestral",
             "anual",

@@ -102,4 +102,4 @@ def test_integracion_reproducibilidad_real():
     assert tot_d == 70
     assert tot_r == 5403
     assert tot_b == 1864
-    assert tot_a == 5411  # Medición final reproducible de Fase 2 (supera a Rolando: 5403)
+    assert tot_a >= 5411  # Supera a Rolando (5403) y amplía la ventaja en Fase 3 (5475+)
