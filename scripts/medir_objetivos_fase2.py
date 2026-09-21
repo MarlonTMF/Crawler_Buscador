@@ -7,9 +7,7 @@ sobre el estado consolidado de las bases de datos en output/ al cierre de B-40.
 Todos los veredictos y porcentajes se derivan estrictamente de los datos consultados.
 """
 
-import glob
 import json
-import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -29,8 +27,7 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
     total_docs_d13 = 0
     total_docs_con_bytes = 0
     total_docs_con_sha256 = 0
-    total_filas_sin_bytes_o_hash = 0
-    total_corruptos = 0
+    anomalias_columnas = 0
     total_errores_audit_log = 0
     
     fuentes_con_docs_d14 = {}
@@ -80,16 +77,10 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
                 if tiene_bytes and tiene_hash:
                     total_docs_d13 += 1
                     doc_count_d13 += 1
-                else:
-                    total_filas_sin_bytes_o_hash += 1
 
-                # Detección real de corrupción o anomalías:
-                # 1. Archivos marcados con status exitoso pero con tamaño <= 0
-                if fsize is not None and fsize <= 0:
-                    total_corruptos += 1
-                # 2. Hashes existentes pero con longitud distinta a 64 hex
-                if fhash is not None and len(str(fhash)) != 64:
-                    total_corruptos += 1
+                # Detección de anomalías en columnas (tamaño <= 0 o hash de longitud inválida)
+                if (fsize is not None and fsize <= 0) or (fhash is not None and len(str(fhash)) != 64):
+                    anomalias_columnas += 1
 
             total_docs_d14 += doc_count_d14
             if doc_count_d14 > 0:
@@ -128,7 +119,7 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
         if cs and cs in fuentes_con_docs_d14:
             fuentes_catalogo_cubiertas.add(s.get("Fuente"))
 
-    # Cifras de persistencia física
+    # Cifras de persistencia
     total_filas_sin_bytes = total_docs_d14 - total_docs_con_bytes
     total_filas_sin_hash = total_docs_d14 - total_docs_con_sha256
 
@@ -148,15 +139,15 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
     v_obj1_d14 = "ALCANZADO" if total_docs_d14 > 6000 else "NO ALCANZADO"
     v_obj1_d13 = "ALCANZADO" if total_docs_d13 > 6000 else "NO ALCANZADO"
 
-    # Objetivo 2: Meta >= 60 de 61 accesibles
-    v_obj2 = "ALCANZADO" if len(fuentes_con_docs_d14) >= 60 else "NO ALCANZADO"
+    # Objetivo 2: Meta >= 60 de 61 accesibles en catálogo
+    v_obj2 = "ALCANZADO" if len(fuentes_catalogo_cubiertas) >= 60 else f"NO ALCANZADO ({len(fuentes_catalogo_cubiertas)} de 60 requeridas en catálogo; {len(fuentes_con_docs_d14)} de 54 bases)"
 
     # Objetivo 3: Meta 20 de 22 portales ganados o empatados
     v_obj3_individual = "ALCANZADO" if len(ganados_o_empatados_d14) >= 20 else "NO ALCANZADO"
     v_obj3_acumulado = "SUPERADO" if total_22_d14 > total_22_rolando else "NO SUPERADO"
 
     # Objetivo 4: Meta 0 errores no negociable
-    v_obj4_crashes = f"ALCANZADO ({total_corruptos} corruptos detectados, 0 crashes de motor)" if total_corruptos == 0 else f"NO ALCANZADO ({total_corruptos} corruptos)"
+    v_obj4_crashes = f"ALCANZADO ({anomalias_columnas} anomalías en columnas de SQLite, 0 crashes de motor)" if anomalias_columnas == 0 else f"NO ALCANZADO ({anomalias_columnas} anomalías)"
     v_obj4_persistencia_d13 = "ALCANZADO" if (total_filas_sin_bytes == 0 and total_filas_sin_hash == 0) else f"NO ALCANZADO ({total_filas_sin_bytes} filas sin bytes / {total_filas_sin_hash} filas sin hash de Fase 1)"
 
     return {
@@ -165,12 +156,11 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
         "total_docs_d13": total_docs_d13,
         "total_docs_con_bytes": total_docs_con_bytes,
         "total_docs_con_sha256": total_docs_con_sha256,
-        "total_filas_sin_bytes_o_hash": total_filas_sin_bytes_o_hash,
-        "total_corruptos": total_corruptos,
-        "pct_integridad_bytes": (total_docs_con_bytes / total_docs_d14 * 100) if total_docs_d14 else 0,
-        "pct_integridad_sha256": (total_docs_con_sha256 / total_docs_d14 * 100) if total_docs_d14 else 0,
         "total_filas_sin_bytes": total_filas_sin_bytes,
         "total_filas_sin_hash": total_filas_sin_hash,
+        "anomalias_columnas": anomalias_columnas,
+        "pct_integridad_bytes": (total_docs_con_bytes / total_docs_d14 * 100) if total_docs_d14 else 0,
+        "pct_integridad_sha256": (total_docs_con_sha256 / total_docs_d14 * 100) if total_docs_d14 else 0,
         "total_errores_audit_log": total_errores_audit_log,
         "errores_por_fuente": detalles_errores_por_fuente,
         "fuentes_con_docs_d14_count": len(fuentes_con_docs_d14),
@@ -196,8 +186,8 @@ def medir_metricas_fase2(output_dir: Path, catalog_path: Path) -> Dict[str, Any]
     }
 
 def main():
-    output_dir = Path("output")
-    catalog_path = Path("output/excel_urls_diagnostic.json")
+    output_dir = ROOT_DIR / "output"
+    catalog_path = ROOT_DIR / "output" / "excel_urls_diagnostic.json"
     res = medir_metricas_fase2(output_dir, catalog_path)
 
     print("================================================================================")
@@ -210,14 +200,14 @@ def main():
     print()
     print("OBJETIVO 1 · Documentos Totales (Meta: > 6.000):")
     print(f"  - Criterio D-14 (Catálogo de URLs documentales): {res['total_docs_d14']} docs -> Veredicto: {res['v_obj1_d14']}")
-    print(f"  - Criterio D-13 (Descarga física con hash SHA-256): {res['total_docs_d13']} docs -> Veredicto: {res['v_obj1_d13']}")
+    print(f"  - Criterio D-13 (Verificación en memoria con hash SHA-256): {res['total_docs_d13']} docs -> Veredicto: {res['v_obj1_d13']}")
     print(f"  - En los 22 portales comunes del benchmark: {res['total_22_d14']} docs (D-14) / {res['total_22_d13']} docs (D-13)")
     print()
     print(f"OBJETIVO 2 · Fuentes con al menos un documento (Meta: >= 60 de {res['fuentes_accesibles_catalogo']} accesibles):")
     print(f"  - Bases con >= 1 documento (D-14): {res['fuentes_con_docs_d14_count']} de {res['total_dbs']}")
     print(f"  - Fuentes del catálogo accesibles cubiertas: {res['fuentes_catalogo_cubiertas_count']} de {res['fuentes_accesibles_catalogo']}")
     print(f"  - Bases con 0 documentos binarios ({len(res['fuentes_con_cero'])}): {res['fuentes_con_cero']}")
-    print(f"  - Veredicto: {res['v_obj2']} ({res['fuentes_con_docs_d14_count']} de 60 requeridas)")
+    print(f"  - Veredicto: {res['v_obj2']}")
     print()
     print("OBJETIVO 3 · Portales donde igualamos o superamos a Rolando (Meta: 20 de 22 comunes):")
     print(f"  - Portales individuales ganados o empatados: {res['ganados_o_empatados_count']} de 22 -> Veredicto: {res['v_obj3_individual']}")
@@ -225,11 +215,11 @@ def main():
     print(f"  - Total acumulado en los 22 comunes (D-14): {res['total_22_d14']} (Nosotros) vs {res['total_22_rolando']} (Rolando) -> Veredicto: {res['v_obj3_acumulado']}")
     print()
     print("OBJETIVO 4 · Errores de recurso y de integridad (Meta: 0 no negociable):")
-    print(f"  - Documentos con file_size_bytes > 0: {res['total_docs_con_bytes']} de {res['total_docs_d14']} ({res['pct_integridad_bytes']:.2f}%)")
-    print(f"  - Documentos con content_sha256 (64 hex): {res['total_docs_con_sha256']} de {res['total_docs_d14']} ({res['pct_integridad_sha256']:.2f}%)")
-    print(f"  - Filas sin descarga física de bytes (pre-D-13): {res['total_filas_sin_bytes']}")
+    print(f"  - Filas con header Content-Length o bytes > 0: {res['total_docs_con_bytes']} de {res['total_docs_d14']} ({res['pct_integridad_bytes']:.2f}%)")
+    print(f"  - Filas con hash SHA-256 verificado (64 hex): {res['total_docs_con_sha256']} de {res['total_docs_d14']} ({res['pct_integridad_sha256']:.2f}%)")
+    print(f"  - Filas sin registro de bytes transferidos (pre-D-13): {res['total_filas_sin_bytes']}")
     print(f"  - Filas sin hash SHA-256 (pre-D-13): {res['total_filas_sin_hash']}")
-    print(f"  - Documentos físicos corruptos o vacíos: {res['total_corruptos']}")
+    print(f"  - Filas con tamaño <= 0 o hash malformado en SQLite: {res['anomalias_columnas']}")
     print(f"  - Errores de red / enlaces rotos en servidores de origen (status=ERROR en audit_log): {res['total_errores_audit_log']}")
     print(f"  - Veredicto de integridad del motor: {res['v_obj4_crashes']}")
     print(f"  - Veredicto de persistencia D-13: {res['v_obj4_persistencia_d13']}")
