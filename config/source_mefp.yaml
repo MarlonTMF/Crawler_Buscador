@@ -11,16 +11,24 @@ source:
   allowed_domains:
     - www.economiayfinanzas.gob.bo
     - economiayfinanzas.gob.bo
+    - media.economiayfinanzas.gob.bo
+    - 200.75.171.4
 
 crawl:
   seeds:
     - https://www.economiayfinanzas.gob.bo
+    - https://www.economiayfinanzas.gob.bo/boletines
+    - https://media.economiayfinanzas.gob.bo/boletines
+    - https://www.economiayfinanzas.gob.bo/index.php/viceministerios/vtcp/deuda_cronogramas_pagos_eta_up_ultima_gestion
+    - https://www.economiayfinanzas.gob.bo/index.php/recaudaciones-aduaneras-capitulos
+    - https://www.economiayfinanzas.gob.bo/index.php/indicadores-de-endeudamiento-referenciales
     - https://www.economiayfinanzas.gob.bo/index.php/informe-gestion
     - https://www.economiayfinanzas.gob.bo/index.php/informes-auditoria-interna
-  max_depth: 2
-  max_pages: 120
-  strategy: bfs
-  rate_limit_per_second: 1.0
+  max_depth: 3
+  max_pages: 60
+  strategy: priority
+  rate_limit_per_second: 2.0
+  verify_ssl: false
   allowed_extensions: [pdf, xlsx, xls, csv, zip, doc, docx]
   use_sitemaps: true
   use_wayback: true
@@ -53,11 +61,43 @@ classification:
     - "gestion"
     - "auditoria"
     - "poa"
+    - "deuda"
+    - "boletin"
+    - "recaudacion"
   dataset_rules:
+    - id: deuda_publica
+      name: Deuda Pública Subnacional y Universidades
+      url_patterns:
+        - "deuda"
+        - "cronograma"
+        - "eta"
+        - "up"
+      title_keywords:
+        - "deuda"
+        - "cronogramas"
+        - "pagos"
+    - id: recaudaciones_aduaneras
+      name: Recaudaciones Aduaneras por Capítulo
+      url_patterns:
+        - "recaudaci"
+        - "aduanera"
+      title_keywords:
+        - "recaudación"
+        - "aduanera"
+    - id: boletines_estadisticos
+      name: Boletines Estadísticos y Monitoreo Fiscal
+      url_patterns:
+        - "boletin"
+        - "tributarias"
+        - "monitoreo"
+      title_keywords:
+        - "boletín"
+        - "monitoreo"
     - id: informe_gestion
       name: Informes de Gestión
       url_patterns:
         - "informe-gestion"
+        - "gestion"
         - "informe"
     - id: auditoria_interna
       name: Informes de Auditoría

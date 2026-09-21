@@ -11,12 +11,13 @@ logger = logging.getLogger(__name__)
 
 
 class AsyncFetcher:
-    def __init__(self, timeout: int = 15, max_retries: int = 3):
+    def __init__(self, timeout: int = 15, max_retries: int = 3, verify_ssl: bool = True):
         self.timeout = timeout
         self.max_retries = max_retries
+        self.verify_ssl = verify_ssl
 
     async def fetch_html(self, url: str) -> Tuple[bool, int, Optional[str]]:
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, verify=self.verify_ssl) as client:
             for attempt in range(1, self.max_retries + 1):
                 try:
                     r = await client.get(url)
@@ -30,7 +31,7 @@ class AsyncFetcher:
         return False, 0, None
 
     async def fetch_bytes(self, url: str) -> Tuple[bool, int, Optional[bytes]]:
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, verify=self.verify_ssl) as client:
             for attempt in range(1, self.max_retries + 1):
                 try:
                     r = await client.get(url)
@@ -43,7 +44,7 @@ class AsyncFetcher:
         return False, 0, None
 
     async def fetch_head(self, url: str) -> Tuple[bool, int, dict]:
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, verify=self.verify_ssl) as client:
             for attempt in range(1, self.max_retries + 1):
                 try:
                     # httpx uses `follow_redirects`, but some clients/mocks use `allow_redirects`.

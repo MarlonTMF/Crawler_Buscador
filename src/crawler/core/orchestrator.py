@@ -48,7 +48,7 @@ class CrawlOrchestrator:
 
         if use_async:
             # wrap AsyncFetcher sync helpers to provide same interface used in the codebase
-            async_client = AsyncFetcher()
+            async_client = AsyncFetcher(verify_ssl=self.adapter.verify_ssl)
 
             class _SyncAsyncFetcherWrapper:
                 def __init__(self, client):
@@ -70,6 +70,7 @@ class CrawlOrchestrator:
             self.fetcher = HttpFetcher(
                 rate_limit_seconds=rl_seconds,
                 use_playwright=use_playwright,
+                verify_ssl=self.adapter.verify_ssl,
             )
         self.discovery = DiscoveryEngine(self.fetcher, self.adapter)
         self.extractor = MetadataExtractor(self.fetcher, self.adapter)

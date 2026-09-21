@@ -75,6 +75,7 @@ class HttpFetcher:
         use_playwright: bool = False,
         headless_fetcher: Optional[HeadlessFetcher] = None,
         auto_headless_on_403: bool = True,
+        verify_ssl: bool = True,
     ):
         self.user_agent = user_agent
         self.timeout = timeout
@@ -86,8 +87,16 @@ class HttpFetcher:
         self.use_playwright = use_playwright
         self.headless_fetcher = headless_fetcher
         self.auto_headless_on_403 = auto_headless_on_403
+        self.verify_ssl = verify_ssl
         
         self.session = requests.Session()
+        self.session.verify = self.verify_ssl
+        if not self.verify_ssl:
+            try:
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            except Exception:
+                pass
         self.session.headers.update({"User-Agent": self.user_agent})
         
         self._last_request_time: Dict[str, float] = {}
@@ -124,7 +133,8 @@ class HttpFetcher:
 
         try:
             logger.info(f"Verificando robots.txt en: {robots_url}")
-            response = self.session.get(robots_url, timeout=10)
+            extra_kwargs = {} if self.verify_ssl else {"verify": False}
+            response = self.session.get(robots_url, timeout=10, **extra_kwargs)
             if response.status_code == 200:
                 parser.parse(response.text.splitlines())
                 logger.info(f"robots.txt cargado exitosamente para [{domain}]")
@@ -498,7 +508,10 @@ class HttpFetcher:
         for attempt in range(1, self.max_retries + 1):
             try:
                 head_timeout = min(float(self.timeout), 5.0)
-                response = self.session.head(url, timeout=(3.0, head_timeout), allow_redirects=True)
+                extra_kwargs = {} if self.verify_ssl else {"verify": False}
+                response = self.session.head(
+                    url, timeout=(3.0, head_timeout), allow_redirects=True, **extra_kwargs
+                )
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 5 * attempt))
                     logger.warning(f"Rate limit 429 recibido en HEAD {url}. Esperando {retry_after}s...")
@@ -539,7 +552,8 @@ class HttpFetcher:
         self._apply_rate_limit(url)
         for attempt in range(1, self.max_retries + 1):
             try:
-                response = self.session.get(url, timeout=self.timeout)
+                extra_kwargs = {} if self.verify_ssl else {"verify": False}
+                response = self.session.get(url, timeout=self.timeout, **extra_kwargs)
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 5 * attempt))
                     logger.warning(f"Rate limit 429 recibido en GET {url}. Esperando {retry_after}s...")
@@ -593,7 +607,8 @@ class HttpFetcher:
         for attempt in range(1, self.max_retries + 1):
             try:
                 bytes_timeout = min(float(self.timeout), 10.0)
-                response = self.session.get(url, timeout=(4.0, bytes_timeout))
+                extra_kwargs = {} if self.verify_ssl else {"verify": False}
+                response = self.session.get(url, timeout=(4.0, bytes_timeout), **extra_kwargs)
                 if response.status_code == 429:
                     retry_after = int(response.headers.get("Retry-After", 5 * attempt))
                     logger.warning(f"Rate limit 429 recibido en GET bytes {url}. Esperando {retry_after}s...")
