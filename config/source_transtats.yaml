@@ -1,0 +1,66 @@
+source:
+  id: transtats
+  name: US Bureau of Transportation Statistics (TRANSTATS)
+  base_url: https://www.transtats.bts.gov
+  allowed_domains:
+    - transtats.bts.gov
+    - www.transtats.bts.gov
+    - bts.gov
+    - www.bts.gov
+
+crawl:
+  seeds:
+    - https://www.transtats.bts.gov/
+    - https://www.bts.gov/topics/airlines-airports-and-aviation
+  max_depth: 2
+  max_pages: 50
+  rate_limit_per_second: 1.0
+  allowed_extensions: [pdf, xlsx, xls, csv, zip]
+  use_sitemaps: true
+  use_wayback: true
+
+audit:
+  enabled: true
+
+content_hashing:
+  enabled: true
+
+classification:
+  document_path_tokens:
+    - "data"
+    - "tables"
+    - "reports"
+    - "files"
+    - "download"
+  dataset_rules:
+    - id: tablas_estadisticas_transtats
+      name: Tablas Estadísticas y Reportes BTS
+      url_patterns:
+        - "table"
+        - "report"
+        - "statistic"
+        - "data"
+    - id: repositorio_general_transtats
+      name: Repositorio General TRANSTATS/BTS
+      url_patterns:
+        - "/download/"
+        - "/files/"
+        - "/sites/default/files/"
+  excluded_path_keywords:
+    - "/user/"
+    - "/admin/"
+
+period_extraction:
+  months_es:
+    enero: 1
+    febrero: 2
+    marzo: 3
+    abril: 4
+    mayo: 5
+    junio: 6
+    julio: 7
+    agosto: 8
+    septiembre: 9
+    octubre: 10
+    noviembre: 11
+    diciembre: 12

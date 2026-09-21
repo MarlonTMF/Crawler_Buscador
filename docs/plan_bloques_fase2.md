@@ -291,7 +291,7 @@ causa. **No se ajusta la meta para que dé.**
 | B-35 Lote 2 | Antigravity | 95 min | 55 min | ✅ Aprob. c/obs (`ac89f06`) |
 | B-36 Lote 3 | Antigravity | 95 min | 45 min | ✅ Completado (auditoría agrupada tras B-38) |
 | B-37 Lote 4 | Antigravity | 95 min | 40 min | ✅ Completado (auditoría agrupada tras B-38) |
-| B-38 Lote 5 | Antigravity | 95 min | | Pendiente |
+| B-38 Lote 5 | Antigravity | 95 min | 40 min | ✅ Completado (auditoría agrupada B-36..B-38) |
 | B-39 Comparador | Antigravity | 70 min | | Pendiente |
 | B-40 Cierre | Claude | 60 min | | Pendiente |
 | **Total** | | **~17 h** | | |

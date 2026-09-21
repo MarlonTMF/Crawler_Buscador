@@ -2185,7 +2185,8 @@
       "quality_score": 2.0,
       "snippet_text": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\r\n\"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html>\r\n<head>\r\n<title>SICOES</title>\r\n<meta http-equiv=\"Content-Type\" cont"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "sicoes"
   },
   {
     "Fuente": "SICSANTACRUZ",
@@ -2282,7 +2283,8 @@
     "Error_Detail": null,
     "origin": "URLsFaltantes.md (investigacion externa con busqueda web) + verificacion manual propia",
     "added_timestamp": "2026-09-17T15:56:11.362083+00:00",
-    "note": "El dominio observatorioagro.gob.bo citado en URLsFaltantes.md no resuelve DNS actualmente; se uso el mirror institucional oap.produccion.gob.bo, que si responde 200."
+    "note": "El dominio observatorioagro.gob.bo citado en URLsFaltantes.md no resuelve DNS actualmente; se uso el mirror institucional oap.produccion.gob.bo, que si responde 200.",
+    "crawler_source": "sispam"
   },
   {
     "Fuente": "SNIS",
@@ -2507,7 +2509,8 @@
       "quality_score": 2.0,
       "snippet_text": "\r\n\r\n<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n    <meta charset=\"utf-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>OST_R | BTS | Tran"
     },
-    "Error_Detail": null
+    "Error_Detail": null,
+    "crawler_source": "transtats"
   },
   {
     "Fuente": "UNDATA",
@@ -2610,6 +2613,7 @@
     "resolved_from_variant": false,
     "mapping_resolved": "https://www.planificacion.gob.bo/vipfe",
     "mapping_source": "gemini_verdict",
-    "mapping_note": "VIPFE integrado al portal del Ministerio de Planificacion. Sitio SPA (Angular): no se pudo confirmar texto por HTML estatico."
+    "mapping_note": "VIPFE integrado al portal del Ministerio de Planificacion. Sitio SPA (Angular): no se pudo confirmar texto por HTML estatico.",
+    "crawler_source": "vipfe"
   }
 ]

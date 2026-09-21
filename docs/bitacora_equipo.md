@@ -131,6 +131,7 @@ Lote 2 aportó 79 documentos con bytes reales (53 CEPROBOL, 26 BCB_BRASIL).
 | Tras B-34 / B-35 (Rebote) | **49/67 con crawler_source** | Lote 1 re-descargado (902 docs c/bytes) + Lote 2 (79 docs c/bytes) · Aprobados (`ac89f06`) |
 | Tras B-36 (Lote 3) | **53/67 con crawler_source** | Lote 3 onboarded: MHE (13 docs c/bytes), FIFA (62 docs c/bytes), Data.Gov (0, portal info), FEGASACRUZ (0, sitio en construcción) |
 | Tras B-37 (Lote 4) | **57/67 con crawler_source** | Lote 4 onboarded: OBA (106 docs c/bytes), SABSA (24 docs c/bytes), OMC (10 docs c/bytes), NIH (5 docs c/bytes) |
+| Tras B-38 (Lote 5) | **61/67 con crawler_source** | Lote 5 onboarded: VIPFE (667 docs c/bytes), SISPAM (10 docs c/bytes), TRANSTATS (10 docs c/bytes), SICOES (0, ASPX POST) |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
