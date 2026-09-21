@@ -61,8 +61,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-36 | 🅰️ | Onboarding Lote 3 | 95/45 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 94 docs (MHE 13, FIFA 81) bajo D-14 (`63b231d`) |
 | B-37 | 🅰️ | Onboarding Lote 4 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 138 docs (VIPFE 667, OBA 106, SABSA 22, etc.) (`63b231d`) |
 | B-38 | 🅰️ | Onboarding Lote 5 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 678 docs. 11/12 estables; FIFA declarada no estable (`63b231d`) |
-| B-39 | 🅰️ | Comparador reproducible benchmark | 70/35 | Aprob. c/obs | Script comparador_benchmark.py: reproduce baseline (1.864 docs) y mide 5.411 actuales (`2a0b179`) |
-| B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | En auditoría | Medición de los 4 objetivos: 10.985 docs globales, 5.411 en 22 comunes (supera a Rolando: 5.403), 16/22 portales ganados, 0 errores no controlados. |
+| B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | Aprob. c/obs | Medición dual D-13/D-14; supera a Rolando (5.411 vs 5.403); D-15 adoptada por Marlon (Catálogo vs Corpus) (`1b67113`) |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
