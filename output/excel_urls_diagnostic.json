@@ -77,7 +77,7 @@
     "Institucion": "Aduana Nacional de Bolivia",
     "Url_Original": "https://www.aduana.gob.bo",
     "Final_Url": "https://www.aduana.gob.bo/com_boletines",
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Score_Excel": 8.0,
     "Robots_Allowed": true,
     "Diagnosticos_Excel": [
@@ -718,7 +718,7 @@
     "Institucion": "Banco Central do Brasil",
     "Url_Original": "https://www.bcb.gov.br/",
     "Final_Url": "https://www.bcb.gov.br/",
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Score_Excel": 8.0,
     "Robots_Allowed": true,
     "Diagnosticos_Excel": [
@@ -748,7 +748,7 @@
     "Institucion": "Banco Central de Chile",
     "Url_Original": "https://www.bcentral.cl/",
     "Final_Url": "https://www.bcentral.cl/inicio",
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Score_Excel": 7.0,
     "Robots_Allowed": true,
     "Diagnosticos_Excel": [
@@ -906,7 +906,7 @@
       "verificada por contenido (La Paz)"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "http://cadecolp.org/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 2,
@@ -939,7 +939,7 @@
       "verificado por contenido"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://cadexco.bo/",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
@@ -1007,7 +1007,7 @@
       "acceso validado"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.probolivia.gob.bo/",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
@@ -1145,7 +1145,7 @@
     "Institucion": "D?lar Blue Bolivia",
     "Url_Original": "https://www.dolarbluebolivia.click/",
     "Final_Url": "https://www.dolarbluebolivia.click/",
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Score_Excel": 6.0,
     "Robots_Allowed": true,
     "Diagnosticos_Excel": [
@@ -1207,7 +1207,7 @@
       "verificado por contenido"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://fam.org.bo/",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
@@ -1491,7 +1491,7 @@
       "verificado por contenido"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.ibch.com/",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
@@ -1554,7 +1554,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.impuestos.gob.bo/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 1,
@@ -1796,7 +1796,7 @@
       "acceso validado"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://hidrocarburos.org/",
     "Doc_Links_Found_In_Seed": 1,
     "Subpage_Keywords_Found": 0,
@@ -1931,7 +1931,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://nida.nih.gov/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 2,
@@ -1964,7 +1964,7 @@
       "verificada"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://sea.gob.bo/centro-de-datos-autonomicos",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 0,
@@ -2054,7 +2054,7 @@
       "acceso validado"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://naabol.gob.bo/",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
@@ -2189,7 +2189,7 @@
       "dominio caido / re-registrado como parking"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://ice.santacruz.gob.bo/repositorio",
     "Doc_Links_Found_In_Seed": 163,
     "Subpage_Keywords_Found": 3,
@@ -2257,7 +2257,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://oap.produccion.gob.bo/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 3,
@@ -2368,7 +2368,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.aps.gob.bo/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 3,
@@ -2402,7 +2402,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.asfi.gob.bo/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 1,
@@ -2434,7 +2434,7 @@
       "verificada por contenido"
     ],
     "Robots_Allowed": null,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.att.gob.bo/",
     "Doc_Links_Found_In_Seed": null,
     "Subpage_Keywords_Found": 1,
@@ -2587,7 +2587,7 @@
       "acceso validado"
     ],
     "Robots_Allowed": true,
-    "HTTP_Status": 200,
+    "HTTP_Status": "200",
     "Final_Url": "https://www.planificacion.gob.bo/vipfe",
     "Doc_Links_Found_In_Seed": 0,
     "Subpage_Keywords_Found": 0,
