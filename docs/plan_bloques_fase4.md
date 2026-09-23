@@ -206,6 +206,43 @@ y cuál sobra.
 
 ---
 
+### B-54b · El agente como ayudante en la escalera — Antigravity — 90 min
+
+**Objetivo.** Que el agente proponga candidatos cuando los cuatro escalones
+deterministas no encontraron el período. Es el escalón 5 de la escalera.
+
+**El mecanismo ya existe**: `fetcher.py::_ask_gemini_for_alternatives` se usa
+hoy para resolver dominios caídos. Este bloque lo conecta a la recuperación de
+períodos faltantes, no lo reescribe.
+
+**Por qué va último y no primero.** Los escalones 1 a 4 son deterministas y
+verificables; el agente es generativo y **ya falló antes en este proyecto**:
+D-01 nació porque Gemini sugirió `bcp.org`, `ibce.org.bo` y `cadex.org` para
+tres instituciones distintas, y las tres eran organizaciones equivocadas que
+respondían 200.
+
+**Reglas que no se pueden saltar** (detalle en `docs/arquitectura_integracion.md` §6):
+
+1. El agente **nunca escribe en `inventory.db`**: propone, no admite.
+2. Toda propuesta pasa por **HEAD** con 200, tamaño > 0 y tipo documental (D-17).
+3. Toda propuesta pasa por **verificación de contenido** con palabras clave de
+   la institución (D-01).
+4. **Cambio de dominio institucional nunca es automático** — eso es herencia y
+   va a B-55.
+5. **Tope de llamadas por corrida**, registrado. La cuota de Gemini ya se
+   consumió sin querer una vez (D-08).
+6. Queda registrado **en qué escalón apareció cada recuperación**.
+
+**Criterio de aceptación.** Al menos 5 períodos recuperados por el escalón 5
+que los escalones 1 a 4 no encontraron, cada uno con HEAD y verificación de
+contenido en el parte. **Si el agente no aporta ninguno, ese también es un
+resultado válido y se reporta**: significa que los deterministas alcanzan y el
+gasto de tokens no se justifica.
+
+**Commit.** `feat: agente como escalon final de la escalera de recuperacion`
+
+---
+
 ### B-55 · Búsqueda de herencia — decisión de Claude antes de implementar — 120 min
 
 **Objetivo.** El caso más difícil de la reunión: «puede darse que ya no exista
@@ -258,16 +295,26 @@ perdida, no una fuente histórica.
 
 ### B-57 · Cruce con el crawler interno — BLOQUEADO — 120 min estimados
 
-**Estado: bloqueado.** Falta que Marlon envíe las URLs de los repositorios del
-crawler interno y del externo. Se clonan **al lado** de este proyecto, nunca
-dentro.
+**Estado: desbloqueado el 2026-09-23.** Ambos repositorios están clonados al
+lado de este proyecto y analizados en `docs/arquitectura_integracion.md`.
+
+**Lo que cambió al leerlos.** El contrato de integración **ya existe**: el
+interno consume una Catalog API Facade en el puerto 8000
+(`/health`, `/runs`, `/catalog/resources`) y ya calcula las diferencias con
+`DuckDBDiffEngine`. No hay que diseñar la conciliación: hay que alimentarla.
+
+**Y son tres sistemas, no dos.** `crawler_finrural` no es el prospector
+externo que el interno consume; ese es `Prospector-Externo`. Cerrar ese puente
+tiene tres opciones y **requiere decisión formal antes de implementar**
+(§5 del documento de arquitectura).
 
 **Objetivo.** «Cruce de datos del crawler externo con el interno» y «las DB de
 DataX al día».
 
-**Clave de cruce propuesta**, a confirmar cuando se vean los esquemas:
-institución + dataset + período. Es otra razón por la que la Etapa J va
-primero: sin período no hay clave de cruce.
+**La clave de cruce ya está definida por el contrato**: `resource_key` y
+`content_hash`, con `period_label` como campo de período. Ese campo es
+exactamente lo que produce la Etapa J — y hoy lo dejamos vacío en el 97% de
+BCB. **El contrato tiene el campo; nosotros no tenemos el dato.**
 
 **Salida esperada.** Qué tiene el interno que nosotros no, qué tenemos nosotros
 que el interno no, y qué tienen ambos con período distinto.
@@ -302,9 +349,10 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-54 Escalera de recuperación | Antigravity | 110 min | | Pendiente |
 | B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | | Pendiente |
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | | Pendiente |
-| B-57 Cruce con el interno | Antigravity | 120 min | | **Bloqueado** |
+| B-54b Agente en la escalera | Antigravity | 90 min | | Pendiente |
+| B-57 Cruce con el interno | Claude + Antigravity | 120 min | | Pendiente (requiere decisión) |
 | B-58 Reporte y cierre | Claude | 70 min | | Pendiente |
-| **Total** | | **~14 h** | | |
+| **Total** | | **~15 h 30** | | |
 
 ---
 
@@ -318,7 +366,9 @@ permisos de escritura ni commit, y la política de tokens de
 **Paradas de esta fase:**
 
 1. **B-55**, parada de diseño antes de implementar la herencia.
-2. **B-57**, bloqueado hasta que lleguen las URLs de los repositorios.
+2. **B-57**, parada de decisión: hay que elegir cómo se cierra el puente
+   entre `crawler_finrural` y `Prospector-Externo` (opciones A, B y C del
+   documento de arquitectura) antes de escribir código.
 3. Las tres condiciones generales: decisión de política, tres DEVUELTO del
    mismo bloque, o bloqueo externo insalvable.
 
