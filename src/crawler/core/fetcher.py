@@ -71,7 +71,7 @@ class HttpFetcher:
         rate_limit_seconds: float = 1.0,
         honor_robots_txt: bool = True,
         gemini_api_key: Optional[str] = None,
-        gemini_model: str = "gemini-2.0-flash",
+        gemini_model: str = "gemini-3.6-flash",
         use_playwright: bool = False,
         headless_fetcher: Optional[HeadlessFetcher] = None,
         auto_headless_on_403: bool = True,
@@ -644,14 +644,16 @@ class HttpFetcher:
     def _ask_gemini_for_alternatives(self, url: str, failed_candidates: Optional[List[str]] = None) -> List[str]:
         """Query Gemini for candidate alternative URLs when local heuristics fail."""
     def _generate_gemini_content(self, prompt: str) -> str:
-        """Invoca la API de Gemini intentando con gemini-2.5-flash y otros modelos disponibles."""
+        """Invoca la API de Gemini probando en orden los modelos vigentes."""
         if not self.gemini_api_key:
             raise ValueError("GEMINI_API_KEY no configurada.")
         
-        # gemini-2.0-flash / gemini-1.5-* fueron retirados de la API (confirmado contra
-        # /v1beta/models el 2026-09-11); se agregan los modelos vigentes como fallback
-        # para que la cadena no dependa de un único nombre que puede volver a cambiar.
-        models_to_try = [self.gemini_model, "gemini-2.5-flash", "gemini-flash-latest", "gemini-2.5-pro", "gemini-pro-latest"]
+        # Los nombres de modelo caducan seguido: gemini-2.0-flash y gemini-1.5-* se
+        # retiraron el 2026-09-11, y gemini-2.5-flash dejó de estar disponible para
+        # credenciales nuevas (404 verificado el 2026-09-23, con la propia API
+        # recomendando gemini-3.6-flash). La cadena arranca por el modelo vigente y
+        # mantiene los alias "-latest" detrás para no depender de un nombre puntual.
+        models_to_try = [self.gemini_model, "gemini-3.6-flash", "gemini-flash-latest", "gemini-pro-latest"]
         last_exc = None
         seen_models = set()
         for model in models_to_try:
