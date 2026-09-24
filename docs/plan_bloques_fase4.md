@@ -87,6 +87,45 @@ periodicidad por dataset, que es lo que la Etapa K necesita.
 
 ---
 
+## Reparto en dos vías — 2026-09-24
+
+La fase se trabaja en paralelo, en dos ramas desde `main`.
+
+| Vía | Quién | Rama | Bloques | Estimado |
+|---|---|---|---|---:|
+| **A · Fechar y detectar** | Marlon | `fase4/fechado` | B-50 · B-51 · B-52 · B-53 | 6 h 20 |
+| **B · Recuperar y publicar** | Compañero | `fase4/recuperacion` | B-54 · B-54b · B-55 · B-56 · B-57 | 8 h 40 |
+| **Conjunto** | ambos | tras fusionar | B-58 | 70 min |
+
+El documento autónomo de la vía B, pensado para enviarse sin más contexto,
+está en `docs/fase4_via_b_recuperacion.md`.
+
+**El acoplamiento es real y se resuelve con un contrato.** La vía B consume lo
+que produce la vía A: la lista de períodos faltantes. Para que no quede
+esperando, el formato del registro de hueco se acuerda **antes de empezar**
+(sección 3 del documento de la vía B) y la vía B trabaja contra un fixture con
+tres huecos reales verificados a mano hasta que B-53 aterrice.
+
+**Dueños de archivo, para no chocar al fusionar:**
+
+| Archivo | Dueño |
+|---|---|
+| `src/crawler/core/extractor.py` | Vía A |
+| `config/source_{bcb,ine,asfi}.yaml` | Vía A |
+| `scripts/detector_huecos.py` | Vía A (nuevo) |
+| `src/crawler/core/recuperador.py` · `ciclo_vida.py` | Vía B (nuevo) |
+| `scripts/exportar_catalogo.py` | Vía B (nuevo) |
+| `src/crawler/core/fetcher.py` | Vía B (solo B-54b) |
+
+`docs/decisiones.md` lo tocan las dos: **la vía A usa D-18 y D-19, la vía B
+usa D-20 en adelante**, siempre al final y sin renumerar. En la tabla de
+seguimiento, cada vía actualiza solo sus propias filas.
+
+**Orden de fusión:** primero `fase4/fechado`, después `fase4/recuperacion`
+rebasada sobre `main`. La vía A no depende de la B.
+
+---
+
 ## Etapa J — Saber de cuándo es cada documento
 
 Prerequisito de toda la fase. Sin esto, las etapas K, L y M no se pueden
