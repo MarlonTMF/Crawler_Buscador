@@ -194,6 +194,43 @@ class MetadataExtractor:
                     period_start, period_end = self._format_period(y, m_num)
                     break
 
+        # e.2) Trimestres y Semestres
+        if not period_start:
+            m_tri = re.search(
+                r"(?:(?P<tri1>primer|segundo|tercer|cuarto|1er|2do|3er|4to|i{1,3}|iv|t[1-4])\s*[-_\s]*)?trimestre(?:\s*[-_\s]*(?P<tri2>1|2|3|4|i{1,3}|iv))?\s*(?:de\s+)?(?P<y>20\d{2}|19\d{2})",
+                fname_lower,
+            )
+            if m_tri:
+                tri_raw = (m_tri.group("tri1") or m_tri.group("tri2") or "").lower()
+                y = int(m_tri.group("y"))
+                if tri_raw in ("primer", "1er", "i", "1", "t1"):
+                    period_start = f"{y:04d}-01-01"
+                    period_end = f"{y:04d}-03-31"
+                elif tri_raw in ("segundo", "2do", "ii", "2", "t2"):
+                    period_start = f"{y:04d}-04-01"
+                    period_end = f"{y:04d}-06-30"
+                elif tri_raw in ("tercer", "3er", "iii", "3", "t3"):
+                    period_start = f"{y:04d}-07-01"
+                    period_end = f"{y:04d}-09-30"
+                elif tri_raw in ("cuarto", "4to", "iv", "4", "t4"):
+                    period_start = f"{y:04d}-10-01"
+                    period_end = f"{y:04d}-12-31"
+
+            if not period_start:
+                m_sem = re.search(
+                    r"(?:(?P<sem1>primer|segundo|1er|2do|i{1,2}|s[1-2])\s*[-_\s]*)?semestre(?:\s*[-_\s]*(?P<sem2>1|2|i{1,2}))?\s*(?:de\s+)?(?P<y>20\d{2}|19\d{2})",
+                    fname_lower,
+                )
+                if m_sem:
+                    sem_raw = (m_sem.group("sem1") or m_sem.group("sem2") or "").lower()
+                    y = int(m_sem.group("y"))
+                    if sem_raw in ("primer", "1er", "i", "1", "s1"):
+                        period_start = f"{y:04d}-01-01"
+                        period_end = f"{y:04d}-06-30"
+                    elif sem_raw in ("segundo", "2do", "ii", "2", "s2"):
+                        period_start = f"{y:04d}-07-01"
+                        period_end = f"{y:04d}-12-31"
+
         # f) Rango AAAA-AAAA o pegado AAAAYYYY (ej. PEI-2021-2025, 19902014)
         if not period_start:
             m_yrange = re.search(r"(?<!\d)(?P<y1>20\d{2})-(?P<y2>20\d{2})(?!\d)", filename)
