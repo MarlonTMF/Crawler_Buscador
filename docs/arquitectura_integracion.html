@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Arquitectura de integracion de los tres sistemas del Prospector DataX: el contrato entre ellos y donde aterriza el trabajo de la Fase 4.">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Arquitectura Prospector DataX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<style>
+  :root{
+    --bg:#eef1f4; --surf:#fff; --surf2:#e2e7ec; --surf3:#d5dce3;
+    --line:#c7d0d9; --line2:#a5b2be;
+    --ink:#10161c; --ink2:#465360; --ink3:#77838f;
+    --acc:#1f4f7a; --acc-bg:#dce8f2;
+    --s1:#1f4f7a; --s1-bg:#dbe7f2;
+    --s2:#2c6a4c; --s2-bg:#d9eae1;
+    --s3:#8a6212; --s3-bg:#f2e6cb;
+    --bad:#9d3a26; --bad-bg:#f6dfd8;
+    --sh:0 1px 2px rgba(16,22,28,.05),0 10px 24px rgba(16,22,28,.06);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --s1:#6fa8d6; --s1-bg:#152a3d;
+    --s2:#69b98d; --s2-bg:#132a1f;
+    --s3:#d6ab52; --s3-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --s1:#6fa8d6; --s1-bg:#152a3d;
+    --s2:#69b98d; --s2-bg:#132a1f;
+    --s3:#d6ab52; --s3-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Libre Franklin',system-ui,sans-serif;font-size:15.5px;line-height:1.62}
+  .wrap{max-width:1020px;margin:0 auto;padding-inline:20px;padding-block:0 76px}
+  h1,h2,h3{font-family:'Bitter',Georgia,serif;font-weight:600;margin:0;text-wrap:balance}
+  p{margin:0 0 12px;max-width:70ch}
+  code,.mono{font-family:'Source Code Pro',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  code{background:var(--surf2);padding:.1em .38em;border-radius:4px;font-size:.85em}
+
+  .mast{background:var(--surf);border-bottom:2px solid var(--ink)}
+  .mast .wrap{padding-block:34px 28px}
+  .eb{font-family:'Source Code Pro',monospace;font-size:.69rem;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:10px}
+  h1{font-size:clamp(1.85rem,4.7vw,2.5rem);letter-spacing:-.012em;max-width:19ch;line-height:1.1}
+  .dk{margin-top:12px;color:var(--ink2);font-size:1.02rem;max-width:64ch}
+
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:24px}
+  .sys{background:var(--surf);border:1px solid var(--line);border-top:4px solid var(--c);
+    border-radius:10px;padding:14px 16px;box-shadow:var(--sh)}
+  .sys .nm{font-family:'Source Code Pro',monospace;font-size:.86rem;font-weight:600;color:var(--c)}
+  .sys .role{font-size:.83rem;color:var(--ink2);margin-top:5px}
+  .sys .ex{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--ink3);
+    margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+
+  section{padding-block:38px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+  .slab{font-family:'Source Code Pro',monospace;font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+  h2{font-size:1.45rem;margin-bottom:8px}
+  .lead{color:var(--ink2);margin-bottom:18px;max-width:66ch}
+
+  /* ── figuras ── */
+  figure{margin:18px 0 0;background:var(--surf);border:1px solid var(--line);
+    border-radius:12px;padding:18px 16px 14px;box-shadow:var(--sh)}
+  figcaption{font-size:.81rem;color:var(--ink2);margin-top:12px;padding-top:11px;
+    border-top:1px solid var(--line);max-width:none}
+  figcaption b{color:var(--ink)}
+  .dg{max-width:100%;height:auto;display:block;margin:0 auto;color:var(--ink)}
+  .dg text{font-family:'Libre Franklin',system-ui,sans-serif;fill:currentColor}
+  .dg .mn{font-family:'Source Code Pro',monospace}
+  .dg .bx{fill:var(--surf2);stroke:currentColor;stroke-width:1.4}
+  .dg .b1{fill:var(--s1-bg);stroke:var(--s1);stroke-width:1.8}
+  .dg .b2{fill:var(--s2-bg);stroke:var(--s2);stroke-width:1.8}
+  .dg .b3{fill:var(--s3-bg);stroke:var(--s3);stroke-width:1.8}
+  .dg .bb{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.8}
+  .dg .ln{stroke:currentColor;stroke-width:1.4;fill:none}
+  .dg .ld{stroke:currentColor;stroke-width:1.4;fill:none;stroke-dasharray:5 4;opacity:.6}
+  .dg .lb{stroke:var(--bad);stroke-width:1.8;fill:none}
+  .dg .lg{stroke:var(--s2);stroke-width:1.8;fill:none}
+  .dg .t{font-size:12.5px}
+  .dg .tt{font-size:13px;font-weight:600}
+  .dg .ts{font-size:10.5px;opacity:.72}
+  .dg .tb{font-size:11.5px;font-weight:600;fill:var(--bad)}
+  .dg .tg{font-size:11.5px;font-weight:600;fill:var(--s2)}
+  .dg .hd{font-size:10px;font-weight:600;letter-spacing:.09em;opacity:.6}
+
+  .tsc{overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--surf);margin-top:14px}
+  table{width:100%;border-collapse:collapse;min-width:540px}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);font-size:.85rem;vertical-align:top}
+  th{font-family:'Source Code Pro',monospace;font-size:.63rem;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--ink2);background:var(--surf2)}
+  tr:last-child td{border-bottom:none}
+  .tag{font-family:'Source Code Pro',monospace;font-size:.68rem;font-weight:600;
+    padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block}
+  .t1{background:var(--s1-bg);color:var(--s1)}
+  .t2{background:var(--s2-bg);color:var(--s2)}
+  .t3{background:var(--s3-bg);color:var(--s3)}
+  .tno{background:var(--bad-bg);color:var(--bad)}
+
+  .tabs{display:flex;gap:2px;background:var(--surf2);border:1px solid var(--line);
+    border-radius:9px;padding:3px;margin-top:16px;flex-wrap:wrap}
+  .tabs button{flex:1;min-width:130px;font-family:'Source Code Pro',monospace;font-size:.75rem;
+    font-weight:600;border:0;background:transparent;color:var(--ink2);padding:8px 10px;
+    border-radius:6px;cursor:pointer}
+  .tabs button[aria-selected="true"]{background:var(--surf);box-shadow:var(--sh)}
+  .tabs button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+  #tb1[aria-selected="true"]{color:var(--s1)}
+  #tb2[aria-selected="true"]{color:var(--s2)}
+  #tb3[aria-selected="true"]{color:var(--s3)}
+  .panel{margin-top:12px}
+
+  .hl{background:var(--acc-bg);border:1px solid var(--acc);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .hl .slab{color:var(--acc)}
+  .hl p{margin:0;font-size:.9rem;color:var(--ink2)} .hl p+p{margin-top:9px}
+  .warn{background:var(--bad-bg);border:1px solid var(--bad);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .warn .slab{color:var(--bad)}
+  .warn p{margin:0;font-size:.9rem;color:var(--ink2)} .warn p+p{margin-top:9px}
+
+  details.d{border:1px solid var(--line);border-radius:10px;background:var(--surf);
+    overflow:hidden;margin-bottom:8px}
+  details.d>summary{cursor:pointer;list-style:none;padding:12px 15px;display:flex;
+    align-items:center;gap:11px;flex-wrap:wrap}
+  details.d>summary::-webkit-details-marker{display:none}
+  .dt{flex:1;font-weight:600;font-size:.93rem;min-width:160px}
+  .cv{color:var(--ink3);font-size:.65rem;transition:transform .16s;flex:none}
+  details.d[open]>summary{border-bottom:1px solid var(--line)}
+  details.d[open] .cv{transform:rotate(90deg)}
+  .db{padding:14px 15px;font-size:.88rem;color:var(--ink2)}
+  .db p{margin:0 0 9px;max-width:none} .db p:last-child{margin:0} .db b{color:var(--ink)}
+
+  ol.rules{list-style:none;counter-reset:r;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  ol.rules li{counter-increment:r;display:grid;grid-template-columns:auto 1fr;gap:11px;
+    font-size:.88rem;color:var(--ink2)}
+  ol.rules li::before{content:counter(r);font-family:'Source Code Pro',monospace;font-size:.72rem;
+    font-weight:700;color:var(--bad);background:var(--bad-bg);width:22px;height:22px;
+    display:grid;place-items:center;border-radius:5px}
+  ol.rules b{color:var(--ink)}
+
+  footer{padding-block:28px 8px;color:var(--ink3);font-size:.78rem}
+  footer p{max-width:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eb">Prospector DataX · arquitectura de integración · 23 sep 2026</div>
+    <h1>Tres sistemas, un contrato y un campo vacío</h1>
+    <p class="dk">Levantada leyendo el código de los tres repositorios, no su documentación. Lo que sigue es dónde va cada cosa del trabajo que viene, y por qué.</p>
+
+    <div class="legend">
+      <div class="sys" style="--c:var(--s1)">
+        <div class="nm">crawler_finrural</div>
+        <div class="role">El motor y el laboratorio. Descubrimiento, extracción y las decisiones técnicas.</div>
+        <div class="ex">31 módulos · no expone HTTP</div>
+      </div>
+      <div class="sys" style="--c:var(--s2)">
+        <div class="nm">Prospector-Externo</div>
+        <div class="role">Prospecta y publica el catálogo. Hexagonal, con workflows propios.</div>
+        <div class="ex">expone Catalog API :8000</div>
+      </div>
+      <div class="sys" style="--c:var(--s3)">
+        <div class="nm">prospector_interno</div>
+        <div class="role">Ingiere y almacena. Gatekeeper, scheduler y capa Bronze.</div>
+        <div class="ex">consume la Catalog API</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="slab">Punto de partida</div>
+    <h2>Son tres sistemas, no dos</h2>
+    <p class="lead">Veníamos hablando de «el interno» y «el externo» como si fueran dos. <code>crawler_finrural</code> <b>no es</b> el prospector externo que el interno consume: ese es <code>Prospector-Externo</code>, un repositorio distinto con su propio motor.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="crawler_finrural no tiene canal formal hacia Prospector-Externo, que sí sirve la Catalog API al prospector interno">
+        <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+        <text class="hd" x="20" y="24">LABORATORIO</text>
+        <text class="hd" x="330" y="24">PRODUCCIÓN DATAX</text>
+        <line class="ld" x1="20" y1="34" x2="290" y2="34"/>
+        <line class="ld" x1="330" y1="34" x2="860" y2="34"/>
+
+        <rect class="b1" x="20" y="60" width="250" height="118" rx="9"/>
+        <text class="tt mn" x="145" y="88" text-anchor="middle">crawler_finrural</text>
+        <text class="ts" x="145" y="110" text-anchor="middle">discovery · extractor · wayback</text>
+        <text class="ts" x="145" y="128" text-anchor="middle">series_extrapolator · api_consumer</text>
+        <text class="ts" x="145" y="154" text-anchor="middle">31 módulos · sin HTTP</text>
+
+        <rect class="b2" x="330" y="60" width="230" height="118" rx="9"/>
+        <text class="tt mn" x="445" y="88" text-anchor="middle">Prospector-Externo</text>
+        <text class="ts" x="445" y="110" text-anchor="middle">workflows · cadence</text>
+        <text class="ts" x="445" y="128" text-anchor="middle">status_gate</text>
+        <text class="ts" x="445" y="154" text-anchor="middle">sirve el catálogo</text>
+
+        <rect class="b3" x="620" y="60" width="240" height="118" rx="9"/>
+        <text class="tt mn" x="740" y="88" text-anchor="middle">prospector_interno</text>
+        <text class="ts" x="740" y="110" text-anchor="middle">gatekeeper · scheduler</text>
+        <text class="ts" x="740" y="128" text-anchor="middle">capa Bronze</text>
+        <text class="ts" x="740" y="154" text-anchor="middle">consume el catálogo</text>
+
+        <line class="lb" x1="272" y1="119" x2="326" y2="119" stroke-dasharray="6 5"/>
+        <text class="tb" x="299" y="206" text-anchor="middle">sin canal</text>
+        <text class="tb" x="299" y="220" text-anchor="middle">formal</text>
+        <line class="lb" x1="299" y1="132" x2="299" y2="194" stroke-dasharray="3 4"/>
+
+        <line class="ln" x1="562" y1="119" x2="616" y2="119" marker-end="url(#ar1)"/>
+        <text class="t" x="589" y="206" text-anchor="middle">Catalog API</text>
+        <text class="t mn" x="589" y="222" text-anchor="middle">:8000</text>
+        <line class="ln" x1="589" y1="132" x2="589" y2="194"/>
+      </svg>
+      <figcaption>El trabajo que hagamos en <b>crawler_finrural</b> no llega al interno por sí solo: hoy lo único que cruza esa línea roja son técnicas, aplicadas a mano. <b>Cerrar ese canal es la decisión pendiente de esta fase.</b></figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">Lo que ya está resuelto</div>
+    <h2>El contrato de integración ya existe</h2>
+    <p class="lead">No hay que diseñarlo. Está implementado en <code>rest_prospector_client.py</code> del lado interno y servido por <code>apps/catalog_api</code> del externo. Hay que alimentarlo, no construirlo.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 330" role="img" aria-label="El interno llama a health, runs y catalog resources del externo, y luego contrasta contra su capa Bronze para producir el reporte de diferencias">
+        <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <rect class="b3" x="20" y="16" width="190" height="42" rx="7"/>
+        <text class="tt mn" x="115" y="35" text-anchor="middle">prospector_interno</text>
+        <text class="ts" x="115" y="50" text-anchor="middle">DuckDBDiffEngine</text>
+        <rect class="b2" x="500" y="16" width="190" height="42" rx="7"/>
+        <text class="tt mn" x="595" y="35" text-anchor="middle">Catalog API</text>
+        <text class="ts mn" x="595" y="50" text-anchor="middle">:8000</text>
+        <rect class="b3" x="745" y="16" width="115" height="42" rx="7"/>
+        <text class="tt" x="802" y="41" text-anchor="middle">Bronze</text>
+
+        <line class="ld" x1="115" y1="60" x2="115" y2="306"/>
+        <line class="ld" x1="595" y1="60" x2="595" y2="252"/>
+        <line class="ld" x1="802" y1="60" x2="802" y2="306"/>
+
+        <line class="ln" x1="115" y1="86" x2="591" y2="86" marker-end="url(#ar2)"/>
+        <text class="t mn" x="353" y="79" text-anchor="middle">GET /health</text>
+        <line class="ld" x1="595" y1="110" x2="119" y2="110" marker-end="url(#ar2)"/>
+        <text class="ts mn" x="353" y="103" text-anchor="middle">{"status":"UP"}</text>
+
+        <line class="ln" x1="115" y1="142" x2="591" y2="142" marker-end="url(#ar2)"/>
+        <text class="t mn" x="353" y="135" text-anchor="middle">GET /runs?limit=1</text>
+        <line class="ld" x1="595" y1="166" x2="119" y2="166" marker-end="url(#ar2)"/>
+        <text class="ts mn" x="353" y="159" text-anchor="middle">[{run_id}]</text>
+
+        <line class="ln" x1="115" y1="198" x2="591" y2="198" marker-end="url(#ar2)"/>
+        <text class="t mn" x="353" y="191" text-anchor="middle">GET /catalog/resources?source_id=X</text>
+        <line class="ld" x1="595" y1="234" x2="119" y2="234" marker-end="url(#ar2)"/>
+        <text class="ts mn" x="353" y="215" text-anchor="middle">[ResourceCandidate…]  resource_key · url · content_hash</text>
+        <text class="ts mn" x="353" y="228" text-anchor="middle">etag · change_status · period_label</text>
+
+        <line class="ln" x1="115" y1="268" x2="798" y2="268" marker-end="url(#ar2)"/>
+        <text class="t" x="450" y="261" text-anchor="middle">contrastar con lo almacenado</text>
+        <line class="ld" x1="802" y1="292" x2="119" y2="292" marker-end="url(#ar2)"/>
+        <text class="ts" x="450" y="285" text-anchor="middle">presentes / ausentes / hash distinto</text>
+
+        <rect class="bx" x="20" y="306" width="300" height="0.1" rx="0"/>
+        <text class="tt" x="20" y="322">→ ReconciliationDiffReport</text>
+      </svg>
+      <figcaption>Tres llamadas y una comparación local. El interno ya clasifica cada diferencia en <code>CONFIRMED</code>, <code>NEW</code>, <code>MODIFIED</code> o <code>URL_CHANGED</code>: <b>ya modela que un recurso cambie de dirección</b>, que es la mitad de lo que pidió la reunión.</figcaption>
+    </figure>
+
+    <div class="hl">
+      <div class="slab">La bisagra: period_label</div>
+      <p>Entre los campos del contrato hay uno que expresa a qué período pertenece un documento: <b><code>period_label</code></b>. Es exactamente lo que produce la primera etapa del trabajo que viene, y hoy lo mandamos vacío en el <b>97% de BCB</b> y el <b>99,5% de INE</b>.</p>
+      <p><b>El contrato tiene el campo; nosotros no tenemos el dato.</b></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">La distinción que hay que respetar</div>
+    <h2>Cadencia no es cobertura, y solo una existe</h2>
+    <p class="lead">Es el punto más fácil de confundir y el más caro de confundir. El diagrama muestra una fuente perfectamente sana a la que igual le falta un mes.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 310" role="img" aria-label="Una fuente con salud ACTIVE y visitas diarias correctas puede tener un período faltante, porque la cadencia mide las visitas y no los períodos publicados">
+        <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="20" y="22">LO QUE MIDE LA CADENCIA — YA EXISTE</text>
+        <text class="ts" x="20" y="40">¿cada cuánto visitamos la fuente?</text>
+        <line class="ln" x1="150" y1="72" x2="840" y2="72"/>
+        <g fill="var(--s2)">
+          <circle cx="190" cy="72" r="6"/><circle cx="255" cy="72" r="6"/><circle cx="320" cy="72" r="6"/>
+          <circle cx="385" cy="72" r="6"/><circle cx="450" cy="72" r="6"/><circle cx="515" cy="72" r="6"/>
+          <circle cx="580" cy="72" r="6"/><circle cx="645" cy="72" r="6"/><circle cx="710" cy="72" r="6"/>
+          <circle cx="775" cy="72" r="6"/>
+        </g>
+        <text class="t" x="20" y="77">visitas</text>
+        <rect class="b2" x="150" y="94" width="300" height="26" rx="13"/>
+        <text class="tg" x="300" y="112" text-anchor="middle">health_status: ACTIVE · sin errores</text>
+
+        <line class="ld" x1="20" y1="150" x2="860" y2="150"/>
+
+        <text class="hd" x="20" y="180">LO QUE NADIE MIDE — COBERTURA DE PERÍODOS</text>
+        <text class="ts" x="20" y="198">¿qué publicó la institución y qué nos falta?</text>
+
+        <g class="mn" font-size="11.5" text-anchor="middle" fill="currentColor">
+          <text x="212" y="284">ene</text><text x="342" y="284">feb</text><text x="472" y="284">mar</text>
+          <text x="602" y="284">abr</text><text x="732" y="284">may</text>
+        </g>
+        <rect class="b1" x="165" y="226" width="94" height="40" rx="7"/>
+        <text class="t" x="212" y="251" text-anchor="middle">✓</text>
+        <rect class="bb" x="295" y="226" width="94" height="40" rx="7" stroke-dasharray="6 4"/>
+        <text class="tb" x="342" y="251" text-anchor="middle">falta</text>
+        <rect class="b1" x="425" y="226" width="94" height="40" rx="7"/>
+        <text class="t" x="472" y="251" text-anchor="middle">✓</text>
+        <rect class="b1" x="555" y="226" width="94" height="40" rx="7"/>
+        <text class="t" x="602" y="251" text-anchor="middle">✓</text>
+        <rect class="b1" x="685" y="226" width="94" height="40" rx="7"/>
+        <text class="t" x="732" y="251" text-anchor="middle">✓</text>
+        <text class="t" x="20" y="251">períodos</text>
+
+        <line class="lb" x1="342" y1="212" x2="342" y2="222" marker-end="url(#ar3)"/>
+        <text class="tb" x="342" y="206" text-anchor="middle">aparece abril, falta febrero</text>
+      </svg>
+      <figcaption>La misma fuente, las dos mediciones. Arriba está sana: la visitamos todos los días y responde. Abajo le falta febrero, y <b>nada en los tres repositorios lo detecta</b> — verificado, no hay lógica de <code>missing_period</code>, <code>gap</code> ni <code>expected_period</code> en ninguno.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">El detalle que rompe todo si se ignora</div>
+    <h2>Dos fechas distintas en la misma URL</h2>
+    <p class="lead">Antes de detectar huecos hay que fechar bien. Y una URL institucional suele llevar dos fechas que significan cosas opuestas.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 230" role="img" aria-label="En la URL de ASFI la carpeta 2026-06 indica cuándo se publicó y el nombre MEMORIA_2025 indica de qué período habla el documento">
+        <defs><marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="mn" font-size="14" x="440" y="44" text-anchor="middle" fill="currentColor">asfi.gob.bo/sites/default/files/<tspan font-weight="600" fill="var(--s2)">2026-06</tspan>/<tspan font-weight="600" fill="var(--s1)">MEMORIA_2025</tspan>.pdf</text>
+
+        <line class="lg" x1="466" y1="56" x2="466" y2="92"/>
+        <line class="lg" x1="466" y1="92" x2="300" y2="92"/>
+        <line class="lg" x1="300" y1="92" x2="300" y2="112" marker-end="url(#ar4)" stroke="var(--s2)"/>
+        <rect class="b2" x="150" y="114" width="300" height="72" rx="9"/>
+        <text class="tt mn" x="300" y="138" text-anchor="middle">published_at</text>
+        <text class="t" x="300" y="158" text-anchor="middle">cuándo se publicó</text>
+        <text class="ts" x="300" y="176" text-anchor="middle">junio de 2026</text>
+
+        <line class="ln" x1="580" y1="56" x2="580" y2="92" stroke="var(--s1)"/>
+        <line class="ln" x1="580" y1="92" x2="700" y2="92" stroke="var(--s1)"/>
+        <line class="ln" x1="700" y1="92" x2="700" y2="112" marker-end="url(#ar4)" stroke="var(--s1)"/>
+        <rect class="b1" x="550" y="114" width="300" height="72" rx="9"/>
+        <text class="tt mn" x="700" y="138" text-anchor="middle">period_start</text>
+        <text class="t" x="700" y="158" text-anchor="middle">de qué período habla</text>
+        <text class="ts" x="700" y="176" text-anchor="middle">el año 2025</text>
+
+        <text class="tb" x="440" y="216" text-anchor="middle">si se mezclan, el detector reporta que falta 2025 teniéndolo</text>
+      </svg>
+      <figcaption>El esquema ya separa los dos campos; el extractor todavía no. <b>La carpeta alimenta <code>published_at</code>, el nombre del archivo alimenta <code>period_start</code></b>, y cuando solo hay una la confianza baja — nunca <code>high</code>.</figcaption>
+    </figure>
+
+    <div class="warn">
+      <div class="slab">Y hoy no reconocemos casi ningún patrón</div>
+      <p>El extractor busca <b>únicamente</b> <code>_MM_AAAA</code>. Contando las URLs reales de los tres portales: ASFI usa <code>/AAAA-MM/</code> en 582 de 601, BCB usa <code>/AAAA/MM/</code> en 75 de 121, e INE no lleva fecha en la URL. <b>El formato soportado cubre 1 URL de 1.165.</b></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Inventario</div>
+    <h2>Qué ya existe y no hay que volver a construir</h2>
+    <p class="lead">Esta es la sección que evita el error más caro posible: reimplementar algo que ya está en otro repo.</p>
+
+    <div class="tabs" role="tablist">
+      <button id="tb1" role="tab" aria-selected="true" aria-controls="p1">crawler_finrural</button>
+      <button id="tb2" role="tab" aria-selected="false" aria-controls="p2">Prospector-Externo</button>
+      <button id="tb3" role="tab" aria-selected="false" aria-controls="p3">prospector_interno</button>
+    </div>
+
+    <div class="panel" id="p1" role="tabpanel">
+      <div class="tsc"><table>
+        <tr><th>Módulo</th><th>Qué hace</th></tr>
+        <tr><td><code>core/wayback_engine.py</code></td><td>Recuperación desde el archivo histórico de la web</td></tr>
+        <tr><td><code>core/series_extrapolator.py</code></td><td>Extrapolación de series con HEAD obligatorio antes de admitir nada</td></tr>
+        <tr><td><code>core/extractor.py</code></td><td>Tres capas de extracción de fecha: URL, DOM y cabeceras HTTP</td></tr>
+        <tr><td><code>core/fetcher.py</code><br><span style="color:var(--ink3)">_ask_gemini_for_alternatives</span></td><td><b>El agente proponiendo URLs alternativas.</b> Ya existe y ya se usa para dominios caídos</td></tr>
+        <tr><td><code>core/url_resolver.py</code><br><code>core/contingency_engine.py</code></td><td>Resolución de URLs y contingencia</td></tr>
+      </table></div>
+    </div>
+
+    <div class="panel" id="p2" role="tabpanel" hidden>
+      <div class="tsc"><table>
+        <tr><th>Módulo</th><th>Qué hace</th><th>¿Sirve?</th></tr>
+        <tr><td><code>application/cadence_evaluator.py</code></td><td>Ajusta <code>next_eligible_at</code> y <code>health_status</code> según si hubo cambios</td><td><span class="tag t2">parcial</span></td></tr>
+        <tr><td><code>domain/health.py</code></td><td><code>ACTIVE</code> · <code>WARNING</code> · <code>SUSPENDED</code> con máquina de estados</td><td><span class="tag t2">sí</span></td></tr>
+        <tr><td><code>domain/cadence.py</code></td><td>Solo <code>DAILY</code> · <code>WEEKLY</code> · <code>MONTHLY</code></td><td><span class="tag tno">insuficiente</span></td></tr>
+        <tr><td><code>application/status_gate.py</code></td><td>Compuerta de estado de corrida</td><td><span class="tag t2">sí</span></td></tr>
+        <tr><td><code>workflows/javascript_workflow.py</code></td><td>Portales que renderizan en el cliente</td><td><span class="tag t2">sí</span></td></tr>
+      </table></div>
+      <p style="font-size:.86rem;color:var(--ink2);margin-top:12px"><code>UpdateCategory</code> solo admite diario, semanal y mensual. Las series bolivianas incluyen <b>boletines trimestrales y memorias anuales</b>, que hoy no se pueden expresar.</p>
+    </div>
+
+    <div class="panel" id="p3" role="tabpanel" hidden>
+      <div class="tsc"><table>
+        <tr><th>Módulo</th><th>Qué hace</th></tr>
+        <tr><td><code>application/bridge/diff_engine.py</code></td><td><b>Conciliación con DuckDB</b> entre el catálogo externo y el almacenamiento local</td></tr>
+        <tr><td><code>application/bridge/sync_orchestrator.py</code></td><td>Orquesta la sincronización</td></tr>
+        <tr><td><code>adapters/external/rest_prospector_client.py</code></td><td>Cliente HTTP de la Catalog API — <b>define el contrato</b></td></tr>
+        <tr><td><code>application/gatekeeper.py</code></td><td>Cache hit y locks en vuelo antes de pedir por HTTP</td></tr>
+        <tr><td><code>application/scheduler.py</code></td><td>Round-robin multidominio y token bucket con jitter</td></tr>
+        <tr><td><code>adapters/storage/local_bronze.py</code></td><td>Capa Bronze inmutable con SHA-256 al vuelo y renombrado atómico</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">El trabajo que viene</div>
+    <h2>Cuatro capas encadenadas</h2>
+    <p class="lead">Cada una consume la salida de la anterior, y el orden no es negociable. Alcance acotado a <b>BCB, INE y ASFI</b>.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 210" role="img" aria-label="Cuatro etapas encadenadas: fechar produce period_start, detectar produce el estado del dataset, recuperar produce los períodos faltantes y cerrar produce el period_label del contrato">
+        <defs><marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <rect class="b1" x="14" y="46" width="188" height="86" rx="9"/>
+        <text class="hd" x="108" y="68" text-anchor="middle">ETAPA J</text>
+        <text class="tt" x="108" y="90" text-anchor="middle">Fechar</text>
+        <text class="ts" x="108" y="110" text-anchor="middle">patrones reales de URL,</text>
+        <text class="ts" x="108" y="124" text-anchor="middle">texto del enlace y cabeceras</text>
+
+        <rect class="bb" x="236" y="46" width="188" height="86" rx="9"/>
+        <text class="hd" x="330" y="68" text-anchor="middle">ETAPA K</text>
+        <text class="tt" x="330" y="90" text-anchor="middle">Detectar</text>
+        <text class="ts" x="330" y="110" text-anchor="middle">periodicidad declarada</text>
+        <text class="ts" x="330" y="124" text-anchor="middle">vs períodos observados</text>
+
+        <rect class="b3" x="458" y="46" width="188" height="86" rx="9"/>
+        <text class="hd" x="552" y="68" text-anchor="middle">ETAPA L</text>
+        <text class="tt" x="552" y="90" text-anchor="middle">Recuperar</text>
+        <text class="ts" x="552" y="110" text-anchor="middle">escalera de 4 escalones</text>
+        <text class="ts" x="552" y="124" text-anchor="middle">+ el agente al final</text>
+
+        <rect class="b2" x="680" y="46" width="188" height="86" rx="9"/>
+        <text class="hd" x="774" y="68" text-anchor="middle">ETAPA M</text>
+        <text class="tt" x="774" y="90" text-anchor="middle">Cerrar</text>
+        <text class="ts" x="774" y="110" text-anchor="middle">ciclo de vida y</text>
+        <text class="ts" x="774" y="124" text-anchor="middle">publicación al contrato</text>
+
+        <line class="ln" x1="204" y1="89" x2="232" y2="89" marker-end="url(#ar5)"/>
+        <line class="ln" x1="426" y1="89" x2="454" y2="89" marker-end="url(#ar5)"/>
+        <line class="ln" x1="648" y1="89" x2="676" y2="89" marker-end="url(#ar5)"/>
+
+        <text class="hd" x="14" y="166">PRODUCE</text>
+        <text class="t mn" x="108" y="188" text-anchor="middle">period_start</text>
+        <text class="t mn" x="330" y="188" text-anchor="middle">AL_DIA · CON_HUECOS</text>
+        <text class="t mn" x="552" y="188" text-anchor="middle">documentos faltantes</text>
+        <text class="t mn" x="774" y="188" text-anchor="middle">period_label</text>
+        <line class="ld" x1="108" y1="136" x2="108" y2="174"/>
+        <line class="ld" x1="330" y1="136" x2="330" y2="174"/>
+        <line class="ld" x1="552" y1="136" x2="552" y2="174"/>
+        <line class="ld" x1="774" y1="136" x2="774" y2="174"/>
+      </svg>
+      <figcaption>Sin <code>period_start</code> no hay calendario; sin calendario no se sabe qué recuperar; sin recuperación agotada no se puede archivar con honestidad. <b>El último eslabón es el campo que el contrato ya espera.</b></figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">Lo nuevo</div>
+    <h2>El agente entra quinto, no primero</h2>
+    <p class="lead">El agente ayuda a buscar la fuente perdida. El mecanismo ya existe; lo que se define acá es dónde entra y con qué límites.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 400" role="img" aria-label="Escalera de cinco escalones: misma URL, plantilla de serie, otra ruta del dominio, archivo histórico y por último el agente, cuyas propuestas pasan por tres compuertas de verificación">
+        <defs><marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="14" y="20">DETERMINISTA — SE PARA EN EL PRIMERO QUE ENCUENTRA</text>
+
+        <rect class="bx" x="14" y="32" width="300" height="40" rx="7"/>
+        <text class="t mn" x="30" y="50">1</text><text class="t" x="52" y="56">¿Está en la misma URL?</text>
+        <rect class="bx" x="14" y="82" width="300" height="40" rx="7"/>
+        <text class="t mn" x="30" y="100">2</text><text class="t" x="52" y="106">¿Plantilla de serie? · HEAD</text>
+        <rect class="bx" x="14" y="132" width="300" height="40" rx="7"/>
+        <text class="t mn" x="30" y="150">3</text><text class="t" x="52" y="156">¿Otra ruta del mismo dominio?</text>
+        <rect class="bx" x="14" y="182" width="300" height="40" rx="7"/>
+        <text class="t mn" x="30" y="200">4</text><text class="t" x="52" y="206">¿Archivo histórico?</text>
+
+        <rect class="b3" x="14" y="248" width="300" height="52" rx="7"/>
+        <text class="tt mn" x="30" y="270">5</text>
+        <text class="tt" x="52" y="270">EL AGENTE</text>
+        <text class="ts" x="52" y="288">propone candidatos · nunca escribe</text>
+
+        <line class="lg" x1="316" y1="52" x2="700" y2="52"/>
+        <line class="lg" x1="316" y1="102" x2="700" y2="102"/>
+        <line class="lg" x1="316" y1="152" x2="700" y2="152"/>
+        <line class="lg" x1="316" y1="202" x2="700" y2="202"/>
+        <line class="lg" x1="700" y1="52" x2="700" y2="330"/>
+        <line class="lg" x1="700" y1="330" x2="746" y2="330" marker-end="url(#ar6)" stroke="var(--s2)"/>
+        <rect class="b2" x="750" y="310" width="114" height="40" rx="7"/>
+        <text class="tt" x="807" y="335" text-anchor="middle">Recuperado</text>
+
+        <text class="tg" x="360" y="44">sí →</text>
+        <text class="tg" x="360" y="94">sí →</text>
+        <text class="tg" x="360" y="144">sí →</text>
+        <text class="tg" x="360" y="194">sí →</text>
+
+        <text class="hd" x="380" y="242">TRES COMPUERTAS OBLIGATORIAS</text>
+        <line class="ln" x1="316" y1="274" x2="374" y2="274" marker-end="url(#ar6)"/>
+        <rect class="bb" x="378" y="252" width="150" height="44" rx="7"/>
+        <text class="t" x="453" y="270" text-anchor="middle">HEAD 200</text>
+        <text class="ts" x="453" y="286" text-anchor="middle">y tipo documental</text>
+        <line class="ln" x1="530" y1="274" x2="552" y2="274" marker-end="url(#ar6)"/>
+        <rect class="bb" x="556" y="252" width="150" height="44" rx="7"/>
+        <text class="t" x="631" y="270" text-anchor="middle">contenido verificado</text>
+        <text class="ts" x="631" y="286" text-anchor="middle">palabras clave</text>
+        <line class="ln" x1="708" y1="274" x2="730" y2="274" marker-end="url(#ar6)"/>
+        <rect class="bb" x="734" y="252" width="132" height="44" rx="7"/>
+        <text class="t" x="800" y="270" text-anchor="middle">¿mismo dominio</text>
+        <text class="t" x="800" y="286" text-anchor="middle">institucional?</text>
+
+        <line class="lb" x1="800" y1="298" x2="800" y2="368" marker-end="url(#ar6)" stroke="var(--bad)"/>
+        <text class="tb" x="812" y="338">no</text>
+        <rect class="bb" x="556" y="368" width="310" height="28" rx="7"/>
+        <text class="tb" x="711" y="387" text-anchor="middle">es una herencia → cola de revisión humana</text>
+      </svg>
+      <figcaption>Los cuatro primeros escalones son deterministas y verificables. El agente solo opina <b>cuando ninguno funcionó</b>, y ninguna propuesta suya entra al catálogo sin pasar las tres compuertas. <b>Un cambio de dominio institucional nunca es automático.</b></figcaption>
+    </figure>
+
+    <div class="warn">
+      <div class="slab">Por qué va último</div>
+      <p>El agente es generativo y <b>ya falló antes en este proyecto</b>: sugirió <code>bcp.org</code>, <code>ibce.org.bo</code> y <code>cadex.org</code> para tres instituciones distintas, y las tres eran organizaciones equivocadas que respondían 200. De ahí salió la regla de verificar contenido y no aceptar nada por su status code.</p>
+    </div>
+
+    <details class="d" style="margin-top:14px"><summary><span class="dt">Las seis reglas que el agente no puede saltarse</span><span class="cv">▶</span></summary>
+      <div class="db">
+        <ol class="rules">
+          <li><b>Nunca escribe en la base.</b> Propone candidatos; quien los admite es la verificación.</li>
+          <li><b>Toda propuesta pasa por HEAD</b> con status 200, tamaño mayor a cero y tipo documental.</li>
+          <li><b>Toda propuesta pasa por verificación de contenido</b> con palabras clave de la institución. Un 200 no prueba nada.</li>
+          <li><b>Cambio de dominio institucional nunca es automático.</b> Eso es una herencia y va a revisión humana con su evidencia.</li>
+          <li><b>Tope de llamadas por corrida</b>, registrado. La cuota ya se consumió sin querer una vez.</li>
+          <li><b>Queda registrado en qué escalón apareció cada recuperación</b> — es lo que dirá, con datos, si el agente aporta o si los cuatro deterministas bastan.</li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="slab">Reparto</div>
+    <h2>Dónde vive cada capacidad</h2>
+    <p class="lead">La pregunta que este documento existe para responder.</p>
+    <div class="tsc">
+      <table>
+        <tr><th>Capacidad</th><th>Repositorio</th><th>Por qué</th></tr>
+        <tr><td>Patrones de fecha, capas DOM y HTTP</td><td><span class="tag t1">finrural</span></td><td>El extractor vive acá</td></tr>
+        <tr><td>Periodicidad declarada por dataset</td><td><span class="tag t1">finrural</span></td><td>Configuración YAML, no código</td></tr>
+        <tr><td>Calendario de huecos</td><td><span class="tag t1">finrural</span></td><td>Consume <code>inventory.db</code></td></tr>
+        <tr><td>Escalera de recuperación</td><td><span class="tag t1">finrural</span></td><td>Reusa wayback y el extrapolador</td></tr>
+        <tr><td>Agente asistente</td><td><span class="tag t1">finrural</span></td><td>El mecanismo ya está acá</td></tr>
+        <tr><td>Ciclo de vida y salud</td><td><span class="tag t2">externo</span></td><td><code>HealthStateMachine</code> ya existe allá</td></tr>
+        <tr><td>Periodicidad trimestral y anual</td><td><span class="tag t2">externo</span></td><td><code>UpdateCategory</code> vive allá</td></tr>
+        <tr><td><code>period_label</code> en el contrato</td><td><span class="tag t2">externo</span></td><td>Es quien sirve la Catalog API</td></tr>
+        <tr><td>Conciliación y diff</td><td><span class="tag t3">interno</span></td><td><code>DuckDBDiffEngine</code> ya existe allá</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Decisión pendiente</div>
+    <h2>Cómo cerramos el puente</h2>
+    <p class="lead"><code>crawler_finrural</code> produce el dato y <code>Prospector-Externo</code> lo publica, pero hoy no hay canal. Las tres opciones no cambian el contrato con el interno: cambian <b>quién lo alimenta</b>.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Opción A agrega un exportador entre finrural y el externo; opción B absorbe el motor dentro del externo; opción C hace que finrural exponga su propia Catalog API en paralelo">
+        <defs><marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="14" y="18">A · EXPORTADOR</text>
+        <rect class="b2" x="14" y="30" width="264" height="104" rx="9" stroke-width="2.5"/>
+        <rect class="b1" x="30" y="46" width="100" height="34" rx="6"/>
+        <text class="ts mn" x="80" y="67" text-anchor="middle">finrural</text>
+        <rect class="bx" x="30" y="92" width="100" height="30" rx="6"/>
+        <text class="ts" x="80" y="111" text-anchor="middle">exportador</text>
+        <line class="ln" x1="80" y1="82" x2="80" y2="88" marker-end="url(#ar7)"/>
+        <rect class="b2" x="162" y="66" width="100" height="42" rx="6"/>
+        <text class="ts mn" x="212" y="91" text-anchor="middle">externo</text>
+        <line class="ln" x1="132" y1="107" x2="158" y2="94" marker-end="url(#ar7)"/>
+        <text class="tg" x="146" y="152">dos motores conviviendo</text>
+        <text class="ts" x="14" y="170">reversible · entrega en esta fase</text>
+
+        <text class="hd" x="308" y="18">B · PORTAR EL MOTOR</text>
+        <rect class="bx" x="308" y="30" width="264" height="104" rx="9"/>
+        <rect class="b2" x="360" y="52" width="160" height="62" rx="6"/>
+        <text class="ts mn" x="440" y="75" text-anchor="middle">externo</text>
+        <rect class="b1" x="378" y="82" width="124" height="24" rx="5"/>
+        <text class="ts" x="440" y="99" text-anchor="middle">motor absorbido</text>
+        <text class="t" x="440" y="152" text-anchor="middle">un solo motor</text>
+        <text class="ts" x="308" y="170">reescribir 31 módulos a hexagonal</text>
+
+        <text class="hd" x="602" y="18">C · DOS FACHADAS</text>
+        <rect class="bx" x="602" y="30" width="264" height="104" rx="9"/>
+        <rect class="b1" x="618" y="46" width="108" height="34" rx="6"/>
+        <text class="ts mn" x="672" y="67" text-anchor="middle">finrural :8001</text>
+        <rect class="b2" x="618" y="92" width="108" height="30" rx="6"/>
+        <text class="ts mn" x="672" y="111" text-anchor="middle">externo :8000</text>
+        <rect class="b3" x="758" y="62" width="92" height="42" rx="6"/>
+        <text class="ts mn" x="804" y="87" text-anchor="middle">interno</text>
+        <line class="ln" x1="728" y1="63" x2="754" y2="76" marker-end="url(#ar7)"/>
+        <line class="ln" x1="728" y1="107" x2="754" y2="94" marker-end="url(#ar7)"/>
+        <text class="tb" x="734" y="152" text-anchor="middle">dos «externos»</text>
+        <text class="ts" x="602" y="170">duplica la fachada</text>
+
+        <line class="ld" x1="14" y1="192" x2="866" y2="192"/>
+        <text class="tg" x="14" y="218">▸ Recomendada: A</text>
+        <text class="ts" x="132" y="218">— es la única que entrega dentro de esta fase sin reescribir nada, y no cierra la puerta a B más adelante.</text>
+        <text class="tb" x="14" y="240">▸ Antes de integrar:</text>
+        <text class="ts" x="146" y="240">la Catalog API y nuestro dashboard usan ambos el puerto 8000. No pueden correr a la vez.</text>
+      </svg>
+      <figcaption>Lo que cambia entre las tres es <b>dónde queda el motor</b> y cuántas fachadas dicen ser «el externo». El contrato con el interno es el mismo en las tres.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">Huecos del modelo de datos</div>
+    <h2>Dos campos que faltan de cada lado</h2>
+    <p class="lead">Cuatro campos cruzan directo. Los otros tres son el trabajo pendiente de acordar entre los equipos.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 330" role="img" aria-label="Cuatro campos de inventory.db mapean directo a ResourceCandidate; period_label necesita acordar formato, date_confidence_score no existe en el contrato y etag no se guarda del lado nuestro">
+        <defs><marker id="ar8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="14" y="20">crawler_finrural · inventory.db</text>
+        <text class="hd" x="560" y="20">Prospector-Externo · ResourceCandidate</text>
+
+        <g class="mn" font-size="11.5" fill="currentColor">
+          <text x="14" y="52">canonical_url</text>
+          <text x="14" y="82">content_sha256</text>
+          <text x="14" y="112">file_size_bytes</text>
+          <text x="14" y="142">resource_id</text>
+          <text x="14" y="184">period_start + period_end</text>
+          <text x="14" y="226">date_confidence_score</text>
+          <text x="14" y="268" opacity=".45">— no lo guardamos —</text>
+        </g>
+        <g class="mn" font-size="11.5" fill="currentColor" text-anchor="end">
+          <text x="866" y="52">url</text>
+          <text x="866" y="82">content_hash</text>
+          <text x="866" y="112">content_length_bytes</text>
+          <text x="866" y="142">resource_key</text>
+          <text x="866" y="184">period_label</text>
+          <text x="866" y="226" opacity=".45">— no existe —</text>
+          <text x="866" y="268">etag · last_modified_header</text>
+        </g>
+
+        <line class="lg" x1="210" y1="48" x2="700" y2="48" marker-end="url(#ar8)" stroke="var(--s2)"/>
+        <line class="lg" x1="210" y1="78" x2="660" y2="78" marker-end="url(#ar8)" stroke="var(--s2)"/>
+        <line class="lg" x1="210" y1="108" x2="600" y2="108" marker-end="url(#ar8)" stroke="var(--s2)"/>
+        <line class="lg" x1="210" y1="138" x2="660" y2="138" marker-end="url(#ar8)" stroke="var(--s2)"/>
+        <text class="tg" x="440" y="40" text-anchor="middle">cruzan directo</text>
+
+        <line class="lb" x1="240" y1="180" x2="700" y2="180" stroke-dasharray="6 4" marker-end="url(#ar8)" stroke="var(--bad)"/>
+        <text class="tb" x="470" y="172" text-anchor="middle">falta acordar el formato</text>
+
+        <line class="lb" x1="240" y1="222" x2="700" y2="222" stroke-dasharray="6 4" stroke="var(--bad)"/>
+        <text class="tb" x="470" y="214" text-anchor="middle">el contrato no lleva la confianza de la fecha</text>
+
+        <line class="lb" x1="700" y1="264" x2="240" y2="264" stroke-dasharray="6 4" marker-end="url(#ar8)" stroke="var(--bad)"/>
+        <text class="tb" x="470" y="256" text-anchor="middle">no capturamos lo que el contrato ya prevé</text>
+
+        <line class="ld" x1="14" y1="292" x2="866" y2="292"/>
+        <text class="ts" x="14" y="316">Sin la confianza de la fecha, el interno no puede distinguir un período leído de la URL de uno inferido del texto de un enlace.</text>
+      </svg>
+      <figcaption><b><code>etag</code> y <code>last_modified_header</code></b> son la vía barata de detectar que un documento cambió sin volver a descargarlo, y el contrato ya los tiene previstos — nosotros no los guardamos.</figcaption>
+    </figure>
+  </section>
+
+  <footer>
+    <p>Levantada el 2026-09-23 leyendo el código de <code>crawler_finrural</code>, <code>Prospector-Externo</code> (Jugodenaranja3) y <code>prospector_interno</code> (Douke017). Documento fuente: <code>docs/arquitectura_integracion.md</code>. Plan de trabajo: <code>docs/plan_bloques_fase4.md</code>.</p>
+  </footer>
+</div>
+
+<script>
+  (function(){
+    var tabs=[['tb1','p1'],['tb2','p2'],['tb3','p3']];
+    function sel(id){
+      tabs.forEach(function(t){
+        var b=document.getElementById(t[0]), p=document.getElementById(t[1]);
+        var on=(t[0]===id);
+        b.setAttribute('aria-selected',on?'true':'false');
+        p.hidden=!on;
+      });
+    }
+    tabs.forEach(function(t){
+      document.getElementById(t[0]).addEventListener('click',function(){sel(t[0]);});
+    });
+  })();
+</script>
+
+</body>
+</html>
