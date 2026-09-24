@@ -353,6 +353,7 @@ class CrawlOrchestrator:
             period_end=resource.period_end,
             published_at=resource.published_at,
             date_confidence_score=resource.metadata.date_confidence,
+            date_method=resource.metadata.date_extraction_method,
             error_code=error_code,
         )
 

@@ -109,6 +109,8 @@ classification:
   dataset_rules:
     - id: memoria_institucional
       name: "Memorias Institucionales Anuales"
+      periodicity: anual
+      tolerance: 1
       url_patterns:
         - "MEMORIA"
         - "memoria"
@@ -118,6 +120,8 @@ classification:
         - "institucional"
     - id: mercado_valores
       name: "Mercado de Valores"
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "valores"
         - "Valores"
@@ -131,6 +135,8 @@ classification:
         - "auditor"
     - id: instituciones_financieras_desarrollo
       name: "Instituciones Financieras de Desarrollo e Intermediación"
+      periodicity: mensual
+      tolerance: 2
       url_patterns:
         - "Desarrollo"
         - "desarrollo"
@@ -146,6 +152,8 @@ classification:
         - "entidades"
     - id: balance_general
       name: "Balances Generales y Estados Financieros"
+      periodicity: mensual
+      tolerance: 2
       url_patterns:
         - "Balance"
         - "balance"
@@ -155,6 +163,8 @@ classification:
         - "financiero"
     - id: poa_seguimiento
       name: "Programación Operativa Anual (POA) y Evaluaciones"
+      periodicity: trimestral
+      tolerance: 1
       url_patterns:
         - "POA"
         - "poa"

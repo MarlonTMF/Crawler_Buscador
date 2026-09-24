@@ -51,6 +51,7 @@ class ControlDatabase:
                 period_end TEXT,
                 published_at TEXT,
                 date_confidence_score TEXT,
+                date_method TEXT,
                 error_code TEXT,
                 error_stackTrace TEXT,
                 execution_timestamp TEXT NOT NULL
@@ -59,11 +60,14 @@ class ControlDatabase:
         )
         self.conn.commit()
 
-        # Migración automática si la tabla ya existía sin la columna published_at
+        # Migración automática si la tabla ya existía sin las columnas published_at o date_method
         cursor = self.conn.execute("PRAGMA table_info(resource_audit_log)")
         existing_cols = [row[1] for row in cursor.fetchall()]
-        if existing_cols and "published_at" not in existing_cols:
-            self.conn.execute("ALTER TABLE resource_audit_log ADD COLUMN published_at TEXT")
+        if existing_cols:
+            if "published_at" not in existing_cols:
+                self.conn.execute("ALTER TABLE resource_audit_log ADD COLUMN published_at TEXT")
+            if "date_method" not in existing_cols:
+                self.conn.execute("ALTER TABLE resource_audit_log ADD COLUMN date_method TEXT")
             self.conn.commit()
 
     @staticmethod
@@ -100,6 +104,7 @@ class ControlDatabase:
         period_end: Optional[str] = None,
         published_at: Optional[str] = None,
         date_confidence_score: Optional[str] = None,
+        date_method: Optional[str] = None,
         error_code: Optional[str] = None,
         error: Optional[BaseException] = None,
     ) -> str:
@@ -111,9 +116,9 @@ class ControlDatabase:
             INSERT INTO resource_audit_log(
                 resource_id, source_id, dataset_id, canonical_url, download_url, status,
                 content_sha256, file_size_bytes, period_start, period_end, published_at,
-                date_confidence_score, error_code, error_stackTrace, execution_timestamp
+                date_confidence_score, date_method, error_code, error_stackTrace, execution_timestamp
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(resource_id) DO UPDATE SET
               status=excluded.status,
               content_sha256=excluded.content_sha256,
@@ -122,6 +127,7 @@ class ControlDatabase:
               period_end=excluded.period_end,
               published_at=excluded.published_at,
               date_confidence_score=excluded.date_confidence_score,
+              date_method=excluded.date_method,
               error_code=excluded.error_code,
               error_stackTrace=excluded.error_stackTrace,
               execution_timestamp=excluded.execution_timestamp
@@ -139,6 +145,7 @@ class ControlDatabase:
                 period_end,
                 published_at,
                 date_confidence_score,
+                date_method,
                 error_code,
                 error_stack,
                 now,

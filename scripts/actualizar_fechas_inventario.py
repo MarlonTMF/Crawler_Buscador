@@ -101,7 +101,8 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry
                     period_start = ?,
                     period_end = ?,
                     published_at = ?,
-                    date_confidence_score = ?
+                    date_confidence_score = ?,
+                    date_method = ?
                 WHERE resource_id = ?
                 """,
                 (
@@ -110,6 +111,7 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry
                     date_res.period_end,
                     final_published_at,
                     final_confidence,
+                    date_res.method,
                     rid,
                 )
             )

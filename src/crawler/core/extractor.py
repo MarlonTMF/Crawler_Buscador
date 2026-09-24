@@ -114,9 +114,13 @@ class MetadataExtractor:
                     published_at = f"{m_dash.group('y')}-{m_dash.group('m')}-01"
                 else:
                     # Carpeta con año (ej. INE: /informes-auditoria-interna-2021/)
-                    m_fy = re.search(r"(?<!\d)(?P<y>20\d{2}|19\d{2})(?!\d)", folder)
-                    if m_fy:
-                        published_at = f"{m_fy.group('y')}-01-01"
+                    # Se exige que el segmento contenga texto (letras) para evitar IDs numéricos de CMS (O-6)
+                    for seg in parts[:-1]:
+                        if re.search(r"[a-zA-Z]", seg):
+                            m_fy = re.search(r"(?<!\d)(?P<y>20\d{2}|19\d{2})(?!\d)", seg)
+                            if m_fy:
+                                published_at = f"{m_fy.group('y')}-01-01"
+                                break
 
         # 2. Extracción de período en nombre de archivo (period_start / period_end)
         period_start = None
@@ -179,10 +183,10 @@ class MetadataExtractor:
                 y, m = int(m_ym_.group("y")), int(m_ym_.group("m"))
                 period_start, period_end = self._format_period(y, m)
 
-        # e) mes AAAA (ej. Septiembre 2025, jun26, etc.)
+        # e) mes AAAA (ej. Septiembre 2025, jun26, Marzo__2026, etc. O-1)
         if not period_start:
             for mes_str, m_num in sorted(self.months_es.items(), key=lambda x: -len(x[0])):
-                pattern = rf"\b{mes_str}\s*[-_]?\s*(?P<y>20\d{{2}}|(?<!\d)2\d(?!\d))"
+                pattern = rf"\b{mes_str}[\s_\-]*(?P<y>20\d{{2}}|(?<!\d)2\d(?!\d))"
                 m_mes = re.search(pattern, fname_lower)
                 if m_mes:
                     raw_y = m_mes.group("y")

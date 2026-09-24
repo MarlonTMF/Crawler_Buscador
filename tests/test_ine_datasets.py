@@ -15,7 +15,8 @@ def test_b51_ine_dataset_concentration_under_40():
     adapter = GenericSourceAdapter(Path("config/source_ine.yaml"))
     db_path = Path("output/ine/inventory.db")
     if not db_path.exists():
-        return
+        import pytest
+        pytest.skip("falta output/ine/inventory.db")
 
     con = sqlite3.connect(db_path)
     urls = [r[0] for r in con.execute("SELECT canonical_url FROM resource_audit_log").fetchall()]

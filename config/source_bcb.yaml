@@ -68,6 +68,8 @@ classification:
   dataset_rules:
     - id: memorias_institucionales
       name: "Memorias Institucionales y Anuales"
+      periodicity: anual
+      tolerance: 1
       url_patterns:
         - "memoria"
         - "memorias"
@@ -76,6 +78,8 @@ classification:
         - "memorias"
     - id: boletines_mensuales
       name: "Boletines Mensuales y Publicaciones"
+      periodicity: mensual
+      tolerance: 2
       url_patterns:
         - "bolet"
         - "boletin"
@@ -88,6 +92,8 @@ classification:
         - "cronograma"
     - id: reservas_internacionales
       name: "Reservas Internacionales Netas (RIN)"
+      periodicity: semestral
+      tolerance: 1
       url_patterns:
         - "Reservas"
         - "RIN"
@@ -98,6 +104,8 @@ classification:
         - "componentes"
     - id: estabilidad_financiera
       name: "Informes de Estabilidad Financiera (IEF)"
+      periodicity: semestral
+      tolerance: 1
       url_patterns:
         - "IEF"
         - "politicasbcb"
@@ -107,6 +115,8 @@ classification:
         - "ief"
     - id: deuda_externa
       name: "Informes y Reglamentos de Deuda Externa Pública"
+      periodicity: semestral
+      tolerance: 1
       url_patterns:
         - "DEPEX"
         - "deudaexterna"

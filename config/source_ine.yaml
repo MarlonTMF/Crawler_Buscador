@@ -56,6 +56,8 @@ classification:
   dataset_rules:
     - id: cuentas_nacionales_pib
       name: "Cuentas Nacionales, PIB y Matrices Insumo-Producto"
+      periodicity: anual
+      tolerance: 1
       url_patterns:
         - "insumo-producto"
         - "cuentas-economicas"
@@ -68,6 +70,8 @@ classification:
         - "matriz"
     - id: auditoria_interna
       name: "Informes de Auditoría Interna"
+      periodicity: anual
+      tolerance: 1
       url_patterns:
         - "auditoria-interna"
         - "auditoria"
@@ -76,6 +80,8 @@ classification:
         - "auditoria"
     - id: rendicion_cuentas
       name: "Rendición Pública de Cuentas"
+      periodicity: semestral
+      tolerance: 1
       url_patterns:
         - "rendicion-publica"
         - "rendicion-de-cuentas"
@@ -85,6 +91,8 @@ classification:
         - "audiencia"
     - id: gestion_administrativa_financiera
       name: "Gestión Administrativa, Financiera y Normativa"
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "informacion-financiera"
         - "procedimientos-administrativos"
@@ -104,6 +112,8 @@ classification:
         - "poa"
     - id: estadisticas_sociales_demograficas
       name: "Estadísticas Sociales, Empleo y Demografía"
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "estadisticas-sociales"
         - "empleo"
@@ -119,6 +129,8 @@ classification:
         - "demografia"
     - id: planes_estrategicos
       name: "Planes Estratégicos Institucionales (PEI)"
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "planes-estrategicos"
         - "/pei"
@@ -128,6 +140,8 @@ classification:
         - "pei"
     - id: escala_salarial
       name: "Escala Salarial y Estructura Organizacional"
+      periodicity: anual
+      tolerance: 1
       url_patterns:
         - "escala-salarial"
         - "escala"
@@ -136,6 +150,8 @@ classification:
         - "salarial"
     - id: documentos_institucionales_otros
       name: "Otros Documentos Institucionales"
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "/index.php/"
       title_keywords:

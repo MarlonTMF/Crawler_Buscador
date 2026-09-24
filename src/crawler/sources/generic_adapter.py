@@ -33,3 +33,17 @@ class GenericSourceAdapter(BaseSourceAdapter):
         if self.dataset_rules:
             return self.dataset_rules[0].get("id")
         return "documentos_publicos"
+
+    def get_dataset_rule(self, dataset_id: str) -> Optional[dict]:
+        for rule in self.dataset_rules:
+            if rule.get("id") == dataset_id:
+                return rule
+        return None
+
+    def get_dataset_periodicity(self, dataset_id: str) -> Optional[str]:
+        rule = self.get_dataset_rule(dataset_id)
+        return rule.get("periodicity") if rule else None
+
+    def get_dataset_tolerance(self, dataset_id: str) -> Optional[int]:
+        rule = self.get_dataset_rule(dataset_id)
+        return rule.get("tolerance") if rule else None
