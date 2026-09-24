@@ -49,6 +49,7 @@ class ControlDatabase:
                 file_size_bytes INTEGER,
                 period_start TEXT,
                 period_end TEXT,
+                published_at TEXT,
                 date_confidence_score TEXT,
                 error_code TEXT,
                 error_stackTrace TEXT,
@@ -57,6 +58,13 @@ class ControlDatabase:
             """
         )
         self.conn.commit()
+
+        # Migración automática si la tabla ya existía sin la columna published_at
+        cursor = self.conn.execute("PRAGMA table_info(resource_audit_log)")
+        existing_cols = [row[1] for row in cursor.fetchall()]
+        if existing_cols and "published_at" not in existing_cols:
+            self.conn.execute("ALTER TABLE resource_audit_log ADD COLUMN published_at TEXT")
+            self.conn.commit()
 
     @staticmethod
     def resource_uuid(source_id: str, canonical_url: str) -> str:
@@ -90,6 +98,7 @@ class ControlDatabase:
         file_size_bytes: Optional[int] = None,
         period_start: Optional[str] = None,
         period_end: Optional[str] = None,
+        published_at: Optional[str] = None,
         date_confidence_score: Optional[str] = None,
         error_code: Optional[str] = None,
         error: Optional[BaseException] = None,
@@ -101,16 +110,17 @@ class ControlDatabase:
             """
             INSERT INTO resource_audit_log(
                 resource_id, source_id, dataset_id, canonical_url, download_url, status,
-                content_sha256, file_size_bytes, period_start, period_end, date_confidence_score,
-                error_code, error_stackTrace, execution_timestamp
+                content_sha256, file_size_bytes, period_start, period_end, published_at,
+                date_confidence_score, error_code, error_stackTrace, execution_timestamp
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(resource_id) DO UPDATE SET
               status=excluded.status,
               content_sha256=excluded.content_sha256,
               file_size_bytes=excluded.file_size_bytes,
               period_start=excluded.period_start,
               period_end=excluded.period_end,
+              published_at=excluded.published_at,
               date_confidence_score=excluded.date_confidence_score,
               error_code=excluded.error_code,
               error_stackTrace=excluded.error_stackTrace,
@@ -127,6 +137,7 @@ class ControlDatabase:
                 file_size_bytes,
                 period_start,
                 period_end,
+                published_at,
                 date_confidence_score,
                 error_code,
                 error_stack,

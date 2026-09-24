@@ -351,6 +351,7 @@ class CrawlOrchestrator:
             file_size_bytes=resource.metadata.content_length_bytes,
             period_start=resource.period_start,
             period_end=resource.period_end,
+            published_at=resource.published_at,
             date_confidence_score=resource.metadata.date_confidence,
             error_code=error_code,
         )

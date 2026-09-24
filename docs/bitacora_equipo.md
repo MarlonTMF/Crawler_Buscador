@@ -62,6 +62,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-37 | 🅰️ | Onboarding Lote 4 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 138 docs (VIPFE 667, OBA 106, SABSA 22, etc.) (`63b231d`) |
 | B-38 | 🅰️ | Onboarding Lote 5 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 678 docs. 11/12 estables; FIFA declarada no estable (`63b231d`) |
 | B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | Aprob. c/obs | Medición dual D-13/D-14; supera a Rolando (5.411 vs 5.403); D-15 adoptada por Marlon (Catálogo vs Corpus) (`1b67113`) |
+| B-50 | 🅰️ | Patrones de fecha reales y separación (Fase 4) | 100/45 | Pendiente auditoría | Patrones /AAAA-MM/ y /AAAA/MM/; ASFI sube de 26% a 97.0% y BCB de 3% a 85.1%; 0 high desde carpeta de publicación |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de

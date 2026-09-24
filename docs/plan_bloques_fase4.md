@@ -355,7 +355,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 
 | Bloque | Responsable | Estimado | Real | Estado |
 |---|---|---:|---:|---|
-| B-50 Patrones de fecha reales | Antigravity | 100 min | | Pendiente |
+| B-50 Patrones de fecha reales | Antigravity | 100 min | 45 min | Pendiente auditoría |
 | B-51 Fechas y datasets de INE | Antigravity | 110 min | | Pendiente |
 | B-52 Periodicidad declarada | Antigravity | 60 min | | Pendiente |
 | B-53 Detector de huecos y atrasos | Antigravity | 110 min | | Pendiente |
