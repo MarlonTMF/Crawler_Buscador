@@ -60,6 +60,34 @@ from crawler.core.headless_fetcher import HeadlessFetcher
 logger = logging.getLogger(__name__)
 
 
+# Patrones de credencial que nunca deben quedar en un log ni en un parte. La
+# clave anterior del proyecto se publicó porque el texto de una excepción de
+# requests incluye la URL de la petición, y esa URL lleva "?key=<API_KEY>".
+_SECRET_PATTERNS = (
+    re.compile(r"(?i)(key=)[A-Za-z0-9._\-]{20,}"),
+    re.compile(r"(?i)(authorization:\s*bearer\s+)[A-Za-z0-9._\-]{20,}"),
+    re.compile(r"AIza[0-9A-Za-z_\-]{30,}"),
+    re.compile(r"AQ\.[A-Za-z0-9_\-]{40,}"),
+)
+
+
+def _redact_secrets(value):
+    """Tapa cualquier credencial reconocible conservando la forma del mensaje.
+
+    Devuelve el valor tal cual si no es texto, para poder aplicarla sin
+    comprobar el tipo en cada sitio de llamada.
+    """
+    if not isinstance(value, str):
+        return value
+    limpio = value
+    for patron in _SECRET_PATTERNS:
+        if patron.groups:
+            limpio = patron.sub(r"[REDACTADO]", limpio)
+        else:
+            limpio = patron.sub("[REDACTADO]", limpio)
+    return limpio
+
+
 class HttpFetcher:
     """Cliente HTTP ético y resiliente con verificación de robots.txt y rate-limiting."""
 
@@ -781,7 +809,12 @@ class HttpFetcher:
             }
         except Exception as exc:  # pragma: no cover - external service failure
             logger.warning("Gemini verdict failed for %s: %s", url, exc)
-            return {"status": "unknown", "best_url": None, "reason": f"La consulta a Gemini falló: {exc}", "alternatives": []}
+            return {
+                "status": "unknown",
+                "best_url": None,
+                "reason": _redact_secrets(f"La consulta a Gemini falló: {exc}"),
+                "alternatives": [],
+            }
 
     def _probe_gemini_alternatives(self, url: str) -> List[Dict[str, Any]]:
         """Query Gemini and probe each returned candidate, preserving source metadata.

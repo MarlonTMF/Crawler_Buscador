@@ -29,6 +29,8 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
+from crawler.core.fetcher import _redact_secrets
+
 logger = logging.getLogger(__name__)
 
 # Palabras demasiado genéricas en nombres de instituciones bolivianas: que aparezcan
@@ -50,6 +52,19 @@ SPA_MARKERS = ("<app-root", "ng-version", "__next_data__", "id=\"root\"")
 def _strip_accents(text: str) -> str:
     normalized = unicodedata.normalize("NFKD", text)
     return "".join(c for c in normalized if not unicodedata.combining(c))
+
+
+def _sanear(valor):
+    """Aplica la redacción de credenciales en profundidad sobre lo que se registra.
+
+    Segunda barrera: aunque el origen del texto ya redacte, todo lo que entra
+    al log de resolución pasa por acá antes de persistirse.
+    """
+    if isinstance(valor, dict):
+        return {k: _sanear(v) for k, v in valor.items()}
+    if isinstance(valor, list):
+        return [_sanear(v) for v in valor]
+    return _redact_secrets(valor)
 
 
 def _tokenize_institution_name(name: str, fuente: str) -> List[str]:
@@ -210,7 +225,7 @@ def resolve_dead_domain(
     }
 
     verdict = fetcher._ask_gemini_for_url_verdict(original_url)
-    record["ai_queries"].append({"kind": "url_verdict", "response": verdict})
+    record["ai_queries"].append({"kind": "url_verdict", "response": _sanear(verdict)})
 
     candidates: List[tuple[str, str]] = []  # (url, seed_label)
     if verdict.get("best_url"):
@@ -222,7 +237,7 @@ def resolve_dead_domain(
         # No trajo nada (típico cuando dice "not_found" sin más detalle): se insiste
         # puntualmente por la entidad sucesora antes de darlo por perdido.
         successor = _ask_gemini_for_successor(fetcher, institucion, fuente, original_url)
-        record["ai_queries"].append({"kind": "successor_query", "response": successor})
+        record["ai_queries"].append({"kind": "successor_query", "response": _sanear(successor)})
         if successor.get("successor_url"):
             candidates.append((successor["successor_url"], "gemini_successor"))
 
