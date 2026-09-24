@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Plan de implementacion de la Fase 4 del Prospector DataX: diez bloques para fechar, detectar huecos, recuperar lo perdido y publicar al contrato. Alcance BCB, INE y ASFI.">
+<title>Plan Fase 4 · Vigencia de Fuentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+
+  :root{
+    --bg:#eef1f4; --surf:#fff; --surf2:#e2e7ec; --surf3:#d5dce3;
+    --line:#c7d0d9; --line2:#a5b2be;
+    --ink:#10161c; --ink2:#465360; --ink3:#77838f;
+    --acc:#1f4f7a; --acc-bg:#dce8f2;
+    --s1:#1f4f7a; --s1-bg:#dbe7f2;
+    --s2:#2c6a4c; --s2-bg:#d9eae1;
+    --s3:#8a6212; --s3-bg:#f2e6cb;
+    --bad:#9d3a26; --bad-bg:#f6dfd8;
+    --sh:0 1px 2px rgba(16,22,28,.05),0 10px 24px rgba(16,22,28,.06);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --s1:#6fa8d6; --s1-bg:#152a3d;
+    --s2:#69b98d; --s2-bg:#132a1f;
+    --s3:#d6ab52; --s3-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --s1:#6fa8d6; --s1-bg:#152a3d;
+    --s2:#69b98d; --s2-bg:#132a1f;
+    --s3:#d6ab52; --s3-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Libre Franklin',system-ui,-apple-system,sans-serif;font-size:15.5px;line-height:1.62}
+  .wrap{max-width:1020px;margin:0 auto;padding-inline:20px;padding-block:0 76px}
+  h1,h2,h3{font-family:'Bitter',Georgia,serif;font-weight:600;margin:0;text-wrap:balance}
+  p{margin:0 0 12px;max-width:70ch}
+  code,.mono{font-family:'Source Code Pro',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  code{background:var(--surf2);padding:.1em .38em;border-radius:4px;font-size:.85em}
+
+  .mast{background:var(--surf);border-bottom:2px solid var(--ink)}
+  .mast .wrap{padding-block:34px 28px}
+  .eb{font-family:'Source Code Pro',monospace;font-size:.69rem;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:10px}
+  h1{font-size:clamp(1.85rem,4.7vw,2.5rem);letter-spacing:-.012em;max-width:19ch;line-height:1.1}
+  .dk{margin-top:12px;color:var(--ink2);font-size:1.02rem;max-width:64ch}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:24px}
+  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .kpi .v{font-family:'Bitter',serif;font-size:1.72rem;font-weight:700;line-height:1.05;
+    font-variant-numeric:tabular-nums}
+  .kpi .c{font-size:.79rem;color:var(--ink2);margin-top:5px}
+
+  section{padding-block:38px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+  .slab{font-family:'Source Code Pro',monospace;font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+  h2{font-size:1.45rem;margin-bottom:8px}
+  .lead{color:var(--ink2);margin-bottom:18px;max-width:66ch}
+
+  figure{margin:18px 0 0;background:var(--surf);border:1px solid var(--line);
+    border-radius:12px;padding:18px 16px 14px;box-shadow:var(--sh)}
+  figcaption{font-size:.81rem;color:var(--ink2);margin-top:12px;padding-top:11px;
+    border-top:1px solid var(--line);max-width:none}
+  figcaption b{color:var(--ink)}
+  .dg{max-width:100%;height:auto;display:block;margin:0 auto;color:var(--ink)}
+  .dg text{font-family:'Libre Franklin',system-ui,sans-serif;fill:currentColor}
+  .dg .mn{font-family:'Source Code Pro',monospace}
+  .dg .bx{fill:var(--surf2);stroke:currentColor;stroke-width:1.4}
+  .dg .b1{fill:var(--s1-bg);stroke:var(--s1);stroke-width:1.8}
+  .dg .b2{fill:var(--s2-bg);stroke:var(--s2);stroke-width:1.8}
+  .dg .b3{fill:var(--s3-bg);stroke:var(--s3);stroke-width:1.8}
+  .dg .bb{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.8}
+  .dg .ln{stroke:currentColor;stroke-width:1.4;fill:none}
+  .dg .ld{stroke:currentColor;stroke-width:1.4;fill:none;stroke-dasharray:5 4;opacity:.55}
+  .dg .lb{stroke:var(--bad);stroke-width:1.8;fill:none}
+  .dg .lg{stroke:var(--s2);stroke-width:1.8;fill:none}
+  .dg .t{font-size:12.5px}
+  .dg .tt{font-size:13px;font-weight:600}
+  .dg .ts{font-size:10.5px;opacity:.72}
+  .dg .tb{font-size:11.5px;font-weight:600;fill:var(--bad)}
+  .dg .tg{font-size:11.5px;font-weight:600;fill:var(--s2)}
+  .dg .hd{font-size:10px;font-weight:600;letter-spacing:.09em;opacity:.6}
+
+  /* tablero de bloques */
+  .filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0 4px}
+  .filtros .lbl{font-family:'Source Code Pro',monospace;font-size:.68rem;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--ink3)}
+  .seg{display:inline-flex;background:var(--surf2);border:1px solid var(--line);
+    border-radius:8px;padding:2px}
+  .seg button{font-family:'Source Code Pro',monospace;font-size:.72rem;font-weight:600;
+    border:0;background:transparent;color:var(--ink2);padding:6px 12px;border-radius:6px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--surf);color:var(--acc);box-shadow:var(--sh)}
+  .seg button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+  .cuenta{font-size:.8rem;color:var(--ink3)}
+
+  .etapa{margin:24px 0 6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .etapa h3{font-size:1.06rem}
+  .etapa .m{font-family:'Source Code Pro',monospace;font-size:.72rem;color:var(--ink3)}
+  .etapa .pin{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+  .etd{font-size:.87rem;color:var(--ink2);margin:0 0 10px;max-width:64ch}
+
+  .blk{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;
+    margin-bottom:8px;background:var(--surf);overflow:hidden}
+  .blk>summary{cursor:pointer;list-style:none;padding:12px 15px;display:flex;
+    align-items:center;gap:11px;flex-wrap:wrap}
+  .blk>summary::-webkit-details-marker{display:none}
+  .bid{font-family:'Source Code Pro',monospace;font-size:.73rem;font-weight:700;padding:3px 8px;
+    border-radius:5px;background:var(--surf2);color:var(--ink2);flex:none}
+  .bt{flex:1;font-weight:600;font-size:.92rem;min-width:170px}
+  .who{font-family:'Source Code Pro',monospace;font-size:.65rem;font-weight:700;padding:2px 8px;
+    border-radius:20px;flex:none}
+  .wA{background:var(--s1-bg);color:var(--s1)}
+  .wC{background:var(--s2-bg);color:var(--s2)}
+  .wS{background:var(--bad-bg);color:var(--bad)}
+  .bm{font-family:'Source Code Pro',monospace;font-size:.71rem;color:var(--ink3);flex:none}
+  .cv{color:var(--ink3);font-size:.65rem;transition:transform .16s;flex:none}
+  .blk[open]>summary{border-bottom:1px solid var(--line)}
+  .blk[open] .cv{transform:rotate(90deg)}
+  .bb2{padding:14px 15px;font-size:.88rem;color:var(--ink2)}
+  .r{margin-bottom:11px} .r:last-child{margin-bottom:0}
+  .lb2{font-family:'Source Code Pro',monospace;font-size:.63rem;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--ink3);display:block;margin-bottom:3px}
+  .bb2 p{margin:0;max-width:none} .bb2 b{color:var(--ink)}
+  .crit{border-left:3px solid var(--s2);padding-left:11px}
+  .crit .lb2{color:var(--s2)}
+  .stop{border-left:3px solid var(--bad);padding-left:11px}
+  .stop .lb2{color:var(--bad)}
+  pre{margin:7px 0 0;background:var(--surf3);border:1px solid var(--line);border-radius:7px;
+    padding:9px 11px;overflow-x:auto;font-family:'Source Code Pro',monospace;
+    font-size:.74rem;color:var(--ink)}
+  ol.num{padding-left:19px;margin:0} ol.num li{margin-bottom:5px}
+
+  .tsc{overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--surf);margin-top:14px}
+  table{width:100%;border-collapse:collapse;min-width:520px}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);font-size:.85rem;vertical-align:top}
+  th{font-family:'Source Code Pro',monospace;font-size:.63rem;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--ink2);background:var(--surf2)}
+  tr:last-child td{border-bottom:none}
+  td.n{font-family:'Source Code Pro',monospace;text-align:right;white-space:nowrap}
+  .no{color:var(--bad);font-weight:700} .si{color:var(--s2);font-weight:700}
+
+  .hl{background:var(--acc-bg);border:1px solid var(--acc);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .hl .slab{color:var(--acc)}
+  .hl p{margin:0;font-size:.9rem;color:var(--ink2)} .hl p+p{margin-top:9px}
+  .warn{background:var(--bad-bg);border:1px solid var(--bad);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .warn .slab{color:var(--bad)}
+  .warn p{margin:0;font-size:.9rem;color:var(--ink2)} .warn p+p{margin-top:9px}
+
+  ol.deuda{list-style:none;counter-reset:d;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:9px}
+  ol.deuda li{counter-increment:d;display:grid;grid-template-columns:auto 1fr;gap:12px;
+    background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 15px;
+    font-size:.87rem;color:var(--ink2)}
+  ol.deuda li::before{content:counter(d,decimal-leading-zero);font-family:'Source Code Pro',monospace;
+    font-size:.7rem;font-weight:700;color:var(--bad);opacity:.8;padding-top:2px}
+  ol.deuda b{color:var(--ink)}
+
+  footer{padding-block:28px 8px;color:var(--ink3);font-size:.78rem}
+  footer p{max-width:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eb">Prospector DataX · plan de implementación fase 4 · 23 sep 2026</div>
+    <h1>Que las fuentes estén al día, y que se note cuando no</h1>
+    <p class="dk">Diez bloques para fechar cada documento, detectar los períodos que faltan, recuperarlos y publicarlos al contrato que el prospector interno ya espera. Documento acompañante de <code>arquitectura_integracion.html</code>.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">10</div><div class="c">bloques en 4 etapas encadenadas</div></div>
+      <div class="kpi"><div class="v">16<span style="font-size:1rem"> h </span>10</div><div class="c">estimadas, con sesgo conocido a quedarse corto</div></div>
+      <div class="kpi"><div class="v" style="color:var(--acc)">3</div><div class="c">portales en alcance: BCB, INE y ASFI</div></div>
+      <div class="kpi"><div class="v" style="color:var(--bad)">2</div><div class="c">paradas obligatorias antes de codificar</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="slab">De dónde sale este plan</div>
+    <h2>Seis pedidos de la reunión, cuatro capacidades</h2>
+    <p class="lead">Las notas del 23 de septiembre piden seis cosas. Traducidas, son cuatro capacidades que dependen unas de otras.</p>
+    <div class="tsc">
+      <table>
+        <tr><th>Nota de la reunión</th><th>Capacidad</th><th>Etapa</th></tr>
+        <tr><td>«si la fuente es diaria y se ha atrasado un mes, tal vez cambió de link»</td><td>Detectar atraso</td><td>K</td></tr>
+        <tr><td>«falta febrero, aparece abril — cómo manejar los casos faltantes»</td><td>Detectar huecos</td><td>K</td></tr>
+        <tr><td>«reportes perdidos y atrasados deben poder recuperarse»</td><td>Recuperación</td><td>L</td></tr>
+        <tr><td>«a veces las mueven; a veces ya no existe y requiere búsqueda de herencia»</td><td>Recuperación por migración</td><td>L</td></tr>
+        <tr><td>«fuentes que no se pueden actualizar se vayan al histórico»</td><td>Ciclo de vida</td><td>M</td></tr>
+        <tr><td>«cruce de datos del crawler externo con el interno» · «las DB al día»</td><td>Conciliación</td><td>M</td></tr>
+      </table>
+    </div>
+    <div class="hl">
+      <div class="slab">Las cuatro dependen de una sola cosa que hoy no funciona</div>
+      <p><b>Saber a qué período pertenece cada documento.</b> No se puede detectar que falta febrero si no se sabe de qué mes es cada archivo. Por eso la Etapa J va primero y todo lo demás cuelga de ella.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">El hallazgo que ordena la fase</div>
+    <h2>El extractor busca un patrón que estos portales no usan</h2>
+    <p class="lead">Medido el 23 de septiembre sobre las tres bases. El período está vacío en casi todo, y la causa es una sola línea.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 300" role="img" aria-label="El patrón soportado cubre una sola URL de las 1165 de los tres portales; ASFI usa barra AAAA guion MM en 582 de 601, BCB usa barra AAAA barra MM en 75 de 121 e INE no lleva fecha en la URL">
+        <text class="hd" x="14" y="18">PATRONES DE FECHA EN LAS URL · 1.165 EN TOTAL</text>
+
+        <text class="tt mn" x="14" y="52">ASFI</text>
+        <rect class="bx" x="120" y="36" width="620" height="24" rx="4"/>
+        <rect x="120" y="36" width="600" height="24" rx="4" fill="var(--bad-bg)" stroke="var(--bad)" stroke-width="1.8"/>
+        <text class="t mn" x="130" y="53">/AAAA-MM/ · 582 de 601</text>
+        <text class="tb" x="752" y="53">no se reconoce</text>
+
+        <text class="tt mn" x="14" y="98">BCB</text>
+        <rect class="bx" x="120" y="82" width="620" height="24" rx="4"/>
+        <rect x="120" y="82" width="384" height="24" rx="4" fill="var(--bad-bg)" stroke="var(--bad)" stroke-width="1.8"/>
+        <text class="t mn" x="130" y="99">/AAAA/MM/ · 75 de 121</text>
+        <rect x="506" y="82" width="6" height="24" rx="2" fill="var(--s2-bg)" stroke="var(--s2)" stroke-width="1.5"/>
+        <text class="tg" x="522" y="99">1</text>
+        <text class="tb" x="752" y="99">no se reconoce</text>
+
+        <text class="tt mn" x="14" y="144">INE</text>
+        <rect class="bx" x="120" y="128" width="620" height="24" rx="4"/>
+        <rect x="120" y="128" width="308" height="24" rx="4" fill="var(--surf3)" stroke="currentColor" stroke-width="1.4"/>
+        <text class="t mn" x="130" y="145">solo el año · 220</text>
+        <rect x="430" y="128" width="310" height="24" rx="4" fill="var(--surf3)" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/>
+        <text class="t mn" x="440" y="145">sin fecha en la URL · 223</text>
+        <text class="ts" x="752" y="145">otro problema</text>
+
+        <line class="ld" x1="14" y1="176" x2="866" y2="176"/>
+
+        <text class="hd" x="14" y="202">LO QUE EL EXTRACTOR RECONOCE HOY</text>
+        <rect x="120" y="212" width="620" height="24" rx="4" fill="var(--surf3)" stroke="currentColor" stroke-width="1.4"/>
+        <rect x="120" y="212" width="3" height="24" rx="1.5" fill="var(--s2)"/>
+        <text class="tg" x="134" y="229">1 URL de 1.165</text>
+        <text class="t mn" x="752" y="229">_MM_AAAA</text>
+
+        <text class="t mn" x="14" y="268">re.search(r"_(?P&lt;m&gt;0[1-9]|1[0-2])_(?P&lt;y&gt;20\d{2})\b", url)</text>
+        <text class="ts" x="14" y="288">única expresión genérica de la capa 1 · src/crawler/core/extractor.py</text>
+      </svg>
+      <figcaption>No es que la extracción de fechas falle: <b>está mirando un patrón que estos portales no usan</b>. ASFI y BCB se arreglan agregando patrones; INE necesita otra vía porque su URL no lleva fecha.</figcaption>
+    </figure>
+
+    <div class="tsc">
+      <table>
+        <tr><th>Portal</th><th class="n">Filas</th><th class="n">Con período</th><th class="n">%</th><th>Meta del bloque B-50 / B-51</th></tr>
+        <tr><td>ASFI</td><td class="n">601</td><td class="n">154</td><td class="n no">26%</td><td class="si">≥ 85%</td></tr>
+        <tr><td>BCB</td><td class="n">121</td><td class="n">4</td><td class="n no">3%</td><td class="si">≥ 65%</td></tr>
+        <tr><td>INE</td><td class="n">443</td><td class="n">2</td><td class="n no">0,5%</td><td class="si">≥ 50%</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Por qué este orden</div>
+    <h2>Cada etapa consume la anterior</h2>
+    <p class="lead">El orden no es una preferencia: saltarse una etapa rompe la siguiente de una forma concreta.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Las cuatro etapas encadenadas, lo que produce cada una y qué se rompe si se la saltea">
+        <defs><marker id="pa1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <rect class="b1" x="14" y="30" width="188" height="70" rx="9"/>
+        <text class="hd" x="108" y="52" text-anchor="middle">ETAPA J · B-50 · B-51</text>
+        <text class="tt" x="108" y="74" text-anchor="middle">Fechar</text>
+        <text class="ts" x="108" y="90" text-anchor="middle">2 bloques · 3 h 30</text>
+
+        <rect class="bb" x="236" y="30" width="188" height="70" rx="9"/>
+        <text class="hd" x="330" y="52" text-anchor="middle">ETAPA K · B-52 · B-53</text>
+        <text class="tt" x="330" y="74" text-anchor="middle">Detectar</text>
+        <text class="ts" x="330" y="90" text-anchor="middle">2 bloques · 2 h 50</text>
+
+        <rect class="b3" x="458" y="30" width="188" height="70" rx="9"/>
+        <text class="hd" x="552" y="52" text-anchor="middle">ETAPA L · B-54 · 54b · 55</text>
+        <text class="tt" x="552" y="74" text-anchor="middle">Recuperar</text>
+        <text class="ts" x="552" y="90" text-anchor="middle">3 bloques · 5 h 20</text>
+
+        <rect class="b2" x="680" y="30" width="188" height="70" rx="9"/>
+        <text class="hd" x="774" y="52" text-anchor="middle">ETAPA M · B-56 · 57 · 58</text>
+        <text class="tt" x="774" y="74" text-anchor="middle">Cerrar</text>
+        <text class="ts" x="774" y="90" text-anchor="middle">3 bloques · 4 h 30</text>
+
+        <line class="ln" x1="204" y1="65" x2="232" y2="65" marker-end="url(#pa1)"/>
+        <line class="ln" x1="426" y1="65" x2="454" y2="65" marker-end="url(#pa1)"/>
+        <line class="ln" x1="648" y1="65" x2="676" y2="65" marker-end="url(#pa1)"/>
+
+        <text class="hd" x="14" y="134">PRODUCE</text>
+        <text class="t mn" x="108" y="156" text-anchor="middle">period_start</text>
+        <text class="t mn" x="330" y="156" text-anchor="middle">lista de huecos</text>
+        <text class="t mn" x="552" y="156" text-anchor="middle">los documentos</text>
+        <text class="t mn" x="774" y="156" text-anchor="middle">period_label</text>
+        <line class="ld" x1="108" y1="104" x2="108" y2="142"/>
+        <line class="ld" x1="330" y1="104" x2="330" y2="142"/>
+        <line class="ld" x1="552" y1="104" x2="552" y2="142"/>
+        <line class="ld" x1="774" y1="104" x2="774" y2="142"/>
+
+        <line class="ld" x1="14" y1="180" x2="866" y2="180"/>
+        <text class="hd" x="14" y="204">SI SE LA SALTEA</text>
+        <text class="ts" x="108" y="226" text-anchor="middle">no hay calendario</text>
+        <text class="ts" x="330" y="226" text-anchor="middle">no se sabe qué buscar</text>
+        <text class="ts" x="552" y="226" text-anchor="middle">se archiva lo recuperable</text>
+        <text class="ts" x="774" y="226" text-anchor="middle">el dato no sale de acá</text>
+      </svg>
+      <figcaption>El último eslabón, <code>period_label</code>, es el campo que <b>la Catalog API ya expone y el prospector interno ya consume</b>. Hoy lo mandamos vacío: el contrato tiene el campo y nosotros no tenemos el dato.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">El tablero</div>
+    <h2>Los diez bloques</h2>
+    <p class="lead">Cada bloque cierra con un commit propio y la suite en verde. Abrí cualquiera para ver su criterio de aceptación — que es lo que decide si está hecho.</p>
+
+    <div class="filtros">
+      <span class="lbl">Ver</span>
+      <div class="seg" role="group" aria-label="Filtrar bloques por responsable">
+        <button id="f-all" aria-pressed="true">Todos</button>
+        <button id="f-a" aria-pressed="false">Antigravity</button>
+        <button id="f-c" aria-pressed="false">Con Claude</button>
+      </div>
+      <span class="cuenta" id="cuenta">10 bloques · 16 h 10</span>
+    </div>
+
+    <div id="board">
+      <div class="etapa" data-et style="--c:var(--s1)"><span class="pin"></span><h3>Etapa J · Fechar</h3><span class="m">prerequisito de todo lo demás</span></div>
+      <p class="etd" data-et>El de mayor retorno de la fase: un cambio de patrones desbloquea 1.165 filas.</p>
+
+      <details class="blk" data-who="A" style="--c:var(--s1)"><summary><span class="bid">B-50</span><span class="bt">Ampliar la extracción a los patrones reales</span><span class="who wA">Antigravity</span><span class="bm">100 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><ol class="num">
+            <li>Agregar a la capa 1 los patrones medidos: <code>/AAAA-MM/</code>, <code>/AAAA/MM/</code>, <code>AAAAMM_</code>, <code>DDmesAAAA</code> y año suelto.</li>
+            <li>Separar <code>published_at</code> de <code>period_start</code> con su nivel de confianza.</li>
+            <li><b>Ver fallar los tests antes del arreglo</b> — regla del proyecto, aplicada en D-06 y no negociable.</li>
+          </ol></div>
+          <div class="r"><span class="lb2">El matiz que no se puede ignorar</span><p>En <code>.../files/2026-06/MEMORIA_2025.pdf</code> la carpeta dice <b>cuándo se publicó</b> y el nombre <b>de qué período habla</b>. Si se mezclan, el detector reporta que falta 2025 teniéndolo.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Sobre las corridas que ya existen, sin volver a rastrear: <b>ASFI ≥ 85%</b> de filas con fecha resuelta y <b>BCB ≥ 65%</b>. Ninguna fila marcada <code>high</code> cuya fecha venga solo de la carpeta de publicación.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: reconoce los patrones de fecha que los portales usan de verdad</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="A" style="--c:var(--s1)"><summary><span class="bid">B-51</span><span class="bt">Fechas de INE y corrección de sus datasets</span><span class="who wA">Antigravity</span><span class="bm">110 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Por qué van juntas</span><p>INE no lleva fecha en la URL, así que hay que sacarla del texto del enlace o de las cabeceras. Y <b>440 de sus 443 filas están en un solo dataset</b> — sin datasets separados no se puede declarar una periodicidad, que es lo que la Etapa K necesita.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Ningún dataset concentra más del 40% de las filas sin justificación escrita, y al menos el <b>50%</b> de las filas con fecha resuelta.</p></div>
+          <div class="r stop"><span class="lb2">Si no alcanza</span><p>Reportarlo con la medición. <b>Una fecha inventada es peor que ninguna</b>: contamina el detector de huecos que viene después.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: fechas y clasificacion de datasets para ine</pre></div>
+        </div>
+      </details>
+
+      <div class="etapa" data-et style="--c:var(--bad)"><span class="pin"></span><h3>Etapa K · Detectar</h3><span class="m">el corazón del pedido de la reunión</span></div>
+      <p class="etd" data-et>Acá nace la respuesta a «falta febrero, aparece abril».</p>
+
+      <details class="blk" data-who="A" style="--c:var(--bad)"><summary><span class="bid">B-52</span><span class="bt">Declarar la periodicidad esperada</span><span class="who wA">Antigravity</span><span class="bm">60 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>Cada dataset declara si es diario, semanal, mensual, trimestral, semestral, anual o eventual, y cuánto atraso tolera. Configuración declarativa en el YAML, sin lógica por fuente en Python.</p></div>
+          <div class="r"><span class="lb2">Nota de arquitectura</span><p>El <code>UpdateCategory</code> de <code>Prospector-Externo</code> solo admite diario, semanal y mensual. <b>Las series bolivianas incluyen trimestrales y anuales</b>, así que ese enum hay que ampliarlo del lado del externo.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>La periodicidad declarada se contrasta contra lo observado: si un dataset declarado mensual tiene 3 documentos en 5 años, <b>la declaración está mal y se corrige</b>.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: declara periodicidad y tolerancia por dataset</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="A" style="--c:var(--bad)"><summary><span class="bid">B-53</span><span class="bt">Calendario de esperados contra observados</span><span class="who wA">Antigravity</span><span class="bm">110 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>Genera los períodos que deberían existir, los cruza con los que tenemos, y produce huecos intermedios, atraso desde el último, y estado por dataset: <code>AL_DIA</code>, <code>ATRASADO</code>, <code>CON_HUECOS</code>, <code>INACTIVO</code>.</p></div>
+          <div class="r"><span class="lb2">La tolerancia depende de la periodicidad</span><p>Una fuente diaria atrasada un mes es una alarma; una anual atrasada un mes es normal. Es literalmente la primera nota de la reunión.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Reporte reproducible y <b>al menos un hueco verificado a mano contra el portal</b>: que el período exista y que nosotros no lo tengamos. Un detector que solo da falsos positivos no sirve, y comprobar uno es la única forma de saberlo.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: detector de huecos y atrasos por dataset</pre></div>
+        </div>
+      </details>
+
+      <div class="etapa" data-et style="--c:var(--s3)"><span class="pin"></span><h3>Etapa L · Recuperar</h3><span class="m">incluye la parada de diseño</span></div>
+      <p class="etd" data-et>Escalera de menor a mayor riesgo. El agente entra al final, no al principio.</p>
+
+      <details class="blk" data-who="A" style="--c:var(--s3)"><summary><span class="bid">B-54</span><span class="bt">Escalera de recuperación determinista</span><span class="who wA">Antigravity</span><span class="bm">110 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Los cuatro escalones · para en el primero que encuentra</span><ol class="num">
+            <li><b>La misma URL</b> que ya conocíamos — la reunión dice que en su mayoría siguen ahí.</li>
+            <li><b>La plantilla de la serie</b> con el período faltante. Es D-17, ya implementado, con HEAD obligatorio.</li>
+            <li><b>Otra ruta del mismo dominio</b>: sitemap y buscador interno del portal.</li>
+            <li><b>El archivo histórico de la web</b> — <code>wayback_engine</code>, ya implementado.</li>
+          </ol></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Al menos <b>10 períodos</b> recuperados con bytes y hash, <b>y el registro de en qué escalón apareció cada uno</b>. Ese registro es lo que después dirá qué escalón vale la pena y cuál sobra.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: escalera de recuperacion de periodos faltantes</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="A" style="--c:var(--s3)"><summary><span class="bid">B-54b</span><span class="bt">El agente como escalón final</span><span class="who wA">Antigravity</span><span class="bm">90 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>El agente propone candidatos cuando los cuatro deterministas fallaron. <b>El mecanismo ya existe</b> —<code>fetcher.py::_ask_gemini_for_alternatives</code>, hoy usado para dominios caídos—: este bloque lo conecta, no lo reescribe.</p></div>
+          <div class="r stop"><span class="lb2">Por qué va último</span><p>El agente es generativo y <b>ya falló antes acá</b>: sugirió <code>bcp.org</code>, <code>ibce.org.bo</code> y <code>cadex.org</code> para tres instituciones distintas, y las tres respondían 200 siendo organizaciones equivocadas. De ahí salió D-01.</p></div>
+          <div class="r"><span class="lb2">Las seis reglas</span><ol class="num">
+            <li><b>Nunca escribe en <code>inventory.db</code></b>: propone, no admite.</li>
+            <li>Toda propuesta pasa por <b>HEAD</b> con 200, tamaño &gt; 0 y tipo documental.</li>
+            <li>Toda propuesta pasa por <b>verificación de contenido</b> con palabras clave de la institución.</li>
+            <li><b>Cambio de dominio institucional nunca es automático</b> — eso es herencia y va a B-55.</li>
+            <li><b>Tope de llamadas por corrida</b>, registrado. La cuota ya se consumió sin querer una vez.</li>
+            <li>Queda registrado <b>en qué escalón apareció cada recuperación</b>.</li>
+          </ol></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Al menos <b>5 períodos</b> que los escalones 1 a 4 no encontraron, cada uno con HEAD y verificación de contenido. <b>Si el agente no aporta ninguno, ese también es un resultado válido</b>: significa que los deterministas alcanzan y el gasto no se justifica.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: agente como escalon final de la escalera de recuperacion</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="C" style="--c:var(--s3)"><summary><span class="bid">B-55</span><span class="bt">Búsqueda de herencia</span><span class="who wS">parada de diseño</span><span class="bm">120 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>El caso más difícil: la serie ya no existe y hay que averiguar a qué URL migró, o qué entidad se hizo cargo.</p></div>
+          <div class="r stop"><span class="lb2">Parada obligatoria antes de implementar</span><p>Antigravity entrega diagnóstico, Claude decide, recién después se codifica. <b>Automatizar «qué entidad heredó esta serie» es una máquina de repetir el error de D-01 a escala</b>: el proyecto ya aceptó cuatro veces una institución equivocada que respondía 200 — CADEX por CADEXCO, IBCE por IBCH, <code>bcp.org</code> por BCP, y un dominio de parking aprobado por una investigación externa.</p></div>
+          <div class="r"><span class="lb2">La decisión a tomar</span><p>Qué evidencia hace admisible una herencia. Como mínimo: continuidad verificable de la serie, mención explícita de la entidad anterior, y coincidencia de la estructura del documento.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>La decisión formal escrita, y al menos un caso propuesto con evidencia completa. <b>Ninguna herencia se acepta automáticamente</b>: la salida es una propuesta para que la apruebe una persona. Aceptado o rechazado, ambos son resultado válido.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: propuesta de herencia de series con evidencia obligatoria</pre></div>
+        </div>
+      </details>
+
+      <div class="etapa" data-et style="--c:var(--s2)"><span class="pin"></span><h3>Etapa M · Cerrar</h3><span class="m">acá el trabajo sale hacia el contrato</span></div>
+      <p class="etd" data-et>Ciclo de vida, conciliación con el interno y medición final.</p>
+
+      <details class="blk" data-who="A" style="--c:var(--s2)"><summary><span class="bid">B-56</span><span class="bt">Estado de vigencia y paso a histórico</span><span class="who wA">Antigravity</span><span class="bm">80 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>Un estado explícito por dataset —<code>VIGENTE</code>, <code>ATRASADO</code>, <code>MIGRADO</code>, <code>HISTORICO</code>— con su regla de transición y la fecha del cambio. El catálogo ya marca procedencia histórica para entidades disueltas; esto lo generaliza.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>El paso a histórico <b>nunca es automático por silencio</b>: exige que la escalera de B-54 se haya agotado y quede registrado qué se intentó. <b>Una fuente archivada porque nadie la buscó bien es una fuente perdida, no una fuente histórica.</b></p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: ciclo de vida de datasets y archivado justificado</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="C" style="--c:var(--s2)"><summary><span class="bid">B-57</span><span class="bt">Cruce con el prospector interno</span><span class="who wS">decisión previa</span><span class="bm">120 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Lo que cambió al clonar los repos</span><p><b>El contrato ya existe.</b> El interno consume una Catalog API en el puerto 8000 (<code>/health</code>, <code>/runs</code>, <code>/catalog/resources</code>) y ya calcula las diferencias con <code>DuckDBDiffEngine</code>, clasificándolas en <code>CONFIRMED</code>, <code>NEW</code>, <code>MODIFIED</code> y <code>URL_CHANGED</code>. No hay que diseñar la conciliación: hay que alimentarla.</p></div>
+          <div class="r stop"><span class="lb2">Parada de decisión</span><p>Son <b>tres sistemas, no dos</b>: el Buscador de Fuentes no es el prospector externo que el interno consume. Hay que elegir cómo se cierra ese puente —exportador, portar el motor, o exponer una segunda fachada— <b>antes de escribir código</b>. Detalle en el documento de arquitectura.</p></div>
+          <div class="r"><span class="lb2">Clave de cruce</span><p>Ya definida por el contrato: <code>resource_key</code> y <code>content_hash</code>, con <code>period_label</code> como campo de período — <b>exactamente lo que produce la Etapa J</b>.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Ninguna diferencia queda sin clasificar: solo en el interno, solo en el externo, o en ambos con período distinto.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>feat: conciliacion entre el catalogo externo y el interno</pre></div>
+        </div>
+      </details>
+
+      <details class="blk" data-who="C" style="--c:var(--s2)"><summary><span class="bid">B-58</span><span class="bt">Reporte de vigencia y cierre</span><span class="who wC">Claude</span><span class="bm">70 min</span><span class="cv">▶</span></summary>
+        <div class="bb2">
+          <div class="r"><span class="lb2">Qué</span><p>Estado de los tres portales: al día, atrasados, con huecos, recuperados y archivados.</p></div>
+          <div class="r crit"><span class="lb2">Criterio de aceptación</span><p>Toda cifra sale de correr los instrumentos, <b>no de los partes</b>. Si una capacidad quedó a medias, se dice cuál y por qué.</p></div>
+          <div class="r"><span class="lb2">Commit</span><pre>docs: estado de vigencia de bcb, ine y asfi</pre></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Cómo se ejecuta</div>
+    <h2>Corrida continua, con dos frenos</h2>
+    <p class="lead">Bucle automatizado: Antigravity ejecuta y al cerrar cada entrega invoca a Claude como auditor con puntero puro —sin resumen de lo que hizo— y permisos de solo lectura.</p>
+    <div class="tsc">
+      <table>
+        <tr><th>El bucle se detiene cuando</th><th>Por qué</th></tr>
+        <tr><td>Llega a <b>B-55</b></td><td>Parada de diseño: la herencia se decide antes de implementarse</td></tr>
+        <tr><td>Llega a <b>B-57</b></td><td>Hay que elegir cómo se cierra el puente entre los sistemas</td></tr>
+        <tr><td>El acta propone tocar <code>docs/decisiones.md</code></td><td>Es una decisión de política, no de ejecución</td></tr>
+        <tr><td>Un bloque acumula <b>tres DEVUELTO</b></td><td>El problema ya no es de ejecución</td></tr>
+        <tr><td>Hay un bloqueo externo insalvable</td><td>No se resuelve insistiendo</td></tr>
+      </table>
+    </div>
+    <div class="hl">
+      <div class="slab">Orden por valor sobre tokens</div>
+      <p><b>B-50 va primero</b> porque es el de mayor retorno de la fase. Si el presupuesto se agota, lo aceptable de perder es B-55 y B-57. <b>B-58 no se sacrifica</b>: sin medición la fase no tiene resultado reportable.</p>
+      <p>Las 16 h 10 son <b>estimación, no medición</b>. En fases anteriores los bloques mecánicos se quedaron cortos alrededor de un 50% y los de trabajo real dieron cerca.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Antes de arrancar</div>
+    <h2>Deuda que esta fase hereda y no resuelve</h2>
+    <ol class="deuda">
+      <li><code>config/source_snis.yaml</code> tiene trabajo <b>sin commitear</b>, y por eso <code>test_integracion_reproducibilidad_real</code> <b>falla ahora mismo</b>. Conviene cerrarlo antes de empezar, para arrancar con el repositorio en verde.</li>
+      <li><code>dashboard/app.js</code> tiene el arreglo del campo booleano tratado como URL, <b>también sin commitear</b>.</li>
+      <li><b>8.655 filas</b> del catálogo global vienen de la Fase 1 y no tienen hash de verificación.</li>
+      <li>ASFI sigue <b>1.777 documentos</b> por debajo del mejor crawler del benchmark.</li>
+      <li>La Catalog API del externo y nuestro <code>dashboard_server.py</code> <b>usan ambos el puerto 8000</b> y no pueden correr a la vez.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Cifras medidas el 2026-09-23 sobre <code>output/{bcb,ine,asfi}/inventory.db</code> y los patrones de fecha de sus 1.165 URLs. Plan operativo: <code>docs/plan_bloques_fase4.md</code>. Arquitectura: <code>docs/arquitectura_integracion.html</code>. Decisiones citadas (D-01, D-06, D-07, D-08, D-17) en <code>docs/decisiones.md</code>.</p>
+  </footer>
+</div>
+
+<script>
+  (function(){
+    var btns={all:document.getElementById('f-all'),A:document.getElementById('f-a'),C:document.getElementById('f-c')};
+    var blks=Array.prototype.slice.call(document.querySelectorAll('.blk'));
+    var ets=Array.prototype.slice.call(document.querySelectorAll('[data-et]'));
+    var cuenta=document.getElementById('cuenta');
+    function fmt(m){return (m/60|0)+' h '+(m%60<10?'0':'')+(m%60);}
+    function aplicar(modo){
+      var n=0,min=0;
+      blks.forEach(function(b){
+        var on=(modo==='all')||(b.getAttribute('data-who')===modo);
+        b.hidden=!on;
+        if(on){n++;min+=parseInt(b.querySelector('.bm').textContent,10)||0;}
+      });
+      ets.forEach(function(e){ e.hidden=(modo!=='all'); });
+      cuenta.textContent=n+(n===1?' bloque · ':' bloques · ')+fmt(min);
+      Object.keys(btns).forEach(function(k){
+        btns[k].setAttribute('aria-pressed', (k===modo)?'true':'false');
+      });
+    }
+    btns.all.addEventListener('click',function(){aplicar('all');});
+    btns.A.addEventListener('click',function(){aplicar('A');});
+    btns.C.addEventListener('click',function(){aplicar('C');});
+  })();
+</script>
+</body>
+</html>

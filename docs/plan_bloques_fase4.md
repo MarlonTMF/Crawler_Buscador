@@ -352,7 +352,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-54b Agente en la escalera | Antigravity | 90 min | | Pendiente |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | | Pendiente (requiere decisión) |
 | B-58 Reporte y cierre | Claude | 70 min | | Pendiente |
-| **Total** | | **~15 h 30** | | |
+| **Total** | | **16 h 10** | | |
 
 ---
 

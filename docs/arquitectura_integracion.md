@@ -18,19 +18,19 @@ Pasantía Programas/Datax/
 ## 1. El hallazgo que ordena todo: son tres sistemas, no dos
 
 Hasta ahora este proyecto habló de «crawler interno» y «crawler externo» como
-si fueran dos. Son tres, y `crawler_finrural` **no es** el prospector externo
+si fueran dos. Son tres, y el **Buscador de Fuentes** (repo `crawler_finrural`) **no es** el prospector externo
 que el interno consume.
 
 | Sistema | Paquete | Qué es | Expone |
 |---|---|---|---|
-| `crawler_finrural` | `crawler` | El motor de descubrimiento y extracción. 31 módulos: discovery, orchestrator, extractor, wayback, series_extrapolator, api_consumer | Nada por HTTP (solo un dashboard local) |
+| **Buscador de Fuentes** (`crawler_finrural`) | `crawler` | El motor de descubrimiento y extracción. 31 módulos: discovery, orchestrator, extractor, wayback, series_extrapolator, api_consumer | Nada por HTTP (solo un dashboard local) |
 | `Prospector-Externo` | `prospector_externo` | El prospector entregado a DataX. Hexagonal, con workflows propios (html, javascript, api) | **Catalog API Facade** (FastAPI) |
 | `prospector_interno` | `prospector_interno` | La plataforma de ingesta (Portal Nexus). Hexagonal, capa Bronze, gatekeeper, scheduler | API propia + **puente de conciliación** |
 
 ```mermaid
 flowchart LR
     subgraph L["Laboratorio"]
-      F["crawler_finrural<br/><i>motor y decisiones</i><br/>discovery · extractor · wayback<br/>series_extrapolator · api_consumer"]
+      F["Buscador de Fuentes<br/><i>motor y decisiones</i><br/>discovery · extractor · wayback<br/>series_extrapolator · api_consumer"]
     end
     subgraph P["Producción DataX"]
       E["Prospector-Externo<br/><i>prospecta y publica catálogo</i><br/>workflows · cadence · status_gate"]
@@ -228,12 +228,12 @@ no hay canal entre ambos.
 
 ```mermaid
 flowchart LR
-    F["crawler_finrural<br/>inventory.db"]
+    F["Buscador de Fuentes<br/>inventory.db"]
     E["Prospector-Externo<br/>Catalog API :8000"]
 
     F -->|"A · exportador"| E
     F -.->|"B · portar el motor"| E
-    F -.->|"C · finrural expone<br/>la misma API"| E
+    F -.->|"C · el buscador expone<br/>la misma API"| E
 
     style F fill:#e8eef7,stroke:#2a4f7c
     style E fill:#e6f0e9,stroke:#3c6b4a
@@ -323,7 +323,7 @@ que es donde su costo se justifica y donde su error es más fácil de atrapar.
 
 ```mermaid
 flowchart LR
-    subgraph FN["crawler_finrural · inventory.db"]
+    subgraph FN["Buscador de Fuentes · inventory.db"]
       R["resource_audit_log<br/>canonical_url · download_url<br/>content_sha256 · file_size_bytes<br/><b>period_start · period_end</b><br/>date_confidence_score · status"]
     end
     subgraph PE["Prospector-Externo · ResourceCandidate"]

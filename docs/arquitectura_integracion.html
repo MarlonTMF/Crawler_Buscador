@@ -171,9 +171,9 @@
 
     <div class="legend">
       <div class="sys" style="--c:var(--s1)">
-        <div class="nm">crawler_finrural</div>
+        <div class="nm">Buscador de Fuentes</div>
         <div class="role">El motor y el laboratorio. Descubrimiento, extracción y las decisiones técnicas.</div>
-        <div class="ex">31 módulos · no expone HTTP</div>
+        <div class="ex">repo crawler_finrural · 31 módulos · no expone HTTP</div>
       </div>
       <div class="sys" style="--c:var(--s2)">
         <div class="nm">Prospector-Externo</div>
@@ -194,10 +194,10 @@
   <section>
     <div class="slab">Punto de partida</div>
     <h2>Son tres sistemas, no dos</h2>
-    <p class="lead">Veníamos hablando de «el interno» y «el externo» como si fueran dos. <code>crawler_finrural</code> <b>no es</b> el prospector externo que el interno consume: ese es <code>Prospector-Externo</code>, un repositorio distinto con su propio motor.</p>
+    <p class="lead">Veníamos hablando de «el interno» y «el externo» como si fueran dos. El <b>Buscador de Fuentes</b> (repo <code>crawler_finrural</code>) <b>no es</b> el prospector externo que el interno consume: ese es <code>Prospector-Externo</code>, un repositorio distinto con su propio motor.</p>
 
     <figure>
-      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="crawler_finrural no tiene canal formal hacia Prospector-Externo, que sí sirve la Catalog API al prospector interno">
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="El Buscador de Fuentes no tiene canal formal hacia Prospector-Externo, que sí sirve la Catalog API al prospector interno">
         <defs><marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
         <text class="hd" x="20" y="24">LABORATORIO</text>
         <text class="hd" x="330" y="24">PRODUCCIÓN DATAX</text>
@@ -205,10 +205,10 @@
         <line class="ld" x1="330" y1="34" x2="860" y2="34"/>
 
         <rect class="b1" x="20" y="60" width="250" height="118" rx="9"/>
-        <text class="tt mn" x="145" y="88" text-anchor="middle">crawler_finrural</text>
-        <text class="ts" x="145" y="110" text-anchor="middle">discovery · extractor · wayback</text>
-        <text class="ts" x="145" y="128" text-anchor="middle">series_extrapolator · api_consumer</text>
-        <text class="ts" x="145" y="154" text-anchor="middle">31 módulos · sin HTTP</text>
+        <text class="tt" x="145" y="88" text-anchor="middle">Buscador de Fuentes</text>
+        <text class="ts" x="145" y="118" text-anchor="middle">discovery · extractor · wayback</text>
+        <text class="ts" x="145" y="134" text-anchor="middle">series_extrapolator · api_consumer</text>
+        <text class="ts" x="145" y="156" text-anchor="middle">31 módulos · sin HTTP</text>
 
         <rect class="b2" x="330" y="60" width="230" height="118" rx="9"/>
         <text class="tt mn" x="445" y="88" text-anchor="middle">Prospector-Externo</text>
@@ -232,7 +232,7 @@
         <text class="t mn" x="589" y="222" text-anchor="middle">:8000</text>
         <line class="ln" x1="589" y1="132" x2="589" y2="194"/>
       </svg>
-      <figcaption>El trabajo que hagamos en <b>crawler_finrural</b> no llega al interno por sí solo: hoy lo único que cruza esa línea roja son técnicas, aplicadas a mano. <b>Cerrar ese canal es la decisión pendiente de esta fase.</b></figcaption>
+      <figcaption>El trabajo que hagamos en el <b>Buscador de Fuentes</b> no llega al interno por sí solo: hoy lo único que cruza esa línea roja son técnicas, aplicadas a mano. <b>Cerrar ese canal es la decisión pendiente de esta fase.</b></figcaption>
     </figure>
   </section>
 
@@ -386,7 +386,7 @@
     <p class="lead">Esta es la sección que evita el error más caro posible: reimplementar algo que ya está en otro repo.</p>
 
     <div class="tabs" role="tablist">
-      <button id="tb1" role="tab" aria-selected="true" aria-controls="p1">crawler_finrural</button>
+      <button id="tb1" role="tab" aria-selected="true" aria-controls="p1">Buscador de Fuentes</button>
       <button id="tb2" role="tab" aria-selected="false" aria-controls="p2">Prospector-Externo</button>
       <button id="tb3" role="tab" aria-selected="false" aria-controls="p3">prospector_interno</button>
     </div>
@@ -565,11 +565,11 @@
     <div class="tsc">
       <table>
         <tr><th>Capacidad</th><th>Repositorio</th><th>Por qué</th></tr>
-        <tr><td>Patrones de fecha, capas DOM y HTTP</td><td><span class="tag t1">finrural</span></td><td>El extractor vive acá</td></tr>
-        <tr><td>Periodicidad declarada por dataset</td><td><span class="tag t1">finrural</span></td><td>Configuración YAML, no código</td></tr>
-        <tr><td>Calendario de huecos</td><td><span class="tag t1">finrural</span></td><td>Consume <code>inventory.db</code></td></tr>
-        <tr><td>Escalera de recuperación</td><td><span class="tag t1">finrural</span></td><td>Reusa wayback y el extrapolador</td></tr>
-        <tr><td>Agente asistente</td><td><span class="tag t1">finrural</span></td><td>El mecanismo ya está acá</td></tr>
+        <tr><td>Patrones de fecha, capas DOM y HTTP</td><td><span class="tag t1">buscador</span></td><td>El extractor vive acá</td></tr>
+        <tr><td>Periodicidad declarada por dataset</td><td><span class="tag t1">buscador</span></td><td>Configuración YAML, no código</td></tr>
+        <tr><td>Calendario de huecos</td><td><span class="tag t1">buscador</span></td><td>Consume <code>inventory.db</code></td></tr>
+        <tr><td>Escalera de recuperación</td><td><span class="tag t1">buscador</span></td><td>Reusa wayback y el extrapolador</td></tr>
+        <tr><td>Agente asistente</td><td><span class="tag t1">buscador</span></td><td>El mecanismo ya está acá</td></tr>
         <tr><td>Ciclo de vida y salud</td><td><span class="tag t2">externo</span></td><td><code>HealthStateMachine</code> ya existe allá</td></tr>
         <tr><td>Periodicidad trimestral y anual</td><td><span class="tag t2">externo</span></td><td><code>UpdateCategory</code> vive allá</td></tr>
         <tr><td><code>period_label</code> en el contrato</td><td><span class="tag t2">externo</span></td><td>Es quien sirve la Catalog API</td></tr>
@@ -581,16 +581,16 @@
   <section>
     <div class="slab">Decisión pendiente</div>
     <h2>Cómo cerramos el puente</h2>
-    <p class="lead"><code>crawler_finrural</code> produce el dato y <code>Prospector-Externo</code> lo publica, pero hoy no hay canal. Las tres opciones no cambian el contrato con el interno: cambian <b>quién lo alimenta</b>.</p>
+    <p class="lead">El Buscador de Fuentes produce el dato y <code>Prospector-Externo</code> lo publica, pero hoy no hay canal. Las tres opciones no cambian el contrato con el interno: cambian <b>quién lo alimenta</b>.</p>
 
     <figure>
-      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Opción A agrega un exportador entre finrural y el externo; opción B absorbe el motor dentro del externo; opción C hace que finrural exponga su propia Catalog API en paralelo">
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Opción A agrega un exportador entre el buscador y el externo; opción B absorbe el motor dentro del externo; opción C hace que el buscador exponga su propia Catalog API en paralelo">
         <defs><marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
 
         <text class="hd" x="14" y="18">A · EXPORTADOR</text>
         <rect class="b2" x="14" y="30" width="264" height="104" rx="9" stroke-width="2.5"/>
         <rect class="b1" x="30" y="46" width="100" height="34" rx="6"/>
-        <text class="ts mn" x="80" y="67" text-anchor="middle">finrural</text>
+        <text class="ts mn" x="80" y="67" text-anchor="middle">buscador</text>
         <rect class="bx" x="30" y="92" width="100" height="30" rx="6"/>
         <text class="ts" x="80" y="111" text-anchor="middle">exportador</text>
         <line class="ln" x1="80" y1="82" x2="80" y2="88" marker-end="url(#ar7)"/>
@@ -612,7 +612,7 @@
         <text class="hd" x="602" y="18">C · DOS FACHADAS</text>
         <rect class="bx" x="602" y="30" width="264" height="104" rx="9"/>
         <rect class="b1" x="618" y="46" width="108" height="34" rx="6"/>
-        <text class="ts mn" x="672" y="67" text-anchor="middle">finrural :8001</text>
+        <text class="ts mn" x="672" y="67" text-anchor="middle">buscador :8001</text>
         <rect class="b2" x="618" y="92" width="108" height="30" rx="6"/>
         <text class="ts mn" x="672" y="111" text-anchor="middle">externo :8000</text>
         <rect class="b3" x="758" y="62" width="92" height="42" rx="6"/>
@@ -641,7 +641,7 @@
       <svg class="dg" viewBox="0 0 880 330" role="img" aria-label="Cuatro campos de inventory.db mapean directo a ResourceCandidate; period_label necesita acordar formato, date_confidence_score no existe en el contrato y etag no se guarda del lado nuestro">
         <defs><marker id="ar8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
 
-        <text class="hd" x="14" y="20">crawler_finrural · inventory.db</text>
+        <text class="hd" x="14" y="20">Buscador de Fuentes · inventory.db</text>
         <text class="hd" x="560" y="20">Prospector-Externo · ResourceCandidate</text>
 
         <g class="mn" font-size="11.5" fill="currentColor">
