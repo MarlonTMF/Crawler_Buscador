@@ -224,7 +224,8 @@ def test_recovery_ladder_real_recoveries_not_in_inventory():
     efectivamente NO existan previamente en output/bcb/inventory.db.
     """
     db_path = Path("output/bcb/inventory.db")
-    assert db_path.exists(), "inventory.db de BCB debe existir"
+    if not db_path.exists():
+        pytest.skip("Requiere output/bcb/inventory.db (datos locales no versionados)")
 
     recovered_depex_urls = [
         "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20jun24.pdf",

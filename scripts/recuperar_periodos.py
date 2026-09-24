@@ -105,8 +105,8 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default=None,
-        help="Ruta de archivo JSON donde guardar el resultado detallado",
+        default="docs/entregas/recuperaciones_b54.json",
+        help="Ruta de archivo JSON donde guardar el resultado detallado (por defecto docs/entregas/recuperaciones_b54.json)",
     )
 
     args = parser.parse_args()

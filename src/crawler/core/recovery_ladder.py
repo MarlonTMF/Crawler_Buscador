@@ -183,9 +183,10 @@ class RecoveryLadder:
     ) -> Optional[RecoveredPeriod]:
         """
         Escalón 1: Buscar la misma URL conocida anteriormente en el catálogo / historial.
-        Aplica cuando una URL previa para ese período dejó de responder o fue registrada
-        históricamente. Excluye estrictamente URLs ya existentes en resource_audit_log (O-1)
-        y coincidencias superficiales de año en rangos (O-3).
+        NOTA ESTRUCTURAL: Si los candidatos se obtienen de resource_audit_log de inventory.db
+        y luego se descartan mediante is_url_in_inventory (O-1), este escalón resulta inerte
+        para documentos ya cosechados. Su propósito funcional pleno requerirá una tabla de URLs
+        históricas o previamente fallidas no indexadas.
         """
         db_path = self.base_output_dir / portal / "inventory.db"
         if not db_path.exists():
@@ -344,7 +345,9 @@ class RecoveryLadder:
         self, portal: str, dataset_id: str, period: str, periodicity: str
     ) -> Optional[RecoveredPeriod]:
         """
-        Escalón 3: Otra ruta dentro del mismo dominio (variaciones de ruta, espacios, subdirectorios).
+        Escalón 3: Otra ruta dentro del mismo dominio (variaciones sintácticas).
+        NOTA: Implementación heurística acotada a variaciones de ruta para bcb/deuda_externa.
+        No incluye aún rastreo de sitemap ni buscador interno del portal (desviación declarada).
         """
         # Variaciones de formato y encoding
         year = int(period[:4])
@@ -388,6 +391,8 @@ class RecoveryLadder:
     ) -> Optional[RecoveredPeriod]:
         """
         Escalón 4: Archivo histórico de la web (Wayback Machine).
+        NOTA: Consulta la Availability API de Wayback para URLs candidatas predecibles.
+        No utiliza la infraestructura completa de wayback_engine (CDX / caché) en esta fase.
         """
         # Formular URLs candidatas a consultar en Wayback Availability API
         candidate_urls = []

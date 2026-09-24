@@ -80,7 +80,7 @@ classification:
         - "auditoria"
     - id: rendicion_cuentas
       name: "Rendición Pública de Cuentas"
-      periodicity: semestral
+      periodicity: anual
       tolerance: 1
       url_patterns:
         - "rendicion-publica"
