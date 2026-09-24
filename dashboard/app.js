@@ -194,10 +194,10 @@ function renderRecords(records) {
       : '';
 
     return `
-      <tr data-url="${rowUrl.replace(/"/g, '&quot;')}" data-original="${(row.Url_Original||row.url||'').replace(/"/g, '&quot;')}" data-mapping-resolved="${(row.mapping_resolved||row.resolved_from_variant||row.Final_Url||'').replace(/"/g, '&quot;')}" class="${isSelected ? 'row-selected' : ''}" style="cursor:pointer;">
+      <tr data-url="${rowUrl.replace(/"/g, '&quot;')}" data-original="${(row.Url_Original||row.url||'').replace(/"/g, '&quot;')}" data-mapping-resolved="${String(row.mapping_resolved||row.Final_Url||'').replace(/"/g, '&quot;')}" class="${isSelected ? 'row-selected' : ''}" style="cursor:pointer;">
         <td>${row.Fuente || '-'}</td>
         <td><a href="${rowUrl || '#'}" target="_blank" rel="noreferrer">${rowUrl || '-'}</a></td>
-        <td>${row.mapping_resolved || row.resolved_from_variant || row.Final_Url || '-'}</td>
+        <td>${row.mapping_resolved || row.Final_Url || '-'}</td>
         <td class="mapping-cell" data-status="${mapStatus}"><span title="${mapLabel}">${statusIcon}</span></td>
         <td><span class="analysis-state ${stateClass}">${stateLabel}</span><small class="state-detail">${stateDetail}</small></td>
         <td>${formatScore(score)}</td>
@@ -543,7 +543,7 @@ function showRecordEvidence(record) {
     <div class="detail-grid">
       <div class="detail-box detail-box-wide">
           <strong>Resolved URL</strong>
-          ${record.mapping_resolved || record.resolved_from_variant || record.Final_Url || '-'}
+          ${record.mapping_resolved || record.Final_Url || '-'}
         </div>
       <div class="detail-box">
           ${record.mapping_resolved ? `
@@ -640,7 +640,7 @@ function showRecordEvidence(record) {
   const rejectBtn = document.getElementById('rejectMapping');
   if (acceptBtn || rejectBtn) {
     const original = record.original_url || record.mapped_from || record.Url_Original || record.Url_Original;
-    const resolved = record.final_url || record.Final_Url || record.resolved_from_variant || record.Final_Url;
+    const resolved = record.final_url || record.Final_Url;
 
     async function postAction(action) {
       try {
