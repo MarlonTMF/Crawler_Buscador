@@ -379,14 +379,18 @@ def verificar_reproducibilidad(
     if tot_baseline != 1864:
         errores.append(f"Total Nosotros (baseline 19-sep) esperado 1864, obtenido {tot_baseline}")
 
-    # 2. Verificar que los portales no tocados coincidan con baseline (excluyendo los intervenidos en Fase 3)
-    portales_fase3 = {"mefp", "bcb", "asofin", "ibch", "asfi"}
+    # 2. Verificar que los portales no tocados coincidan con baseline.
+    #    Un portal sale de esta comprobación en cuanto se lo recalibra: si no,
+    #    la prueba castiga la mejora en vez de detectar una regresión.
+    #    snis se recalibró sumando el subdominio estadisticas.minsalud.gob.bo
+    #    (profundidad 3, estrategia por prioridad), y pasó de 9 a 18 documentos.
+    portales_intervenidos = {"mefp", "bcb", "asofin", "ibch", "asfi", "snis"}
     portales_no_tocados = [
         "senamhi", "fam", "mmym", "anapo", "cndc", "att", "atc",
         "cadexco", "bcb", "asofin", "ibch", "snis", "mefp"
     ]
     for p in portales_no_tocados:
-        if p in portales_fase3:
+        if p in portales_intervenidos:
             continue
         row = next((r for r in rows if r["portal"] == p), None)
         if not row:

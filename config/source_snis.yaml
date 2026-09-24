@@ -11,6 +11,7 @@ source:
   allowed_domains:
     - www.snis.minsalud.gob.bo
     - snis.minsalud.gob.bo
+    - estadisticas.minsalud.gob.bo
 
 crawl:
   seeds:
@@ -18,9 +19,12 @@ crawl:
     - https://snis.minsalud.gob.bo/51-boletin-produccion-de-servicios
     - https://snis.minsalud.gob.bo/52-boletin-carpeta-familiar
     - https://snis.minsalud.gob.bo/54-boletin-hechos-vitales
-  max_depth: 1
-  max_pages: 35
-  strategy: bfs
+    - https://estadisticas.minsalud.gob.bo/
+    - https://estadisticas.minsalud.gob.bo/Default_Vigilancia.aspx
+    - https://estadisticas.minsalud.gob.bo/Reportes_Dinamicos/Menu_rep_dinamicos.aspx
+  max_depth: 3
+  max_pages: 60
+  strategy: priority
   rate_limit_per_second: 1.0
   allowed_extensions: [pdf, xlsx, xls, csv, zip]
   use_sitemaps: true
