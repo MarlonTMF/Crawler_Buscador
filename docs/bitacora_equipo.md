@@ -66,6 +66,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-51 | 🅰️ | Fechas de INE y corrección de sus datasets (Fase 4) | 110/40 | Aprob. c/obs | Máx concentración INE bajó de 99.3% a 26.2% (8 datasets); 70.2% fechas resueltas; subsanadas O-1 y O-2 de B-50 (`465ce4e`) |
 | B-52 | 🅰️ | Declarar periodicidad esperada (Fase 4) | 60/45 | Aprob. c/obs | Re-entrega C-1..C-4: datasets contrastados contra DB; test riguroso parametrizado; subsanadas O-1 (100%), O-2 (date_method), O-3 y O-6 (`60a84bf`) |
 | B-53 | 🅰️ | Detector de huecos y atrasos (Fase 4) | 110/50 | Aprob. c/obs | GapDetector + CLI detectar_huecos.py; 4 estados; trimestres/semestres en extractor; hueco real DEPEX 200 OK verificado en BCB (`0a2dee0`) |
+| B-54 | 🅰️ | Escalera de recuperación de períodos faltantes (Fase 4) | 110/105 | Aprob. c/obs | Re-entrega R3: 3 recuperaciones genuinas BCB deuda_externa (10.7 MB) verificadas bytes/SHA-256; guard de inventario; límites de escalones declarados; rendicion_cuentas anual (elimina 8 huecos, baja tiempo de 169s a 43.6s); JSON versionado en docs/entregas/ (`13d6a4d`) |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
