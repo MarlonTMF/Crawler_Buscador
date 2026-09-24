@@ -675,3 +675,15 @@ igual.
 
 
 
+
+---
+
+## E-38 · La fecha estaba, con confianza `high`, y era la equivocada: 77 documentos mensuales de ASFI fechados como el año entero
+
+- **Fecha / bloque:** 2026-09-24 · auditoría de B-50 (APROBADO CON OBSERVACIONES, `7858d1e`)
+- **Tipo:** dato incorrecto marcado como confiable / observación de motor
+- **Herramienta:** Claude (auditor)
+- **Qué encontró el Auditor:** Los agregados del parte se reproducen exactos (ASFI 583/601 = 97.0%, BCB 103/121 = 85.12%, 0 filas `high` con fecha solo de carpeta). Pero al leer una muestra aleatoria de 12 filas `high` de ASFI **contra el nombre real del archivo**, tres tenían la fecha mal: `Bancos Múltiples 04_2026.pdf` quedó como período 2026-01-01..2026-12-31, y `Decreto Supremo N° 4247 de fecha 28 de mayo de 2020.pdf` como 2020 entero en vez de 2020-05-28. Medido sobre toda la base: 266 de las 480 filas `high` tienen período de año entero y **77 de ellas llevan el mes explícito en el nombre**. Dos causas en `extractor.py`: el patrón `_MM_AAAA` (línea 145) exige guión bajo antes del mes y ASFI escribe ` 04_2026` o ` 08-2026`; y el patrón `DDmesAAAA` (líneas 130-137) usa `re.search`, así que cuando la primera coincidencia captura `de` como "mes" abandona sin seguir buscando. Los dos casos caen al fallback de año suelto, que sí acierta el año — y al haber también fecha de carpeta, la regla de confianza los promueve a `high`.
+- **Cómo se detectó:** No por los conteos, que son correctos y están bien medidos. Se detectó agregando una pregunta que el criterio del bloque no hace: de las filas que *tienen* fecha, ¿la fecha es la correcta? Bastó comparar `period_start` con el nombre del archivo en 12 filas al azar, y después contar cuántas filas de año entero tenían un mes escrito en el nombre.
+- **Cómo se resolvió:** El bloque se aprueba —su criterio mide cobertura de fecha y ausencia de `high` solo-carpeta, y ambos se cumplen de verdad— con el hallazgo como O-1 del acta, con dueño y momento: se corrige en bloque propio **antes de B-52**, re-corriendo `scripts/actualizar_fechas_inventario.py`. Se suma O-2: el fallback de año suelto debe llevar un `method` propio para que el detector de huecos pueda distinguir "es una serie anual" de "no supe el mes".
+- **Por qué:** Es la clase de error de siempre, un paso más adentro. Ya aprendimos que un 200 no prueba contenido y que un hash no prueba tipo de archivo (E-36); acá un campo poblado no prueba fecha correcta. Y la novedad incómoda es que el sistema marca estos 77 casos con su nivel de confianza **más alto**, porque la regla de confianza mide *cuántas fuentes de fecha coincidieron*, no *qué tan precisa* es la fecha resultante. Un dato equivocado con etiqueta `high` es peor que uno ausente: B-52 y B-53 van a leer una serie mensual como anual y no van a reportar ningún hueco — justamente lo que el plan advierte en B-51 ("una fecha inventada es peor que ninguna"). Regla que deja: cuando un bloque produce un campo nuevo, el criterio de aceptación tiene que incluir una muestra leída contra la fuente, no solo el porcentaje de cobertura.
