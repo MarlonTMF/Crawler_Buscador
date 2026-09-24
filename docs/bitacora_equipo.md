@@ -63,7 +63,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-38 | 🅰️ | Onboarding Lote 5 | 95/40 | Aprob. c/obs | Auditoría agrupada Lotes 3-5: 678 docs. 11/12 estables; FIFA declarada no estable (`63b231d`) |
 | B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | Aprob. c/obs | Medición dual D-13/D-14; supera a Rolando (5.411 vs 5.403); D-15 adoptada por Marlon (Catálogo vs Corpus) (`1b67113`) |
 | B-50 | 🅰️ | Patrones de fecha reales y separación (Fase 4) | 100/45 | Aprob. c/obs | Patrones /AAAA-MM/ y /AAAA/MM/; ASFI 97.0% y BCB 85.1%; 0 high desde carpeta sola; 77 casos O-1 con mes no reconocido a subsanar antes de B-52 (`7858d1e`) |
-| B-51 | 🅰️ | Fechas de INE y corrección de sus datasets (Fase 4) | 110/40 | En auditoría | Máx concentración INE bajó de 99.3% a 26.2% (8 datasets); 70.2% fechas resueltas; subsanadas O-1 y O-2 de B-50 |
+| B-51 | 🅰️ | Fechas de INE y corrección de sus datasets (Fase 4) | 110/40 | Aprob. c/obs | Máx concentración INE bajó de 99.3% a 26.2% (8 datasets); 70.2% fechas resueltas; subsanadas O-1 y O-2 de B-50 (`465ce4e`) |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de
