@@ -21,7 +21,7 @@ class OfflineFetcher(HttpFetcher):
         return False, 0, {}
 
 
-def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> Dict[str, Any]:
+def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry_run: bool = False) -> Dict[str, Any]:
     db_path = output_base / source_id / "inventory.db"
     if not db_path.exists():
         print(f"[{source_id}] No existe {db_path}")
@@ -72,6 +72,9 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> 
         context = ev_info.get("context_text", "")
         prev_last_mod = ev_info.get("last_modified")
 
+        # Clasificación de dataset actualizado según reglas YAML
+        new_dataset_id = adapter.classify_dataset(c_url, anchor)
+
         # Extraer con la lógica de 4 capas de extractor.py
         date_res, _ = extractor.resolve_date_and_metadata(
             url=c_url,
@@ -90,25 +93,29 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> 
             if final_confidence == "high":
                 final_confidence = "low"
 
-        control_db.conn.execute(
-            """
-            UPDATE resource_audit_log
-            SET period_start = ?,
-                period_end = ?,
-                published_at = ?,
-                date_confidence_score = ?
-            WHERE resource_id = ?
-            """,
-            (
-                date_res.period_start,
-                date_res.period_end,
-                final_published_at,
-                final_confidence,
-                rid,
+        if not dry_run:
+            control_db.conn.execute(
+                """
+                UPDATE resource_audit_log
+                SET dataset_id = ?,
+                    period_start = ?,
+                    period_end = ?,
+                    published_at = ?,
+                    date_confidence_score = ?
+                WHERE resource_id = ?
+                """,
+                (
+                    new_dataset_id,
+                    date_res.period_start,
+                    date_res.period_end,
+                    final_published_at,
+                    final_confidence,
+                    rid,
+                )
             )
-        )
 
         updated_records[c_url] = {
+            "dataset_id": new_dataset_id,
             "period_start": date_res.period_start,
             "period_end": date_res.period_end,
             "published_at": final_published_at,
@@ -116,10 +123,11 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> 
             "method": date_res.method,
         }
 
-    control_db.conn.commit()
+    if not dry_run:
+        control_db.conn.commit()
 
     # Si teníamos mapa_*.json, actualizarlo en memoria y re-exportar
-    if mapa_data:
+    if mapa_data and not dry_run:
         for ds in mapa_data.get("datasets", []):
             for res in ds.get("resources", []):
                 c_url = res.get("canonical_url")
@@ -148,6 +156,9 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> 
     conf_breakdown = control_db.conn.execute(
         "SELECT date_confidence_score, count(*) FROM resource_audit_log GROUP BY date_confidence_score"
     ).fetchall()
+    dataset_breakdown = control_db.conn.execute(
+        "SELECT dataset_id, count(*) FROM resource_audit_log GROUP BY dataset_id"
+    ).fetchall()
 
     control_db.close()
 
@@ -160,16 +171,22 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output")) -> 
         "high": high_q,
         "folder_only_high": folder_only_high,
         "breakdown": dict(conf_breakdown),
+        "datasets": dict(dataset_breakdown),
     }
     return stats
 
 
 if __name__ == "__main__":
+    import sys
+    dry = "--dry-run" in sys.argv
+    if dry:
+        print("=== MODO DRY RUN (SIN MODIFICACIONES) ===")
     for s in ["asfi", "bcb", "ine"]:
-        st = reindex_source_dates(s)
+        st = reindex_source_dates(s, dry_run=dry)
         print(f"=== {s.upper()} ===")
         print(f"Total: {st.get('total')}")
         print(f"Resueltos (period_start o published_at): {st.get('resolved')} ({st.get('pct_resolved')}%)")
         print(f"High: {st.get('high')}")
         print(f"High con fecha solo de carpeta: {st.get('folder_only_high')}")
-        print(f"Desglose de confianza: {st.get('breakdown')}\n")
+        print(f"Desglose de confianza: {st.get('breakdown')}")
+        print(f"Desglose de datasets: {st.get('datasets')}\n")

@@ -112,6 +112,11 @@ class MetadataExtractor:
                 m_dash = re.search(r"/(?P<y>20\d{2})-(?P<m>0[1-9]|1[0-2])/", folder_str)
                 if m_dash:
                     published_at = f"{m_dash.group('y')}-{m_dash.group('m')}-01"
+                else:
+                    # Carpeta con año (ej. INE: /informes-auditoria-interna-2021/)
+                    m_fy = re.search(r"(?<!\d)(?P<y>20\d{2}|19\d{2})(?!\d)", folder)
+                    if m_fy:
+                        published_at = f"{m_fy.group('y')}-01-01"
 
         # 2. Extracción de período en nombre de archivo (period_start / period_end)
         period_start = None
@@ -125,29 +130,44 @@ class MetadataExtractor:
             period_start = f"{y}-{m}-{d}"
             period_end = f"{y}-{m}-{d}"
 
-        # b) DDmesAAAA o AAAA-DDmes
+        # b) DDmesAAAA o "DD de mes de AAAA" (O-1)
         if not period_start:
-            m_ddmes = re.search(
-                r"(?:(?P<y1>20\d{2})[-_\s]+)?(?P<d>0?[1-9]|[12]\d|3[01])\s*(?:de|-|_|\s)\s*(?P<mes>[a-záéíóú]+)(?:\s*(?:de|-|_|\s)\s*(?P<y2>20\d{2}))?",
-                fname_lower
+            m_exp = re.search(
+                r"(?<!\d)(?P<d>0?[1-9]|[12]\d|3[01])\s+de\s+(?P<mes>[a-záéíóú]+)\s+de\s+(?P<y>20\d{2}|19\d{2})(?!\d)",
+                fname_lower,
             )
-            if m_ddmes and (m_ddmes.group("y1") or m_ddmes.group("y2")):
-                mes_str = m_ddmes.group("mes")
+            if m_exp:
+                mes_str = m_exp.group("mes")
                 if mes_str in self.months_es:
                     m_num = self.months_es[mes_str]
-                    y_val = int(m_ddmes.group("y1") or m_ddmes.group("y2"))
-                    d_val = int(m_ddmes.group("d"))
+                    y_val = int(m_exp.group("y"))
+                    d_val = int(m_exp.group("d"))
                     period_start = f"{y_val:04d}-{m_num:02d}-{d_val:02d}"
                     period_end = f"{y_val:04d}-{m_num:02d}-{d_val:02d}"
 
-        # c) _MM_AAAA o _AAAA_MM
         if not period_start:
-            m_my = re.search(r"_(?P<m>0[1-9]|1[0-2])_(?P<y>20\d{2})(?!\d)", filename)
+            for m_ddmes in re.finditer(
+                r"(?:(?P<y1>20\d{2})[-_\s]+)?(?P<d>0?[1-9]|[12]\d|3[01])\s*(?:de|-|_|\s)\s*(?P<mes>[a-záéíóú]+)(?:\s*(?:de|-|_|\s)\s*(?P<y2>20\d{2}))?",
+                fname_lower,
+            ):
+                if m_ddmes.group("y1") or m_ddmes.group("y2"):
+                    mes_str = m_ddmes.group("mes")
+                    if mes_str in self.months_es:
+                        m_num = self.months_es[mes_str]
+                        y_val = int(m_ddmes.group("y1") or m_ddmes.group("y2"))
+                        d_val = int(m_ddmes.group("d"))
+                        period_start = f"{y_val:04d}-{m_num:02d}-{d_val:02d}"
+                        period_end = f"{y_val:04d}-{m_num:02d}-{d_val:02d}"
+                        break
+
+        # c) _MM_AAAA, MM-AAAA, MM_AAAA con espacio/separador (O-1)
+        if not period_start:
+            m_my = re.search(r"(?:^|[\s_\-\(\[])(?P<m>0[1-9]|1[0-2])[_\-](?P<y>20\d{2})(?!\d)", filename)
             if m_my:
                 y, m = int(m_my.group("y")), int(m_my.group("m"))
                 period_start, period_end = self._format_period(y, m)
             else:
-                m_ym_rev = re.search(r"_(?P<y>20\d{2})_(?P<m>0[1-9]|1[0-2])(?!\d)", filename)
+                m_ym_rev = re.search(r"(?:^|[\s_\-\(\[])(?P<y>20\d{2})[_\-](?P<m>0[1-9]|1[0-2])(?!\d)", filename)
                 if m_ym_rev:
                     y, m = int(m_ym_rev.group("y")), int(m_ym_rev.group("m"))
                     period_start, period_end = self._format_period(y, m)
@@ -170,35 +190,42 @@ class MetadataExtractor:
                     period_start, period_end = self._format_period(y, m_num)
                     break
 
-        # f) Rango AAAA-AAAA (ej. PEI-2021-2025)
+        # f) Rango AAAA-AAAA o pegado AAAAYYYY (ej. PEI-2021-2025, 19902014)
         if not period_start:
             m_yrange = re.search(r"(?<!\d)(?P<y1>20\d{2})-(?P<y2>20\d{2})(?!\d)", filename)
             if m_yrange:
                 period_start = f"{m_yrange.group('y1')}-01-01"
                 period_end = f"{m_yrange.group('y2')}-12-31"
+            else:
+                m_y8 = re.search(r"(?<!\d)(?P<y1>19\d{2})(?P<y2>20\d{2})(?!\d)", filename)
+                if m_y8:
+                    period_start = f"{m_y8.group('y1')}-01-01"
+                    period_end = f"{m_y8.group('y2')}-12-31"
 
-        # g) Año suelto
+        # g) Año suelto (fallback de año, O-2)
+        is_year_fallback = False
         if not period_start:
             m_y = re.search(r"(?<!\d)(?P<y>19\d{2}|20\d{2})(?!\d)", filename)
             if m_y:
                 y = int(m_y.group("y"))
                 period_start = f"{y:04d}-01-01"
                 period_end = f"{y:04d}-12-31"
+                is_year_fallback = True
 
         # Si no hubo coincidencia en carpeta ni archivo
         if not published_at and not period_start:
             return None
 
-        # Asignación de confianza y método según regla B-50
+        # Asignación de confianza y método según regla B-50 / O-2
         if published_at and period_start:
             confidence = "high"
-            method = "url_pattern"
+            method = "url_year_fallback" if is_year_fallback else "url_pattern"
         elif published_at and not period_start:
             confidence = "low"
             method = "url_folder"
         else:
             confidence = "medium"
-            method = "url_pattern"
+            method = "url_year_fallback" if is_year_fallback else "url_pattern"
 
         return DateExtractionResult(
             period_start=period_start,

@@ -54,23 +54,92 @@ classification:
     - "pei"
     - "escala"
   dataset_rules:
+    - id: cuentas_nacionales_pib
+      name: "Cuentas Nacionales, PIB y Matrices Insumo-Producto"
+      url_patterns:
+        - "insumo-producto"
+        - "cuentas-economicas"
+        - "pib-y-cuentas"
+        - "cuentas-consolidadas"
+      title_keywords:
+        - "insumo producto"
+        - "cuentas nacionales"
+        - "pib"
+        - "matriz"
+    - id: auditoria_interna
+      name: "Informes de Auditoría Interna"
+      url_patterns:
+        - "auditoria-interna"
+        - "auditoria"
+      title_keywords:
+        - "auditoria interna"
+        - "auditoria"
+    - id: rendicion_cuentas
+      name: "Rendición Pública de Cuentas"
+      url_patterns:
+        - "rendicion-publica"
+        - "rendicion-de-cuentas"
+        - "audiencia-de-rendicion"
+      title_keywords:
+        - "rendicion publica"
+        - "audiencia"
+    - id: gestion_administrativa_financiera
+      name: "Gestión Administrativa, Financiera y Normativa"
+      url_patterns:
+        - "informacion-financiera"
+        - "procedimientos-administrativos"
+        - "informacion-administrativa"
+        - "manual-de-procesos"
+        - "planes-de-trabajo"
+        - "poa"
+        - "reglamento"
+        - "resolucion"
+        - "formulario"
+        - "contrataciones"
+        - "convocatoria"
+      title_keywords:
+        - "financiera"
+        - "administrativa"
+        - "procedimientos"
+        - "poa"
+    - id: estadisticas_sociales_demograficas
+      name: "Estadísticas Sociales, Empleo y Demografía"
+      url_patterns:
+        - "estadisticas-sociales"
+        - "empleo"
+        - "mercado-laboral"
+        - "censo"
+        - "demograf"
+        - "certificado-de-estadisticas"
+        - "boletines-estadisticos"
+      title_keywords:
+        - "empleo"
+        - "sociales"
+        - "censo"
+        - "demografia"
     - id: planes_estrategicos
       name: "Planes Estratégicos Institucionales (PEI)"
       url_patterns:
-        - "pei"
         - "planes-estrategicos"
+        - "/pei"
+        - "-pei"
       title_keywords:
+        - "plan estrategico"
         - "pei"
-        - "estrategico"
-        - "institucional"
     - id: escala_salarial
       name: "Escala Salarial y Estructura Organizacional"
       url_patterns:
+        - "escala-salarial"
         - "escala"
-        - "salarial"
       title_keywords:
-        - "escala"
+        - "escala salarial"
         - "salarial"
+    - id: documentos_institucionales_otros
+      name: "Otros Documentos Institucionales"
+      url_patterns:
+        - "/index.php/"
+      title_keywords:
+        - "instituto nacional"
   excluded_path_keywords:
     - "/contacto"
     - "/login"
