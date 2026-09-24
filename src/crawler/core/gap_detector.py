@@ -157,6 +157,17 @@ class GapDetector:
                     cm = 1
                     cy += 1
 
+        elif periodicity == "semanal":
+            y_start, w_start = int(start_token[:4]), int(start_token[6:8])
+            y_end, w_end = int(end_token[:4]), int(end_token[6:8])
+            from datetime import timedelta
+            dt_curr = date.fromisocalendar(y_start, w_start, 1)
+            dt_end = date.fromisocalendar(y_end, w_end, 1)
+            while dt_curr <= dt_end:
+                y, w, _ = dt_curr.isocalendar()
+                periods.append(f"{y:04d}-W{w:02d}")
+                dt_curr += timedelta(weeks=1)
+
         elif periodicity == "diaria":
             dt_curr = date.fromisoformat(start_token)
             dt_end = date.fromisoformat(end_token)
@@ -164,6 +175,8 @@ class GapDetector:
             while dt_curr <= dt_end:
                 periods.append(dt_curr.isoformat())
                 dt_curr += timedelta(days=1)
+        else:
+            raise ValueError(f"Periodicidad no soportada: {periodicity}")
 
         return periods
 
@@ -205,7 +218,6 @@ class GapDetector:
         observed_tokens: Set[str] = set()
         for r in rows:
             # Soportar tanto sqlite3.Row como tupla común
-            c_url = r[0] if isinstance(r, (tuple, list)) else r["canonical_url"]
             p_start = r[1] if isinstance(r, (tuple, list)) else r["period_start"]
             p_end = r[2] if isinstance(r, (tuple, list)) else r["period_end"]
             pub_at = r[3] if isinstance(r, (tuple, list)) else r["published_at"]
@@ -245,7 +257,7 @@ class GapDetector:
         delay_count = len(pending_to_ref)
 
         # 3. Determinación de inactividad vs atraso
-        # Si no hay publicaciones en más de 2 años (o 2 períodos anuales completos más allá de la tolerancia)
+        # Si no hay publicaciones en más de 2 años (o períodos completos más allá de la tolerancia)
         is_inactive = False
         if periodicity == "anual" and delay_count >= (tolerance + 2):
             is_inactive = True
@@ -254,6 +266,10 @@ class GapDetector:
         elif periodicity == "trimestral" and delay_count >= (tolerance + 6):
             is_inactive = True
         elif periodicity == "mensual" and delay_count >= (tolerance + 18):
+            is_inactive = True
+        elif periodicity == "semanal" and delay_count >= (tolerance + 8):
+            is_inactive = True
+        elif periodicity == "diaria" and delay_count >= (tolerance + 30):
             is_inactive = True
 
         # Estado resultante

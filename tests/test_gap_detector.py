@@ -135,3 +135,13 @@ def test_b53_real_gap_verified_against_portal():
     # 2024-S2 y 2025-S2 (verificados 200 OK en el portal) deben figurar como huecos detectados
     assert any("2024" in g for g in rep.intermediate_gaps)
     assert any("2025" in g for g in rep.intermediate_gaps)
+
+
+def test_b53_semanal_and_unsupported_periodicity():
+    """Verifica generación de períodos semanales y rechazo de periodicidades inválidas."""
+    weeks = GapDetector.generate_expected_periods("2024-W01", "2024-W04", "semanal")
+    assert weeks == ["2024-W01", "2024-W02", "2024-W03", "2024-W04"]
+
+    with pytest.raises(ValueError, match="Periodicidad no soportada"):
+        GapDetector.generate_expected_periods("2024", "2025", "desconocida")
+
