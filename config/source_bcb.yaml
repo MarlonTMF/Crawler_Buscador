@@ -68,8 +68,8 @@ classification:
   dataset_rules:
     - id: memorias_institucionales
       name: "Memorias Institucionales y Anuales"
-      periodicity: anual
-      tolerance: 1
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "memoria"
         - "memorias"

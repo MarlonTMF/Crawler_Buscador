@@ -64,7 +64,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-40 | 🅲/🅰️ | Corrida completa y cierre Fase 2 | 60/45 | Aprob. c/obs | Medición dual D-13/D-14; supera a Rolando (5.411 vs 5.403); D-15 adoptada por Marlon (Catálogo vs Corpus) (`1b67113`) |
 | B-50 | 🅰️ | Patrones de fecha reales y separación (Fase 4) | 100/45 | Aprob. c/obs | Patrones /AAAA-MM/ y /AAAA/MM/; ASFI 97.0% y BCB 85.1%; 0 high desde carpeta sola; 77 casos O-1 con mes no reconocido a subsanar antes de B-52 (`7858d1e`) |
 | B-51 | 🅰️ | Fechas de INE y corrección de sus datasets (Fase 4) | 110/40 | Aprob. c/obs | Máx concentración INE bajó de 99.3% a 26.2% (8 datasets); 70.2% fechas resueltas; subsanadas O-1 y O-2 de B-50 (`465ce4e`) |
-| B-52 | 🅰️ | Declarar periodicidad esperada (Fase 4) | 60/35 | En auditoría | Periodicidad y tolerancia en 18 datasets contrastadas con DB; subsanadas O-1 (100%), O-2 (date_method), O-3 y O-6 de B-51 |
+| B-52 | 🅰️ | Declarar periodicidad esperada (Fase 4) | 60/45 | En auditoría | Re-entrega C-1..C-4: datasets contrastados contra DB; test riguroso parametrizado; subsanadas O-1 (100%), O-2 (date_method), O-3 y O-6 |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de

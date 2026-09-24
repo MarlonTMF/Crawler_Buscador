@@ -109,8 +109,8 @@ classification:
   dataset_rules:
     - id: memoria_institucional
       name: "Memorias Institucionales Anuales"
-      periodicity: anual
-      tolerance: 1
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "MEMORIA"
         - "memoria"
@@ -135,8 +135,8 @@ classification:
         - "auditor"
     - id: instituciones_financieras_desarrollo
       name: "Instituciones Financieras de Desarrollo e Intermediación"
-      periodicity: mensual
-      tolerance: 2
+      periodicity: eventual
+      tolerance: 0
       url_patterns:
         - "Desarrollo"
         - "desarrollo"

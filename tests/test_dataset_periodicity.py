@@ -52,36 +52,72 @@ def test_b52_all_datasets_have_periodicity_and_tolerance(portal):
         )
 
 
-def test_b52_periodicity_contrasted_against_observed_data():
-    """Contrasta la periodicidad declarada contra la evidencia observada en inventory.db."""
-    for portal in ["asfi", "bcb", "ine"]:
-        cfg_path = Path(f"config/source_{portal}.yaml")
-        db_path = Path(f"output/{portal}/inventory.db")
-        if not db_path.exists():
-            pytest.skip(f"No existe base de datos: {db_path}")
+@pytest.mark.parametrize("portal", ["asfi", "bcb", "ine"])
+def test_b52_periodicity_contrasted_against_observed_data(portal):
+    """Contrasta la periodicidad declarada contra la evidencia observada en inventory.db (C-3 y C-4)."""
+    cfg_path = Path(f"config/source_{portal}.yaml")
+    db_path = Path(f"output/{portal}/inventory.db")
+    if not db_path.exists():
+        pytest.skip(f"No existe base de datos: {db_path}")
 
-        adapter = GenericSourceAdapter(cfg_path)
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
+    adapter = GenericSourceAdapter(cfg_path)
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
 
-        for rule in adapter.dataset_rules:
-            ds_id = rule.get("id")
-            periodicity = rule.get("periodicity")
-            rows = conn.execute(
-                "SELECT period_start, period_end FROM resource_audit_log WHERE dataset_id = ?",
-                (ds_id,)
-            ).fetchall()
+    for rule in adapter.dataset_rules:
+        ds_id = rule.get("id")
+        periodicity = rule.get("periodicity")
+        rows = conn.execute(
+            "SELECT canonical_url, period_start, period_end, published_at FROM resource_audit_log WHERE dataset_id = ?",
+            (ds_id,)
+        ).fetchall()
 
-            # Si está declarado mensual, debe tener evidencia de meses observados si tiene suficientes docs
-            if periodicity == "mensual" and len(rows) >= 10:
-                monthly_docs = [
+        if periodicity == "eventual":
+            continue
+
+        distinct_months = set()
+        distinct_years = set()
+        for r in rows:
+            dt = r["period_start"] or r["published_at"]
+            if dt:
+                parts = dt.split("-")
+                if len(parts) >= 1:
+                    distinct_years.add(int(parts[0]))
+                if len(parts) >= 2:
+                    distinct_months.add(f"{parts[0]}-{parts[1]}")
+
+        if periodicity == "mensual":
+            # C-3: Un dataset mensual debe tener al menos 3 meses distintos observados
+            assert len(distinct_months) >= 3, (
+                f"Dataset '{ds_id}' en {portal} declarado 'mensual' tiene solo {len(distinct_months)} "
+                f"meses distintos observados ({sorted(distinct_months)}). La declaración no coincide con lo observado."
+            )
+            # Y no puede ser una dispersión vacía en un lapso plurianual
+            if distinct_years and (max(distinct_years) - min(distinct_years)) >= 2:
+                total_span_months = (max(distinct_years) - min(distinct_years) + 1) * 12
+                ratio = len(distinct_months) / total_span_months
+                assert ratio >= 0.15, (
+                    f"Dataset '{ds_id}' en {portal} declarado 'mensual' tiene solo {len(distinct_months)} "
+                    f"meses en {total_span_months} meses de lapso ({ratio:.1%}). Debe declararse 'eventual'."
+                )
+
+        elif periodicity == "anual":
+            if len(rows) >= 5:
+                assert len(distinct_years) >= 2, (
+                    f"Dataset '{ds_id}' en {portal} declarado 'anual' tiene menos de 2 años observados."
+                )
+            # C-2: Un dataset anual no puede ser un cajón de sastre de fallback heterogéneo
+            rule_tokens = [t.lower() for t in rule.get("url_patterns", []) + rule.get("title_keywords", [])]
+            if rule_tokens and len(rows) >= 30:
+                matching_rows = [
                     r for r in rows
-                    if r["period_start"] and r["period_end"]
-                    and r["period_start"][:7] == r["period_end"][:7]
-                    and r["period_start"][-2:] == "01"
+                    if any(tok in r["canonical_url"].lower() for tok in rule_tokens)
                 ]
-                assert len(monthly_docs) > 0, (
-                    f"Dataset '{ds_id}' declarado mensual en {portal} no tiene ningún documento con período mensual"
+                match_ratio = len(matching_rows) / len(rows)
+                assert match_ratio >= 0.40, (
+                    f"Dataset '{ds_id}' en {portal} declarado 'anual' es el destino de un fallback heterogéneo: "
+                    f"solo {len(matching_rows)}/{len(rows)} ({match_ratio:.1%}) coinciden con sus patrones. "
+                    f"Debe declararse 'eventual'."
                 )
 
 
