@@ -361,7 +361,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-53 Detector de huecos y atrasos | Antigravity | 110 min | 50 min | ✅ Aprob. c/obs (`0a2dee0`) |
 | B-54 Escalera de recuperación | Antigravity | 110 min | 105 min | ✅ Aprob. c/obs (`13d6a4d`) |
 | B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | 95 min | ✅ Aprob. c/obs (`8fb20e0`, R2) |
-| B-56 Ciclo de vida e histórico | Antigravity | 80 min | | Pendiente |
+| B-56 Ciclo de vida e histórico | Antigravity | 80 min | 65 min | ✅ Aprob. c/obs (`455ee5b`, R2) |
 | B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | | Pendiente (requiere decisión) |
 | B-58 Reporte y cierre | Claude | 70 min | | Pendiente |

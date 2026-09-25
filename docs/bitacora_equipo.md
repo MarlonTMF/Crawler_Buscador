@@ -158,6 +158,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-50..B-54 (Fase 4 L) | **Detector de huecos y escalera** | Fechas reales reconocidas (ASFI 99%, BCB 87%, INE 26%), periodicidades calibradas (D-15/D-16), detector de huecos determinista, escalera de recuperación con 3 períodos recuperados (DEPEX BCB). |
 | Tras B-54b (Agente escalón 5) | **Guardas D-01 y D-17** | Escalón 5 integrado con tope de llamadas (10) y 4 compuertas de defensa en profundidad contra páginas HTML. Aprobado (`67456a9`). |
 | Tras B-55 (Herencia D-18) | **Propuestas con evidencia** | `InheritanceEvaluator` formalizado bajo Decisión D-18 (4 compuertas copulativas, procedencia de bytes C-1, cotejo estructural C-4, falsador C-2). Aprobado con observaciones (`8fb20e0`, R2). |
+| Tras B-56 (Ciclo de vida) | **Archivado justificado** | Invariante central: paso a `HISTORICO` nunca automático por silencio. 21 datasets clasificados (16 VIGENTE, 2 ATRASADO, 3 MIGRADO, 0 HISTORICO). Fechas estables entre corridas e integración con recuperaciones reales B-54 (`455ee5b`, R2). |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su

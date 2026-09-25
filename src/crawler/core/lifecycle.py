@@ -109,8 +109,18 @@ class DatasetLifecycleManager:
         else:
             prev_st = previous_state
 
-        def _resolve_transition_date(target_st: DatasetLifecycleState) -> str:
-            if previous_record is not None and previous_record.state == target_st and previous_record.transition_date:
+        def _resolve_transition_date(target_st: DatasetLifecycleState, target_rule: Any) -> str:
+            rule_val = target_rule.value if hasattr(target_rule, "value") else str(target_rule)
+            if (
+                previous_record is not None
+                and previous_record.state == target_st
+                and (
+                    previous_record.transition_rule.value
+                    if hasattr(previous_record.transition_rule, "value")
+                    else str(previous_record.transition_rule)
+                ) == rule_val
+                and previous_record.transition_date
+            ):
                 return previous_record.transition_date
             return now_iso
 
@@ -127,13 +137,14 @@ class DatasetLifecycleManager:
             matches_ds = (orig_p == portal.strip().lower() and orig_ds == dataset_id.strip().lower())
             if matches_ds and status == "ACEPTADA":
                 tgt_st = DatasetLifecycleState.MIGRADO
+                rule = TransitionRule.MIG_D18_ACEPTADA.value
                 return DatasetLifecycleRecord(
                     portal=portal,
                     dataset_id=dataset_id,
                     state=tgt_st,
                     previous_state=prev_st,
-                    transition_rule=TransitionRule.MIG_D18_ACEPTADA.value,
-                    transition_date=_resolve_transition_date(tgt_st),
+                    transition_rule=rule,
+                    transition_date=_resolve_transition_date(tgt_st, rule),
                     last_observed_period=gap_report.last_observed_period,
                     delay_periods=gap_report.delay_periods,
                     recovery_attempts_exhausted=False,
@@ -147,13 +158,14 @@ class DatasetLifecycleManager:
         # -------------------------------------------------------------
         if gap_report.delay_periods == 0 and gap_report.last_observed_period is None:
             tgt_st = DatasetLifecycleState.VIGENTE
+            rule = TransitionRule.VIG_SIN_PERIODICIDAD.value
             return DatasetLifecycleRecord(
                 portal=portal,
                 dataset_id=dataset_id,
                 state=tgt_st,
                 previous_state=prev_st,
-                transition_rule=TransitionRule.VIG_SIN_PERIODICIDAD.value,
-                transition_date=_resolve_transition_date(tgt_st),
+                transition_rule=rule,
+                transition_date=_resolve_transition_date(tgt_st, rule),
                 last_observed_period=None,
                 delay_periods=0,
                 recovery_attempts_exhausted=False,
@@ -164,13 +176,14 @@ class DatasetLifecycleManager:
 
         if gap_report.delay_periods <= gap_report.tolerance:
             tgt_st = DatasetLifecycleState.VIGENTE
+            rule = TransitionRule.VIG_AL_DIA.value
             return DatasetLifecycleRecord(
                 portal=portal,
                 dataset_id=dataset_id,
                 state=tgt_st,
                 previous_state=prev_st,
-                transition_rule=TransitionRule.VIG_AL_DIA.value,
-                transition_date=_resolve_transition_date(tgt_st),
+                transition_rule=rule,
+                transition_date=_resolve_transition_date(tgt_st, rule),
                 last_observed_period=gap_report.last_observed_period,
                 delay_periods=gap_report.delay_periods,
                 recovery_attempts_exhausted=False,
@@ -196,13 +209,14 @@ class DatasetLifecycleManager:
 
         if ladder_exhausted:
             tgt_st = DatasetLifecycleState.HISTORICO
+            rule = TransitionRule.HIST_ESCALERA_AGOTADA.value
             return DatasetLifecycleRecord(
                 portal=portal,
                 dataset_id=dataset_id,
                 state=tgt_st,
                 previous_state=prev_st,
-                transition_rule=TransitionRule.HIST_ESCALERA_AGOTADA.value,
-                transition_date=_resolve_transition_date(tgt_st),
+                transition_rule=rule,
+                transition_date=_resolve_transition_date(tgt_st, rule),
                 last_observed_period=gap_report.last_observed_period,
                 delay_periods=gap_report.delay_periods,
                 recovery_attempts_exhausted=True,
@@ -213,14 +227,15 @@ class DatasetLifecycleManager:
 
         # Si el retraso excede la tolerancia pero la escalera no se agotó: ATRASADO
         tgt_st = DatasetLifecycleState.ATRASADO
+        rule = TransitionRule.ATR_BUSQUEDA_PENDIENTE.value
         missing_rungs = sorted(list(self.MANDATORY_RUNGS_FOR_EXHAUSTION - rungs_tested))
         return DatasetLifecycleRecord(
             portal=portal,
             dataset_id=dataset_id,
             state=tgt_st,
             previous_state=prev_st,
-            transition_rule=TransitionRule.ATR_BUSQUEDA_PENDIENTE.value,
-            transition_date=_resolve_transition_date(tgt_st),
+            transition_rule=rule,
+            transition_date=_resolve_transition_date(tgt_st, rule),
             last_observed_period=gap_report.last_observed_period,
             delay_periods=gap_report.delay_periods,
             recovery_attempts_exhausted=False,

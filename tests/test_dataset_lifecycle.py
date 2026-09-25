@@ -392,3 +392,94 @@ def test_lifecycle_vigente_sin_periodicidad():
     assert rec.state == DatasetLifecycleState.VIGENTE
     assert rec.transition_rule == TransitionRule.VIG_SIN_PERIODICIDAD.value
     assert "sin periodicidad declarada" in rec.justification.lower()
+
+
+def test_lifecycle_transition_date_updates_when_rule_changes_same_state():
+    """
+    O-2: Verifica que cuando un dataset cambia su regla de transición
+    (ej. VIG_AL_DIA -> VIG_SIN_PERIODICIDAD) aun manteniendo el estado VIGENTE,
+    la fecha transition_date se actualice adecuadamente.
+    """
+    manager = DatasetLifecycleManager()
+    gap_rep1 = DatasetGapReport(
+        dataset_id="boletin_mensual",
+        periodicity="mensual",
+        tolerance=2,
+        total_resources=12,
+        first_observed_period="2025-01",
+        last_observed_period="2026-08",
+        delay_periods=1,
+        state=DatasetState.AL_DIA,
+    )
+    rec1 = manager.evaluate_dataset_lifecycle(
+        portal="asfi",
+        dataset_id="boletin_mensual",
+        gap_report=gap_rep1,
+        previous_record=None,
+    )
+    rec1.transition_date = "2026-09-20T10:00:00Z"
+    assert rec1.transition_rule == TransitionRule.VIG_AL_DIA.value
+
+    # Cambia a sin periodicidad (mismo estado VIGENTE, distinta regla)
+    gap_rep2 = DatasetGapReport(
+        dataset_id="boletin_mensual",
+        periodicity="mensual",
+        tolerance=2,
+        total_resources=12,
+        first_observed_period=None,
+        last_observed_period=None,
+        delay_periods=0,
+        state=DatasetState.AL_DIA,
+    )
+    rec2 = manager.evaluate_dataset_lifecycle(
+        portal="asfi",
+        dataset_id="boletin_mensual",
+        gap_report=gap_rep2,
+        previous_record=rec1,
+    )
+    assert rec2.state == DatasetLifecycleState.VIGENTE
+    assert rec2.transition_rule == TransitionRule.VIG_SIN_PERIODICIDAD.value
+    # La fecha debe haber cambiado porque la regla cambió
+    assert rec2.transition_date != rec1.transition_date
+
+
+def test_lifecycle_load_previous_disk_roundtrip_and_graceful_degradation(tmp_path):
+    """
+    O-4 y O-5: Verifica el ciclo completo de persistencia e ida y vuelta por disco
+    de load_previous_lifecycle, y asegura que una fila corrupta (state: null)
+    no descarte las filas sanas del reporte.
+    """
+    from scripts.gestionar_ciclo_vida import load_previous_lifecycle
+
+    test_file = tmp_path / "ciclo_vida_corrupto.json"
+    content = {
+        "timestamp": "2026-09-25T00:00:00Z",
+        "datasets": [
+            {
+                "portal": "bcb",
+                "dataset_id": "boletines_mensuales",
+                "state": "VIGENTE",
+                "transition_rule": "VIG_AL_DIA",
+                "transition_date": "2026-09-20T10:00:00Z",
+                "delay_periods": 0,
+                "recovery_attempts_log": [],
+                "justification": "Al día",
+            },
+            {
+                "portal": "ine",
+                "dataset_id": "fila_corrupta",
+                "state": None,  # Fila corrupta que debe ser saltada
+                "transition_rule": "CORRUPTA",
+                "transition_date": "2026-09-20T10:00:00Z",
+            }
+        ]
+    }
+    test_file.write_text(json.dumps(content), encoding="utf-8")
+
+    loaded = load_previous_lifecycle(test_file)
+    # Debe recuperar la fila sana sin perderla por culpa de la corrupta
+    assert len(loaded) == 1, f"Esperaba 1 registro recuperado, obtuve {len(loaded)}"
+    rec = loaded.get(("bcb", "boletines_mensuales"))
+    assert rec is not None
+    assert rec.state == DatasetLifecycleState.VIGENTE
+    assert rec.transition_date == "2026-09-20T10:00:00Z"

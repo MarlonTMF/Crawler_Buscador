@@ -106,12 +106,27 @@ def load_previous_lifecycle(path: Path) -> Dict[Tuple[str, str], DatasetLifecycl
         return {}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        res = {}
-        for d in data.get("datasets", []):
+    except Exception as e:
+        logger.warning("Error leyendo JSON de ciclo de vida previo desde %s: %s", path, e)
+        return {}
+
+    res = {}
+    for d in data.get("datasets", []):
+        try:
             portal = d.get("portal", "").lower()
             ds_id = d.get("dataset_id", "").lower()
+            if not portal or not ds_id:
+                continue
             st_str = d.get("state")
-            state = DatasetLifecycleState(st_str) if st_str in DatasetLifecycleState.__members__ else DatasetLifecycleState[st_str]
+            if not st_str:
+                continue
+            if st_str in DatasetLifecycleState._value2member_map_:
+                state = DatasetLifecycleState(st_str)
+            elif st_str in DatasetLifecycleState.__members__:
+                state = DatasetLifecycleState[st_str]
+            else:
+                continue
+
             rec = DatasetLifecycleRecord(
                 portal=d.get("portal", ""),
                 dataset_id=d.get("dataset_id", ""),
@@ -127,10 +142,9 @@ def load_previous_lifecycle(path: Path) -> Dict[Tuple[str, str], DatasetLifecycl
                 justification=d.get("justification", ""),
             )
             res[(portal, ds_id)] = rec
-        return res
-    except Exception as e:
-        logger.warning("Error cargando ciclo de vida previo desde %s: %s", path, e)
-        return {}
+        except Exception as e:
+            logger.warning("Saltando registro corrupto en ciclo de vida previo (%s): %s", d, e)
+    return res
 
 
 def load_inheritance_proposals() -> List[Dict[str, Any]]:
