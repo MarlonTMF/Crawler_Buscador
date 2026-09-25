@@ -371,7 +371,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | 65 min | ✅ Aprob. c/obs (`455ee5b`, R2) |
 | B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | 50 min | ✅ Aprob. c/obs (f0cd08f, R2) |
-| B-58 Reporte y cierre | Claude | 70 min | | Pendiente |
+| B-58 Reporte y cierre | Claude | 70 min | 40 min | Entregado B-58 |
 | **Total** | | **16 h 10** | | |
 
 ---
