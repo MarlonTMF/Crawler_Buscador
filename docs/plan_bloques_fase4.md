@@ -346,7 +346,7 @@ fueron clasificadas con trazabilidad total.
 
 ---
 
-### B-58 · Reporte de vigencia y cierre — Claude — 70 min
+### B-58 · Reporte de vigencia y cierre — CERRADO (R2, 15a5fa8) — 70 min
 
 Estado de los tres portales: al día, atrasados, con huecos, recuperados y
 archivados. Actualizar `docs/bitacora_equipo.md`.
@@ -371,7 +371,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | 65 min | ✅ Aprob. c/obs (`455ee5b`, R2) |
 | B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | 50 min | ✅ Aprob. c/obs (f0cd08f, R2) |
-| B-58 Reporte y cierre | Claude | 70 min | 40 min | Entregado B-58 |
+| B-58 Reporte y cierre | Claude | 70 min | 40 min | ✅ Aprob. c/obs (15a5fa8, R2) |
 | **Total** | | **16 h 10** | | |
 
 ---
