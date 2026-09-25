@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Resultados medidos de la escalera de recuperacion de la Fase 4: que escalon encontro cada documento, que aporto el agente y que quedo sin resolver.">
+<title>Escalera de Recuperación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Libre+Franklin:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+  :root{
+    --bg:#eef1f4; --surf:#fff; --surf2:#e2e7ec; --surf3:#d5dce3;
+    --line:#c7d0d9; --line2:#a5b2be;
+    --ink:#10161c; --ink2:#465360; --ink3:#77838f;
+    --acc:#1f4f7a; --acc-bg:#dce8f2;
+    --ok:#2c6a4c; --ok-bg:#d9eae1;
+    --warn:#8a6212; --warn-bg:#f2e6cb;
+    --bad:#9d3a26; --bad-bg:#f6dfd8;
+    --sh:0 1px 2px rgba(16,22,28,.05),0 10px 24px rgba(16,22,28,.06);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --ok:#69b98d; --ok-bg:#132a1f;
+    --warn:#d6ab52; --warn-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0e1216; --surf:#161c22; --surf2:#1f272e; --surf3:#28323a;
+    --line:#303b45; --line2:#44525e;
+    --ink:#e9eef3; --ink2:#a7b4c0; --ink3:#76838f;
+    --acc:#6fa8d6; --acc-bg:#14273a;
+    --ok:#69b98d; --ok-bg:#132a1f;
+    --warn:#d6ab52; --warn-bg:#2e2513;
+    --bad:#e08a6d; --bad-bg:#331810;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 10px 26px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Libre Franklin',system-ui,-apple-system,sans-serif;font-size:15.5px;line-height:1.62}
+  .wrap{max-width:1020px;margin:0 auto;padding-inline:20px;padding-block:0 76px}
+  h1,h2,h3{font-family:'Bitter',Georgia,serif;font-weight:600;margin:0;text-wrap:balance}
+  p{margin:0 0 12px;max-width:70ch}
+  code,.mono{font-family:'Source Code Pro',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  code{background:var(--surf2);padding:.1em .38em;border-radius:4px;font-size:.85em}
+
+  .mast{background:var(--surf);border-bottom:2px solid var(--ink)}
+  .mast .wrap{padding-block:34px 28px}
+  .eb{font-family:'Source Code Pro',monospace;font-size:.69rem;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:10px}
+  h1{font-size:clamp(1.85rem,4.7vw,2.5rem);letter-spacing:-.012em;max-width:19ch;line-height:1.1}
+  .dk{margin-top:12px;color:var(--ink2);font-size:1.02rem;max-width:64ch}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:24px}
+  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .kpi .v{font-family:'Bitter',serif;font-size:1.75rem;font-weight:700;line-height:1.05;
+    font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:.95rem;font-weight:600;color:var(--ink3)}
+  .kpi .c{font-size:.79rem;color:var(--ink2);margin-top:5px}
+
+  section{padding-block:38px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+  .slab{font-family:'Source Code Pro',monospace;font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+  h2{font-size:1.45rem;margin-bottom:8px}
+  h3{font-size:1rem;margin:20px 0 7px}
+  .lead{color:var(--ink2);margin-bottom:18px;max-width:66ch}
+
+  figure{margin:18px 0 0;background:var(--surf);border:1px solid var(--line);
+    border-radius:12px;padding:18px 16px 14px;box-shadow:var(--sh)}
+  figcaption{font-size:.81rem;color:var(--ink2);margin-top:12px;padding-top:11px;
+    border-top:1px solid var(--line);max-width:none}
+  figcaption b{color:var(--ink)}
+  .dg{max-width:100%;height:auto;display:block;margin:0 auto;color:var(--ink)}
+  .dg text{font-family:'Libre Franklin',system-ui,sans-serif;fill:currentColor}
+  .dg .mn{font-family:'Source Code Pro',monospace}
+  .dg .bx{fill:var(--surf2);stroke:currentColor;stroke-width:1.4}
+  .dg .bo{fill:var(--ok-bg);stroke:var(--ok);stroke-width:2}
+  .dg .bd{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.8}
+  .dg .bw{fill:var(--warn-bg);stroke:var(--warn);stroke-width:1.8}
+  .dg .ln{stroke:currentColor;stroke-width:1.4;fill:none}
+  .dg .ld{stroke:currentColor;stroke-width:1.4;fill:none;stroke-dasharray:5 4;opacity:.5}
+  .dg .lo{stroke:var(--ok);stroke-width:2;fill:none}
+  .dg .t{font-size:12.5px}
+  .dg .tt{font-size:13px;font-weight:600}
+  .dg .ts{font-size:10.5px;opacity:.72}
+  .dg .tb{font-size:11.5px;font-weight:600;fill:var(--bad)}
+  .dg .tg{font-size:12px;font-weight:700;fill:var(--ok)}
+  .dg .tw{font-size:11.5px;font-weight:600;fill:var(--warn)}
+  .dg .hd{font-size:10px;font-weight:600;letter-spacing:.09em;opacity:.6}
+  .dg .zero{font-size:13px;font-weight:700;opacity:.35}
+
+  .tsc{overflow-x:auto;border:1px solid var(--line);border-radius:11px;background:var(--surf);margin-top:14px}
+  table{width:100%;border-collapse:collapse;min-width:540px}
+  th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);font-size:.85rem;vertical-align:top}
+  th{font-family:'Source Code Pro',monospace;font-size:.63rem;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--ink2);background:var(--surf2)}
+  tr:last-child td{border-bottom:none}
+  td.n{font-family:'Source Code Pro',monospace;text-align:right;white-space:nowrap}
+  .si{color:var(--ok);font-weight:700} .no{color:var(--bad);font-weight:700}
+  .pill{font-family:'Source Code Pro',monospace;font-size:.66rem;font-weight:700;
+    padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block}
+  .pOK{background:var(--ok-bg);color:var(--ok)}
+  .pNO{background:var(--bad-bg);color:var(--bad)}
+  .pMI{background:var(--warn-bg);color:var(--warn)}
+
+  .hl{background:var(--acc-bg);border:1px solid var(--acc);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .hl .slab{color:var(--acc)}
+  .hl p{margin:0;font-size:.9rem;color:var(--ink2)} .hl p+p{margin-top:9px}
+  .warnbox{background:var(--bad-bg);border:1px solid var(--bad);border-radius:11px;padding:16px 18px;margin-top:16px}
+  .warnbox .slab{color:var(--bad)}
+  .warnbox p{margin:0;font-size:.9rem;color:var(--ink2)} .warnbox p+p{margin-top:9px}
+
+  details.d{border:1px solid var(--line);border-radius:10px;background:var(--surf);
+    overflow:hidden;margin-bottom:8px}
+  details.d>summary{cursor:pointer;list-style:none;padding:12px 15px;display:flex;
+    align-items:center;gap:11px;flex-wrap:wrap}
+  details.d>summary::-webkit-details-marker{display:none}
+  .dt{flex:1;font-weight:600;font-size:.92rem;min-width:160px}
+  .cv{color:var(--ink3);font-size:.65rem;transition:transform .16s;flex:none}
+  details.d[open]>summary{border-bottom:1px solid var(--line)}
+  details.d[open] .cv{transform:rotate(90deg)}
+  .db{padding:14px 15px;font-size:.88rem;color:var(--ink2)}
+  .db p{margin:0 0 9px;max-width:none} .db p:last-child{margin:0} .db b{color:var(--ink)}
+  pre{margin:8px 0 0;background:var(--surf3);border:1px solid var(--line);border-radius:7px;
+    padding:10px 12px;overflow-x:auto;font-family:'Source Code Pro',monospace;
+    font-size:.74rem;line-height:1.5;color:var(--ink)}
+
+  .seg{display:inline-flex;background:var(--surf2);border:1px solid var(--line);
+    border-radius:8px;padding:2px;margin:14px 0 4px}
+  .seg button{font-family:'Source Code Pro',monospace;font-size:.73rem;font-weight:600;
+    border:0;background:transparent;color:var(--ink2);padding:7px 14px;border-radius:6px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--surf);color:var(--acc);box-shadow:var(--sh)}
+  .seg button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+
+  ol.next{list-style:none;counter-reset:n;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:9px}
+  ol.next li{counter-increment:n;display:grid;grid-template-columns:auto 1fr;gap:12px;
+    background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:12px 15px;
+    font-size:.88rem;color:var(--ink2)}
+  ol.next li::before{content:counter(n);font-family:'Source Code Pro',monospace;font-size:.72rem;
+    font-weight:700;color:var(--acc);background:var(--acc-bg);width:22px;height:22px;
+    display:grid;place-items:center;border-radius:5px}
+  ol.next b{color:var(--ink)}
+
+  footer{padding-block:28px 8px;color:var(--ink3);font-size:.78rem}
+  footer p{max-width:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eb">Buscador de Fuentes · fase 4 · resultados medidos · 25 sep 2026</div>
+    <h1>Un solo escalón encontró todo lo que se recuperó</h1>
+    <p class="dk">La escalera de cinco escalones está implementada y corriendo. De 37 períodos faltantes recuperó 3, los tres por el mismo escalón. Los otros cuatro —incluido el agente— no aportaron ninguno.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">37</div><div class="c">períodos faltantes detectados</div></div>
+      <div class="kpi"><div class="v" style="color:var(--ok)">3</div><div class="c">recuperados y verificados con hash</div></div>
+      <div class="kpi"><div class="v" style="color:var(--bad)">0</div><div class="c">aportados por el agente, con 10 consultas</div></div>
+      <div class="kpi"><div class="v">18</div><div class="c">datasets vigilados <small>en BCB, INE y ASFI</small></div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="slab">Lo que se construyó</div>
+    <h2>Cómo busca ahora un documento que se movió</h2>
+    <p class="lead">Cuando el detector marca que falta un período, la escalera lo busca en cinco escalones y <b>para en el primero que lo encuentra</b>. El diagrama muestra qué encontró cada uno en la corrida real.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 420" role="img" aria-label="De los cinco escalones de la escalera solo el segundo, plantilla de serie, recuperó documentos: tres. Los escalones uno, tres, cuatro y cinco recuperaron cero.">
+        <defs><marker id="r1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="14" y="20">ESCALÓN</text>
+        <text class="hd" x="470" y="20">QUÉ HACE</text>
+        <text class="hd" x="792" y="20">RECUPERÓ</text>
+
+        <rect class="bx" x="14" y="32" width="430" height="46" rx="8"/>
+        <text class="t mn" x="30" y="60">1</text>
+        <text class="tt" x="56" y="54">Misma URL conocida</text>
+        <text class="ts" x="56" y="70">busca donde ya estaba</text>
+        <text class="ts" x="470" y="60">re-consulta el catálogo y el historial</text>
+        <text class="zero" x="830" y="62" text-anchor="middle">0</text>
+
+        <rect class="bo" x="14" y="88" width="430" height="46" rx="8"/>
+        <text class="t mn" x="30" y="116">2</text>
+        <text class="tt" x="56" y="110">Plantilla de la serie</text>
+        <text class="ts" x="56" y="126">arma la URL del período faltante · HEAD obligatorio</text>
+        <text class="ts" x="470" y="116">extrapola la serie y valida antes de admitir</text>
+        <text class="tg" x="830" y="120" text-anchor="middle">3</text>
+
+        <rect class="bx" x="14" y="144" width="430" height="46" rx="8"/>
+        <text class="t mn" x="30" y="172">3</text>
+        <text class="tt" x="56" y="166">Otra ruta del mismo dominio</text>
+        <text class="ts" x="56" y="182">variaciones de ruta dentro del portal</text>
+        <text class="ts" x="470" y="172">sitemap y rutas alternativas</text>
+        <text class="zero" x="830" y="174" text-anchor="middle">0</text>
+
+        <rect class="bx" x="14" y="200" width="430" height="46" rx="8"/>
+        <text class="t mn" x="30" y="228">4</text>
+        <text class="tt" x="56" y="222">Archivo histórico de la web</text>
+        <text class="ts" x="56" y="238">lo que el sitio ya no enlaza</text>
+        <text class="ts" x="470" y="228">Wayback Machine</text>
+        <text class="zero" x="830" y="230" text-anchor="middle">0</text>
+
+        <rect class="bw" x="14" y="262" width="430" height="52" rx="8"/>
+        <text class="t mn" x="30" y="292">5</text>
+        <text class="tt" x="56" y="284">El agente propone candidatos</text>
+        <text class="ts" x="56" y="302">10 consultas · presupuesto agotado</text>
+        <text class="ts" x="470" y="284">Gemini sugiere URLs cuando 1-4 fallan</text>
+        <text class="ts" x="470" y="300">nunca escribe en la base: solo propone</text>
+        <text class="tb" x="830" y="294" text-anchor="middle">0</text>
+
+        <line class="ld" x1="14" y1="334" x2="866" y2="334"/>
+
+        <text class="hd" x="14" y="358">SI EL CANDIDATO ES DE OTRO DOMINIO</text>
+        <rect class="bd" x="14" y="368" width="300" height="40" rx="8"/>
+        <text class="t" x="164" y="386" text-anchor="middle">no se acepta nunca</text>
+        <text class="ts" x="164" y="401" text-anchor="middle">se encola como herencia</text>
+        <line class="ln" x1="316" y1="388" x2="366" y2="388" marker-end="url(#r1)"/>
+        <rect class="bd" x="370" y="368" width="240" height="40" rx="8"/>
+        <text class="t" x="490" y="386" text-anchor="middle">evaluación de herencia</text>
+        <text class="ts" x="490" y="401" text-anchor="middle">3 evaluadas · 3 rechazadas</text>
+        <line class="ln" x1="612" y1="388" x2="662" y2="388" marker-end="url(#r1)"/>
+        <rect class="bx" x="666" y="368" width="200" height="40" rx="8"/>
+        <text class="t" x="766" y="386" text-anchor="middle">aprueba una persona</text>
+        <text class="ts" x="766" y="401" text-anchor="middle">0 propuestas llegaron</text>
+      </svg>
+      <figcaption>Los cuatro primeros escalones son deterministas; el quinto es el agente y va último a propósito. <b>El único que rindió fue el segundo</b>, y las tres recuperaciones son del mismo dataset: los informes semestrales de deuda externa del BCB.</figcaption>
+    </figure>
+
+    <h3>Las tres recuperaciones, una por una</h3>
+    <div class="tsc">
+      <table>
+        <tr><th>Portal</th><th>Dataset</th><th>Período</th><th class="n">Bytes</th><th>Archivo</th></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2025-S2</td><td class="n">816.316</td><td class="mono" style="font-size:.76rem">DEPEX dic25.pdf</td></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S2</td><td class="n">4.973.960</td><td class="mono" style="font-size:.76rem">DEPEX dic24.pdf</td></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S1</td><td class="n">4.920.873</td><td class="mono" style="font-size:.76rem">DEPEX jun24.pdf</td></tr>
+      </table>
+    </div>
+    <p style="font-size:.85rem;color:var(--ink2);margin-top:11px">Las tres con <code>HEAD</code> verificado, bytes transferidos y SHA-256 registrado. <b>El mecanismo funciona: lo que falta es que funcione más veces.</b></p>
+  </section>
+
+  <section>
+    <div class="slab">Dónde están los huecos</div>
+    <h2>37 períodos faltantes en 6 datasets</h2>
+    <p class="lead">El detector compara los períodos que la institución debería haber publicado contra los que tenemos. Esto antes no existía en ningún sistema.</p>
+
+    <div class="tsc">
+      <table>
+        <tr><th>Portal</th><th>Dataset</th><th class="n">Huecos</th><th>Estado</th></tr>
+        <tr><td>ASFI</td><td>poa_seguimiento</td><td class="n no">20</td><td><span class="pill pNO">CON_HUECOS</span></td></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="n no">7</td><td><span class="pill pNO">CON_HUECOS</span></td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="n no">5</td><td><span class="pill pNO">CON_HUECOS</span></td></tr>
+        <tr><td>ASFI</td><td>balance_general</td><td class="n">2</td><td><span class="pill pNO">CON_HUECOS</span></td></tr>
+        <tr><td>INE</td><td>cuentas_nacionales_pib</td><td class="n">2</td><td><span class="pill pMI">INACTIVO</span></td></tr>
+        <tr><td>INE</td><td>escala_salarial</td><td class="n">1</td><td><span class="pill pNO">CON_HUECOS</span></td></tr>
+        <tr><td colspan="2"><b>Los otros 12 datasets</b></td><td class="n si">0</td><td><span class="pill pOK">AL_DIA</span></td></tr>
+      </table>
+    </div>
+
+    <div class="hl">
+      <div class="slab">Esto es lo que pidió la reunión</div>
+      <p><code>cuentas_nacionales_pib</code> tiene datos de 1988 a 2017 y le faltan 2015 y 2016 — <b>literalmente «falta febrero, aparece abril»</b>, pero con años. Y está marcado <code>INACTIVO</code> porque lleva 9 años sin publicar nada.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="slab">Lo que hizo posible todo lo demás</div>
+    <h2>Fechar cada documento</h2>
+    <p class="lead">Nada de esto se podía hacer sin saber de qué período es cada archivo. Ese era el bloqueo real, y se levantó — aunque no del todo.</p>
+
+    <div class="seg" role="group" aria-label="Ver antes o después">
+      <button id="b-antes" aria-pressed="false">Antes</button>
+      <button id="b-desp" aria-pressed="true">Después</button>
+    </div>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Cobertura de fechas por portal antes y después: ASFI pasó de 26 a 80 por ciento, INE de 0,5 a 70 y BCB de 3 a 32">
+        <text class="hd" x="14" y="20">FILAS CON PERÍODO RESUELTO · barra clara = meta del bloque</text>
+
+        <g id="g-asfi">
+          <text class="tt mn" x="14" y="60">ASFI</text>
+          <rect class="bx" x="110" y="42" width="620" height="26" rx="5"/>
+          <rect id="r-asfi" class="bo" x="110" y="42" width="496" height="26" rx="5"/>
+          <line class="ld" x1="637" y1="36" x2="637" y2="74" stroke-dasharray="3 3"/>
+          <text class="ts" x="643" y="34">meta 85%</text>
+          <text id="t-asfi" class="tg" x="746" y="61">80% · 481 de 601</text>
+        </g>
+        <g id="g-ine">
+          <text class="tt mn" x="14" y="118">INE</text>
+          <rect class="bx" x="110" y="100" width="620" height="26" rx="5"/>
+          <rect id="r-ine" class="bo" x="110" y="100" width="434" height="26" rx="5"/>
+          <line class="ld" x1="420" y1="94" x2="420" y2="132" stroke-dasharray="3 3"/>
+          <text class="ts" x="426" y="92">meta 50%</text>
+          <text id="t-ine" class="tg" x="746" y="119">70% · 309 de 443</text>
+        </g>
+        <g id="g-bcb">
+          <text class="tt mn" x="14" y="176">BCB</text>
+          <rect class="bx" x="110" y="158" width="620" height="26" rx="5"/>
+          <rect id="r-bcb" class="bd" x="110" y="158" width="198" height="26" rx="5"/>
+          <line class="ld" x1="513" y1="152" x2="513" y2="190" stroke-dasharray="3 3"/>
+          <text class="ts" x="519" y="150">meta 65%</text>
+          <text id="t-bcb" class="tb" x="746" y="177">32% · 39 de 121</text>
+        </g>
+
+        <line class="ld" x1="14" y1="212" x2="866" y2="212"/>
+        <text id="cap" class="ts" x="14" y="236">Una sola de las tres metas se alcanzó. ASFI quedó a 5 puntos y BCB muy lejos.</text>
+      </svg>
+      <figcaption>ASFI usa <code>/AAAA-MM/</code> en 582 de sus 601 URLs, y por eso el salto fue grande. <b>BCB quedó en 32%</b>: sus URLs son menos regulares —muchas llevan el mes en el nombre del archivo, como <code>DEPEX dic25.pdf</code>— y ahí la extracción por patrón no alcanza.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="slab">La pregunta que hiciste</div>
+    <h2>¿El agente sirve?</h2>
+    <p class="lead">Está implementado, conectado y con guardarraíles. Lo que no está es demostrado que aporte.</p>
+
+    <div class="tsc">
+      <table>
+        <tr><th>Medición del escalón 5</th><th class="n">Valor</th></tr>
+        <tr><td>Consultas efectivas a Gemini</td><td class="n">10</td></tr>
+        <tr><td>Presupuesto de consultas</td><td class="n">10 · <span class="no">agotado</span></td></tr>
+        <tr><td>Períodos recuperados por el agente</td><td class="n no">0</td></tr>
+        <tr><td>Candidatos de otro dominio propuestos</td><td class="n no">0</td></tr>
+        <tr><td>Períodos que nunca llegaron a consultarlo</td><td class="n">la mayoría de los 34 restantes</td></tr>
+      </table>
+    </div>
+
+    <div class="warnbox">
+      <div class="slab">La respuesta honesta: todavía no se sabe</div>
+      <p>Con 0 recuperaciones sobre 10 consultas, <b>el gasto de tokens no se está justificando</b>. Pero el tope de 10 se agotó antes de recorrer los 37 huecos, así que <b>la muestra está truncada</b>: no sabemos si el agente no sirve o si nunca tuvo oportunidad.</p>
+      <p>Decidirlo cuesta una corrida con presupuesto real. Es lo más barato que queda por hacer, y lo que decide si el agente se queda o se saca.</p>
+    </div>
+
+    <h3>Lo que sí hace bien: no inventar</h3>
+    <p>Ninguna propuesta del agente entra al catálogo sin pasar tres compuertas: <code>HEAD</code> con 200 y tipo documental, verificación de contenido por palabras clave de la institución, y — si el dominio es distinto — <b>derivación obligatoria a revisión humana</b>. Nunca escribe en la base por su cuenta.</p>
+    <p>Esa rigidez tiene una razón: el mismo agente ya sugirió <code>bcp.org</code>, <code>ibce.org.bo</code> y <code>cadex.org</code> para tres instituciones distintas, y las tres respondían 200 siendo organizaciones equivocadas.</p>
+  </section>
+
+  <section>
+    <div class="slab">Lo que quedó alrededor</div>
+    <h2>Ciclo de vida y cruce con el interno</h2>
+
+    <details class="d" open><summary><span class="dt">Ciclo de vida · 21 datasets clasificados</span><span class="cv">▶</span></summary>
+      <div class="db">
+        <div class="tsc"><table>
+          <tr><th>Estado</th><th class="n">Datasets</th><th>Qué significa</th></tr>
+          <tr><td><span class="pill pOK">VIGENTE</span></td><td class="n">16</td><td>Al día, sin huecos</td></tr>
+          <tr><td><span class="pill pMI">ATRASADO</span></td><td class="n">2</td><td>Pasó la tolerancia y la búsqueda no concluyó</td></tr>
+          <tr><td><span class="pill pMI">MIGRADO</span></td><td class="n">3</td><td>Se encontró en otra ubicación</td></tr>
+          <tr><td><span class="pill pNO">HISTORICO</span></td><td class="n">0</td><td>Archivado con la escalera agotada</td></tr>
+        </table></div>
+        <p style="margin-top:11px"><b>Que <code>HISTORICO</code> esté en cero es correcto, no un fallo.</b> Un dataset solo se archiva cuando los cuatro escalones deterministas se agotaron y quedó registrado qué se intentó. Como la escalera apenas corrió, todavía no hay derecho a archivar nada.</p>
+      </div>
+    </details>
+
+    <details class="d"><summary><span class="dt">Cruce con el prospector interno · 4.214 entidades</span><span class="cv">▶</span></summary>
+      <div class="db">
+        <p>Se comparó nuestro catálogo (1.165 registros) contra el del sistema interno (3.389) en los tres portales.</p>
+        <div class="tsc"><table>
+          <tr><th>Portal</th><th class="n">URLs comunes</th><th class="n">Tasa</th><th>Estado</th></tr>
+          <tr><td>ASFI</td><td class="n">223</td><td class="n">37,4%</td><td><span class="pill pOK">VALIDADA</span></td></tr>
+          <tr><td>INE</td><td class="n">100</td><td class="n">75,8%</td><td><span class="pill pOK">VALIDADA</span></td></tr>
+          <tr><td>BCB</td><td class="n">1</td><td class="n">0,8%</td><td><span class="pill pNO">en cuarentena</span></td></tr>
+        </table></div>
+        <div class="warnbox" style="margin-top:14px">
+          <div class="slab">El resultado incómodo: CONFIRMADO = 0</div>
+          <p>Ninguna de las 323 coincidencias de URL pudo <b>confirmarse en contenido</b>, porque el lado interno no tiene ni un solo hash SHA-256 (0 de 3.389) y el nuestro apenas 57. Se puede constatar que la URL está en ambos catálogos, pero no que el archivo sea el mismo.</p>
+          <p>Lo mismo bloquea la categoría <code>URL_CAMBIADA</code>, que es justamente la que detectaría un documento movido. <b>Sin hashes de los dos lados, el cruce mide presencia, no identidad.</b></p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="slab">Qué haría ahora</div>
+    <h2>Tres cosas, en orden de lo que más aclara</h2>
+    <ol class="next">
+      <li><b>Correr el escalón 5 con presupuesto real</b> sobre los 34 huecos que nunca lo consultaron. Es lo más barato y responde la única pregunta abierta: si el agente se queda o se saca.</li>
+      <li><b>Diagnosticar los escalones mudos.</b> Que Wayback no aporte nada en 37 huecos de series históricas es sospechoso: puede estar mal enganchado, no que no haya material. Lo mismo el escalón 3.</li>
+      <li><b>Cerrar la brecha de fechas de BCB.</b> Se quedó en 32% contra una meta de 65%, y sus URLs llevan el período en el nombre del archivo (<code>DEPEX dic25.pdf</code>), no en la ruta. Es un patrón distinto, no un caso imposible.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>Todas las cifras se obtuvieron el 2026-09-25 corriendo <code>scripts/detectar_huecos.py</code> y leyendo <code>docs/entregas/recuperaciones_b54.json</code>, <code>recuperaciones_b54b.json</code>, <code>propuestas_herencia.json</code>, <code>ciclo_vida_datasets.json</code> y <code>conciliacion_interno_externo.json</code>, más consultas directas sobre <code>output/{asfi,bcb,ine}/inventory.db</code>. Bloques B-50 a B-58, todos con acta de auditoría.</p>
+  </footer>
+</div>
+
+<script>
+  (function(){
+    var W=620;
+    var datos={
+      desp:{asfi:[80,496,'80% · 481 de 601','bo'],ine:[70,434,'70% · 309 de 443','bo'],bcb:[32,198,'32% · 39 de 121','bd'],
+            cap:'Una sola de las tres metas se alcanzó. ASFI quedó a 5 puntos y BCB muy lejos.'},
+      antes:{asfi:[26,161,'26% · 154 de 601','bd'],ine:[0.5,3,'0,5% · 2 de 443','bd'],bcb:[3,19,'3% · 4 de 121','bd'],
+            cap:'Antes de la Fase 4: el extractor reconocía un solo patrón de fecha, que cubría 1 URL de 1.165.'}
+    };
+    function pinta(modo){
+      var d=datos[modo];
+      ['asfi','ine','bcb'].forEach(function(k){
+        var r=document.getElementById('r-'+k), t=document.getElementById('t-'+k);
+        r.setAttribute('width', Math.max(d[k][1],3));
+        r.setAttribute('class','dg-bar '+d[k][3]);
+        r.setAttribute('class', d[k][3]);
+        t.textContent=d[k][2];
+        t.setAttribute('class', d[k][3]==='bo'?'tg':'tb');
+      });
+      document.getElementById('cap').textContent=d.cap;
+      document.getElementById('b-desp').setAttribute('aria-pressed', modo==='desp');
+      document.getElementById('b-antes').setAttribute('aria-pressed', modo==='antes');
+    }
+    document.getElementById('b-desp').addEventListener('click',function(){pinta('desp');});
+    document.getElementById('b-antes').addEventListener('click',function(){pinta('antes');});
+    pinta('desp');
+  })();
+</script>
+</body>
+</html>
