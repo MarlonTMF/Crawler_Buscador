@@ -148,6 +148,9 @@ class InternalReconciler:
     def __init__(self):
         self.portal_status: Dict[str, str] = {}
         self.total_entities_classified: int = 0
+        self.duplicate_urls_ext: int = 0
+        self.duplicate_urls_int: int = 0
+        self._hook_before_assert = None
 
     def reconcile(
         self,
@@ -166,12 +169,16 @@ class InternalReconciler:
         for idx, it in enumerate(external_items):
             raw_u = it.get("url") or it.get("canonical_url") or it.get("download_url") or ""
             c_u = Canonicalizer.canonicalize(raw_u) if raw_u else ""
+            raw_p = it.get("period_label")
+            # C-4 / H-3: Validador estricto sin centinelas
+            valid_p = str(raw_p).strip() if (raw_p and is_valid_period_label(str(raw_p))) else None
+
             ext_records.append({
                 "rec_id": f"ext_{idx}",
                 "url": c_u or raw_u or f"ext_unknown_{idx}",
                 "canon_url": c_u,
                 "content_hash": it.get("content_hash") or it.get("content_sha256") or None,
-                "period_label": it.get("period_label") or None,
+                "period_label": valid_p,
                 "confidence": (it.get("confidence") or it.get("date_confidence_score") or "unknown").lower(),
                 "data": it,
             })
@@ -180,12 +187,16 @@ class InternalReconciler:
         for idx, it in enumerate(internal_items):
             raw_u = it.get("url") or it.get("url_descarga") or it.get("canonical_url") or ""
             c_u = Canonicalizer.canonicalize(raw_u) if raw_u else ""
+            # H-3: NUNCA derivar período de fecha_actualizacion (es fecha de crawl/publicación, no de cobertura)
+            raw_p = it.get("period_label")
+            valid_p = str(raw_p).strip() if (raw_p and is_valid_period_label(str(raw_p))) else None
+
             int_records.append({
                 "rec_id": f"int_{idx}",
                 "url": c_u or raw_u or f"int_unknown_{idx}",
                 "canon_url": c_u,
                 "content_hash": it.get("content_hash") or it.get("sha256") or None,
-                "period_label": it.get("period_label") or it.get("fecha_actualizacion") or None,
+                "period_label": valid_p,
                 "confidence": (it.get("confidence") or it.get("date_confidence_score") or "unknown").lower(),
                 "data": it,
             })
@@ -194,6 +205,8 @@ class InternalReconciler:
         valid_ext_urls = {r["canon_url"] for r in ext_records if r["canon_url"]}
         valid_int_urls = {r["canon_url"] for r in int_records if r["canon_url"]}
         common_urls = valid_ext_urls.intersection(valid_int_urls)
+        unkeyed_ext = sum(1 for r in ext_records if not r["canon_url"])
+        unkeyed_int = sum(1 for r in int_records if not r["canon_url"])
 
         smaller_side = min(len(valid_ext_urls), len(valid_int_urls)) if (valid_ext_urls and valid_int_urls) else 0
         match_rate = len(common_urls) / smaller_side if smaller_side > 0 else 0.0
@@ -224,12 +237,16 @@ class InternalReconciler:
 
             results["CLAVE_NO_VALIDADA"] = all_entities
             self.total_entities_classified = len(all_entities)
-            assert sum(len(items) for items in results.values()) == self.total_entities_classified
+            # H-2: Aserción contra el tamaño real de la unión calculada independientemente
+            expected_union_c3 = len(valid_ext_urls | valid_int_urls) + unkeyed_ext + unkeyed_int
+            assert len(all_entities) == expected_union_c3, (
+                f"C-10 invariante violada en CLAVE_NO_VALIDADA: clasificados {len(all_entities)} != unión {expected_union_c3}"
+            )
             return results
 
         self.portal_status[portal] = "VALIDADA"
 
-        # Indexar registros por canon_url
+        # Indexar registros por canon_url y auditar duplicados (O-9)
         ext_by_url: Dict[str, List[Dict[str, Any]]] = {}
         for r in ext_records:
             if r["canon_url"]:
@@ -239,6 +256,9 @@ class InternalReconciler:
         for r in int_records:
             if r["canon_url"]:
                 int_by_url.setdefault(r["canon_url"], []).append(r)
+
+        self.duplicate_urls_ext = sum(len(l) - 1 for l in ext_by_url.values() if len(l) > 1)
+        self.duplicate_urls_int = sum(len(l) - 1 for l in int_by_url.values() if len(l) > 1)
 
         matched_ext_ids: Set[str] = set()
         matched_int_ids: Set[str] = set()
@@ -379,19 +399,22 @@ class InternalReconciler:
                     "period_label": r["period_label"],
                 })
 
-        # Invariante C-10: Totalidad de la unión de entidades
+        # Hook para pruebas de control negativo sobre la aserción (H-2)
+        if self._hook_before_assert is not None:
+            self._hook_before_assert(results)
+
+        # Invariante C-10 (H-2): Totalidad probada contra el tamaño real de la unión de entidades
+        # Unión independiente = URLs únicas de ambos lados - pares colapsados en URL_CAMBIADA + registros sin URL
+        expected_union = (
+            len(valid_ext_urls | valid_int_urls)
+            - len(results["URL_CAMBIADA"])
+            + unkeyed_ext
+            + unkeyed_int
+        )
         total_classified = sum(len(items) for items in results.values())
         self.total_entities_classified = total_classified
-        assert total_classified == (
-            len(results["CONFIRMADO"])
-            + len(results["DISCORDANCIA_CONTENIDO"])
-            + len(results["DISCORDANCIA_PERIODO"])
-            + len(results["INDETERMINADO_POR_CONFIANZA"])
-            + len(results["INDETERMINADO_POR_DATO_AUSENTE"])
-            + len(results["URL_CAMBIADA"])
-            + len(results["SOLO_EXTERNO"])
-            + len(results["SOLO_INTERNO"])
-            + len(results["CLAVE_NO_VALIDADA"])
+        assert total_classified == expected_union, (
+            f"C-10 invariante violada: total clasificado {total_classified} != unión calculada {expected_union}"
         )
 
         return results

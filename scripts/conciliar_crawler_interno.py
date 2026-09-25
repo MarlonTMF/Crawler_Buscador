@@ -30,7 +30,7 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Tuple
 
 # Asegurar path para imports
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -41,7 +41,6 @@ from crawler.core.canonicalizer import Canonicalizer
 from crawler.core.exporter import MultiFormatExporter
 from crawler.core.internal_reconciler import (
     InternalReconciler,
-    build_period_label,
     is_valid_period_label,
     CATEGORIAS_VALIDAS,
 )
@@ -100,10 +99,13 @@ def extraer_recursos_internos(paths: List[Path]) -> Tuple[List[Dict[str, Any]], 
         total_f = len(file_items)
         con_url = sum(1 for it in file_items if it.get("url_descarga"))
         con_hash = sum(1 for it in file_items if it.get("content_hash") or it.get("sha256"))
-        con_period = sum(
+        con_period_canonico = sum(
+            1 for it in file_items
+            if it.get("period_label") and is_valid_period_label(str(it.get("period_label")))
+        )
+        con_fecha_crawl = sum(
             1 for it in file_items
             if (it.get("fecha_actualizacion") and it.get("fecha_actualizacion") != "No disponible")
-            or it.get("period_label")
         )
 
         matrix_per_file[path.name] = {
@@ -113,7 +115,8 @@ def extraer_recursos_internos(paths: List[Path]) -> Tuple[List[Dict[str, Any]], 
             "total_records": total_f,
             "con_url": con_url,
             "con_hash": con_hash,
-            "con_periodo": con_period,
+            "con_periodo_canonico": con_period_canonico,
+            "con_fecha_crawl": con_fecha_crawl,
         }
 
         recursos.extend(file_items)
@@ -144,6 +147,10 @@ def run_reconciliation(
             "total_external_records": 0,
             "total_internal_records": 0,
             "total_reconciled_entities": 0,
+            "total_url_matches_validadas": 0,
+            "total_url_matches_cuarentena": 0,
+            "total_duplicate_urls_ext": 0,
+            "total_duplicate_urls_int": 0,
             "categories_total": {cat: 0 for cat in CATEGORIAS_VALIDAS},
         },
     }
@@ -164,7 +171,7 @@ def run_reconciliation(
         ext_verif_summary = ext_export_data.get("verification_summary", {})
         ext_period_summary = ext_export_data.get("period_summary", {})
 
-        # 2. Cargar insumo interno y matriz de disponibilidad (C-2)
+        # 2. Cargar insumo interno y matriz de disponibilidad (C-2 / H-3)
         int_files = DEFAULT_PORTAL_FILES.get(portal, [f"{portal}.json"])
         int_paths = [internal_dir / fn for fn in int_files]
         int_items, int_matrix = extraer_recursos_internos(int_paths)
@@ -172,9 +179,10 @@ def run_reconciliation(
         # Totales internos de disponibilidad
         int_total_records = len(int_items)
         int_total_hash = sum(f["con_hash"] for f in int_matrix.values())
-        int_total_period = sum(f["con_periodo"] for f in int_matrix.values())
+        int_total_period = sum(f["con_periodo_canonico"] for f in int_matrix.values())
+        int_total_fecha_crawl = sum(f["con_fecha_crawl"] for f in int_matrix.values())
 
-        # 3. Ejecutar Reconciliación en 3 pasadas (C-1)
+        # 3. Ejecutar Reconciliación en 3 pasadas (C-1 / H-2 / H-3)
         recon_results = reconciler.reconcile(
             portal=portal,
             external_items=ext_candidates,
@@ -193,26 +201,56 @@ def run_reconciliation(
         smaller_side = min(len(valid_ext_urls), len(valid_int_urls)) if (valid_ext_urls and valid_int_urls) else 0
         match_rate = len(common_urls) / smaller_side if smaller_side > 0 else 0.0
 
-        # Declaración explícita de dimensiones no medibles (C-2, C-8, C-10)
-        dimensiones_no_medibles = []
-        if ext_verif_summary.get("VERIFICADO_CON_HASH", 0) == 0 or int_total_hash == 0:
-            dimensiones_no_medibles.append({
-                "dimension": "DISCORDANCIA_CONTENIDO",
+        # Declaración explícita de las cuatro categorías inalcanzables (C-2, C-8, C-10, H-4)
+        dimensiones_no_medibles = [
+            {
+                "categoria": "CONFIRMADO",
                 "motivo": (
-                    f"Falta de hashes SHA-256 (externo tiene {ext_verif_summary.get('VERIFICADO_CON_HASH', 0)} "
-                    f"verificados; interno tiene {int_total_hash})"
+                    f"Sin hashes SHA-256 en el insumo interno (0/{int_total_records}) "
+                    f"ni en el inventario externo de BCB/INE (0 verificados), una coincidencia de URL "
+                    f"no puede confirmarse en contenido bajo D-13, sólo constatarse."
                 ),
                 "afecta_filas": len(common_urls),
-            })
-        if int_total_period == 0:
-            dimensiones_no_medibles.append({
-                "dimension": "DISCORDANCIA_PERIODO",
-                "motivo": f"El insumo interno no cuenta con períodos normalizados suficientes ({int_total_period} disponibles)",
+            },
+            {
+                "categoria": "URL_CAMBIADA",
+                "motivo": (
+                    f"Inalcanzable al carecer el lado interno de hashes SHA-256 (0/{int_total_records}) "
+                    f"para cotejar recursos no emparejados por URL en la segunda pasada de C-1."
+                ),
+                "afecta_filas": len(valid_ext_urls - common_urls),
+            },
+            {
+                "categoria": "DISCORDANCIA_CONTENIDO",
+                "motivo": (
+                    f"Falta de hashes SHA-256 comparables en ambos lados (externo tiene "
+                    f"{ext_verif_summary.get('VERIFICADO_CON_HASH', 0)} verificados; interno tiene {int_total_hash})."
+                ),
                 "afecta_filas": len(common_urls),
-            })
+            },
+            {
+                "categoria": "DISCORDANCIA_PERIODO",
+                "motivo": (
+                    f"Inalcanzable porque el contrato ResourceCandidate no incluye campo de confianza (C-5) "
+                    f"y el insumo interno carece de períodos canónicos de cobertura ({int_total_period} disponibles)."
+                ),
+                "afecta_filas": len(common_urls),
+            },
+        ]
+
+        url_matches_info = {
+            "urls_coincidentes_constatadas": len(common_urls),
+            "en_cuarentena_por_c3": bool(portal_status == "CLAVE_NO_VALIDADA"),
+            "declaracion": (
+                f"{len(common_urls)} URLs constatadas en ambos catálogos"
+                if portal_status == "VALIDADA"
+                else f"{len(common_urls)} URL coincidente en cuarentena por tasa < {min_match_rate*100}%"
+            ),
+        }
 
         portal_entry = {
             "status": portal_status,
+            "url_matches_constatadas": url_matches_info,
             "match_rate": {
                 "external_unique_urls": len(valid_ext_urls),
                 "internal_unique_urls": len(valid_int_urls),
@@ -227,13 +265,16 @@ def run_reconciliation(
                 "total_records": int_total_records,
                 "with_url": sum(f["con_url"] for f in int_matrix.values()),
                 "with_hash": int_total_hash,
-                "with_period": int_total_period,
+                "with_periodo_canonico": int_total_period,
+                "with_fecha_crawl": int_total_fecha_crawl,
             },
             "c8_external_verification_state": ext_verif_summary,
             "period_summary": ext_period_summary,
             "dimensiones_no_medibles": dimensiones_no_medibles,
             "category_counts": cat_counts,
             "total_entities_classified": total_portal_entities,
+            "duplicate_urls_ext": reconciler.duplicate_urls_ext,
+            "duplicate_urls_int": reconciler.duplicate_urls_int,
             "results_sample": {
                 cat: items[:5] for cat, items in recon_results.items() if items
             },
@@ -245,6 +286,13 @@ def run_reconciliation(
         overall_report["global_summary"]["total_external_records"] += len(ext_candidates)
         overall_report["global_summary"]["total_internal_records"] += int_total_records
         overall_report["global_summary"]["total_reconciled_entities"] += total_portal_entities
+        overall_report["global_summary"]["total_duplicate_urls_ext"] += reconciler.duplicate_urls_ext
+        overall_report["global_summary"]["total_duplicate_urls_int"] += reconciler.duplicate_urls_int
+        if portal_status == "VALIDADA":
+            overall_report["global_summary"]["total_url_matches_validadas"] += len(common_urls)
+        else:
+            overall_report["global_summary"]["total_url_matches_cuarentena"] += len(common_urls)
+
         for cat in CATEGORIAS_VALIDAS:
             overall_report["global_summary"]["categories_total"][cat] += cat_counts[cat]
 
@@ -275,13 +323,15 @@ def print_cli_summary(report: Dict[str, Any]):
         print(f"--- PORTAL: {portal.upper()} [Estado: {p_data['status']}] ---")
         print(f"  * URLs únicas: Ext={mr['external_unique_urls']}, Int={mr['internal_unique_urls']}, Coincidentes={mr['common_urls']}")
         print(f"  * Tasa de coincidencia: {mr['match_rate_pct']}% (Umbral: {mr['threshold_pct']}%) -> {'VALIDADA' if mr['validated'] else 'CLAVE_NO_VALIDADA'}")
-        print(f"  * Insumo interno (C-2): {c2['total_records']} registros en {len(c2['files'])} archivo(s) | con URL={c2['with_url']}, con Hash={c2['with_hash']}, con Período={c2['with_period']}")
+        print(f"  * Coincidencias constatadas (H-4): {p_data['url_matches_constatadas']['declaracion']}")
+        print(f"  * Insumo interno (C-2): {c2['total_records']} registros en {len(c2['files'])} archivo(s) | con URL={c2['with_url']}, con Hash={c2['with_hash']}, con Período Canónico={c2['with_periodo_canonico']} (con Fecha Crawl={c2['with_fecha_crawl']})")
         print(f"  * Verificación externa (C-8): Hash={c8.get('VERIFICADO_CON_HASH', 0)}, Sin Bytes={c8.get('CATALOGADO_SIN_BYTES', 0)}")
+        print(f"  * Duplicados de URL colapsados (O-9): Ext={p_data['duplicate_urls_ext']}, Int={p_data['duplicate_urls_int']}")
         
         if p_data["dimensiones_no_medibles"]:
-            print("  * Dimensiones no medibles declaradas (C-2/C-10):")
+            print("  * Categorías inalcanzables / no medibles declaradas (C-2/C-10/H-4):")
             for d in p_data["dimensiones_no_medibles"]:
-                print(f"    - {d['dimension']}: {d['motivo']} (afecta {d['afecta_filas']} filas)")
+                print(f"    - {d['categoria']:24s}: {d['motivo']} (afecta {d['afecta_filas']} filas)")
 
         print("  * Desglose por categoría (C-10):")
         for cat in CATEGORIAS_VALIDAS:
@@ -296,7 +346,9 @@ def print_cli_summary(report: Dict[str, Any]):
     print("TOTALES GLOBALES (3 PORTALES):")
     print(f"  * Total registros externos: {glob['total_external_records']}")
     print(f"  * Total registros internos: {glob['total_internal_records']}")
-    print(f"  * Total entidades clasificadas (Unión): {glob['total_reconciled_entities']}")
+    print(f"  * Total entidades clasificadas (Unión C-10): {glob['total_reconciled_entities']}")
+    print(f"  * Total URLs coincidentes constatadas (H-4): {glob['total_url_matches_validadas']} validadas + {glob['total_url_matches_cuarentena']} en cuarentena = {glob['total_url_matches_validadas'] + glob['total_url_matches_cuarentena']} total")
+    print(f"  * Total duplicados de URL colapsados (O-9): Ext={glob['total_duplicate_urls_ext']}, Int={glob['total_duplicate_urls_int']}")
     print("  * Desglose global de categorías:")
     for cat, val in glob["categories_total"].items():
         if val > 0:

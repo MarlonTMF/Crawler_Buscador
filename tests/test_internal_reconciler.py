@@ -305,3 +305,40 @@ def test_c3_umbral_match_rate_clave_no_validada():
     assert reconciler.portal_status["bcb"] == "CLAVE_NO_VALIDADA"
     assert len(res["SOLO_INTERNO"]) == 0
     assert len(res["SOLO_EXTERNO"]) == 0
+
+
+def test_c10_assertion_catches_dropped_entity():
+    """H-2: Verifica que la aserción de C-10 no es una tautología y detecta la pérdida de una fila."""
+    ext = [{"url": "https://www.asfi.gob.bo/doc1.pdf", "content_hash": "h1"}]
+    intern = [{"url": "https://www.asfi.gob.bo/doc2.pdf", "content_hash": "h2"}]
+
+    reconciler = InternalReconciler()
+    # Inyectar un hook que simula la supresión de una fila en la pasada 3
+    reconciler._hook_before_assert = lambda res: res["SOLO_INTERNO"].pop()
+
+    with pytest.raises(AssertionError, match="C-10 invariante violada"):
+        reconciler.reconcile(portal="asfi", external_items=ext, internal_items=intern, min_match_rate=0.0)
+
+
+def test_h3_centinela_no_disponible_rechazado():
+    """H-3: 'No disponible' es rechazado y clasifica en INDETERMINADO_POR_DATO_AUSENTE, nunca INDETERMINADO_POR_CONFIANZA."""
+    ext = [{
+        "url": "https://www.ine.gob.bo/doc1.pdf",
+        "content_hash": None,
+        "period_label": "2020",
+        "confidence": "high",
+    }]
+    intern = [{
+        "url": "https://www.ine.gob.bo/doc1.pdf",
+        "content_hash": None,
+        "period_label": "No disponible",  # Centinela que debe ser rechazado como ausente
+        "confidence": "high",
+    }]
+
+    reconciler = InternalReconciler()
+    res = reconciler.reconcile(portal="ine", external_items=ext, internal_items=intern, min_match_rate=0.0)
+
+    assert len(res["INDETERMINADO_POR_CONFIANZA"]) == 0
+    assert len(res["INDETERMINADO_POR_DATO_AUSENTE"]) == 1
+    assert res["INDETERMINADO_POR_DATO_AUSENTE"][0]["dimension"] == "period_label"
+

@@ -335,6 +335,13 @@ que el interno no, y qué tienen ambos con período distinto.
 **Criterio de aceptación.** El cruce corre sobre los tres portales y ninguna
 diferencia queda sin clasificar en una de esas tres categorías.
 
+**Nota de desviación metodológica (D-19 / C-3):** En BCB, la tasa de coincidencia
+fue de 0.83% (< 10%), activando legítimamente la compuerta de cuarentena C-3
+(`CLAVE_NO_VALIDADA`, 938 entidades) para evitar un falso hallazgo de brecha por
+disparidad de tipos de archivo (810 planillas xlsx en Rolando vs 111 pdfs en
+Finrural). En INE y ASFI (claves validadas al 75.8% y 37.4%), las 323 coincidencias
+fueron clasificadas con trazabilidad total.
+
 **Commit.** `feat: conciliacion entre el catalogo externo y el interno`
 
 ---
@@ -363,7 +370,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | 95 min | ✅ Aprob. c/obs (`8fb20e0`, R2) |
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | 65 min | ✅ Aprob. c/obs (`455ee5b`, R2) |
 | B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
-| B-57 Cruce con el interno | Claude + Antigravity | 120 min | 50 min | Entregado B-57 |
+| B-57 Cruce con el interno | Claude + Antigravity | 120 min | 50 min | Re-entregado R2 |
 | B-58 Reporte y cierre | Claude | 70 min | | Pendiente |
 | **Total** | | **16 h 10** | | |
 

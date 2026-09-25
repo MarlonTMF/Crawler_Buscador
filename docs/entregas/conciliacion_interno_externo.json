@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-25T04:56:54.450151+00:00",
+    "generated_at": "2026-09-25T05:15:01.088687+00:00",
     "decision": "D-19",
     "contract": "ResourceCandidate_v1",
     "min_match_rate_threshold": 0.1,
@@ -9,6 +9,11 @@
   "portales": {
     "bcb": {
       "status": "CLAVE_NO_VALIDADA",
+      "url_matches_constatadas": {
+        "urls_coincidentes_constatadas": 1,
+        "en_cuarentena_por_c3": true,
+        "declaracion": "1 URL coincidente en cuarentena por tasa < 10.0%"
+      },
       "match_rate": {
         "external_unique_urls": 121,
         "internal_unique_urls": 818,
@@ -27,13 +32,15 @@
             "total_records": 818,
             "con_url": 818,
             "con_hash": 0,
-            "con_periodo": 566
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 566
           }
         },
         "total_records": 818,
         "with_url": 818,
         "with_hash": 0,
-        "with_period": 566
+        "with_periodo_canonico": 0,
+        "with_fecha_crawl": 566
       },
       "c8_external_verification_state": {
         "VERIFICADO_CON_HASH": 0,
@@ -48,8 +55,23 @@
       },
       "dimensiones_no_medibles": [
         {
-          "dimension": "DISCORDANCIA_CONTENIDO",
-          "motivo": "Falta de hashes SHA-256 (externo tiene 0 verificados; interno tiene 0)",
+          "categoria": "CONFIRMADO",
+          "motivo": "Sin hashes SHA-256 en el insumo interno (0/818) ni en el inventario externo de BCB/INE (0 verificados), una coincidencia de URL no puede confirmarse en contenido bajo D-13, sólo constatarse.",
+          "afecta_filas": 1
+        },
+        {
+          "categoria": "URL_CAMBIADA",
+          "motivo": "Inalcanzable al carecer el lado interno de hashes SHA-256 (0/818) para cotejar recursos no emparejados por URL en la segunda pasada de C-1.",
+          "afecta_filas": 120
+        },
+        {
+          "categoria": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 comparables en ambos lados (externo tiene 0 verificados; interno tiene 0).",
+          "afecta_filas": 1
+        },
+        {
+          "categoria": "DISCORDANCIA_PERIODO",
+          "motivo": "Inalcanzable porque el contrato ResourceCandidate no incluye campo de confianza (C-5) y el insumo interno carece de períodos canónicos de cobertura (0 disponibles).",
           "afecta_filas": 1
         }
       ],
@@ -65,6 +87,8 @@
         "CLAVE_NO_VALIDADA": 938
       },
       "total_entities_classified": 938,
+      "duplicate_urls_ext": 0,
+      "duplicate_urls_int": 0,
       "results_sample": {
         "CLAVE_NO_VALIDADA": [
           {
@@ -97,6 +121,11 @@
     },
     "ine": {
       "status": "VALIDADA",
+      "url_matches_constatadas": {
+        "urls_coincidentes_constatadas": 100,
+        "en_cuarentena_por_c3": false,
+        "declaracion": "100 URLs constatadas en ambos catálogos"
+      },
       "match_rate": {
         "external_unique_urls": 443,
         "internal_unique_urls": 132,
@@ -115,13 +144,15 @@
             "total_records": 132,
             "con_url": 132,
             "con_hash": 0,
-            "con_periodo": 64
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 64
           }
         },
         "total_records": 132,
         "with_url": 132,
         "with_hash": 0,
-        "with_period": 64
+        "with_periodo_canonico": 0,
+        "with_fecha_crawl": 64
       },
       "c8_external_verification_state": {
         "VERIFICADO_CON_HASH": 0,
@@ -137,8 +168,23 @@
       },
       "dimensiones_no_medibles": [
         {
-          "dimension": "DISCORDANCIA_CONTENIDO",
-          "motivo": "Falta de hashes SHA-256 (externo tiene 0 verificados; interno tiene 0)",
+          "categoria": "CONFIRMADO",
+          "motivo": "Sin hashes SHA-256 en el insumo interno (0/132) ni en el inventario externo de BCB/INE (0 verificados), una coincidencia de URL no puede confirmarse en contenido bajo D-13, sólo constatarse.",
+          "afecta_filas": 100
+        },
+        {
+          "categoria": "URL_CAMBIADA",
+          "motivo": "Inalcanzable al carecer el lado interno de hashes SHA-256 (0/132) para cotejar recursos no emparejados por URL en la segunda pasada de C-1.",
+          "afecta_filas": 343
+        },
+        {
+          "categoria": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 comparables en ambos lados (externo tiene 0 verificados; interno tiene 0).",
+          "afecta_filas": 100
+        },
+        {
+          "categoria": "DISCORDANCIA_PERIODO",
+          "motivo": "Inalcanzable porque el contrato ResourceCandidate no incluye campo de confianza (C-5) y el insumo interno carece de períodos canónicos de cobertura (0 disponibles).",
           "afecta_filas": 100
         }
       ],
@@ -149,11 +195,13 @@
         "DISCORDANCIA_PERIODO": 0,
         "DISCORDANCIA_CONTENIDO": 0,
         "URL_CAMBIADA": 0,
-        "INDETERMINADO_POR_DATO_AUSENTE": 72,
-        "INDETERMINADO_POR_CONFIANZA": 28,
+        "INDETERMINADO_POR_DATO_AUSENTE": 100,
+        "INDETERMINADO_POR_CONFIANZA": 0,
         "CLAVE_NO_VALIDADA": 0
       },
       "total_entities_classified": 475,
+      "duplicate_urls_ext": 0,
+      "duplicate_urls_int": 0,
       "results_sample": {
         "SOLO_EXTERNO": [
           {
@@ -186,107 +234,70 @@
           {
             "url": "https://www.ine.gob.bo/index.php/descarga/308/publicaciones/39683/metadatos-cuentas-nacionales-trim-mas-ajuste.pdf",
             "content_hash": null,
-            "period_label": "No disponible"
+            "period_label": null
           },
           {
             "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39691/matriz-formacion-bruta-de-capital-fijo-1988.xlsx",
             "content_hash": null,
-            "period_label": "No disponible"
+            "period_label": null
           },
           {
             "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39693/matriz-formacion-bruta-de-capital-fijo-1989.xlsx",
             "content_hash": null,
-            "period_label": "No disponible"
+            "period_label": null
           },
           {
             "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39692/matriz-formacion-bruta-de-capital-fijo-1990.xlsx",
             "content_hash": null,
-            "period_label": "No disponible"
+            "period_label": null
           },
           {
             "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39695/matriz-formacion-bruta-de-capital-fijo-1991.xlsx",
             "content_hash": null,
-            "period_label": "No disponible"
+            "period_label": null
           }
         ],
         "INDETERMINADO_POR_DATO_AUSENTE": [
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44570/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19902011.xlsx",
-            "dimension": "period_label",
-            "ext_period": null,
-            "int_period": "2011"
-          },
-          {
-            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44549/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901990.xlsx",
-            "dimension": "period_label",
-            "ext_period": null,
-            "int_period": "No disponible"
-          },
-          {
-            "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/matrices/matrices-de-insumo-producto/",
-            "dimension": "period_label",
-            "ext_period": null,
-            "int_period": "No disponible"
-          },
-          {
-            "url": "https://www.ine.gob.bo/index.php/descarga/306/cuentas-economicas-integradas/39669/cuadro-economico-de-conjunto-2010.xlsx",
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44554/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901995.xlsx",
             "dimension": "content_hash",
             "ext_hash": null,
             "int_hash": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44589/matriz-de-insumo-producto-en-miles-de-bolivianos2001.xlsx",
+            "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/cuentas-consolidadas-de-la-nacion/",
             "dimension": "content_hash",
             "ext_hash": null,
             "int_hash": null
-          }
-        ],
-        "INDETERMINADO_POR_CONFIANZA": [
-          {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44577/matriz-de-insumo-producto-en-miles-de-bolivianos1989.xlsx",
-            "ext_period": "1989",
-            "int_period": "No disponible",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44587/matriz-de-insumo-producto-en-miles-de-bolivianos1999.xlsx",
-            "ext_period": "1999",
-            "int_period": "No disponible",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.ine.gob.bo/index.php/descarga/306/cuentas-economicas-integradas/39663/cuadro-economico-de-conjunto-1997.xlsx",
+            "dimension": "period_label",
+            "ext_period": "1997",
+            "int_period": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/516/cuentas-consolidadas/46411/bolivia-cuenta-del-producto-y-gasto-interno-bruto-segun-componente-1998-2016.xlsx",
-            "ext_period": "1998",
-            "int_period": "2016",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44552/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901993.xlsx",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44578/matriz-de-insumo-producto-en-miles-de-bolivianos1990.xlsx",
-            "ext_period": "1990",
-            "int_period": "No disponible",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
-          },
-          {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44582/matriz-de-insumo-producto-en-miles-de-bolivianos1994.xlsx",
-            "ext_period": "1994",
-            "int_period": "No disponible",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44581/matriz-de-insumo-producto-en-miles-de-bolivianos1993.xlsx",
+            "dimension": "period_label",
+            "ext_period": "1993",
+            "int_period": null
           }
         ]
       }
     },
     "asfi": {
       "status": "VALIDADA",
+      "url_matches_constatadas": {
+        "urls_coincidentes_constatadas": 223,
+        "en_cuarentena_por_c3": false,
+        "declaracion": "223 URLs constatadas en ambos catálogos"
+      },
       "match_rate": {
         "external_unique_urls": 596,
         "internal_unique_urls": 2428,
@@ -305,7 +316,8 @@
             "total_records": 140,
             "con_url": 140,
             "con_hash": 0,
-            "con_periodo": 140
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 140
           },
           "asfi_bcb.json": {
             "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_bcb.json",
@@ -314,7 +326,8 @@
             "total_records": 528,
             "con_url": 528,
             "con_hash": 0,
-            "con_periodo": 288
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 288
           },
           "asfi_finrural.json": {
             "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_finrural.json",
@@ -323,7 +336,8 @@
             "total_records": 1606,
             "con_url": 1606,
             "con_hash": 0,
-            "con_periodo": 1606
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 1606
           },
           "asfi_valores.json": {
             "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_valores.json",
@@ -332,13 +346,15 @@
             "total_records": 165,
             "con_url": 165,
             "con_hash": 0,
-            "con_periodo": 165
+            "con_periodo_canonico": 0,
+            "con_fecha_crawl": 165
           }
         },
         "total_records": 2439,
         "with_url": 2439,
         "with_hash": 0,
-        "with_period": 2199
+        "with_periodo_canonico": 0,
+        "with_fecha_crawl": 2199
       },
       "c8_external_verification_state": {
         "VERIFICADO_CON_HASH": 57,
@@ -354,8 +370,23 @@
       },
       "dimensiones_no_medibles": [
         {
-          "dimension": "DISCORDANCIA_CONTENIDO",
-          "motivo": "Falta de hashes SHA-256 (externo tiene 57 verificados; interno tiene 0)",
+          "categoria": "CONFIRMADO",
+          "motivo": "Sin hashes SHA-256 en el insumo interno (0/2439) ni en el inventario externo de BCB/INE (0 verificados), una coincidencia de URL no puede confirmarse en contenido bajo D-13, sólo constatarse.",
+          "afecta_filas": 223
+        },
+        {
+          "categoria": "URL_CAMBIADA",
+          "motivo": "Inalcanzable al carecer el lado interno de hashes SHA-256 (0/2439) para cotejar recursos no emparejados por URL en la segunda pasada de C-1.",
+          "afecta_filas": 373
+        },
+        {
+          "categoria": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 comparables en ambos lados (externo tiene 57 verificados; interno tiene 0).",
+          "afecta_filas": 223
+        },
+        {
+          "categoria": "DISCORDANCIA_PERIODO",
+          "motivo": "Inalcanzable porque el contrato ResourceCandidate no incluye campo de confianza (C-5) y el insumo interno carece de períodos canónicos de cobertura (0 disponibles).",
           "afecta_filas": 223
         }
       ],
@@ -366,11 +397,13 @@
         "DISCORDANCIA_PERIODO": 0,
         "DISCORDANCIA_CONTENIDO": 0,
         "URL_CAMBIADA": 0,
-        "INDETERMINADO_POR_DATO_AUSENTE": 1,
-        "INDETERMINADO_POR_CONFIANZA": 222,
+        "INDETERMINADO_POR_DATO_AUSENTE": 223,
+        "INDETERMINADO_POR_CONFIANZA": 0,
         "CLAVE_NO_VALIDADA": 0
       },
       "total_entities_classified": 2801,
+      "duplicate_urls_ext": 5,
+      "duplicate_urls_int": 11,
       "results_sample": {
         "SOLO_EXTERNO": [
           {
@@ -403,77 +436,59 @@
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201612_BDR_EstadosFinancieros.xls",
             "content_hash": null,
-            "period_label": "2025-08"
+            "period_label": null
           },
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201611_BDR_EstadosFinancieros.xls",
             "content_hash": null,
-            "period_label": "2025-08"
+            "period_label": null
           },
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201610_BDR_EstadosFinancieros.xls",
             "content_hash": null,
-            "period_label": "2025-08"
+            "period_label": null
           },
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201609_BDR_EstadosFinancieros.xls",
             "content_hash": null,
-            "period_label": "2025-08"
+            "period_label": null
           },
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201608_BDR_EstadosFinancieros.xls",
             "content_hash": null,
-            "period_label": "2025-08"
+            "period_label": null
           }
         ],
         "INDETERMINADO_POR_DATO_AUSENTE": [
           {
-            "url": "https://www.asfi.gob.bo/la/boletines-estadisticos-mercado-valores-2026",
-            "dimension": "content_hash",
-            "ext_hash": null,
-            "int_hash": null
-          }
-        ],
-        "INDETERMINADO_POR_CONFIANZA": [
-          {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202309_BDR_EstadosFinancieros.xls",
-            "ext_period": "2023-09",
-            "int_period": "2025-08",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.asfi.gob.bo/sites/default/files/2026-04/Bolet%C3%ADn%20-%20Diciembre__2024.xlsx",
+            "dimension": "period_label",
+            "ext_period": "2024-12",
+            "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Enero%202022.xlsx",
-            "ext_period": "2022-01",
-            "int_period": "2025-08",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Enero%202018.xls",
+            "dimension": "period_label",
+            "ext_period": "2018-01",
+            "int_period": null
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Diciembre%202019.xlsx",
+            "dimension": "period_label",
+            "ext_period": "2019-12",
+            "int_period": null
           },
           {
             "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202010_BDR_EstadosFinancieros.xls",
+            "dimension": "period_label",
             "ext_period": "2020-10",
-            "int_period": "2025-08",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2026-07/Anuario_Estad%C3%ADstico%202025.zip",
-            "ext_period": "2025",
-            "int_period": "2026-07",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
-          },
-          {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202104_BDR_EstadosFinancieros.xls",
-            "ext_period": "2021-04",
-            "int_period": "2025-08",
-            "ext_confidence": "unknown",
-            "int_confidence": "unknown",
-            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Abril%202018.xls",
+            "dimension": "period_label",
+            "ext_period": "2018-04",
+            "int_period": null
           }
         ]
       }
@@ -483,6 +498,10 @@
     "total_external_records": 1165,
     "total_internal_records": 3389,
     "total_reconciled_entities": 4214,
+    "total_url_matches_validadas": 323,
+    "total_url_matches_cuarentena": 1,
+    "total_duplicate_urls_ext": 5,
+    "total_duplicate_urls_int": 11,
     "categories_total": {
       "CONFIRMADO": 0,
       "SOLO_EXTERNO": 716,
@@ -490,8 +509,8 @@
       "DISCORDANCIA_PERIODO": 0,
       "DISCORDANCIA_CONTENIDO": 0,
       "URL_CAMBIADA": 0,
-      "INDETERMINADO_POR_DATO_AUSENTE": 73,
-      "INDETERMINADO_POR_CONFIANZA": 250,
+      "INDETERMINADO_POR_DATO_AUSENTE": 323,
+      "INDETERMINADO_POR_CONFIANZA": 0,
       "CLAVE_NO_VALIDADA": 938
     }
   }

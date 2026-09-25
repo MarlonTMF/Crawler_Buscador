@@ -842,3 +842,16 @@ igual.
 - **Cómo se resolvió:** Se instituyó la condición BLOQUEANTE C-3 con un umbral del 10%: si la coincidencia en un portal queda por debajo del 10% del lado menor, el portal entero se marca `CLAVE_NO_VALIDADA` (938 entidades puestas en cuarentena) y se prohíbe emitir reportes de brecha hasta validar la clave y el alcance.
 - **Por qué:** Es la diferencia fundamental entre entregar «al interno le faltan 817 documentos de BCB» (una falsedad que alguien repetirá en una reunión de DataX) y entregar con honestidad técnica «no logramos emparejar las URLs de BCB por divergencia de tipos documentales y cobertura».
 
+---
+
+## E-51 · Una aserción que suma sus propios términos no prueba nada, y un centinela se disfraza de dato ausente
+
+- **Fecha / bloque:** 2026-09-25 · B-57, ronda 1 DEVUELTO, ronda 2 RE-ENTREGA (`docs/auditorias/B-57.md`)
+- **Tipo:** invariante tautológica / valores centinela en agregación / auditoría D-06
+- **Herramienta:** Claude (auditor) + Antigravity (implementación)
+- **Qué ocurrió:** En la primera entrega de B-57 (R1, `7afe87b`), la aserción de totalidad C-10 comparaba la suma de las categorías resultantes contra un conjunto `union_expected` que sumaba los mismos conjuntos de URLs procesados en el bucle (`expected_entities = set(ext_by_url.keys()) | set(int_by_url.keys()) ...`). Si el algoritmo perdía una fila, se perdía en ambos lados y la aserción pasaba en verde. Era una tautología disfrazada de invariante. Al mismo tiempo, el conciliador aceptaba `"No disponible"` o cadenas no canónicas en `period_label` y pretendía derivar períodos de `fecha_actualizacion` (que era la fecha del scraper de Rolando, no la del dato financiero).
+- **Cómo se detectó:** Claude auditó la fórmula de la aserción (`assert len(union_expected) == sum(results.values())`) y descubrió que no era un cálculo independiente. En los períodos, inspeccionó el artefacto JSON y vio `"No disponible"` categorizado como dato de período y 250 filas clasificadas en `INDETERMINADO_POR_CONFIANZA` cuando el insumo interno no tenía períodos ni niveles de confianza.
+- **Cómo se resolvió:** Se reformuló C-10 con cálculo de unión formalmente independiente: `expected_union = len(valid_ext_urls | valid_int_urls) - len(results["URL_CAMBIADA"]) + unkeyed_ext + unkeyed_int`. Se agregó un gancho `_hook_before_assert` y una prueba de mutación con falla inducida (`test_c10_assertion_catches_dropped_entity`) que demuestra que si se sustrae una entidad, la aserción explota con `AssertionError`. Para los períodos, se prohibió terminantemente deducir cobertura de la fecha de rastreo, se filtró estrictamente con `is_valid_period_label()`, y las 323 coincidencias pasaron limpias a `INDETERMINADO_POR_DATO_AUSENTE` con declaración explícita de categorías inalcanzables.
+- **Por qué:** Una prueba que no puede fallar ante un defecto es peor que ninguna prueba, porque otorga falsa seguridad matemática. Y en reconciliación de catálogos, atribuir significado analítico a metadatos de recolección (como la fecha de corrida del bot) corrompe la semántica temporal del dominio financiero.
+
+
