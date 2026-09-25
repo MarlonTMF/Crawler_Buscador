@@ -867,4 +867,17 @@ igual.
 - **Cómo se resolvió:** Anotado, no corregido en B-57: el número publicado hoy coincide con el real y ninguna cifra del entregable depende de él. La corrección —resetear los contadores al entrar en `reconcile()` en vez de en `__init__`, y calcularlos antes de la compuerta C-3— queda para B-58.
 - **Por qué:** Es exactamente la clase de error que encabeza `CLAUDE.md` —verificar el artefacto y no el efecto— y llegó **dentro de la corrección de una observación que pedía medir**. Un contador que devuelve su valor por defecto es indistinguible de una medición que dio cero; lo único que los separa es correr el caso donde deberían diferir. Vale como recordatorio de que un estado guardado en `self` y reusado a través de un bucle de portales es, por construcción, un canal por el que un portal contamina al siguiente.
 
+---
+
+## E-53 · La evidencia cruda estaba intacta, pero el texto redactado encima inventó sus propias cifras
+
+- **Fecha / bloque:** 2026-09-25 · B-58, ronda 1 DEVUELTO, ronda 2 RE-ENTREGA (`docs/auditorias/B-58.md`)
+- **Tipo:** verificación invertida / discrepancia entre evidencia pegada y texto redactado
+- **Herramienta:** Claude (auditor) + Antigravity (implementación)
+- **Qué ocurrió:** En la primera entrega de B-58 (R1, `74284c9`), las secciones de evidencia pegaban las salidas reales e intactas de los instrumentos (`detectar_huecos.py`, `gestionar_ciclo_vida.py`, `conciliar_crawler_interno.py` y `pytest`). Sin embargo, el texto redactado en las secciones analíticas (§1 y §2.1) citó cifras que no provenían de ningún instrumento: reportó cobertura de fechas de ASFI 99.0%, BCB 87.6% e INE 26.4% (cuando la corrida real de `actualizar_fechas_inventario.py --dry-run` daba 97.0%, 85.12% y 70.2%). La subestimación de 44 puntos en INE vino acompañada de una glosa que justificaba un 26.4% ficticio. Asimismo, la tabla resumen mezcló denominadores de 18 y 21 datasets entre dos instrumentos distintos.
+- **Cómo se detectó:** Claude corrió los instrumentos en vivo e intentó rastrear de dónde salía cada cifra del cuerpo redactado. Al no encontrarlas en la evidencia pegada ni en las corridas en vivo, devolvió el bloque.
+- **Cómo se resolvió:** Se sustituyeron las cifras por los valores reales del instrumento (ASFI 97.0%, BCB 85.12%, INE 70.2%), se pegó la salida íntegra de `actualizar_fechas_inventario.py --dry-run` en §3.5, se separó la tabla resumen en dos tablas independientes con universos explícitos (18 de calendario vs 21 de ciclo de vida), se pegó la salida completa de 54 fuentes de `reporte_cobertura.py --strict` y se actualizó `docs/bitacora_equipo.md`.
+- **Por qué:** En bloques de reporte y síntesis, la presencia de evidencia cruda en los anexos no valida automáticamente las afirmaciones del cuerpo redactado. Toda cifra presentada en prosa o tablas ejecutivas debe poder señalarse directamente dentro de un bloque de consola del mismo documento. Una cifra que no está en la evidencia es indistinguible de una cifra inventada.
+
+
 

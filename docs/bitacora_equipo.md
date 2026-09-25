@@ -55,6 +55,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-32 | 🅰️ | Series históricas y Wayback (Fase 2) | 90/150 | **Devuelto** → Aprob. c/obs | 206 PDFs históricos reales (188 vivo + 18 Wayback). Fix transversal en allowed_extensions (fuga de .sha) y D-11 |
 | B-56 | 🅰️ | Ciclo de vida e histórico | 80/65 | Aprob. c/obs (R2) | Paso a HISTORICO nunca automático por silencio; 21 datasets clasificados (`455ee5b`) |
 | B-57 | 🅰️+🅲 | Cruce con el crawler interno | 120/50 | Aprob. c/obs (R2) | Invariante C-10 no tautológica probada por mutación; 323 URLs constatadas; BCB en cuarentena C-3 (0.83% coincidencia) (`f0cd08f`) |
+| B-58 | 🅰️+🅲 | Reporte de vigencia y cierre Fase 4 | 70/40 | Re-entrega R2 | Estado consolidado de BCB, INE, ASFI; 18 datasets evaluados (12 al día, 5 con huecos, 1 inactivo); capacidades a medias documentadas |
 | B-33a | 🅰️ | API declarativa + SICSANTACRUZ | 70/70 | Aprob. c/obs | Onboarding Strapi REST: 201 docs con bytes > 0 y SHA-256 verificado (`bd13515`) |
 | B-33b | 🅰️ | Formularios GET (Fase 2) | 45/15 | Cerrado s/impl | Paso 0 (D-12): no hay fuentes con formularios GET simples en el catálogo |
 | B-34 | 🅰️ | Onboarding Lote 1 (12 con doc) | 95/75 | Aprob. c/obs | Re-descarga con hashing D-13: 902 docs c/bytes y SHA (`ac89f06`) |
@@ -160,11 +161,12 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 910 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en 11 fuentes; FIFA no estable por contingencia Wayback. |
 | Tras B-39 (Comparador) | **61/67 con crawler_source** | Comparador reproducible implementado: valida 22 portales comunes pasando de 1.864 a 5.411 docs (+3.547 vs baseline). |
 | Tras B-40 (Cierre Fase 2) | **61/67 con crawler_source** | Cierre de Fase 2: 5.411 docs en 22 comunes (supera a Rolando: 5.403), 10.985 docs globales, 46 fuentes con ≥1 doc real, 16/22 portales ganados/empatados, 0 errores no controlados. |
-| Tras B-50..B-54 (Fase 4 L) | **Detector de huecos y escalera** | Fechas reales reconocidas (ASFI 99%, BCB 87%, INE 26%), periodicidades calibradas (D-15/D-16), detector de huecos determinista, escalera de recuperación con 3 períodos recuperados (DEPEX BCB). |
+| Tras B-50..B-54 (Fase 4 L) | **Detector de huecos y escalera** | Fechas reales reconocidas (ASFI 97.0%, BCB 85.12%, INE 70.2%), periodicidades calibradas (D-15/D-16), detector de huecos determinista, escalera de recuperación con 3 períodos recuperados (DEPEX BCB). |
 | Tras B-54b (Agente escalón 5) | **Guardas D-01 y D-17** | Escalón 5 integrado con tope de llamadas (10) y 4 compuertas de defensa en profundidad contra páginas HTML. Aprobado (`67456a9`). |
 | Tras B-55 (Herencia D-18) | **Propuestas con evidencia** | `InheritanceEvaluator` formalizado bajo Decisión D-18 (4 compuertas copulativas, procedencia de bytes C-1, cotejo estructural C-4, falsador C-2). Aprobado con observaciones (`8fb20e0`, R2). |
 | Tras B-56 (Ciclo de vida) | **Archivado justificado** | Invariante central: paso a `HISTORICO` nunca automático por silencio. 21 datasets clasificados (16 VIGENTE, 2 ATRASADO, 3 MIGRADO, 0 HISTORICO). Fechas estables entre corridas e integración con recuperaciones reales B-54 (`455ee5b`, R2). |
 | Tras B-57 (Cruce interno D-19) | **Conciliación de catálogos** | Cruce de 3.389 registros de Rolando vs 1.165 externos: 4.214 entidades conciliadas, 323 URLs coincidentes constatadas (100 INE, 223 ASFI), brecha intacta en 716 SOLO_EXTERNO / 2.237 SOLO_INTERNO. BCB (0.83%) en cuarentena bajo C-3 para prevenir falsos positivos de brecha. Aprobado con observaciones (`f0cd08f`, R2). |
+| Tras B-58 (Cierre Fase 4) | **Vigencia y huecos cerrados** | 18 datasets evaluados en calendario (12 AL_DIA [66.7%], 5 CON_HUECOS [27.8%], 1 INACTIVO [5.6%]). 21 datasets en ciclo de vida (16 VIGENTE, 2 ATRASADO, 3 MIGRADO, 0 HISTORICO). 209/209 tests verdes. Capacidades a medias formalmente documentadas. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
