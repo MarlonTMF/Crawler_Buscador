@@ -163,6 +163,9 @@ class InternalReconciler:
         Ejecuta la reconciliación entre la lista externa y la interna para un portal.
         """
         results: Dict[str, List[Dict[str, Any]]] = {cat: [] for cat in CATEGORIAS_VALIDAS}
+        self.duplicate_urls_ext = 0
+        self.duplicate_urls_int = 0
+        self.total_entities_classified = 0
 
         # Preparar registros con URLs canónicas usando una sola normalización (C-7)
         ext_records = []
@@ -200,6 +203,20 @@ class InternalReconciler:
                 "confidence": (it.get("confidence") or it.get("date_confidence_score") or "unknown").lower(),
                 "data": it,
             })
+
+        # Indexar registros por canon_url y auditar duplicados antes de C-3 (H-5)
+        ext_by_url: Dict[str, List[Dict[str, Any]]] = {}
+        for r in ext_records:
+            if r["canon_url"]:
+                ext_by_url.setdefault(r["canon_url"], []).append(r)
+
+        int_by_url: Dict[str, List[Dict[str, Any]]] = {}
+        for r in int_records:
+            if r["canon_url"]:
+                int_by_url.setdefault(r["canon_url"], []).append(r)
+
+        self.duplicate_urls_ext = sum(len(l) - 1 for l in ext_by_url.values() if len(l) > 1)
+        self.duplicate_urls_int = sum(len(l) - 1 for l in int_by_url.values() if len(l) > 1)
 
         # Evaluar tasa de coincidencia (C-3)
         valid_ext_urls = {r["canon_url"] for r in ext_records if r["canon_url"]}
@@ -245,20 +262,6 @@ class InternalReconciler:
             return results
 
         self.portal_status[portal] = "VALIDADA"
-
-        # Indexar registros por canon_url y auditar duplicados (O-9)
-        ext_by_url: Dict[str, List[Dict[str, Any]]] = {}
-        for r in ext_records:
-            if r["canon_url"]:
-                ext_by_url.setdefault(r["canon_url"], []).append(r)
-
-        int_by_url: Dict[str, List[Dict[str, Any]]] = {}
-        for r in int_records:
-            if r["canon_url"]:
-                int_by_url.setdefault(r["canon_url"], []).append(r)
-
-        self.duplicate_urls_ext = sum(len(l) - 1 for l in ext_by_url.values() if len(l) > 1)
-        self.duplicate_urls_int = sum(len(l) - 1 for l in int_by_url.values() if len(l) > 1)
 
         matched_ext_ids: Set[str] = set()
         matched_int_ids: Set[str] = set()

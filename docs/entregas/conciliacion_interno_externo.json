@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-25T05:15:01.088687+00:00",
+    "generated_at": "2026-09-25T11:05:23.481385+00:00",
     "decision": "D-19",
     "contract": "ResourceCandidate_v1",
     "min_match_rate_threshold": 0.1,
@@ -259,34 +259,34 @@
         ],
         "INDETERMINADO_POR_DATO_AUSENTE": [
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44554/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901995.xlsx",
+            "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/matrices/matrices-de-transacciones/",
             "dimension": "content_hash",
             "ext_hash": null,
             "int_hash": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/cuentas-consolidadas-de-la-nacion/",
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44550/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901901.xlsx",
             "dimension": "content_hash",
             "ext_hash": null,
             "int_hash": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/306/cuentas-economicas-integradas/39663/cuadro-economico-de-conjunto-1997.xlsx",
-            "dimension": "period_label",
-            "ext_period": "1997",
-            "int_period": null
-          },
-          {
-            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44552/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901993.xlsx",
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44568/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19902009.xlsx",
             "dimension": "content_hash",
             "ext_hash": null,
             "int_hash": null
           },
           {
-            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44581/matriz-de-insumo-producto-en-miles-de-bolivianos1993.xlsx",
-            "dimension": "period_label",
-            "ext_period": "1993",
-            "int_period": null
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44559/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19902000.xlsx",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44560/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19902001.xlsx",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
           }
         ]
       }
@@ -461,33 +461,33 @@
         ],
         "INDETERMINADO_POR_DATO_AUSENTE": [
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2026-04/Bolet%C3%ADn%20-%20Diciembre__2024.xlsx",
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Noviembre%202019.xlsx",
             "dimension": "period_label",
-            "ext_period": "2024-12",
+            "ext_period": "2019-11",
             "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Enero%202018.xls",
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Agosto%202021.xlsx",
             "dimension": "period_label",
-            "ext_period": "2018-01",
+            "ext_period": "2021-08",
             "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Diciembre%202019.xlsx",
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201907_BDR_EstadosFinancieros.xls",
             "dimension": "period_label",
-            "ext_period": "2019-12",
+            "ext_period": "2019-07",
             "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202010_BDR_EstadosFinancieros.xls",
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202304_BDR_EstadosFinancieros.xls",
             "dimension": "period_label",
-            "ext_period": "2020-10",
+            "ext_period": "2023-04",
             "int_period": null
           },
           {
-            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Abril%202018.xls",
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Septiembre%202023.xlsx",
             "dimension": "period_label",
-            "ext_period": "2018-04",
+            "ext_period": "2023-09",
             "int_period": null
           }
         ]

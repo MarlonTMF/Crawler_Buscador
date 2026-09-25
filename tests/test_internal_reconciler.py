@@ -342,3 +342,32 @@ def test_h3_centinela_no_disponible_rechazado():
     assert len(res["INDETERMINADO_POR_DATO_AUSENTE"]) == 1
     assert res["INDETERMINADO_POR_DATO_AUSENTE"][0]["dimension"] == "period_label"
 
+
+def test_h5_duplicate_counters_reset_and_computed_before_c3():
+    """H-5: Los contadores de duplicados se calculan antes de C-3 y no arrastran estado entre portales."""
+    reconciler = InternalReconciler()
+
+    # Portal 1 con duplicados (ej. ASFI)
+    ext1 = [
+        {"url": "https://asfi.gob.bo/doc.pdf"},
+        {"url": "https://asfi.gob.bo/doc.pdf"},  # duplicado
+    ]
+    int1 = [
+        {"url": "https://asfi.gob.bo/doc.pdf"},
+        {"url": "https://asfi.gob.bo/doc.pdf"},  # duplicado
+        {"url": "https://asfi.gob.bo/doc.pdf"},  # duplicado
+    ]
+    reconciler.reconcile(portal="asfi", external_items=ext1, internal_items=int1, min_match_rate=0.0)
+    assert reconciler.duplicate_urls_ext == 1
+    assert reconciler.duplicate_urls_int == 2
+
+    # Portal 2 sin duplicados que cae en C-3 (ej. BCB)
+    ext2 = [{"url": "https://bcb.gob.bo/pub1.pdf"}]
+    int2 = [{"url": "https://bcb.gob.bo/otra.xlsx"}]
+    # min_match_rate=0.5 -> match 0.0 < 0.5 -> cae en CLAVE_NO_VALIDADA
+    reconciler.reconcile(portal="bcb", external_items=ext2, internal_items=int2, min_match_rate=0.5)
+    assert reconciler.duplicate_urls_ext == 0, "No debe arrastrar duplicate_urls_ext de ASFI a BCB"
+    assert reconciler.duplicate_urls_int == 0, "No debe arrastrar duplicate_urls_int de ASFI a BCB"
+    assert reconciler.portal_status["bcb"] == "CLAVE_NO_VALIDADA"
+
+
