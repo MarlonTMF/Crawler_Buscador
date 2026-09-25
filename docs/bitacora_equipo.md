@@ -155,6 +155,9 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-36..B-38 (Lotes 3-5 R2) | **61/67 con crawler_source** | Lotes 3, 4 y 5 subsanados bajo D-14: 910 docs binarios reales c/bytes y SHA-256. Estabilidad demostrada en 11 fuentes; FIFA no estable por contingencia Wayback. |
 | Tras B-39 (Comparador) | **61/67 con crawler_source** | Comparador reproducible implementado: valida 22 portales comunes pasando de 1.864 a 5.411 docs (+3.547 vs baseline). |
 | Tras B-40 (Cierre Fase 2) | **61/67 con crawler_source** | Cierre de Fase 2: 5.411 docs en 22 comunes (supera a Rolando: 5.403), 10.985 docs globales, 46 fuentes con ≥1 doc real, 16/22 portales ganados/empatados, 0 errores no controlados. |
+| Tras B-50..B-54 (Fase 4 L) | **Detector de huecos y escalera** | Fechas reales reconocidas (ASFI 99%, BCB 87%, INE 26%), periodicidades calibradas (D-15/D-16), detector de huecos determinista, escalera de recuperación con 3 períodos recuperados (DEPEX BCB). |
+| Tras B-54b (Agente escalón 5) | **Guardas D-01 y D-17** | Escalón 5 integrado con tope de llamadas (10) y 4 compuertas de defensa en profundidad contra páginas HTML. Aprobado (`67456a9`). |
+| Tras B-55 (Herencia D-18) | **Propuestas con evidencia** | `InheritanceEvaluator` formalizado bajo Decisión D-18 (4 compuertas copulativas, procedencia de bytes C-1, cotejo estructural C-4, falsador C-2). Aprobado con observaciones (`8fb20e0`, R2). |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su

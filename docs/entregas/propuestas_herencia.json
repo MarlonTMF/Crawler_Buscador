@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-25T03:51:46.833438+00:00",
+  "timestamp": "2026-09-25T04:05:53.346815+00:00",
   "criterio": "D-18 (Herencia de series con evidencia descargada obligatoria)",
   "total_evaluadas": 3,
   "resumen_estados": {
@@ -40,14 +40,7 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": {
-            "evidence_url": "https://www.aps.gob.bo/",
-            "http_status": 200,
-            "content_sha256": "2c87bb15ec810dd2ecfae74b9a4b8e50b48ab8f56e1f754acb046e11ffc679a8",
-            "fetched_at": "2026-09-25T03:51:44.102259+00:00",
-            "snippet": "tle>Inicio</title> \t<link href=\"/images/aps/favicon.png#joomlaImage://local-images/",
-            "matched_pattern": "\\baps\\b"
-          }
+          "evidence": null
         }
       }
     },
@@ -81,14 +74,7 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": {
-            "evidence_url": "https://www.asfi.gob.bo/",
-            "http_status": 200,
-            "content_sha256": "8af74597daa6de3cbf8af9b97de83dfa18f9402abffbcf934e2367c66bb3be32",
-            "fetched_at": "2026-09-25T03:51:45.329463+00:00",
-            "snippet": "</style>       <title>Â¡Bienvenidos! | ASFI</title>       <link rel=\"stylesheet\" me",
-            "matched_pattern": "\\basfi\\b"
-          }
+          "evidence": null
         }
       }
     },
@@ -122,14 +108,7 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": {
-            "evidence_url": "https://www.att.gob.bo/",
-            "http_status": 200,
-            "content_sha256": "d0c81f819e96bd95999b4d764827238b61ab71a556c63a5913ab956d4ce638c6",
-            "fetched_at": "2026-09-25T03:51:46.788745+00:00",
-            "snippet": "<link rel=\"canonical\" href=\"https://www.att.gob.bo/en/homepage-13\" /> <link rel=\"sh",
-            "matched_pattern": "\\batt\\b"
-          }
+          "evidence": null
         }
       }
     }

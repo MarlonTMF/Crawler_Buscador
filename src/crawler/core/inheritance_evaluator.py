@@ -83,7 +83,7 @@ class InheritanceCandidate:
     destino_url: str
     ultimo_periodo_origen: Optional[str] = None
     primer_periodo_destino: Optional[str] = None
-    period_confidence: Optional[str] = "high"
+    period_confidence: Optional[str] = None
     origen_agente: bool = False
     modelo_cita_legal_sugerida: Optional[str] = None
 
@@ -276,9 +276,9 @@ class InheritanceEvaluator:
         status_code, content, sha256 = self.fetch_url_content(candidate.destino_url)
         fetched_at = datetime.now(timezone.utc).isoformat()
 
-        # H-8: Si hay fallo de red o descarga inaccesible, reportar estado propio
-        if status_code == 0 or not content:
-            gate_null = GateEvaluation(status=GateResult.FALSA, detalle="No evaluada por fallo de red.")
+        # H-8 / O-4: Si hay fallo de red o descarga inaccesible (incluyendo 4xx/5xx), reportar estado propio
+        if status_code == 0 or status_code >= 400 or not content:
+            gate_null = GateEvaluation(status=GateResult.FALSA, detalle=f"No evaluada por fallo de red o error HTTP {status_code}.")
             return InheritanceProposal(
                 origen_entidad=candidate.origen_entidad,
                 origen_portal=candidate.origen_portal,
@@ -369,6 +369,9 @@ class InheritanceEvaluator:
             if not matched_fields:
                 c3_status = GateResult.FALSA
                 c3_detalle = "Violación C-4: El documento no contiene estructura ni campos de serie estadística (cartera, mora, activo, balance, cotizaciones, etc.)."
+            elif re.search(r"\bno\s+contiene\s+datos\b", clean_text) or re.search(r"\btexto\s+no\s+contiene\s+datos\b", clean_text):
+                c3_status = GateResult.FALSA
+                c3_detalle = "Violación C-4: El documento es de naturaleza puramente normativa y declara no contener datos o series estadísticas."
             else:
                 # Comprobar si el origen está registrado en inventory.db
                 has_origin_data = self._has_origin_inventory_records(candidate.origen_portal, candidate.origen_dataset)
@@ -381,17 +384,29 @@ class InheritanceEvaluator:
                 else:
                     c3_status = GateResult.VERDADERA
                     c3_detalle = f"Formato documental D-14 y estructura de serie estadística verificada ({len(matched_fields)} campos: {matched_fields[:3]})."
-                    m = re.search(matched_fields[0], clean_text)
-                    start = max(0, m.start() - 40) if m else 0
-                    end = min(len(sample_text), m.end() + 40) if m else 80
-                    c3_evidence = DownloadedEvidence(
-                        evidence_url=candidate.destino_url,
-                        http_status=status_code,
-                        content_sha256=sha256,
-                        fetched_at=fetched_at,
-                        snippet=sample_text[start:end].strip().replace("\n", " "),
-                        matched_pattern=matched_fields[0],
-                    )
+                    # O-1: Cotejo contra el esquema de campos del origen
+                    orig_key = candidate.origen_portal.lower().strip()
+                    known_origin_fields = self.KNOWN_ORIGIN_SCHEMAS.get(orig_key, [])
+                    if known_origin_fields:
+                        has_origin_field_match = any(
+                            re.search(rf"\b{re.escape(f)}\b", clean_text) for f in known_origin_fields
+                        )
+                        if not has_origin_field_match:
+                            c3_status = GateResult.FALSA
+                            c3_detalle = f"Violación C-4: Los campos encontrados ({matched_fields[:3]}) no corresponden al esquema del origen '{candidate.origen_entidad}' ({known_origin_fields})."
+
+                    if c3_status == GateResult.VERDADERA:
+                        m = re.search(matched_fields[0], clean_text)
+                        start = max(0, m.start() - 40) if m else 0
+                        end = min(len(sample_text), m.end() + 40) if m else 80
+                        c3_evidence = DownloadedEvidence(
+                            evidence_url=candidate.destino_url,
+                            http_status=status_code,
+                            content_sha256=sha256,
+                            fetched_at=fetched_at,
+                            snippet=sample_text[start:end].strip().replace("\n", " "),
+                            matched_pattern=matched_fields[0],
+                        )
 
         gate_3 = GateEvaluation(status=c3_status, detalle=c3_detalle, evidence=c3_evidence)
 
@@ -495,13 +510,22 @@ class InheritanceEvaluator:
                 else:
                     c1_status = GateResult.VERDADERA
                     c1_detalle = f"Continuidad temporal corroborada: origen cesa en {candidate.ultimo_periodo_origen}, destino inicia en {candidate.primer_periodo_destino} (desvío {diff} meses, explicable)."
+                    # O-3: Extraer snippet real desde los bytes descargados
+                    m_year = re.search(rf"\b{re.escape(candidate.primer_periodo_destino[:4])}\b", sample_text)
+                    if m_year:
+                        st = max(0, m_year.start() - 30)
+                        en = min(len(sample_text), m_year.end() + 30)
+                        snippet_g1 = sample_text[st:en].strip().replace("\n", " ")
+                    else:
+                        snippet_g1 = sample_text[:80].strip().replace("\n", " ")
+
                     c1_evidence = DownloadedEvidence(
                         evidence_url=candidate.destino_url,
                         http_status=status_code,
                         content_sha256=sha256,
                         fetched_at=fetched_at,
-                        snippet=f"Período destino {candidate.primer_periodo_destino} empalma con origen {candidate.ultimo_periodo_origen}",
-                        matched_pattern=r"\b\d{4}[-/]\d{2}\b",
+                        snippet=snippet_g1,
+                        matched_pattern=r"\b\d{4}[-/]?\d{0,2}\b",
                     )
             except Exception as e:
                 c1_status = GateResult.INDETERMINADO
@@ -606,9 +630,49 @@ class InheritanceEvaluator:
 
         return candidates
 
-    def evaluate_all(self, candidates: List[InheritanceCandidate]) -> List[InheritanceProposal]:
-        """Evalúa una lista de candidatos y retorna sus propuestas."""
-        return [self.evaluate_candidate(c) for c in candidates]
+    def evaluate_all(self, candidates: List[InheritanceCandidate], skip_cached_rejections: bool = True) -> List[InheritanceProposal]:
+        """
+        Evalúa una lista de candidatos y retorna sus propuestas.
+        O-5: Consulta propuestas previas en JSON para no volver a descargar candidatos ya evaluados/rechazados.
+        """
+        target = self.output_dir / "propuestas_herencia.json"
+        cached_rejections: Dict[Tuple[str, str], InheritanceProposal] = {}
+        if skip_cached_rejections and target.exists():
+            try:
+                prev = json.loads(target.read_text(encoding="utf-8"))
+                for p_dict in prev.get("propuestas", []):
+                    st = p_dict.get("status")
+                    if st in (ProposalStatus.RECHAZADA.value, ProposalStatus.ERROR_DESCARGA.value):
+                        key = (p_dict.get("origen_entidad", ""), p_dict.get("destino_url", ""))
+                        g = p_dict.get("compuertas", {})
+                        cached_rejections[key] = InheritanceProposal(
+                            origen_entidad=p_dict.get("origen_entidad", ""),
+                            origen_portal=p_dict.get("origen_portal", ""),
+                            origen_dataset=p_dict.get("origen_dataset", ""),
+                            ultimo_periodo_origen=p_dict.get("ultimo_periodo_origen"),
+                            destino_entidad=p_dict.get("destino_entidad", ""),
+                            destino_url=p_dict.get("destino_url", ""),
+                            compuerta_1_continuidad=GateEvaluation(GateResult(g.get("compuerta_1_continuidad", {}).get("status", "INDETERMINADO")), g.get("compuerta_1_continuidad", {}).get("detalle", "")),
+                            compuerta_2_legal=GateEvaluation(GateResult(g.get("compuerta_2_legal", {}).get("status", "FALSA")), g.get("compuerta_2_legal", {}).get("detalle", "")),
+                            compuerta_3_estructura=GateEvaluation(GateResult(g.get("compuerta_3_estructura", {}).get("status", "FALSA")), g.get("compuerta_3_estructura", {}).get("detalle", "")),
+                            compuerta_4_identidad_destino=GateEvaluation(GateResult(g.get("compuerta_4_identidad_destino", {}).get("status", "FALSA")), g.get("compuerta_4_identidad_destino", {}).get("detalle", "")),
+                            origen_agente=p_dict.get("origen_agente", False),
+                            status=ProposalStatus(st),
+                            evaluado_en=p_dict.get("evaluado_en", ""),
+                            motivo_rechazo=p_dict.get("motivo_rechazo"),
+                        )
+            except Exception as e:
+                logger.debug("Error leyendo cache de propuestas previas: %s", e)
+
+        results = []
+        for c in candidates:
+            key = (c.origen_entidad, c.destino_url)
+            if key in cached_rejections:
+                logger.info("Omitiendo descarga de candidato previamente evaluado (C-5 / O-5): %s -> %s", c.origen_entidad, c.destino_url)
+                results.append(cached_rejections[key])
+            else:
+                results.append(self.evaluate_candidate(c))
+        return results
 
     def save_proposals(self, proposals: List[InheritanceProposal], output_file: Optional[Path] = None):
         """

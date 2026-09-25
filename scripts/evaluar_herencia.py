@@ -68,6 +68,7 @@ def load_candidates(input_path: Path, evaluator: InheritanceEvaluator) -> List[I
                         destino_url=it.get("destino_url", ""),
                         ultimo_periodo_origen=it.get("ultimo_periodo_origen"),
                         primer_periodo_destino=it.get("primer_periodo_destino"),
+                        period_confidence=it.get("period_confidence"),
                         origen_agente=it.get("origen_agente", False),
                         modelo_cita_legal_sugerida=it.get("modelo_cita_legal_sugerida"),
                     )

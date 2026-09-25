@@ -270,3 +270,49 @@ def test_inheritance_evaluator_s4_document_without_structural_series_fields_reje
         assert proposal.status == ProposalStatus.RECHAZADA
         assert proposal.compuerta_3_estructura.status == GateResult.FALSA
         assert "no contiene estructura ni campos de serie" in proposal.compuerta_3_estructura.detalle.lower()
+
+
+def test_inheritance_evaluator_t2_normative_text_without_data_rejected():
+    """
+    T2: Documento normativo oficial que explícitamente declara no contener datos estadísticos.
+    Debe ser RECHAZADA por la Compuerta 3 (C-4 / O-1).
+    """
+    evaluator = InheritanceEvaluator()
+    candidate = InheritanceCandidate(
+        origen_entidad="Superintendencia de Bancos y Entidades Financieras",
+        origen_portal="sbef",
+        origen_dataset="boletin",
+        destino_entidad="Autoridad de Supervision del Sistema Financiero",
+        destino_url="https://www.asfi.gob.bo/normativa/reglamento.pdf",
+        ultimo_periodo_origen="2009-02",
+        primer_periodo_destino="2009-03",
+    )
+    content = b"%PDF-1.4 ASFI Reglamento de atencion al cliente. Articulo 1. La ex-SBEF emitio circulares sobre credito que quedan abrogadas. Este texto no contiene datos."
+    with patch.object(evaluator, "fetch_url_content", return_value=(200, content, "t2" * 32)):
+        proposal = evaluator.evaluate_candidate(candidate)
+        assert proposal.status == ProposalStatus.RECHAZADA
+        assert proposal.compuerta_3_estructura.status == GateResult.FALSA
+        assert "normativa" in proposal.compuerta_3_estructura.detalle.lower()
+
+
+def test_inheritance_evaluator_t3_schema_mismatch_rejected():
+    """
+    T3: Serie de transporte (SUPTRANS) enfrentada a un documento de cartera bancaria.
+    Debe ser RECHAZADA por cotejo de esquema de origen en Compuerta 3 (C-4 / O-1).
+    """
+    evaluator = InheritanceEvaluator()
+    candidate = InheritanceCandidate(
+        origen_entidad="Superintendencia de Transportes",
+        origen_portal="suptrans",
+        origen_dataset="flujo_pasajeros",
+        destino_entidad="Autoridad de Regulacion y Fiscalizacion de Telecomunicaciones y Transportes",
+        destino_url="https://www.att.gob.bo/docs/cartera_mora.pdf",
+        ultimo_periodo_origen="2009-02",
+        primer_periodo_destino="2009-03",
+    )
+    content = b"%PDF-1.4 ATT Autoridad de Regulacion y Fiscalizacion de Telecomunicaciones y Transportes ex-suptrans Cartera bruta y mora bancaria"
+    with patch.object(evaluator, "fetch_url_content", return_value=(200, content, "t3" * 32)):
+        proposal = evaluator.evaluate_candidate(candidate)
+        assert proposal.status == ProposalStatus.RECHAZADA
+        assert proposal.compuerta_3_estructura.status == GateResult.FALSA
+        assert "no corresponden al esquema del origen" in proposal.compuerta_3_estructura.detalle.lower()
