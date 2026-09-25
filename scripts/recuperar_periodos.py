@@ -112,8 +112,8 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="docs/entregas/recuperaciones_b54.json",
-        help="Ruta de archivo JSON donde guardar el resultado detallado (por defecto docs/entregas/recuperaciones_b54.json)",
+        default="docs/entregas/recuperaciones_b54b.json",
+        help="Ruta de archivo JSON donde guardar el resultado detallado (por defecto docs/entregas/recuperaciones_b54b.json)",
     )
 
     args = parser.parse_args()
@@ -124,15 +124,23 @@ def main():
     recovered = ladder.recover_missing_periods(sources=sources, max_recoveries=args.max_recoveries)
     elapsed = time.time() - t0
 
+    budget_exhausted = ladder.gemini_calls_count >= ladder.max_gemini_calls
+
     if args.format == "table":
         print_table_report(recovered, elapsed)
-        print(f"Llamadas a Gemini API en Escalón 5: {ladder.gemini_calls_count}/{ladder.max_gemini_calls}")
+        budget_str = " (PRESUPUESTO AGOTADO: períodos subsecuentes no consultaron al agente)" if budget_exhausted else ""
+        print(f"Llamadas a Gemini API en Escalón 5: {ladder.gemini_calls_count}/{ladder.max_gemini_calls}{budget_str}")
+        if ladder.inheritance_candidates:
+            print(f"Candidatos derivados a la cola de herencia (B-55): {len(ladder.inheritance_candidates)} (guardados en docs/entregas/cola_herencia_b55.json)")
     else:
         out_dict = {
             "timestamp": datetime.now().isoformat(),
             "elapsed_seconds": elapsed,
             "total_recovered": len(recovered),
             "gemini_calls_count": ladder.gemini_calls_count,
+            "gemini_max_calls": ladder.max_gemini_calls,
+            "gemini_budget_exhausted": budget_exhausted,
+            "inheritance_candidates_count": len(ladder.inheritance_candidates),
             "recoveries": [r.to_dict() for r in recovered],
         }
         print(json.dumps(out_dict, indent=2, ensure_ascii=False))
@@ -144,6 +152,10 @@ def main():
             "timestamp": datetime.now().isoformat(),
             "elapsed_seconds": elapsed,
             "total_recovered": len(recovered),
+            "gemini_calls_count": ladder.gemini_calls_count,
+            "gemini_max_calls": ladder.max_gemini_calls,
+            "gemini_budget_exhausted": budget_exhausted,
+            "inheritance_candidates_count": len(ladder.inheritance_candidates),
             "recoveries": [r.to_dict() for r in recovered],
         }
         out_path.write_text(json.dumps(out_dict, indent=2, ensure_ascii=False), encoding="utf-8")

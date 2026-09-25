@@ -120,10 +120,42 @@ class RecoveryLadder:
         self.max_gemini_calls = max_gemini_calls
         self.gemini_calls_count = 0
         self._last_download_sample = b""
+        self.inheritance_candidates: List[Dict[str, Any]] = []
+        self._recovered_urls: Set[str] = set()
         self._session = requests.Session()
         self._session.headers.update({
             "User-Agent": getattr(self.fetcher, "user_agent", "DataX-Prospector/1.0 (+http://datax.org)")
         })
+
+    DOCUMENTARY_CONTENT_TYPES = {
+        "application/pdf",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/zip",
+        "application/x-zip-compressed",
+        "application/x-rar-compressed",
+        "text/csv",
+        "application/octet-stream",
+    }
+    DOCUMENTARY_EXTENSIONS = {".pdf", ".xlsx", ".xls", ".zip", ".rar", ".csv"}
+
+    def is_documentary_resource(self, content_type: Optional[str], url: str) -> bool:
+        """Verifica si el Content-Type o la extensión de URL corresponden a un tipo documental válido (D-17 / H-2)."""
+        parsed = urlparse(url)
+        path = parsed.path.lower()
+        has_doc_ext = any(path.endswith(ext) for ext in self.DOCUMENTARY_EXTENSIONS)
+
+        if content_type:
+            ct = content_type.lower().split(";")[0].strip()
+            if ct.startswith("text/html"):
+                return False
+            if ct in self.DOCUMENTARY_CONTENT_TYPES:
+                return True
+        return has_doc_ext
+
+    def is_url_already_recovered(self, url: str) -> bool:
+        """Verifica si la URL ya fue admitida como recuperación previa en la misma corrida (H-3)."""
+        return url in self._recovered_urls
 
     def verify_content_bytes(self, content: bytes) -> Tuple[int, str]:
         """Calcula el tamaño en bytes y el hash SHA-256 del contenido."""
@@ -134,10 +166,14 @@ class RecoveryLadder:
         return size, sha256
 
     def fetch_and_verify(self, url: str) -> Optional[Tuple[int, str]]:
-        """Realiza descarga directa verificando bytes > 0 y hash SHA-256."""
+        """Realiza descarga directa verificando bytes > 0, hash SHA-256 y rechazando text/html (H-1)."""
         try:
             r = self._session.get(url, timeout=self.timeout, verify=False, stream=True)
             if r.status_code not in (200, 206):
+                return None
+            ct = r.headers.get("content-type", "").lower()
+            if ct.startswith("text/html"):
+                logger.debug("Rechazando recurso por Content-Type text/html en fetch_and_verify: %s", url)
                 return None
             hasher = hashlib.sha256()
             total_size = 0
@@ -156,14 +192,18 @@ class RecoveryLadder:
             logger.debug("Error descargando %s: %s", url, e)
             return None
 
-    def _check_head(self, url: str) -> bool:
-        """Verifica existencia de recurso con petición HTTP HEAD (status 200, length > 0)."""
+    def _check_head(self, url: str, require_document_type: bool = False) -> bool:
+        """Verifica existencia de recurso con petición HTTP HEAD (status 200, length > 0, tipo documental opcional)."""
         try:
             r = self._session.head(url, timeout=self.timeout, verify=False, allow_redirects=True)
             if r.status_code in (200, 206):
                 cl = r.headers.get("content-length")
                 if cl is not None and int(cl) <= 0:
                     return False
+                if require_document_type:
+                    ct = r.headers.get("content-type")
+                    if not self.is_documentary_resource(ct, r.url or url):
+                        return False
                 return True
         except Exception:
             pass
@@ -474,21 +514,101 @@ class RecoveryLadder:
 
     def _verify_institution_content(self, portal: str, content: bytes) -> bool:
         """
-        D-01: Verifica que el contenido descargado mencione palabras clave de la institución real.
+        D-01 & H-4: Verifica que el contenido descargado mencione palabras clave de la institución real.
+        Usa fronteras de palabra (\\b) para evitar falsos positivos con subcadenas como 'ine' en 'linea'.
+        Rechaza si el contenido es meramente una página HTML.
         """
         if not content:
             return False
+
+        head_sample = content[:1024].lstrip().lower()
+        if head_sample.startswith(b"<!doctype html") or head_sample.startswith(b"<html"):
+            return False
+
         sample = content[:131072].decode("latin-1", errors="ignore").lower()
         normalized = unicodedata.normalize("NFKD", sample)
         clean_text = "".join(c for c in normalized if not unicodedata.combining(c))
 
-        portal_keywords = {
-            "bcb": ["banco central de bolivia", "bcb", "deuda externa"],
-            "asfi": ["autoridad de supervision del sistema financiero", "sistema financiero", "asfi", "bancos"],
-            "ine": ["instituto nacional de estadistica", "ine", "cuentas nacionales"],
+        portal_regexes = {
+            "bcb": [r"\bbanco central de bolivia\b", r"\bbcb\b"],
+            "asfi": [r"\bautoridad de supervision del sistema financiero\b", r"\basfi\b"],
+            "ine": [r"\binstituto nacional de estadistica\b", r"\bine\b"],
         }
-        keywords = portal_keywords.get(portal.lower(), [portal.lower()])
-        return any(kw in clean_text for kw in keywords)
+        regexes = portal_regexes.get(portal.lower(), [rf"\b{re.escape(portal.lower())}\b"])
+        return any(re.search(rx, clean_text) for rx in regexes)
+
+    def _verify_period_correspondence(
+        self, period: str, periodicity: str, url: str, content: bytes
+    ) -> bool:
+        """
+        H-3: Comprueba que el candidato (URL o contenido descargado) corresponda
+        efectivamente al período buscado, impidiendo admisiones espurias de índices.
+        """
+        p_clean = period.strip().upper()
+        url_lower = url.lower()
+
+        sample_text = ""
+        if content:
+            sample_text = content[:131072].decode("latin-1", errors="ignore").lower()
+            sample_text = "".join(c for c in unicodedata.normalize("NFKD", sample_text) if not unicodedata.combining(c))
+
+        year_match = re.search(r"\b(19\d{2}|20\d{2})\b", p_clean)
+        if not year_match:
+            return True
+        target_year = year_match.group(1)
+
+        year_pattern = rf"\b{target_year}\b"
+        in_url_year = bool(re.search(year_pattern, url_lower))
+        in_content_year = bool(re.search(year_pattern, sample_text))
+
+        if not (in_url_year or in_content_year):
+            return False
+
+        if "-S" in p_clean:
+            sem_num = p_clean.split("-S")[-1]
+            if sem_num == "1":
+                sem_terms = [r"\bs1\b", r"\b1sem\b", r"\bsem1\b", r"\bjun\b", r"\bjunio\b", r"\bprimer semestre\b", r"\bi semestre\b"]
+            else:
+                sem_terms = [r"\bs2\b", r"\b2sem\b", r"\bsem2\b", r"\bdic\b", r"\bdiciembre\b", r"\bsegundo semestre\b", r"\bii semestre\b"]
+            in_url_sem = any(re.search(t, url_lower) for t in sem_terms)
+            in_content_sem = any(re.search(t, sample_text) for t in sem_terms)
+            return in_url_sem or in_content_sem
+
+        month_match = re.match(r"^\d{4}-(\d{2})$", p_clean)
+        if month_match:
+            mm = month_match.group(1)
+            month_names = {
+                "01": ["enero", "ene", "01"],
+                "02": ["febrero", "feb", "02"],
+                "03": ["marzo", "mar", "03"],
+                "04": ["abril", "abr", "04"],
+                "05": ["mayo", "may", "05"],
+                "06": ["junio", "jun", "06"],
+                "07": ["julio", "jul", "07"],
+                "08": ["agosto", "ago", "08"],
+                "09": ["septiembre", "sep", "set", "09"],
+                "10": ["octubre", "oct", "10"],
+                "11": ["noviembre", "nov", "11"],
+                "12": ["diciembre", "dic", "12"],
+            }
+            terms = [rf"\b{t}\b" for t in month_names.get(mm, [mm])]
+            in_url_m = any(re.search(t, url_lower) for t in terms)
+            in_content_m = any(re.search(t, sample_text) for t in terms)
+            return in_url_m or in_content_m
+
+        return True
+
+    def save_inheritance_candidates(self, output_path: str = "docs/entregas/cola_herencia_b55.json"):
+        """Persiste los candidatos de dominios externos propuestos por el agente para la cola de herencia de B-55 (O-1)."""
+        p = Path(output_path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        out = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "total_candidates": len(self.inheritance_candidates),
+            "candidates": self.inheritance_candidates,
+        }
+        p.write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
+        logger.info("Cola de herencia para B-55 persistida en: %s (%d candidatos)", p, len(self.inheritance_candidates))
 
     def _ask_gemini_for_candidates(
         self, portal: str, dataset_id: str, period: str, periodicity: str
@@ -543,9 +663,9 @@ class RecoveryLadder:
         Escalón 5: El agente (Gemini) propone candidatos cuando los cuatro escalones deterministas fallaron.
         Reglas estrictas de guardarraíl (docs/arquitectura_integracion.md §6):
         1. El agente propone, no admite directamente en inventory.db.
-        2. Toda propuesta pasa por HTTP HEAD (status 200, Content-Length > 0 / D-17).
-        3. Toda propuesta pasa por verificación de contenido institucional (D-01).
-        4. Cambio de dominio institucional nunca es automático (va a herencia B-55).
+        2. Toda propuesta pasa por HTTP HEAD (status 200, Content-Length > 0 y tipo documental D-17).
+        3. Toda propuesta pasa por verificación de contenido institucional (D-01 / H-4).
+        4. Cambio de dominio institucional nunca es automático (se encola para herencia B-55 con evidencia / O-1).
         5. Límite de llamadas acotado y registrado por corrida (max_gemini_calls / D-08).
         6. Queda registrado en el registro que provino del escalón 5 (agente_gemini).
         """
@@ -556,40 +676,56 @@ class RecoveryLadder:
         allowed_domains = self._get_allowed_domains(portal)
 
         for cand_url in candidates:
-            # Regla 4: Dominio permitido
+            # Regla 4 & O-1: Dominio permitido o encolar para B-55
             domain = urlparse(cand_url).netloc.lower()
             if ":" in domain:
                 domain = domain.split(":")[0]
 
             if not any(domain == ad or domain.endswith("." + ad) for ad in allowed_domains):
                 logger.info(
-                    "Candidato del agente descartado por dominio no autorizado (%s no en %s): %s",
+                    "Candidato del agente derivado a cola de herencia B-55 por dominio no autorizado (%s no en %s): %s",
                     domain,
                     allowed_domains,
                     cand_url,
                 )
+                self.inheritance_candidates.append({
+                    "portal": portal,
+                    "dataset_id": dataset_id,
+                    "period": period,
+                    "proposed_url": cand_url,
+                    "proposed_domain": domain,
+                    "allowed_domains": allowed_domains,
+                    "detected_at": datetime.now(timezone.utc).isoformat(),
+                    "reason": "Dominio externo sugerido por LLM (cola de herencia B-55)",
+                })
                 continue
 
-            # Regla 2: HEAD status 200 y tamaño > 0 (D-17)
-            if not self._check_head(cand_url):
+            # Regla 2: HEAD status 200, tamaño > 0 Y TIPO DOCUMENTAL (D-17 / H-2)
+            if not self._check_head(cand_url, require_document_type=True):
                 continue
 
-            # Descargar y calcular bytes y SHA-256
+            # Descargar y calcular bytes y SHA-256 (rechaza text/html en streaming / H-1)
             res = self.fetch_and_verify(cand_url)
             if not res:
                 continue
             size, sha256 = res
 
-            # Regla 3: Verificación de contenido institucional (D-01)
+            # Regla 3: Verificación de contenido institucional reforzada (D-01 / H-4)
             sample = getattr(self, "_last_download_sample", b"")
             if not self._verify_institution_content(portal, sample):
                 logger.info("Candidato del agente descartado por fallar verificación de contenido (D-01): %s", cand_url)
                 continue
 
-            # Regla O-1: No admitir documentos que ya estén en inventory.db
-            if self.is_url_in_inventory(portal, cand_url):
+            # Regla H-3: Verificación de correspondencia con el período pedido
+            if not self._verify_period_correspondence(period, periodicity, cand_url, sample):
+                logger.info("Candidato descartado por no corresponder al período %s: %s", period, cand_url)
                 continue
 
+            # Regla H-3 & O-1: No admitir documentos que ya estén en inventory.db ni repetidos en la corrida
+            if self.is_url_in_inventory(portal, cand_url) or self.is_url_already_recovered(cand_url):
+                continue
+
+            self._recovered_urls.add(cand_url)
             return RecoveredPeriod(
                 portal=portal,
                 dataset_id=dataset_id,
@@ -629,6 +765,10 @@ class RecoveryLadder:
                 if self.is_url_in_inventory(portal, res.url):
                     logger.debug("Candidato %s descartado: ya existe en inventory.db", res.url)
                     continue
+                if self.is_url_already_recovered(res.url):
+                    logger.debug("Candidato %s descartado: ya recuperado en la corrida actual", res.url)
+                    continue
+                self._recovered_urls.add(res.url)
                 return res
 
         return None
@@ -682,5 +822,8 @@ class RecoveryLadder:
             detector.close()
             if len(all_recovered) >= max_recoveries:
                 break
+
+        if self.inheritance_candidates:
+            self.save_inheritance_candidates()
 
         return all_recovered

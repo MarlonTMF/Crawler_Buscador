@@ -332,9 +332,10 @@ def test_recovery_ladder_rung_5_rejects_different_domain_without_inheritance(tmp
 def test_recovery_ladder_rung_5_call_limit_and_budget():
     """
     B-54b Regla 5: Tope de llamadas por corrida registrado.
-    No debe exceder max_gemini_calls.
+    No debe exceder max_gemini_calls. No debe depender del .env local (H-6).
     """
     ladder = RecoveryLadder(max_gemini_calls=2)
+    ladder.fetcher.gemini_api_key = "dummy_test_key"
     assert ladder.gemini_calls_count == 0
     with patch.object(ladder.fetcher, "_generate_gemini_content", return_value='["https://www.bcb.gob.bo/p1.pdf"]'), \
          patch.object(ladder, "_check_head", return_value=False):
@@ -344,3 +345,80 @@ def test_recovery_ladder_rung_5_call_limit_and_budget():
         # La 3ra llamada no debe consultar a Gemini por agotar el tope
         ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2022-S2", "semestral")
         assert ladder.gemini_calls_count == 2
+
+
+def test_recovery_ladder_rung_5_rejects_non_documentary_content_type(tmp_path):
+    """
+    B-54b Regla 2 (H-1 / H-2): Toda propuesta pasa por HEAD con status 200 y TIPO DOCUMENTAL (D-17).
+    Rechaza explícitamente páginas HTML (text/html) o sin extensión documental.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+    ladder.fetcher.gemini_api_key = "dummy_test_key"
+
+    # Caso A: Retorna text/html en HEAD
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://www.ine.gob.bo/transparencia/"]), \
+         patch.object(ladder, "_check_head", return_value=False):
+        res = ladder._try_rung_5_agent_gemini("ine", "auditoria_interna", "2015", "anual")
+        assert res is None, "Una página HTML debe ser rechazada por no ser tipo documental"
+
+    # Caso B: _is_documentary_resource rechaza text/html
+    assert ladder.is_documentary_resource("text/html; charset=UTF-8", "https://www.ine.gob.bo/page/") is False
+    assert ladder.is_documentary_resource("application/pdf", "https://www.ine.gob.bo/doc.pdf") is True
+
+
+def test_recovery_ladder_rung_5_rejects_candidate_without_period_correspondence(tmp_path):
+    """
+    B-54b (H-3): El candidato debe corresponder inequívocamente al período buscado.
+    Si la URL o el contenido no hacen referencia al año/período, se descarta.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+    ladder.fetcher.gemini_api_key = "dummy_test_key"
+
+    # Candidato de portal que habla de otro año o sin año
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://www.ine.gob.bo/docs/general.pdf"]), \
+         patch.object(ladder, "_check_head", return_value=True), \
+         patch.object(ladder, "fetch_and_verify", return_value=(50000, "a" * 64)), \
+         patch.object(ladder, "_verify_institution_content", return_value=True), \
+         patch.object(ladder, "_verify_period_correspondence", return_value=False):
+        res = ladder._try_rung_5_agent_gemini("ine", "cuentas_nacionales_pib", "2016", "anual")
+        assert res is None, "Un candidato que no corresponde al período 2016 debe ser rechazado"
+
+
+def test_recovery_ladder_verify_institution_content_rejects_substring_ine_in_words():
+    """
+    B-54b (H-4): D-01 no debe validar falsos positivos por subcadenas como 'ine' en 'linea' o 'determine'.
+    Debe requerir coincidencia como palabra completa (\b).
+    """
+    ladder = RecoveryLadder()
+    fake_content = b"Esta pagina en linea determine el flujo de informacion gubernamental"
+    assert ladder._verify_institution_content("ine", fake_content) is False
+
+    valid_content = b"Instituto Nacional de Estadistica del Estado Plurinacional de Bolivia - Cuentas Nacionales"
+    assert ladder._verify_institution_content("ine", valid_content) is True
+
+
+def test_recovery_ladder_rung_5_persists_external_domain_for_b55_inheritance(tmp_path):
+    """
+    B-54b Regla 4 & O-1: Candidatos de dominios externos sugeridos por Gemini deben
+    ser persistidos en la cola de herencia para B-55 con su evidencia.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+    ladder.fetcher.gemini_api_key = "dummy_test_key"
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://bcp.org/deuda_externa_2023.pdf"]):
+        res = ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        assert res is None
+        assert len(ladder.inheritance_candidates) >= 1
+        cand = ladder.inheritance_candidates[0]
+        assert cand["portal"] == "bcb"
+        assert cand["proposed_domain"] == "bcp.org"
+        assert cand["proposed_url"] == "https://bcp.org/deuda_externa_2023.pdf"
+
+
+def test_recovery_ladder_does_not_repeat_url_in_same_run():
+    """
+    B-54b (H-3): Una misma URL no puede ser admitida para dos períodos distintos en la misma corrida.
+    """
+    ladder = RecoveryLadder()
+    ladder._recovered_urls.add("https://www.ine.gob.bo/docs/reporte.pdf")
+    assert ladder.is_url_already_recovered("https://www.ine.gob.bo/docs/reporte.pdf") is True
+
