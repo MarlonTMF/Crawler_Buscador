@@ -113,6 +113,7 @@ def print_report(proposals: List[InheritanceProposal]):
         "PROPUESTA": sum(1 for p in proposals if p.status == ProposalStatus.PROPUESTA),
         "EVIDENCIA_INCOMPLETA": sum(1 for p in proposals if p.status == ProposalStatus.EVIDENCIA_INCOMPLETA),
         "RECHAZADA": sum(1 for p in proposals if p.status == ProposalStatus.RECHAZADA),
+        "ERROR_DESCARGA": sum(1 for p in proposals if p.status == ProposalStatus.ERROR_DESCARGA),
         "ACEPTADA": sum(1 for p in proposals if p.status == ProposalStatus.ACEPTADA),
     }
     print(f"Resumen de estados: {resumen}")

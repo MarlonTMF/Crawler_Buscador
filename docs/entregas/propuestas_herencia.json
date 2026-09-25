@@ -1,11 +1,12 @@
 {
-  "timestamp": "2026-09-25T03:39:50.699770+00:00",
+  "timestamp": "2026-09-25T03:51:46.833438+00:00",
   "criterio": "D-18 (Herencia de series con evidencia descargada obligatoria)",
   "total_evaluadas": 3,
   "resumen_estados": {
     "PROPUESTA": 0,
     "EVIDENCIA_INCOMPLETA": 0,
     "RECHAZADA": 3,
+    "ERROR_DESCARGA": 0,
     "ACEPTADA": 0
   },
   "propuestas": [
@@ -19,16 +20,16 @@
       "origen_agente": false,
       "status": "RECHAZADA",
       "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
-      "evaluado_en": "2026-09-25T03:39:48.861891+00:00",
+      "evaluado_en": "2026-09-25T03:51:44.102259+00:00",
       "compuertas": {
         "compuerta_1_continuidad": {
           "status": "INDETERMINADO",
-          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "detalle": "Período no determinado o confianza baja en alguno de los dos lados (insumo unknown o low).",
           "evidence": null
         },
         "compuerta_2_legal": {
           "status": "FALSA",
-          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor 'SPVS-APS' en el contenido descargado.",
           "evidence": null
         },
         "compuerta_3_estructura": {
@@ -39,7 +40,14 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": null
+          "evidence": {
+            "evidence_url": "https://www.aps.gob.bo/",
+            "http_status": 200,
+            "content_sha256": "2c87bb15ec810dd2ecfae74b9a4b8e50b48ab8f56e1f754acb046e11ffc679a8",
+            "fetched_at": "2026-09-25T03:51:44.102259+00:00",
+            "snippet": "tle>Inicio</title> \t<link href=\"/images/aps/favicon.png#joomlaImage://local-images/",
+            "matched_pattern": "\\baps\\b"
+          }
         }
       }
     },
@@ -53,16 +61,16 @@
       "origen_agente": false,
       "status": "RECHAZADA",
       "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
-      "evaluado_en": "2026-09-25T03:39:49.502879+00:00",
+      "evaluado_en": "2026-09-25T03:51:45.329463+00:00",
       "compuertas": {
         "compuerta_1_continuidad": {
           "status": "INDETERMINADO",
-          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "detalle": "Período no determinado o confianza baja en alguno de los dos lados (insumo unknown o low).",
           "evidence": null
         },
         "compuerta_2_legal": {
           "status": "FALSA",
-          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor 'SPVS-ASFI' en el contenido descargado.",
           "evidence": null
         },
         "compuerta_3_estructura": {
@@ -73,7 +81,14 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": null
+          "evidence": {
+            "evidence_url": "https://www.asfi.gob.bo/",
+            "http_status": 200,
+            "content_sha256": "8af74597daa6de3cbf8af9b97de83dfa18f9402abffbcf934e2367c66bb3be32",
+            "fetched_at": "2026-09-25T03:51:45.329463+00:00",
+            "snippet": "</style>       <title>Â¡Bienvenidos! | ASFI</title>       <link rel=\"stylesheet\" me",
+            "matched_pattern": "\\basfi\\b"
+          }
         }
       }
     },
@@ -87,16 +102,16 @@
       "origen_agente": false,
       "status": "RECHAZADA",
       "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
-      "evaluado_en": "2026-09-25T03:39:50.641981+00:00",
+      "evaluado_en": "2026-09-25T03:51:46.788745+00:00",
       "compuertas": {
         "compuerta_1_continuidad": {
           "status": "INDETERMINADO",
-          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "detalle": "Período no determinado o confianza baja en alguno de los dos lados (insumo unknown o low).",
           "evidence": null
         },
         "compuerta_2_legal": {
           "status": "FALSA",
-          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor 'SUPTRANS' en el contenido descargado.",
           "evidence": null
         },
         "compuerta_3_estructura": {
@@ -107,7 +122,14 @@
         "compuerta_4_identidad_destino": {
           "status": "VERDADERA",
           "detalle": "Identidad institucional del destino verificada.",
-          "evidence": null
+          "evidence": {
+            "evidence_url": "https://www.att.gob.bo/",
+            "http_status": 200,
+            "content_sha256": "d0c81f819e96bd95999b4d764827238b61ab71a556c63a5913ab956d4ce638c6",
+            "fetched_at": "2026-09-25T03:51:46.788745+00:00",
+            "snippet": "<link rel=\"canonical\" href=\"https://www.att.gob.bo/en/homepage-13\" /> <link rel=\"sh",
+            "matched_pattern": "\\batt\\b"
+          }
         }
       }
     }

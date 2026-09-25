@@ -360,7 +360,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-52 Periodicidad declarada | Antigravity | 60 min | 45 min | ✅ Aprob. c/obs (`60a84bf`) |
 | B-53 Detector de huecos y atrasos | Antigravity | 110 min | 50 min | ✅ Aprob. c/obs (`0a2dee0`) |
 | B-54 Escalera de recuperación | Antigravity | 110 min | 105 min | ✅ Aprob. c/obs (`13d6a4d`) |
-| B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | 65 min | Listo para auditar |
+| B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | 95 min | Listo para auditar (R2) |
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | | Pendiente |
 | B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | | Pendiente (requiere decisión) |
