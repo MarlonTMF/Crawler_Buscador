@@ -68,6 +68,10 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-53 | 🅰️ | Detector de huecos y atrasos (Fase 4) | 110/50 | Aprob. c/obs | GapDetector + CLI detectar_huecos.py; 4 estados; trimestres/semestres en extractor; hueco real DEPEX 200 OK verificado en BCB (`0a2dee0`) |
 | B-54 | 🅰️ | Escalera de recuperación de períodos faltantes (Fase 4) | 110/105 | Aprob. c/obs | Re-entrega R3: 3 recuperaciones genuinas BCB deuda_externa (10.7 MB) verificadas bytes/SHA-256; guard de inventario; límites de escalones declarados; rendicion_cuentas anual (elimina 8 huecos, baja tiempo de 169s a 43.6s); JSON versionado en docs/entregas/ (`13d6a4d`) |
 | B-54b | 🅰️ | El agente como ayudante en la escalera (Fase 4) | 90/80 | Aprob. c/obs | Re-entrega R2: Cierra H-1..H-6 con 4 compuertas independientes (HEAD tipo doc, streaming, D-01 límites palabra y correspondencia de período); cifra honesta: 3 recuperados (Escalón 2, BCB DEPEX 10.7 MB), 0 Escalón 5; 0 forzado de métricas; persistencia cola herencia B-55 (`67456a9`) |
+| B-55 | 🅲/🅰️ | Búsqueda de herencia (Fase 4) | 120/95 | Aprob. c/obs | Decisión D-18; 4 compuertas independientes; procedencia estricta de bytes (C-1); 3 propuestas rechazadas honestamente (`8fb20e0`, R2) |
+| B-56 | 🅰️ | Ciclo de vida e histórico (Fase 4) | 80/65 | Aprob. c/obs | DatasetLifecycleRecord; 4 estados; transiciones auditables; subsanación R2 con estabilidad de fecha y 11 tests (`455ee5b` / `9e8d44f`) |
+| B-57 | 🅲/🅰️ | Cruce con el crawler interno (Fase 4) | 120/50 | Entregado | Decisión D-19 (C-1..C-10); cotejo en 3 pasadas por URL; umbral 10% (BCB CLAVE_NO_VALIDADA 0.83%); contrato ResourceCandidate; invariante C-10 de totalidad probada |
+
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de

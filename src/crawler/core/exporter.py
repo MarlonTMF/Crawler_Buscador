@@ -5,12 +5,16 @@ Exporters multi-formato (ADR-006):
 3. CompactAIExporter: Vista compacta semántica para consumo por agentes de IA.
 """
 
+from datetime import datetime, timezone
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List
+import sqlite3
+from typing import Dict, Any, List, Optional, Tuple
 from crawler.core.models import ExternalSourceMap
 from crawler.core.reducer import AIContextReducer
+from crawler.core.canonicalizer import Canonicalizer
+from crawler.core.internal_reconciler import build_period_label
 from crawler.validators.schema_validator import SchemaValidator
 
 logger = logging.getLogger(__name__)
@@ -120,3 +124,125 @@ class MultiFormatExporter:
 
         logger.info(f"Vista compacta para IA guardada en: {out_path}")
         return out_path
+
+    def export_resource_candidates(
+        self,
+        source_id: str,
+        db_path: Optional[Path] = None,
+        filename: str = "resource_candidates.json",
+    ) -> Path:
+        """
+        Exporta el catálogo en el formato ResourceCandidate para Prospector-Externo (Opción A, D-19).
+        Declara el estado de verificación explícito (VERIFICADO_CON_HASH vs CATALOGADO_SIN_BYTES, C-8)
+        y emite period_label canónico estricto sin valores centinela (C-4).
+        """
+        if db_path is None:
+            db_path = self.output_dir / "inventory.db"
+
+        candidates: List[Dict[str, Any]] = []
+        sidecar: Dict[str, Any] = {}
+        omission_counts: Dict[str, int] = {}
+        verif_counts = {"VERIFICADO_CON_HASH": 0, "CATALOGADO_SIN_BYTES": 0}
+        label_counts = {"CON_ETIQUETA_CANONICA": 0, "SIN_ETIQUETA": 0}
+
+        if db_path.exists():
+            conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT canonical_url, download_url, content_sha256, file_size_bytes,
+                       period_start, period_end, date_confidence_score, status
+                FROM resource_audit_log
+                WHERE status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
+            """)
+            rows = cur.fetchall()
+            conn.close()
+
+            canonicalizer = Canonicalizer(None)
+
+            for r in rows:
+                c_url, d_url, sha256, size_bytes, p_start, p_end, conf, status = r
+                url = c_url or d_url
+
+                # Extensión y tipo mime
+                path_clean = url.split("?")[0].split("#")[0]
+                ext = path_clean.rsplit(".", 1)[1].lower() if "." in path_clean else "bin"
+                mime_map = {
+                    "pdf": "application/pdf",
+                    "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "xls": "application/vnd.ms-excel",
+                    "csv": "text/csv",
+                    "zip": "application/zip",
+                    "ods": "application/vnd.oasis.opendocument.spreadsheet",
+                }
+                content_type = mime_map.get(ext, "application/octet-stream")
+
+                # period_label canónico (C-4)
+                p_label, omission_reason = build_period_label(p_start, p_end)
+                if p_label is not None:
+                    label_counts["CON_ETIQUETA_CANONICA"] += 1
+                else:
+                    label_counts["SIN_ETIQUETA"] += 1
+                    if omission_reason:
+                        omission_counts[omission_reason] = omission_counts.get(omission_reason, 0) + 1
+
+                # Estado de verificación bajo D-13 / C-8
+                is_verified = bool(sha256 and size_bytes and size_bytes > 0)
+                verif_status = "VERIFICADO_CON_HASH" if is_verified else "CATALOGADO_SIN_BYTES"
+                verif_counts[verif_status] += 1
+
+                # Clave de recurso
+                res_key = canonicalizer.generate_resource_key(
+                    source_id=source_id,
+                    dataset_id=source_id,
+                    period_end=p_end,
+                    file_type=ext,
+                    canonical_url=url,
+                )
+
+                # Nombre o título base
+                name_part = path_clean.rsplit("/", 1)[-1]
+
+                candidate = {
+                    "resource_key": res_key,
+                    "url": url,
+                    "source_id": source_id,
+                    "title": name_part,
+                    "file_extension": ext,
+                    "content_type": content_type,
+                    "content_length_bytes": size_bytes or 0,
+                    "period_label": p_label,  # None si no hay cubo canónico (C-4)
+                    "content_hash": sha256 or None,
+                    "verification_status": verif_status,
+                }
+                candidates.append(candidate)
+
+                sidecar[url] = {
+                    "confidence": conf or "unknown",
+                    "period_start": p_start,
+                    "period_end": p_end,
+                    "omission_reason": omission_reason,
+                    "audit_status": status,
+                }
+
+        out_data = {
+            "source_id": source_id,
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "contract_schema": "ResourceCandidate_v1",
+            "total_records": len(candidates),
+            "verification_summary": verif_counts,
+            "period_summary": {
+                **label_counts,
+                "motivos_omision": omission_counts,
+            },
+            "candidates": candidates,
+            "sidecar": sidecar,
+        }
+
+        out_path = self.output_dir / filename
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(out_data, f, ensure_ascii=False, indent=2)
+
+        logger.info(f"Candidatos de recurso exportados en: {out_path} ({len(candidates)} filas)")
+        return out_path
+

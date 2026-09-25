@@ -805,3 +805,40 @@ igual.
 - **Qué lo hizo visible:** contar sobre el artefacto commiteado en vez de leer la columna del reporte — `sum(1 for x in datasets if x['recovery_attempts_log'])` dio `0`. El `try/except` de la función nunca saltaba, porque el JSON parsea perfecto: solo devuelve una lista vacía. Los siete tests del bloque pasaban con la función completamente rota, porque ninguno tocaba el script. En la misma vuelta, `transition_date` resultó ser la fecha de la corrida y no la del cambio de estado: re-correr el script sin tocar nada movía las 21 fechas y ningún estado (`git diff --numstat` → `22 22`).
 - **Cómo se resolvió:** la re-entrega lee `recoveries`, deriva `success` de `status == "RECOVERED"`, persiste el estado previo para conservar la fecha, y agrega un test que carga los **JSON reales** de B-54 en vez de un mock. Verificado por efecto: el log de `bcb/deuda_externa` trae sus 3 intentos y la re-corrida mueve 1 sola línea, el `timestamp` de cabecera. Y lo que no se pudo arreglar quedó escalado en el parte en vez de disimulado: B-54/B-54b solo persisten `status: RECOVERED` —lo confirmé, `Counter({'RECOVERED': 3})` en los dos artefactos—, así que `HISTORICO` sigue siendo una rama probada solo en test hasta que la escalera emita los fallos de los escalones 1..4.
 - **Por qué:** es la forma más difícil de ver de la clase de error que persigue este proyecto. No hay un artefacto que falte ni un status equivocado: hay **un número correcto por la razón equivocada**, y encima en la dirección segura —archiva de menos, no de más—, que es la que no genera ninguna queja. La regla que queda: **un contador en cero sobre una regla de exclusión no es evidencia de que la regla discrimina, hasta que se muestre que el camino al valor distinto de cero existe y se puede recorrer con los datos que hay.** Es el simétrico de E-45: allá una batería de casos negativos no distinguía un filtro correcto de uno que rechaza todo; acá un agregado en cero no distingue una invariante que se respeta de una rama que nadie puede alcanzar. Corolario para las auditorías: cuando el criterio de aceptación es «X nunca pasa automáticamente», el sondeo tiene que preguntar primero **si X puede pasar**.
+
+---
+
+## E-48 · Una clave de cotejo puede vaciar la categoría que el bloque existe para producir, sin fallar
+
+- **Fecha / bloque:** 2026-09-25 · parada de decisión de diseño de B-57 (`docs/auditorias/B-57_decision_diseno.md`)
+- **Tipo:** diseño de clave de cotejo / efecto verificado
+- **Herramienta:** Claude (decisión D-19)
+- **Qué ocurrió:** El diagnóstico inicial de B-57 proponía emparejar catálogos con prioridad por `content_hash` SHA-256 cuando exista. Como un recurso modificado es, por definición, el mismo recurso con otro hash, esa clave lo parte en dos filas disjuntas —`SOLO_INTERNO` y `SOLO_EXTERNO`— y la categoría `DISCORDANCIA_CONTENIDO` sale vacía en cero. El script corre, escribe su JSON, los totales cuadran, no hay errores y el resultado analítico es falso.
+- **Cómo se detectó:** Razonando sobre la semántica estricta de la categoría, no leyendo código: es la misma forma de error que `mailto:` en `discovery.py` (D-06) y que un mock que no intercepta (D-08) —artefacto correcto, efecto nulo, cero mensajes de error—.
+- **Cómo se resolvió:** Se formalizó la condición BLOQUEANTE C-1 en D-19: cotejo en 3 pasadas donde la identidad primaria es la URL canónica normalizada. El hash actúa como comparador sobre las URLs emparejadas, y solo opera como clave de rescate en la segunda pasada para detectar `URL_CAMBIADA` entre no emparejados.
+- **Por qué:** En sistemas de integración de datos, emparejar por el atributo que se desea comparar destruye la señal de cambio. La identidad del recurso debe descansar en su localizador estable, no en el estado mutable de su contenido.
+
+---
+
+## E-49 · El cuello de botella de la Fase 4 se movió y ningún documento lo había registrado
+
+- **Fecha / bloque:** 2026-09-25 · parada de decisión de diseño de B-57
+- **Tipo:** medición empírica vs suposición documental
+- **Herramienta:** Claude (auditor)
+- **Qué ocurrió:** El plan y la §2 del documento de arquitectura repetían que el período estaba vacío en el 97% de BCB y el 99.5% de INE. Medido el 2026-09-25 tras B-50/B-51, la cobertura de período se elevó al 71.2% global (829 de 1.165 filas). En cambio, el hash SHA-256 —que ningún documento señalaba como faltante— solo existía en el 4.9% de las filas (57 de 1.165, todas en ASFI y 0 en BCB/INE), porque los tres YAML llevaban `content_hashing: enabled: false` en contra de D-13.
+- **Cómo se detectó:** Al medir directamente sobre `output/{bcb,ine,asfi}/inventory.db` antes de dictaminar la clave de cotejo, en lugar de confiar en las cifras repetidas en los documentos.
+- **Cómo se resolvió:** Se estableció la condición C-8: el exportador declara qué filas están verificadas con bytes y cuáles no (`VERIFICADO_CON_HASH` vs `CATALOGADO_SIN_BYTES`), y las dimensiones no medibles por falta de hashes se reportan abiertamente como tales bajo C-2 y C-10.
+- **Por qué:** La cifra que un plan repite de memoria es la que nadie vuelve a medir. Los supuestos técnicos deben revalidarse contra las bases vivas en cada hito arquitectónico.
+
+---
+
+## E-50 · Un cruce con 1 coincidencia en 818 gritaba un defecto de clave que nadie escuchó
+
+- **Fecha / bloque:** 2026-09-25 · B-57 (Cruce con el crawler interno — D-19 / C-3)
+- **Tipo:** síntoma de clave no validada vs brecha real
+- **Herramienta:** Claude (decisión) + Antigravity (análisis forense)
+- **Qué ocurrió:** Desde B-45, `docs/diff_brecha_rolando_b45.json` registraba 1 coincidencia entre 818 URLs internas de Rolando y 121 de nuestro crawler en BCB, y la cifra quedó archivada como si fuera una brecha masiva del interno. Una tasa de coincidencia cercana a cero (0.83%) casi nunca significa que dos sistemas sean disjuntos; significa que la clave o el foco de catalogación es divergente.
+- **Qué encontró el análisis forense:** Rolando extrajo 810 planillas estadísticas (`.xlsx` y `.ods`) y 1 solo `.pdf`, mientras que nuestro inventario catalogó 111 `.pdf` de publicaciones institucionales y solo 5 `.xlsx`. No era un fallo de scraping, sino una divergencia de dominios temáticos entre los crawlers.
+- **Cómo se resolvió:** Se instituyó la condición BLOQUEANTE C-3 con un umbral del 10%: si la coincidencia en un portal queda por debajo del 10% del lado menor, el portal entero se marca `CLAVE_NO_VALIDADA` (938 entidades puestas en cuarentena) y se prohíbe emitir reportes de brecha hasta validar la clave y el alcance.
+- **Por qué:** Es la diferencia fundamental entre entregar «al interno le faltan 817 documentos de BCB» (una falsedad que alguien repetirá en una reunión de DataX) y entregar con honestidad técnica «no logramos emparejar las URLs de BCB por divergencia de tipos documentales y cobertura».
+

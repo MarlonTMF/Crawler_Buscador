@@ -689,3 +689,138 @@ reabren: son D-01 aplicada a entidades.
 **Verificado el.** 2026-09-24, parada de diseño de B-55 sobre el diagnóstico de
 Antigravity, decidido por Claude Opus 5 para aprobación de Marlon.
 
+---
+
+## D-19 · El puente al prospector externo es un exportador al contrato (Opción A), y el cruce empareja por identidad con el hash como comparador
+
+**Contexto.** `docs/arquitectura_integracion.md` estableció el 2026-09-23 que son
+tres sistemas y no dos: `crawler_finrural` es el motor y el laboratorio,
+`Prospector-Externo` es el prospector entregado a DataX y el que sirve la Catalog
+API, y `prospector_interno` es la plataforma de ingesta que concilia con
+`DuckDBDiffEngine`. Entre el primero y el segundo no hay canal: todo lo que la
+Fase 4 construyó acá —fechas B-50/B-51, periodicidad B-52, huecos B-53,
+recuperación B-54/B-54b, herencia B-55, ciclo de vida B-56— no llega a producción
+por sí solo. B-57 exige elegir cómo se cierra ese puente y con qué clave se cruzan
+los dos catálogos. Medido el 2026-09-25 sobre las tres bases (1.165 filas): el
+período está resuelto en el 71,2%, pero `content_sha256` existe en 57 filas
+(4,9%) y `file_size_bytes > 0` en 582, porque los tres YAML llevan
+`content_hashing: enabled: false` sin la justificación escrita que D-13.4 exige.
+
+**Alternativas descartadas.**
+1. *Portar las 31 capacidades del motor a la arquitectura hexagonal de
+   `Prospector-Externo` (Opción B).* Descartada por costo y riesgo de regresión
+   fuera de alcance de la Fase 4, y porque borraría la trazabilidad de las
+   decisiones D-01 a D-18, que es el activo real del prototipo. No queda cerrada
+   como camino futuro: la Opción A no la impide.
+2. *Levantar en `crawler_finrural` una Catalog API propia para que el interno nos
+   consuma por REST (Opción C).* Descartada, y no principalmente por la colisión
+   de puertos con `dashboard_server.py` (127.0.0.1:8000): dos sistemas que dicen
+   ser «el prospector externo» es un problema de identidad, y cuál de los dos
+   resulta autoritativo terminaría decidido por una variable de entorno en un
+   repositorio ajeno.
+3. *Emparejar los catálogos con `content_hash` como clave primaria y
+   `(url_canonica, period_label)` como respaldo.* Descartada por dos razones
+   independientes. Es imposible hoy: el hash falta en el 95% de nuestras filas, y
+   una clave cuyo insumo no existe no decide, sortea. Y es contraproducente aunque
+   existiera: un recurso modificado es el mismo recurso con hash distinto, así que
+   emparejar por hash lo parte en dos filas —`SOLO_INTERNO` y `SOLO_EXTERNO`— y
+   vacía la categoría de discordancia sin que nada falle ni avise.
+4. *Usar `resource_key` como clave de cruce.* Descartada: `generate_resource_key()`
+   compone `source_id:dataset_id:period_token:file_type` con un `dataset_id` que
+   es una invención de este repositorio, y **cambia de valor cuando el período de
+   una fila se resuelve**, de modo que el mismo recurso aparecería como nuevo
+   entre dos corridas.
+5. *Incorporar DuckDB e importar `DuckDBDiffEngine` del clon de
+   `prospector_interno`.* Descartada: un join de 1.165 filas no justifica una
+   dependencia nueva, y un `import` que atraviesa repositorios hace que la suite
+   de este proyecto dependa del árbol de trabajo de otro equipo.
+
+**Decisión.**
+1. **Opción A, con dueño y dirección explícitos.** El puente es un **exportador a
+   formato de contrato**: `crawler_finrural` emite desde `inventory.db` un archivo
+   con el esquema `ResourceCandidate` (`resource_key`, `url`, `source_id`,
+   `title`, `file_extension`, `content_type`, `content_length_bytes`,
+   `period_label`, `content_hash`). Su consumidor oficial es `Prospector-Externo`,
+   que es quien sirve la Catalog API. `crawler_finrural` **no es proveedor del
+   prospector interno** y no se convierte en uno.
+2. **El cruce que B-57 produce es un instrumento de medición de brecha, no un
+   canal de integración**, y el reporte lo declara con esas palabras.
+3. **Aislamiento de los repositorios hermanos.** `crawler_finrural` no escribe
+   nunca dentro de `Prospector-Externo` ni de `prospector_interno`; los lee, con
+   las rutas recibidas por parámetro. Tampoco importa su código ni levanta
+   servidores o puertos para este cruce.
+4. **Clave de cotejo en tres pasadas, en este orden:** (a) identidad por URL
+   canónica normalizada, con **una sola** función de normalización compartida en
+   todo el repositorio; (b) sobre los emparejados, comparación de `content_hash` y
+   `period_label` —el hash es comparador, no clave—; (c) entre los no emparejados,
+   segunda pasada por hash idéntico para detectar `URL_CAMBIADA`.
+5. **Formato canónico de `period_label`:** `YYYY-MM-DD` (diaria), `YYYY-MM`
+   (mensual), `YYYY-Qn` (trimestral), `YYYY-Sn` (semestral), `YYYY` (anual). Se
+   emite **solo** si el par `period_start`/`period_end` coincide exactamente con un
+   cubo canónico; un rango multianual o un período sin resolver **omite el campo**.
+   **Prohibido todo valor centinela** (`SIN_PERIODO`, `unknown`, cadena vacía): el
+   campo va ausente o `null`, porque un centinela viaja por el contrato con
+   apariencia de período.
+6. **La confianza acompaña a la etiqueta y la etiqueta floja no genera
+   discordancias.** Mientras el contrato no adopte `date_confidence_score`, la
+   confianza viaja en la salida propia y no dentro del objeto del contrato. Una
+   `DISCORDANCIA_PERIODO` solo se declara si **ambos** lados tienen período con
+   confianza `medium` o superior; si no, la fila es `INDETERMINADO_POR_CONFIANZA`.
+7. **Clasificación total, probada por aserción.** La suma de las filas de todas
+   las categorías es igual al tamaño de la unión de claves de los dos lados, y eso
+   se verifica con una aserción en cada corrida y un test que la ve fallar. Las
+   categorías son cerradas: `CONFIRMADO`, `SOLO_EXTERNO`, `SOLO_INTERNO`,
+   `DISCORDANCIA_PERIODO`, `DISCORDANCIA_CONTENIDO`, `URL_CAMBIADA`,
+   `INDETERMINADO_POR_DATO_AUSENTE`, `INDETERMINADO_POR_CONFIANZA` y
+   `CLAVE_NO_VALIDADA`.
+8. **Umbral de validez de la clave.** Si tras normalizar, la coincidencia en un
+   portal queda por debajo del 10% del lado menor, ese portal se marca
+   `CLAVE_NO_VALIDADA` y **no se reporta su brecha**: se investiga la
+   normalización primero. Medido el 2026-09-25 en
+   `docs/diff_brecha_rolando_b45.json`, BCB coincide en 1 de 121 filas contra 818
+   del lado interno, y eso es un defecto de clave hasta que se demuestre lo
+   contrario.
+9. **Nada se exporta como verificado sin bytes.** Cada objeto exportado declara su
+   estado de verificación (`VERIFICADO_CON_HASH` o `CATALOGADO_SIN_BYTES`) y los
+   conteos van desglosados por ese estado. Publicar sin marca filas sin hash en un
+   artefacto con formato de contrato es precisamente lo que D-13 prohíbe.
+10. **Los huecos se declaran, no se rellenan.** Si el lado interno no trae hash o
+    no trae período, las categorías que dependen de ese campo se reportan como no
+    medibles, con el número de filas afectadas. Un cero explicado es un resultado;
+    un cero sin explicación es un reporte falso.
+
+**Razón.** Las dos mitades de esta decisión responden al mismo error, que es el
+que más ha costado en este proyecto: verificar el artefacto en lugar del efecto.
+La Opción A lo evita en la arquitectura, porque un archivo en disco se puede abrir
+y contar, mientras que un servicio que responde 200 no prueba que nadie lo
+consuma. La clave por identidad lo evita en el dato: con el hash como clave, el
+diff corre, escribe su JSON y deja `DISCORDANCIA` en cero —el artefacto perfecto
+y el efecto nulo, sin un solo mensaje de error—. Y el umbral del punto 8 existe
+porque la cifra más peligrosa de esta fase no es la que falta: es «al interno le
+faltan 817 documentos de BCB», que suena a hallazgo y puede ser nuestra
+normalización de URLs.
+
+**Consecuencia.** Conviven dos formatos en disco por portal —el mapa propio y el
+del contrato— y eso es deliberado: el primero alimenta el dashboard y las
+auditorías, el segundo es lo único que cruza la frontera. El cruce queda por lote
+y reproducible, sin red ni puertos. El costo asumido es que el puente no está
+integrado en producción: alguien tiene que llevar el archivo al externo, y hasta
+que `content_hashing` se encienda en los tres portales, la dimensión de contenido
+del cruce es estructuralmente no medible en BCB e INE.
+
+**Umbral que la reabriría.** La Opción B se reconsidera si DataX adopta el motor
+como el prospector externo oficial. La Opción C, solo si el interno acepta más de
+un proveedor de catálogo con precedencia explícita. Los puntos 4, 5.3 (prohibición
+de centinelas), 7 y 9 no se reabren: son D-13 y la regla del efecto verificado
+aplicadas al contrato de integración.
+
+**Verificado el.** 2026-09-25, parada de decisión de B-57 sobre el diagnóstico de
+Antigravity y la §5 del documento de arquitectura, decidido por Claude Opus 5
+para aprobación de Marlon. Las cifras de 1.165 filas, 57 hashes, 582 filas con
+bytes, 71,2% de período y la distribución de formas de período se midieron ese día
+contra `output/{bcb,ine,asfi}/inventory.db`. **Las afirmaciones sobre
+`DuckDBDiffEngine`, el esquema de `DiscoveredResourceItem` y el puerto 8000 del
+externo provienen de `docs/arquitectura_integracion.md` (2026-09-23) y no se
+reverificaron en esta sesión**, que no tuvo acceso a los repositorios hermanos.
+
+

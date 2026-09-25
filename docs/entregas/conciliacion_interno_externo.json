@@ -1,0 +1,498 @@
+{
+  "metadata": {
+    "generated_at": "2026-09-25T04:56:54.450151+00:00",
+    "decision": "D-19",
+    "contract": "ResourceCandidate_v1",
+    "min_match_rate_threshold": 0.1,
+    "purpose": "Instrumento de medición de brecha entre catálogo externo e interno (D-19.2)"
+  },
+  "portales": {
+    "bcb": {
+      "status": "CLAVE_NO_VALIDADA",
+      "match_rate": {
+        "external_unique_urls": 121,
+        "internal_unique_urls": 818,
+        "common_urls": 1,
+        "smaller_side": 121,
+        "match_rate_pct": 0.83,
+        "threshold_pct": 10.0,
+        "validated": false
+      },
+      "c2_internal_input_matrix": {
+        "files": {
+          "bcb.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\bcb.json",
+            "size_bytes": 415916,
+            "modified_at": "2026-09-04T03:14:56.392766+00:00",
+            "total_records": 818,
+            "con_url": 818,
+            "con_hash": 0,
+            "con_periodo": 566
+          }
+        },
+        "total_records": 818,
+        "with_url": 818,
+        "with_hash": 0,
+        "with_period": 566
+      },
+      "c8_external_verification_state": {
+        "VERIFICADO_CON_HASH": 0,
+        "CATALOGADO_SIN_BYTES": 121
+      },
+      "period_summary": {
+        "CON_ETIQUETA_CANONICA": 39,
+        "SIN_ETIQUETA": 82,
+        "motivos_omision": {
+          "SIN_PERIODO": 82
+        }
+      },
+      "dimensiones_no_medibles": [
+        {
+          "dimension": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 (externo tiene 0 verificados; interno tiene 0)",
+          "afecta_filas": 1
+        }
+      ],
+      "category_counts": {
+        "CONFIRMADO": 0,
+        "SOLO_EXTERNO": 0,
+        "SOLO_INTERNO": 0,
+        "DISCORDANCIA_PERIODO": 0,
+        "DISCORDANCIA_CONTENIDO": 0,
+        "URL_CAMBIADA": 0,
+        "INDETERMINADO_POR_DATO_AUSENTE": 0,
+        "INDETERMINADO_POR_CONFIANZA": 0,
+        "CLAVE_NO_VALIDADA": 938
+      },
+      "total_entities_classified": 938,
+      "results_sample": {
+        "CLAVE_NO_VALIDADA": [
+          {
+            "url": "https://www.bcb.gob.bo/webdocs/sector_externo/F%20Reservas%20Internacionales%20Netas/Reservas_Internacionales_Netas_del_Banco_Central_de_Bolivia_por_componentes.xlsx",
+            "reason": "COINCIDENCIA_BAJO_UMBRAL",
+            "portal": "bcb"
+          },
+          {
+            "url": "https://www.bcb.gob.bo/webdocs/files_noticias/C8%202026-9%20DE%20SEPTIEMBRE.pdf",
+            "origin": "externo",
+            "portal": "bcb"
+          },
+          {
+            "url": "https://www.bcb.gob.bo/webdocs/Otros/Cronograma_anual_de_publicaciones_2026.xlsx",
+            "origin": "externo",
+            "portal": "bcb"
+          },
+          {
+            "url": "https://www.bcb.gob.bo/webdocs/publicacionesbcb/2017/09/28/APEL-Compendio%20documentos%20ganadores.pdf",
+            "origin": "externo",
+            "portal": "bcb"
+          },
+          {
+            "url": "https://www.bcb.gob.bo/webdocs/publicacionesbcb/2019/05/17/BCB%20Memoria%202018%20CAPITULO%204.pdf",
+            "origin": "externo",
+            "portal": "bcb"
+          }
+        ]
+      }
+    },
+    "ine": {
+      "status": "VALIDADA",
+      "match_rate": {
+        "external_unique_urls": 443,
+        "internal_unique_urls": 132,
+        "common_urls": 100,
+        "smaller_side": 132,
+        "match_rate_pct": 75.76,
+        "threshold_pct": 10.0,
+        "validated": true
+      },
+      "c2_internal_input_matrix": {
+        "files": {
+          "ine.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\ine.json",
+            "size_bytes": 93754,
+            "modified_at": "2026-08-31T00:56:04.999206+00:00",
+            "total_records": 132,
+            "con_url": 132,
+            "con_hash": 0,
+            "con_periodo": 64
+          }
+        },
+        "total_records": 132,
+        "with_url": 132,
+        "with_hash": 0,
+        "with_period": 64
+      },
+      "c8_external_verification_state": {
+        "VERIFICADO_CON_HASH": 0,
+        "CATALOGADO_SIN_BYTES": 443
+      },
+      "period_summary": {
+        "CON_ETIQUETA_CANONICA": 283,
+        "SIN_ETIQUETA": 160,
+        "motivos_omision": {
+          "RANGO_MULTIANUAL": 26,
+          "SIN_PERIODO": 134
+        }
+      },
+      "dimensiones_no_medibles": [
+        {
+          "dimension": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 (externo tiene 0 verificados; interno tiene 0)",
+          "afecta_filas": 100
+        }
+      ],
+      "category_counts": {
+        "CONFIRMADO": 0,
+        "SOLO_EXTERNO": 343,
+        "SOLO_INTERNO": 32,
+        "DISCORDANCIA_PERIODO": 0,
+        "DISCORDANCIA_CONTENIDO": 0,
+        "URL_CAMBIADA": 0,
+        "INDETERMINADO_POR_DATO_AUSENTE": 72,
+        "INDETERMINADO_POR_CONFIANZA": 28,
+        "CLAVE_NO_VALIDADA": 0
+      },
+      "total_entities_classified": 475,
+      "results_sample": {
+        "SOLO_EXTERNO": [
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/277/planes-estrategicos-institucionales/64354/documentos-de-aprobacion-pei-2021-2025-2.pdf",
+            "content_hash": null,
+            "period_label": null
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/277/planes-estrategicos-institucionales/39453/resolucion-administrativa-informes-de-aprobacion-pei-2016-2020.pdf",
+            "content_hash": null,
+            "period_label": null
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/277/planes-estrategicos-institucionales/65534/pei-del-ine-2021-2025-2-version.pdf",
+            "content_hash": null,
+            "period_label": null
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/277/planes-estrategicos-institucionales/65535/res-adm-ine-dge-174-2024-pei-2-version.pdf",
+            "content_hash": null,
+            "period_label": "2024"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/277/planes-estrategicos-institucionales/64355/pei-2021-2025-del-ine_.pdf",
+            "content_hash": null,
+            "period_label": null
+          }
+        ],
+        "SOLO_INTERNO": [
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/308/publicaciones/39683/metadatos-cuentas-nacionales-trim-mas-ajuste.pdf",
+            "content_hash": null,
+            "period_label": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39691/matriz-formacion-bruta-de-capital-fijo-1988.xlsx",
+            "content_hash": null,
+            "period_label": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39693/matriz-formacion-bruta-de-capital-fijo-1989.xlsx",
+            "content_hash": null,
+            "period_label": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39692/matriz-formacion-bruta-de-capital-fijo-1990.xlsx",
+            "content_hash": null,
+            "period_label": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/309/matrices-de-formacion-bruta-de-capital-fijo/39695/matriz-formacion-bruta-de-capital-fijo-1991.xlsx",
+            "content_hash": null,
+            "period_label": "No disponible"
+          }
+        ],
+        "INDETERMINADO_POR_DATO_AUSENTE": [
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44570/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19902011.xlsx",
+            "dimension": "period_label",
+            "ext_period": null,
+            "int_period": "2011"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/405/matrices-de-insumo-producto-constante/44549/matriz-de-insumo-producto-en-miles-de-bolivianos-de-19901990.xlsx",
+            "dimension": "period_label",
+            "ext_period": null,
+            "int_period": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/pib-y-cuentas-nacionales/matrices/matrices-de-insumo-producto/",
+            "dimension": "period_label",
+            "ext_period": null,
+            "int_period": "No disponible"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/306/cuentas-economicas-integradas/39669/cuadro-economico-de-conjunto-2010.xlsx",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44589/matriz-de-insumo-producto-en-miles-de-bolivianos2001.xlsx",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
+          }
+        ],
+        "INDETERMINADO_POR_CONFIANZA": [
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44577/matriz-de-insumo-producto-en-miles-de-bolivianos1989.xlsx",
+            "ext_period": "1989",
+            "int_period": "No disponible",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44587/matriz-de-insumo-producto-en-miles-de-bolivianos1999.xlsx",
+            "ext_period": "1999",
+            "int_period": "No disponible",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/516/cuentas-consolidadas/46411/bolivia-cuenta-del-producto-y-gasto-interno-bruto-segun-componente-1998-2016.xlsx",
+            "ext_period": "1998",
+            "int_period": "2016",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44578/matriz-de-insumo-producto-en-miles-de-bolivianos1990.xlsx",
+            "ext_period": "1990",
+            "int_period": "No disponible",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44582/matriz-de-insumo-producto-en-miles-de-bolivianos1994.xlsx",
+            "ext_period": "1994",
+            "int_period": "No disponible",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          }
+        ]
+      }
+    },
+    "asfi": {
+      "status": "VALIDADA",
+      "match_rate": {
+        "external_unique_urls": 596,
+        "internal_unique_urls": 2428,
+        "common_urls": 223,
+        "smaller_side": 596,
+        "match_rate_pct": 37.42,
+        "threshold_pct": 10.0,
+        "validated": true
+      },
+      "c2_internal_input_matrix": {
+        "files": {
+          "asfi.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi.json",
+            "size_bytes": 83998,
+            "modified_at": "2026-08-30T04:17:17.826519+00:00",
+            "total_records": 140,
+            "con_url": 140,
+            "con_hash": 0,
+            "con_periodo": 140
+          },
+          "asfi_bcb.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_bcb.json",
+            "size_bytes": 274010,
+            "modified_at": "2026-08-30T03:11:56.379658+00:00",
+            "total_records": 528,
+            "con_url": 528,
+            "con_hash": 0,
+            "con_periodo": 288
+          },
+          "asfi_finrural.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_finrural.json",
+            "size_bytes": 1230816,
+            "modified_at": "2026-08-30T04:32:37.877671+00:00",
+            "total_records": 1606,
+            "con_url": 1606,
+            "con_hash": 0,
+            "con_periodo": 1606
+          },
+          "asfi_valores.json": {
+            "path": "Elecciones De Crawler por URL\\Rolando\\extracted\\output\\asfi_valores.json",
+            "size_bytes": 105751,
+            "modified_at": "2026-08-30T04:52:16.153735+00:00",
+            "total_records": 165,
+            "con_url": 165,
+            "con_hash": 0,
+            "con_periodo": 165
+          }
+        },
+        "total_records": 2439,
+        "with_url": 2439,
+        "with_hash": 0,
+        "with_period": 2199
+      },
+      "c8_external_verification_state": {
+        "VERIFICADO_CON_HASH": 57,
+        "CATALOGADO_SIN_BYTES": 544
+      },
+      "period_summary": {
+        "CON_ETIQUETA_CANONICA": 480,
+        "SIN_ETIQUETA": 121,
+        "motivos_omision": {
+          "SIN_PERIODO": 120,
+          "RANGO_MULTIANUAL": 1
+        }
+      },
+      "dimensiones_no_medibles": [
+        {
+          "dimension": "DISCORDANCIA_CONTENIDO",
+          "motivo": "Falta de hashes SHA-256 (externo tiene 57 verificados; interno tiene 0)",
+          "afecta_filas": 223
+        }
+      ],
+      "category_counts": {
+        "CONFIRMADO": 0,
+        "SOLO_EXTERNO": 373,
+        "SOLO_INTERNO": 2205,
+        "DISCORDANCIA_PERIODO": 0,
+        "DISCORDANCIA_CONTENIDO": 0,
+        "URL_CAMBIADA": 0,
+        "INDETERMINADO_POR_DATO_AUSENTE": 1,
+        "INDETERMINADO_POR_CONFIANZA": 222,
+        "CLAVE_NO_VALIDADA": 0
+      },
+      "total_entities_classified": 2801,
+      "results_sample": {
+        "SOLO_EXTERNO": [
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2026-06/MEMORIA_2025.pdf",
+            "content_hash": null,
+            "period_label": "2025"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-07/MEMORIA_2024.pdf",
+            "content_hash": null,
+            "period_label": "2024"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-07/MEMORIA_2023.pdf",
+            "content_hash": null,
+            "period_label": "2023"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-07/MEMORIA_2022.pdf",
+            "content_hash": null,
+            "period_label": "2022"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-07/MEMORIA_2021.pdf",
+            "content_hash": null,
+            "period_label": "2021"
+          }
+        ],
+        "SOLO_INTERNO": [
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201612_BDR_EstadosFinancieros.xls",
+            "content_hash": null,
+            "period_label": "2025-08"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201611_BDR_EstadosFinancieros.xls",
+            "content_hash": null,
+            "period_label": "2025-08"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201610_BDR_EstadosFinancieros.xls",
+            "content_hash": null,
+            "period_label": "2025-08"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201609_BDR_EstadosFinancieros.xls",
+            "content_hash": null,
+            "period_label": "2025-08"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/201608_BDR_EstadosFinancieros.xls",
+            "content_hash": null,
+            "period_label": "2025-08"
+          }
+        ],
+        "INDETERMINADO_POR_DATO_AUSENTE": [
+          {
+            "url": "https://www.asfi.gob.bo/la/boletines-estadisticos-mercado-valores-2026",
+            "dimension": "content_hash",
+            "ext_hash": null,
+            "int_hash": null
+          }
+        ],
+        "INDETERMINADO_POR_CONFIANZA": [
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202309_BDR_EstadosFinancieros.xls",
+            "ext_period": "2023-09",
+            "int_period": "2025-08",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/Bolet%C3%ADn%20-%20Enero%202022.xlsx",
+            "ext_period": "2022-01",
+            "int_period": "2025-08",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202010_BDR_EstadosFinancieros.xls",
+            "ext_period": "2020-10",
+            "int_period": "2025-08",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2026-07/Anuario_Estad%C3%ADstico%202025.zip",
+            "ext_period": "2025",
+            "int_period": "2026-07",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          },
+          {
+            "url": "https://www.asfi.gob.bo/sites/default/files/2025-08/202104_BDR_EstadosFinancieros.xls",
+            "ext_period": "2021-04",
+            "int_period": "2025-08",
+            "ext_confidence": "unknown",
+            "int_confidence": "unknown",
+            "reason": "CONFIANZA_INSUFICIENTE_PARA_DISCORDANCIA"
+          }
+        ]
+      }
+    }
+  },
+  "global_summary": {
+    "total_external_records": 1165,
+    "total_internal_records": 3389,
+    "total_reconciled_entities": 4214,
+    "categories_total": {
+      "CONFIRMADO": 0,
+      "SOLO_EXTERNO": 716,
+      "SOLO_INTERNO": 2237,
+      "DISCORDANCIA_PERIODO": 0,
+      "DISCORDANCIA_CONTENIDO": 0,
+      "URL_CAMBIADA": 0,
+      "INDETERMINADO_POR_DATO_AUSENTE": 73,
+      "INDETERMINADO_POR_CONFIANZA": 250,
+      "CLAVE_NO_VALIDADA": 938
+    }
+  }
+}

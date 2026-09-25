@@ -87,3 +87,70 @@ def test_multi_format_export(tmp_path: Path):
     assert isinstance(compact_data, list)
     assert len(compact_data) == 1
     assert compact_data[0]["resource_id"] == "finrural:reporte_financiero_mensual:2026-01:pdf"
+
+
+def test_export_resource_candidates(tmp_path: Path):
+    """Prueba unitaria para export_resource_candidates (B-57 / D-19 / C-4 / C-8)."""
+    import sqlite3
+    db_path = tmp_path / "inventory.db"
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE resource_audit_log (
+            canonical_url TEXT PRIMARY KEY,
+            download_url TEXT,
+            content_sha256 TEXT,
+            file_size_bytes INTEGER,
+            period_start TEXT,
+            period_end TEXT,
+            date_confidence_score TEXT,
+            status TEXT
+        )
+    """)
+    cur.execute("""
+        INSERT INTO resource_audit_log VALUES (
+            'https://www.asfi.gob.bo/docs/rep_2026_01.pdf',
+            'https://www.asfi.gob.bo/docs/rep_2026_01.pdf',
+            'sha256_mock_123',
+            1048576,
+            '2026-01-01',
+            '2026-01-31',
+            'high',
+            'PROCESADO_EXITOSAMENTE'
+        )
+    """)
+    cur.execute("""
+        INSERT INTO resource_audit_log VALUES (
+            'https://www.asfi.gob.bo/docs/multi_2021_2025.pdf',
+            'https://www.asfi.gob.bo/docs/multi_2021_2025.pdf',
+            NULL,
+            0,
+            '2021-01-01',
+            '2025-12-31',
+            'low',
+            'PROCESADO_EXITOSAMENTE'
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+    exporter = MultiFormatExporter(output_dir=tmp_path)
+    out_file = exporter.export_resource_candidates(source_id="asfi", db_path=db_path)
+
+    assert out_file.exists()
+    with open(out_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    assert data["total_records"] == 2
+    assert data["verification_summary"]["VERIFICADO_CON_HASH"] == 1
+    assert data["verification_summary"]["CATALOGADO_SIN_BYTES"] == 1
+    assert data["period_summary"]["CON_ETIQUETA_CANONICA"] == 1
+    assert data["period_summary"]["SIN_ETIQUETA"] == 1
+    assert data["period_summary"]["motivos_omision"]["RANGO_MULTIANUAL"] == 1
+
+    cands = data["candidates"]
+    assert cands[0]["period_label"] == "2026-01"
+    assert cands[0]["verification_status"] == "VERIFICADO_CON_HASH"
+    assert cands[1]["period_label"] is None  # C-4: Prohibido centinela
+    assert cands[1]["verification_status"] == "CATALOGADO_SIN_BYTES"
+
