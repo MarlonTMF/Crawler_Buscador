@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-09-24T18:58:31.579605",
-  "elapsed_seconds": 43.64135789871216,
-  "total_recovered": 3,
+  "timestamp": "2026-09-24T22:54:12.090557",
+  "elapsed_seconds": 215.51149940490723,
+  "total_recovered": 7,
   "recoveries": [
     {
       "portal": "bcb",
@@ -12,7 +12,7 @@
       "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20dic25.pdf",
       "file_size_bytes": 816316,
       "content_sha256": "7cba6779ec35a3e6e751b461b9261ea3415dbb366478a34f8e47c97900bf2a3d",
-      "verified_at": "2026-09-24T22:57:52.054362+00:00",
+      "verified_at": "2026-09-25T02:50:40.424786+00:00",
       "status": "RECOVERED",
       "metadata": {
         "source_rung": 2,
@@ -28,7 +28,7 @@
       "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20dic24.pdf",
       "file_size_bytes": 4973960,
       "content_sha256": "9041f2c4f99582105e2c6f2a0562d10b41c17cde9059a659a15fb4d6f4dbb6ce",
-      "verified_at": "2026-09-24T22:58:03.966681+00:00",
+      "verified_at": "2026-09-25T02:51:05.325096+00:00",
       "status": "RECOVERED",
       "metadata": {
         "source_rung": 2,
@@ -44,11 +44,79 @@
       "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20jun24.pdf",
       "file_size_bytes": 4920873,
       "content_sha256": "7356a829f64651d22a33d5d85ef9f861c923ed6c3b646b1408c478d9289e6d66",
-      "verified_at": "2026-09-24T22:58:08.000277+00:00",
+      "verified_at": "2026-09-25T02:51:09.726918+00:00",
       "status": "RECOVERED",
       "metadata": {
         "source_rung": 2,
         "method": "series_template_d17"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "cuentas_nacionales_pib",
+      "period": "2016",
+      "recovery_rung": 5,
+      "rung_name": "agente_gemini",
+      "url": "https://www.ine.gob.bo/index.php/estadisticas-economicas/cuentas-nacionales/",
+      "file_size_bytes": 178179,
+      "content_sha256": "d135f3ea0e7620aeeb53d1276d1e358538bde7a9e6caecca011f39a1c934d066",
+      "verified_at": "2026-09-25T02:53:05.413609+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 5,
+        "method": "gemini_agent_helper",
+        "domain_verified": "www.ine.gob.bo"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2017",
+      "recovery_rung": 5,
+      "rung_name": "agente_gemini",
+      "url": "https://www.ine.gob.bo/index.php/transparencia/auditoria-interna/",
+      "file_size_bytes": 365023,
+      "content_sha256": "e0d7b09f0c71944fc238eeae89ef26bb5b719667e0f96aee3ccfef614c739a08",
+      "verified_at": "2026-09-25T02:53:21.010322+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 5,
+        "method": "gemini_agent_helper",
+        "domain_verified": "www.ine.gob.bo"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2015",
+      "recovery_rung": 5,
+      "rung_name": "agente_gemini",
+      "url": "https://www.ine.gob.bo/index.php/transparencia/auditoria-interna/",
+      "file_size_bytes": 365023,
+      "content_sha256": "59e424729a1efb9479f0e080d1763ef8bc2fe67acf341461f7b6f7b52d4bad58",
+      "verified_at": "2026-09-25T02:53:52.180213+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 5,
+        "method": "gemini_agent_helper",
+        "domain_verified": "www.ine.gob.bo"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "recovery_rung": 5,
+      "rung_name": "agente_gemini",
+      "url": "https://www.ine.gob.bo/index.php/transparencia/auditoria-interna/",
+      "file_size_bytes": 365023,
+      "content_sha256": "d1f6b579fedc521dd81f8dd99d4bd40b2d54d6569f443446e735e5cd7299ba67",
+      "verified_at": "2026-09-25T02:54:10.759882+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 5,
+        "method": "gemini_agent_helper",
+        "domain_verified": "www.ine.gob.bo"
       }
     }
   ]

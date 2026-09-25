@@ -239,3 +239,108 @@ def test_recovery_ladder_real_recoveries_not_in_inventory():
         row = c.execute("SELECT 1 FROM resource_audit_log WHERE canonical_url = ?", (u,)).fetchone()
         assert row is None, f"La URL recuperada {u} ya existía en resource_audit_log del BCB!"
     conn.close()
+
+
+def test_recovery_ladder_rung_5_agent_called_when_rungs_1_to_4_fail():
+    """B-54b: Verifica que el Escalón 5 (Agente Gemini) se invoque cuando fallan los escalones 1 a 4."""
+    ladder = RecoveryLadder()
+    with patch.object(ladder, "_try_rung_1_known_url", return_value=None), \
+         patch.object(ladder, "_try_rung_2_series_template", return_value=None), \
+         patch.object(ladder, "_try_rung_3_same_domain_alternate", return_value=None), \
+         patch.object(ladder, "_try_rung_4_wayback_archive", return_value=None), \
+         patch.object(ladder, "_try_rung_5_agent_gemini") as m5:
+
+        m5.return_value = RecoveredPeriod(
+            portal="bcb",
+            dataset_id="test_ds",
+            period="2023-S1",
+            recovery_rung=5,
+            rung_name="agente_gemini",
+            url="https://www.bcb.gob.bo/docs/deuda_2023_s1.pdf",
+            file_size_bytes=1024,
+            content_sha256="e" * 64,
+            verified_at="2026-09-24T20:00:00Z",
+            metadata={"source_rung": 5, "method": "gemini_agent_helper"},
+        )
+
+        res = ladder.recover_period("bcb", "test_ds", "2023-S1", periodicity="semestral")
+        assert res is not None
+        assert res.recovery_rung == 5
+        assert res.rung_name == "agente_gemini"
+        m5.assert_called_once()
+
+
+def test_recovery_ladder_rung_5_never_called_if_deterministic_rung_succeeds():
+    """B-54b: El agente NUNCA se invoca si algún escalón determinista (1-4) tiene éxito."""
+    ladder = RecoveryLadder()
+    with patch.object(ladder, "_try_rung_1_known_url", return_value=None), \
+         patch.object(ladder, "_try_rung_2_series_template") as m2, \
+         patch.object(ladder, "_try_rung_5_agent_gemini") as m5:
+
+        m2.return_value = RecoveredPeriod(
+            portal="bcb",
+            dataset_id="test_ds",
+            period="2024-S1",
+            recovery_rung=2,
+            rung_name="plantilla_serie",
+            url="https://example.com/template.pdf",
+            file_size_bytes=2048,
+            content_sha256="b" * 64,
+            verified_at="2026-09-24T18:00:00Z",
+        )
+
+        res = ladder.recover_period("bcb", "test_ds", "2024-S1", periodicity="semestral")
+        assert res is not None
+        assert res.recovery_rung == 2
+        m5.assert_not_called()
+
+
+def test_recovery_ladder_rung_5_rejects_candidate_if_head_or_content_fails(tmp_path):
+    """
+    B-54b: Toda propuesta del agente pasa por HEAD (D-17) y verificación de contenido (D-01).
+    Si HEAD o el contenido institucional fallan, se descarta.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+
+    # 1. HEAD falla
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://www.bcb.gob.bo/fake.pdf"]), \
+         patch.object(ladder, "_check_head", return_value=False):
+        res = ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        assert res is None
+
+    # 2. HEAD pasa pero verificación de contenido (D-01) falla
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://www.bcb.gob.bo/wrong.pdf"]), \
+         patch.object(ladder, "_check_head", return_value=True), \
+         patch.object(ladder, "fetch_and_verify", return_value=(2048, "a" * 64)), \
+         patch.object(ladder, "_verify_institution_content", return_value=False):
+        res = ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        assert res is None
+
+
+def test_recovery_ladder_rung_5_rejects_different_domain_without_inheritance(tmp_path):
+    """
+    B-54b Regla 4: Cambio de dominio institucional nunca es automático (va a B-55).
+    Si Gemini propone un dominio no autorizado en la configuración, se descarta.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=["https://bcp.org/deuda.pdf"]), \
+         patch.object(ladder, "_check_head", return_value=True):
+        res = ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        assert res is None
+
+
+def test_recovery_ladder_rung_5_call_limit_and_budget():
+    """
+    B-54b Regla 5: Tope de llamadas por corrida registrado.
+    No debe exceder max_gemini_calls.
+    """
+    ladder = RecoveryLadder(max_gemini_calls=2)
+    assert ladder.gemini_calls_count == 0
+    with patch.object(ladder.fetcher, "_generate_gemini_content", return_value='["https://www.bcb.gob.bo/p1.pdf"]'), \
+         patch.object(ladder, "_check_head", return_value=False):
+        ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S2", "semestral")
+        assert ladder.gemini_calls_count == 2
+        # La 3ra llamada no debe consultar a Gemini por agotar el tope
+        ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2022-S2", "semestral")
+        assert ladder.gemini_calls_count == 2

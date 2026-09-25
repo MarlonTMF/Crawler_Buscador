@@ -37,12 +37,13 @@ def print_table_report(recovered: List[RecoveredPeriod], elapsed_sec: float):
     print(header)
     print("-" * 135)
 
-    rung_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+    rung_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     rung_names = {
         1: "1 · Misma URL",
         2: "2 · Plantilla serie",
         3: "3 · Ruta alterna dominio",
         4: "4 · Archivo histórico",
+        5: "5 · Agente Gemini",
     }
     total_bytes = 0
 
@@ -84,7 +85,7 @@ def main():
     if hasattr(sys.stderr, "reconfigure"):
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-    parser = argparse.ArgumentParser(description="Escalera de recuperación de períodos faltantes (B-54)")
+    parser = argparse.ArgumentParser(description="Escalera de recuperación de períodos faltantes (B-54 / B-54b)")
     parser.add_argument(
         "--sources",
         default="bcb,ine,asfi",
@@ -95,6 +96,12 @@ def main():
         type=int,
         default=12,
         help="Límite máximo de recuperaciones a ejecutar",
+    )
+    parser.add_argument(
+        "--max-gemini-calls",
+        type=int,
+        default=10,
+        help="Límite máximo de llamadas a la API de Gemini para el escalón 5 (por defecto: 10)",
     )
     parser.add_argument(
         "--format",
@@ -112,18 +119,20 @@ def main():
     args = parser.parse_args()
     sources = [s.strip().lower() for s in args.sources.split(",") if s.strip()]
 
-    ladder = RecoveryLadder()
+    ladder = RecoveryLadder(max_gemini_calls=args.max_gemini_calls)
     t0 = time.time()
     recovered = ladder.recover_missing_periods(sources=sources, max_recoveries=args.max_recoveries)
     elapsed = time.time() - t0
 
     if args.format == "table":
         print_table_report(recovered, elapsed)
+        print(f"Llamadas a Gemini API en Escalón 5: {ladder.gemini_calls_count}/{ladder.max_gemini_calls}")
     else:
         out_dict = {
             "timestamp": datetime.now().isoformat(),
             "elapsed_seconds": elapsed,
             "total_recovered": len(recovered),
+            "gemini_calls_count": ladder.gemini_calls_count,
             "recoveries": [r.to_dict() for r in recovered],
         }
         print(json.dumps(out_dict, indent=2, ensure_ascii=False))

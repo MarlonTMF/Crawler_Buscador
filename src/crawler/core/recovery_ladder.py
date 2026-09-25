@@ -10,15 +10,17 @@ Recupera períodos faltantes en orden de menor a mayor riesgo:
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import re
 import sqlite3
+import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import IntEnum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urlparse
 
 import requests
 import urllib3
@@ -36,6 +38,7 @@ class RecoveryRung(IntEnum):
     RUNG_2_SERIES_TEMPLATE = 2
     RUNG_3_SAME_DOMAIN_ALTERNATE = 3
     RUNG_4_WAYBACK_ARCHIVE = 4
+    RUNG_5_AGENT_GEMINI = 5
 
 
 @dataclass
@@ -108,11 +111,15 @@ class RecoveryLadder:
         base_output_dir: Path = Path("output"),
         base_config_dir: Path = Path("config"),
         timeout: float = 6.0,
+        max_gemini_calls: int = 10,
     ):
         self.fetcher = fetcher or HttpFetcher()
         self.base_output_dir = base_output_dir
         self.base_config_dir = base_config_dir
         self.timeout = timeout
+        self.max_gemini_calls = max_gemini_calls
+        self.gemini_calls_count = 0
+        self._last_download_sample = b""
         self._session = requests.Session()
         self._session.headers.update({
             "User-Agent": getattr(self.fetcher, "user_agent", "DataX-Prospector/1.0 (+http://datax.org)")
@@ -134,10 +141,14 @@ class RecoveryLadder:
                 return None
             hasher = hashlib.sha256()
             total_size = 0
+            sample_bytes = bytearray()
             for chunk in r.iter_content(chunk_size=65536):
                 if chunk:
                     hasher.update(chunk)
                     total_size += len(chunk)
+                    if len(sample_bytes) < 131072:
+                        sample_bytes.extend(chunk[: 131072 - len(sample_bytes)])
+            self._last_download_sample = bytes(sample_bytes)
             if total_size <= 0:
                 return None
             return total_size, hasher.hexdigest()
@@ -440,11 +451,169 @@ class RecoveryLadder:
 
         return None
 
+    def _get_allowed_domains(self, portal: str) -> List[str]:
+        """Obtiene la lista de dominios permitidos para el portal desde su configuración YAML."""
+        cfg_path = self.base_config_dir / f"source_{portal}.yaml"
+        if cfg_path.exists():
+            try:
+                import yaml
+                with open(cfg_path, "r", encoding="utf-8") as f:
+                    data = yaml.safe_load(f)
+                    domains = data.get("source", {}).get("allowed_domains", [])
+                    if domains:
+                        return [d.strip().lower() for d in domains if d and isinstance(d, str)]
+            except Exception as e:
+                logger.debug("Error leyendo allowed_domains de %s: %s", cfg_path, e)
+
+        fallbacks = {
+            "bcb": ["bcb.gob.bo", "www.bcb.gob.bo", "deudaexternapublica.bcb.gob.bo"],
+            "asfi": ["asfi.gob.bo", "www.asfi.gob.bo"],
+            "ine": ["ine.gob.bo", "www.ine.gob.bo"],
+        }
+        return fallbacks.get(portal.lower(), [f"{portal}.gob.bo"])
+
+    def _verify_institution_content(self, portal: str, content: bytes) -> bool:
+        """
+        D-01: Verifica que el contenido descargado mencione palabras clave de la institución real.
+        """
+        if not content:
+            return False
+        sample = content[:131072].decode("latin-1", errors="ignore").lower()
+        normalized = unicodedata.normalize("NFKD", sample)
+        clean_text = "".join(c for c in normalized if not unicodedata.combining(c))
+
+        portal_keywords = {
+            "bcb": ["banco central de bolivia", "bcb", "deuda externa"],
+            "asfi": ["autoridad de supervision del sistema financiero", "sistema financiero", "asfi", "bancos"],
+            "ine": ["instituto nacional de estadistica", "ine", "cuentas nacionales"],
+        }
+        keywords = portal_keywords.get(portal.lower(), [portal.lower()])
+        return any(kw in clean_text for kw in keywords)
+
+    def _ask_gemini_for_candidates(
+        self, portal: str, dataset_id: str, period: str, periodicity: str
+    ) -> List[str]:
+        """
+        Escalón 5: Consulta a Gemini para obtener URLs candidatas de períodos faltantes.
+        Respeta el límite estricto de llamadas por corrida (max_gemini_calls / D-08).
+        """
+        if self.gemini_calls_count >= self.max_gemini_calls:
+            logger.info(
+                "Tope de llamadas a Gemini alcanzado (%d/%d), no se consulta para %s/%s/%s",
+                self.gemini_calls_count,
+                self.max_gemini_calls,
+                portal,
+                dataset_id,
+                period,
+            )
+            return []
+
+        if not getattr(self.fetcher, "gemini_api_key", None):
+            return []
+
+        prompt = (
+            f"Eres un asistente de recuperación documental para portales públicos de Bolivia. "
+            f"Institución: {portal.upper()}, Dataset: {dataset_id}, Período faltante: {period} (periodicidad {periodicity}). "
+            f"Indica hasta 5 URLs directas de documentos (PDF, XLSX, ZIP) o páginas de descarga donde este período "
+            f"podría encontrarse dentro del portal oficial o sus subdominios. "
+            f"Responde estrictamente con un JSON array de strings con las URLs candidatas, sin explicaciones ni bloques de texto adicional."
+        )
+
+        try:
+            self.gemini_calls_count += 1
+            text = self.fetcher._generate_gemini_content(prompt)
+            if not text:
+                return []
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+                cleaned = cleaned.rstrip("`").strip()
+            data = json.loads(cleaned)
+            if isinstance(data, list):
+                return [str(u).strip() for u in data if isinstance(u, str) and u.startswith("http")]
+            return []
+        except Exception as e:
+            logger.warning("Error consultando Gemini para período %s/%s/%s: %s", portal, dataset_id, period, e)
+            return []
+
+    def _try_rung_5_agent_gemini(
+        self, portal: str, dataset_id: str, period: str, periodicity: str
+    ) -> Optional[RecoveredPeriod]:
+        """
+        Escalón 5: El agente (Gemini) propone candidatos cuando los cuatro escalones deterministas fallaron.
+        Reglas estrictas de guardarraíl (docs/arquitectura_integracion.md §6):
+        1. El agente propone, no admite directamente en inventory.db.
+        2. Toda propuesta pasa por HTTP HEAD (status 200, Content-Length > 0 / D-17).
+        3. Toda propuesta pasa por verificación de contenido institucional (D-01).
+        4. Cambio de dominio institucional nunca es automático (va a herencia B-55).
+        5. Límite de llamadas acotado y registrado por corrida (max_gemini_calls / D-08).
+        6. Queda registrado en el registro que provino del escalón 5 (agente_gemini).
+        """
+        candidates = self._ask_gemini_for_candidates(portal, dataset_id, period, periodicity)
+        if not candidates:
+            return None
+
+        allowed_domains = self._get_allowed_domains(portal)
+
+        for cand_url in candidates:
+            # Regla 4: Dominio permitido
+            domain = urlparse(cand_url).netloc.lower()
+            if ":" in domain:
+                domain = domain.split(":")[0]
+
+            if not any(domain == ad or domain.endswith("." + ad) for ad in allowed_domains):
+                logger.info(
+                    "Candidato del agente descartado por dominio no autorizado (%s no en %s): %s",
+                    domain,
+                    allowed_domains,
+                    cand_url,
+                )
+                continue
+
+            # Regla 2: HEAD status 200 y tamaño > 0 (D-17)
+            if not self._check_head(cand_url):
+                continue
+
+            # Descargar y calcular bytes y SHA-256
+            res = self.fetch_and_verify(cand_url)
+            if not res:
+                continue
+            size, sha256 = res
+
+            # Regla 3: Verificación de contenido institucional (D-01)
+            sample = getattr(self, "_last_download_sample", b"")
+            if not self._verify_institution_content(portal, sample):
+                logger.info("Candidato del agente descartado por fallar verificación de contenido (D-01): %s", cand_url)
+                continue
+
+            # Regla O-1: No admitir documentos que ya estén en inventory.db
+            if self.is_url_in_inventory(portal, cand_url):
+                continue
+
+            return RecoveredPeriod(
+                portal=portal,
+                dataset_id=dataset_id,
+                period=period,
+                recovery_rung=RecoveryRung.RUNG_5_AGENT_GEMINI,
+                rung_name="agente_gemini",
+                url=cand_url,
+                file_size_bytes=size,
+                content_sha256=sha256,
+                verified_at=datetime.now(timezone.utc).isoformat(),
+                metadata={
+                    "source_rung": 5,
+                    "method": "gemini_agent_helper",
+                    "domain_verified": domain,
+                },
+            )
+
+        return None
+
     def recover_period(
         self, portal: str, dataset_id: str, period: str, periodicity: str = "anual"
     ) -> Optional[RecoveredPeriod]:
         """
-        Busca un período faltante a través de los cuatro escalones en orden estricto de menor a mayor riesgo.
+        Busca un período faltante a través de los cinco escalones en orden estricto de menor a mayor riesgo.
         Se detiene en el primer escalón que tenga éxito.
         Verifica en todos los escalones que la URL recuperada no exista previamente en el inventario (O-1).
         """
@@ -453,6 +622,7 @@ class RecoveryLadder:
             self._try_rung_2_series_template,
             self._try_rung_3_same_domain_alternate,
             self._try_rung_4_wayback_archive,
+            self._try_rung_5_agent_gemini,
         ):
             res = rung_fn(portal, dataset_id, period, periodicity)
             if res:
