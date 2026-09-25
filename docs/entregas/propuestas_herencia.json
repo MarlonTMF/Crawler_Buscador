@@ -1,0 +1,115 @@
+{
+  "timestamp": "2026-09-25T03:39:50.699770+00:00",
+  "criterio": "D-18 (Herencia de series con evidencia descargada obligatoria)",
+  "total_evaluadas": 3,
+  "resumen_estados": {
+    "PROPUESTA": 0,
+    "EVIDENCIA_INCOMPLETA": 0,
+    "RECHAZADA": 3,
+    "ACEPTADA": 0
+  },
+  "propuestas": [
+    {
+      "origen_entidad": "SPVS-APS",
+      "origen_portal": "spvs_aps",
+      "origen_dataset": "series_historicas",
+      "ultimo_periodo_origen": null,
+      "destino_entidad": "Autoridad de Fiscalización y Control de Pensiones y Seguros",
+      "destino_url": "https://www.aps.gob.bo/",
+      "origen_agente": false,
+      "status": "RECHAZADA",
+      "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+      "evaluado_en": "2026-09-25T03:39:48.861891+00:00",
+      "compuertas": {
+        "compuerta_1_continuidad": {
+          "status": "INDETERMINADO",
+          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "evidence": null
+        },
+        "compuerta_2_legal": {
+          "status": "FALSA",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "evidence": null
+        },
+        "compuerta_3_estructura": {
+          "status": "FALSA",
+          "detalle": "Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+          "evidence": null
+        },
+        "compuerta_4_identidad_destino": {
+          "status": "VERDADERA",
+          "detalle": "Identidad institucional del destino verificada.",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "origen_entidad": "SPVS-ASFI",
+      "origen_portal": "spvs_asfi",
+      "origen_dataset": "series_historicas",
+      "ultimo_periodo_origen": null,
+      "destino_entidad": "Autoridad de Supervisión del Sistema Financiero",
+      "destino_url": "https://www.asfi.gob.bo/",
+      "origen_agente": false,
+      "status": "RECHAZADA",
+      "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+      "evaluado_en": "2026-09-25T03:39:49.502879+00:00",
+      "compuertas": {
+        "compuerta_1_continuidad": {
+          "status": "INDETERMINADO",
+          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "evidence": null
+        },
+        "compuerta_2_legal": {
+          "status": "FALSA",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "evidence": null
+        },
+        "compuerta_3_estructura": {
+          "status": "FALSA",
+          "detalle": "Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+          "evidence": null
+        },
+        "compuerta_4_identidad_destino": {
+          "status": "VERDADERA",
+          "detalle": "Identidad institucional del destino verificada.",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "origen_entidad": "SUPTRANS",
+      "origen_portal": "suptrans",
+      "origen_dataset": "series_historicas",
+      "ultimo_periodo_origen": null,
+      "destino_entidad": "Autoridad de Regulación y Fiscalización de Telecomunicaciones y Transportes",
+      "destino_url": "https://www.att.gob.bo/",
+      "origen_agente": false,
+      "status": "RECHAZADA",
+      "motivo_rechazo": "Compuerta 3 Fallida: Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+      "evaluado_en": "2026-09-25T03:39:50.641981+00:00",
+      "compuertas": {
+        "compuerta_1_continuidad": {
+          "status": "INDETERMINADO",
+          "detalle": "Período no determinado en ambos lados (insumo unknown o ausente).",
+          "evidence": null
+        },
+        "compuerta_2_legal": {
+          "status": "FALSA",
+          "detalle": "No hay respaldo legal o mención explícita del predecesor en el contenido descargado.",
+          "evidence": null
+        },
+        "compuerta_3_estructura": {
+          "status": "FALSA",
+          "detalle": "Violación D-14 / C-4: El destino es una página HTML o carece de formato documental permitido (.pdf, .xlsx, .zip, etc.).",
+          "evidence": null
+        },
+        "compuerta_4_identidad_destino": {
+          "status": "VERDADERA",
+          "detalle": "Identidad institucional del destino verificada.",
+          "evidence": null
+        }
+      }
+    }
+  ]
+}

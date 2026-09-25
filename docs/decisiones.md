@@ -597,3 +597,95 @@ y la entrada SICSANTACRUZ de `output/excel_urls_diagnostic.json`.
 **Razón.** Esta distinción permite superar los bloqueos de renderizado en cliente de la banca y el Estado boliviano con pleno respaldo empírico de red, cerrando la mayor brecha técnica frente a Rolando (+1.606 archivos ZIP en ASFI) sin violar la ética de scraping ni ingresar datos fantasma al catálogo.
 
 **Verificado el.** 2026-09-21, acordado en el plan de Fase 3 diseñado por Claude Opus 5 y aprobado por Marlon.
+
+---
+
+## D-18 · Herencia de series entre instituciones: evidencia descargada y aprobación humana, nunca cambio automático de dominio
+
+**Contexto.** La reforma del Estado boliviano extingue y fusiona entidades, y
+sus series estadísticas migran a la sucesora: SPVS se dividió entre ASFI
+(valores) y APS (pensiones y seguros), SUPTRANS pasó a ATT, SBEF pasó a ASFI. El
+catálogo ya registra las tres como procedencia histórica. La Fase 4 necesita que
+el motor reconozca esa migración para no declarar perdida una serie que sigue
+publicándose bajo otro nombre. Pero «buscar qué entidad se hizo cargo de esta
+serie» es la forma general del error que D-01 existe para prevenir: el proyecto
+aceptó cuatro veces una institución equivocada que respondía 200 (CADEX por
+CADEXCO, IBCE por IBCH, `bcp.org` por BCP, y `sicsantacruz.com`, que era un
+dominio de parking avalado por una investigación externa). Automatizar la
+herencia sin restricción es repetir ese error a escala y con apariencia de
+fundamento jurídico.
+
+**Alternativas descartadas.**
+1. *Cambio automático de dominio cuando la serie deja de responder y un candidato
+   plausible responde 200.* Descartada: es D-01 exactamente, agravada porque el
+   fallo no dejaría rastro visible —la serie seguiría creciendo, con documentos
+   de otra institución.
+2. *Aceptar la herencia por correlación léxica o por similitud de nombre
+   institucional.* Descartada: «CADEX» y «CADEXCO» son léxicamente casi idénticas
+   y son entidades distintas.
+3. *Aceptar como evidencia la cita legal que devuelva el agente.* Descartada por
+   la razón de fondo de esta decisión: una cita inventada es indistinguible de
+   una cierta al leerla, y nadie la abre para comprobarla. La evidencia se
+   descarga o no existe.
+4. *Bloquear del todo la herencia y archivar como `HISTORICO` toda serie cuyo
+   dominio muera.* Descartada: perdería series vivas y contradice el criterio de
+   B-56, donde archivar sin haber buscado bien es una fuente perdida, no una
+   fuente histórica.
+
+**Decisión.**
+1. **Ninguna herencia se admite de forma automática.** El motor nunca escribe un
+   cambio de entidad o de dominio institucional en `inventory.db`, en
+   `config/source_<portal>.yaml`, en `config/moved_urls.json` ni en
+   `output/excel_urls_diagnostic.json`. Propone; no admite.
+2. **Artefacto de propuesta.** Toda herencia se emite como registro en
+   `docs/entregas/propuestas_herencia.json`, con: `origen_entidad`,
+   `origen_portal`, `origen_dataset`, `ultimo_periodo_origen`, `destino_entidad`,
+   `destino_url`, las tres evidencias, `origen_agente` (si el candidato lo
+   sugirió un modelo), `status` y `evaluado_en`.
+3. **Compuertas de evidencia.** Son cuatro y se evalúan copulativamente:
+   - *Continuidad temporal (falsador).* Rechaza si origen y destino publican
+     datos contradictorios para el mismo corte, o si el destino no cubre el
+     período buscado. Se evalúa solo sobre documentos con período de confianza
+     `medium` o superior; si no hay período confiable, queda `INDETERMINADO` y no
+     habilita por sí sola la aceptación.
+   - *Respaldo legal o mención explícita del predecesor (necesaria).* El cuerpo
+     descargado del destino debe contener la norma de transferencia de
+     atribuciones o la mención de la entidad extinta. Sin esta evidencia no hay
+     propuesta admisible: la correlación léxica es presunción insuficiente.
+   - *Identidad estructural.* Comparación de campos entre recursos documentales
+     bajo D-14, nunca entre páginas HTML. La coincidencia de periodicidad no
+     cuenta como evidencia.
+   - *Identidad del destino bajo D-01.* El destino debe acreditar ser la entidad
+     sucesora con sus propias palabras clave, además de mencionar al predecesor.
+4. **Procedencia obligatoria de la evidencia.** Un modelo puede proponer el
+   candidato; no puede ser la fuente de ninguna evidencia. Cada evidencia lleva
+   `evidence_url`, `http_status`, `content_sha256`, `fetched_at`, `snippet`
+   literal y `matched_pattern`. Evidencia sin esos campos se cuenta como ausente.
+5. **Estados y cierre humano.** `PROPUESTA`, `EVIDENCIA_INCOMPLETA`, `ACEPTADA`,
+   `RECHAZADA`. Solo una persona pasa una propuesta a `ACEPTADA`, y lo hace
+   editando la configuración YAML de la fuente receptora (D-07). Las rechazadas
+   se conservan con su motivo para no volver a proponerlas ni a gastar cuota en
+   ellas (D-08).
+6. **Enlace con el ciclo de vida.** Una herencia `ACEPTADA` es lo único que lleva
+   un dataset al estado `MIGRADO` de B-56. El silencio de una fuente nunca lo
+   hace.
+
+**Razón.** La herencia es el punto del sistema donde una equivocación se ve más
+creíble: viene con nombre de institución pública y número de decreto. Exigir que
+cada pieza de evidencia venga de bytes descargados y verificables convierte el
+juicio institucional —que no sabemos automatizar— en una verificación mecánica
+—que sí—, y deja la decisión que no se puede mecanizar en manos de una persona.
+
+**Consecuencia.** El evaluador de herencia es un productor de propuestas
+auditables, no un componente del pipeline de admisión. Cuesta una revisión humana
+por herencia, y ese costo es deliberado: en 63 fuentes, las herencias son unidades
+por año, no por corrida.
+
+**Umbral que la reabriría.** Solo la automatización del paso 5 (aprobación),
+y únicamente si se acumulan ≥ 20 propuestas evaluadas por persona con 0 falsos
+positivos y todas sus evidencias reproducibles. Los puntos 1, 3 y 4 no se
+reabren: son D-01 aplicada a entidades.
+
+**Verificado el.** 2026-09-24, parada de diseño de B-55 sobre el diagnóstico de
+Antigravity, decidido por Claude Opus 5 para aprobación de Marlon.
+
