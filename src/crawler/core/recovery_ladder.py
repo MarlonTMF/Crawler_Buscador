@@ -556,8 +556,7 @@ class RecoveryLadder:
         if not year_match:
             return True
         target_year = year_match.group(1)
-
-        year_pattern = rf"\b{target_year}\b"
+        year_pattern = rf"(?<!\d)(?:{target_year}|{target_year[-2:]})(?!\d)"
         in_url_year = bool(re.search(year_pattern, url_lower))
         in_content_year = bool(re.search(year_pattern, sample_text))
 
@@ -567,9 +566,9 @@ class RecoveryLadder:
         if "-S" in p_clean:
             sem_num = p_clean.split("-S")[-1]
             if sem_num == "1":
-                sem_terms = [r"\bs1\b", r"\b1sem\b", r"\bsem1\b", r"\bjun\b", r"\bjunio\b", r"\bprimer semestre\b", r"\bi semestre\b"]
+                sem_terms = [r"\bs1\b", r"\b1sem\b", r"\bsem1\b", r"\bjunio\b", r"(?<![a-z])jun(?![a-z])", r"\bprimer semestre\b", r"\bi semestre\b"]
             else:
-                sem_terms = [r"\bs2\b", r"\b2sem\b", r"\bsem2\b", r"\bdic\b", r"\bdiciembre\b", r"\bsegundo semestre\b", r"\bii semestre\b"]
+                sem_terms = [r"\bs2\b", r"\b2sem\b", r"\bsem2\b", r"\bdiciembre\b", r"(?<![a-z])dic(?![a-z])", r"\bsegundo semestre\b", r"\bii semestre\b"]
             in_url_sem = any(re.search(t, url_lower) for t in sem_terms)
             in_content_sem = any(re.search(t, sample_text) for t in sem_terms)
             return in_url_sem or in_content_sem

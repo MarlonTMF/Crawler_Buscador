@@ -422,3 +422,51 @@ def test_recovery_ladder_does_not_repeat_url_in_same_run():
     ladder._recovered_urls.add("https://www.ine.gob.bo/docs/reporte.pdf")
     assert ladder.is_url_already_recovered("https://www.ine.gob.bo/docs/reporte.pdf") is True
 
+
+def test_verify_period_correspondence_direct_logic():
+    """
+    B-54b (O-B): Prueba directamente la lógica de correspondencia de años y semestres.
+    """
+    ladder = RecoveryLadder()
+
+    # Caso 1: Anual - año presente vs año ausente
+    assert ladder._verify_period_correspondence(
+        "2016", "anual", "https://www.ine.gob.bo/docs/pib_2016.pdf", b""
+    ) is True
+    assert ladder._verify_period_correspondence(
+        "2016", "anual", "https://www.ine.gob.bo/docs/pib.pdf", b"Memoria del a\xc3\xb1o 2016"
+    ) is True
+    assert ladder._verify_period_correspondence(
+        "2016", "anual", "https://www.ine.gob.bo/docs/pib.pdf", b"Memoria general sin fecha"
+    ) is False
+
+    # Caso 2: Semestral - correspondencia estricta de semestre (2024-S1 vs dic24)
+    assert ladder._verify_period_correspondence(
+        "2024-S1", "semestral", "https://www.bcb.gob.bo/DEPEX%20jun24.pdf", b""
+    ) is True
+    assert ladder._verify_period_correspondence(
+        "2024-S1", "semestral", "https://www.bcb.gob.bo/DEPEX%20dic24.pdf", b""
+    ) is False
+    assert ladder._verify_period_correspondence(
+        "2024-S2", "semestral", "https://www.bcb.gob.bo/DEPEX%20dic24.pdf", b""
+    ) is True
+
+
+def test_recovery_ladder_rung_5_rejects_already_recovered_url(tmp_path):
+    """
+    B-54b (O-B): Escalón 5 rechaza un candidato si la URL ya fue admitida previamente en la misma corrida.
+    """
+    ladder = RecoveryLadder(base_output_dir=tmp_path)
+    ladder.fetcher.gemini_api_key = "dummy_test_key"
+    cand_url = "https://www.bcb.gob.bo/docs/deuda_2023.pdf"
+    ladder._recovered_urls.add(cand_url)
+
+    with patch.object(ladder, "_ask_gemini_for_candidates", return_value=[cand_url]), \
+         patch.object(ladder, "_check_head", return_value=True), \
+         patch.object(ladder, "fetch_and_verify", return_value=(2048, "a" * 64)), \
+         patch.object(ladder, "_verify_institution_content", return_value=True), \
+         patch.object(ladder, "_verify_period_correspondence", return_value=True):
+        res = ladder._try_rung_5_agent_gemini("bcb", "deuda_externa", "2023-S1", "semestral")
+        assert res is None, "La URL ya recuperada en la misma corrida debe ser rechazada por el escalón 5"
+
+

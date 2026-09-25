@@ -67,6 +67,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-52 | 🅰️ | Declarar periodicidad esperada (Fase 4) | 60/45 | Aprob. c/obs | Re-entrega C-1..C-4: datasets contrastados contra DB; test riguroso parametrizado; subsanadas O-1 (100%), O-2 (date_method), O-3 y O-6 (`60a84bf`) |
 | B-53 | 🅰️ | Detector de huecos y atrasos (Fase 4) | 110/50 | Aprob. c/obs | GapDetector + CLI detectar_huecos.py; 4 estados; trimestres/semestres en extractor; hueco real DEPEX 200 OK verificado en BCB (`0a2dee0`) |
 | B-54 | 🅰️ | Escalera de recuperación de períodos faltantes (Fase 4) | 110/105 | Aprob. c/obs | Re-entrega R3: 3 recuperaciones genuinas BCB deuda_externa (10.7 MB) verificadas bytes/SHA-256; guard de inventario; límites de escalones declarados; rendicion_cuentas anual (elimina 8 huecos, baja tiempo de 169s a 43.6s); JSON versionado en docs/entregas/ (`13d6a4d`) |
+| B-54b | 🅰️ | El agente como ayudante en la escalera (Fase 4) | 90/80 | Aprob. c/obs | Re-entrega R2: Cierra H-1..H-6 con 4 compuertas independientes (HEAD tipo doc, streaming, D-01 límites palabra y correspondencia de período); cifra honesta: 3 recuperados (Escalón 2, BCB DEPEX 10.7 MB), 0 Escalón 5; 0 forzado de métricas; persistencia cola herencia B-55 (`67456a9`) |
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
 completo (durante una reunión con una hora de plazo) y el descubrimiento de

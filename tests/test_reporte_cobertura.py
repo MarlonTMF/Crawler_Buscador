@@ -97,7 +97,8 @@ def test_calcular_track_b_con_db_mock(tmp_path):
 
 def test_calcular_track_a_con_catalogo_real():
     catalog_path = Path("output/excel_urls_diagnostic.json")
-    assert catalog_path.exists(), "El catálogo maestro debe existir en output/"
+    if not catalog_path.exists():
+        pytest.skip("Requiere output/excel_urls_diagnostic.json provisionado (no versionado en git)")
 
     res = calcular_track_a(catalog_path)
     assert res["total_registros"] == 67
@@ -115,7 +116,8 @@ def test_calcular_track_a_con_catalogo_real():
 
 def test_calcular_track_b_con_output_real():
     output_dir = Path("output")
-    assert output_dir.exists(), "El directorio output/ debe existir"
+    if not output_dir.exists() or not any(output_dir.iterdir()):
+        pytest.skip("Requiere directorio output/ provisionado (no versionado en git)")
 
     res = calcular_track_b(output_dir)
     assert res["fuentes_onboardeadas_activas"] >= 26
@@ -185,6 +187,8 @@ def test_formatear_reporte_texto_y_markdown():
 
 
 def test_cli_json_y_output_file(tmp_path):
+    if not Path("output").exists():
+        pytest.skip("Requiere directorio output/ provisionado (no versionado en git)")
     report_file = tmp_path / "cobertura.json"
     exit_code = main(["--format", "json", "--output", str(report_file)])
     assert exit_code == 0
@@ -198,6 +202,8 @@ def test_cli_json_y_output_file(tmp_path):
 
 
 def test_cli_strict_exito_y_fallo(tmp_path):
+    if not Path("output").exists():
+        pytest.skip("Requiere directorio output/ provisionado (no versionado en git)")
     # 1. En entorno real debe salir 0
     exit_code_ok = main(["--strict"])
     assert exit_code_ok == 0

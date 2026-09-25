@@ -362,7 +362,7 @@ los partes. Si una capacidad quedó a medias, se dice cuál y por qué.
 | B-54 Escalera de recuperación | Antigravity | 110 min | 105 min | ✅ Aprob. c/obs (`13d6a4d`) |
 | B-55 Búsqueda de herencia | Claude + Antigravity | 120 min | | Pendiente |
 | B-56 Ciclo de vida e histórico | Antigravity | 80 min | | Pendiente |
-| B-54b Agente en la escalera | Antigravity | 90 min | | Pendiente |
+| B-54b Agente en la escalera | Antigravity | 90 min | 80 min | ✅ Aprob. c/obs (`67456a9`) |
 | B-57 Cruce con el interno | Claude + Antigravity | 120 min | | Pendiente (requiere decisión) |
 | B-58 Reporte y cierre | Claude | 70 min | | Pendiente |
 | **Total** | | **16 h 10** | | |
