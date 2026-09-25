@@ -38,6 +38,7 @@ class DatasetLifecycleState(str, Enum):
 
 class TransitionRule(str, Enum):
     VIG_AL_DIA = "VIG_AL_DIA"
+    VIG_SIN_PERIODICIDAD = "VIG_SIN_PERIODICIDAD"
     ATR_BUSQUEDA_PENDIENTE = "ATR_BUSQUEDA_PENDIENTE"
     HIST_ESCALERA_AGOTADA = "HIST_ESCALERA_AGOTADA"
     MIG_D18_ACEPTADA = "MIG_D18_ACEPTADA"
@@ -92,6 +93,7 @@ class DatasetLifecycleManager:
         gap_report: DatasetGapReport,
         recovery_attempts: Optional[List[Dict[str, Any]]] = None,
         inheritance_proposals: Optional[List[Dict[str, Any]]] = None,
+        previous_record: Optional[DatasetLifecycleRecord] = None,
         previous_state: Optional[str] = None,
     ) -> DatasetLifecycleRecord:
         """
@@ -101,27 +103,37 @@ class DatasetLifecycleManager:
         attempts = recovery_attempts or []
         proposals = inheritance_proposals or []
 
+        # Determinar estado previo
+        if previous_record is not None:
+            prev_st = previous_record.state.value if isinstance(previous_record.state, DatasetLifecycleState) else previous_record.state
+        else:
+            prev_st = previous_state
+
+        def _resolve_transition_date(target_st: DatasetLifecycleState) -> str:
+            if previous_record is not None and previous_record.state == target_st and previous_record.transition_date:
+                return previous_record.transition_date
+            return now_iso
+
         # -------------------------------------------------------------
         # 1. Regla de Migración (D-18 §6)
         # Una herencia ACEPTADA es lo único que lleva un dataset a MIGRADO.
+        # Cotejo por igualdad exacta de (portal, dataset_id).
         # -------------------------------------------------------------
         for prop in proposals:
-            orig_p = prop.get("origen_portal", "").lower()
-            orig_ds = prop.get("origen_dataset", "").lower()
+            orig_p = prop.get("origen_portal", "").strip().lower()
+            orig_ds = prop.get("origen_dataset", "").strip().lower()
             status = prop.get("status", "")
 
-            # Cotejar si la propuesta corresponde a este dataset
-            matches_ds = (orig_p == portal.lower() or portal.lower() in orig_p) and (
-                orig_ds == dataset_id.lower() or dataset_id.lower() in orig_ds
-            )
+            matches_ds = (orig_p == portal.strip().lower() and orig_ds == dataset_id.strip().lower())
             if matches_ds and status == "ACEPTADA":
+                tgt_st = DatasetLifecycleState.MIGRADO
                 return DatasetLifecycleRecord(
                     portal=portal,
                     dataset_id=dataset_id,
-                    state=DatasetLifecycleState.MIGRADO,
-                    previous_state=previous_state,
+                    state=tgt_st,
+                    previous_state=prev_st,
                     transition_rule=TransitionRule.MIG_D18_ACEPTADA.value,
-                    transition_date=now_iso,
+                    transition_date=_resolve_transition_date(tgt_st),
                     last_observed_period=gap_report.last_observed_period,
                     delay_periods=gap_report.delay_periods,
                     recovery_attempts_exhausted=False,
@@ -133,18 +145,36 @@ class DatasetLifecycleManager:
         # -------------------------------------------------------------
         # 2. Regla de Vigencia: al día dentro de tolerancia
         # -------------------------------------------------------------
-        if gap_report.delay_periods <= gap_report.tolerance:
+        if gap_report.delay_periods == 0 and gap_report.last_observed_period is None:
+            tgt_st = DatasetLifecycleState.VIGENTE
             return DatasetLifecycleRecord(
                 portal=portal,
                 dataset_id=dataset_id,
-                state=DatasetLifecycleState.VIGENTE,
-                previous_state=previous_state,
+                state=tgt_st,
+                previous_state=prev_st,
+                transition_rule=TransitionRule.VIG_SIN_PERIODICIDAD.value,
+                transition_date=_resolve_transition_date(tgt_st),
+                last_observed_period=None,
+                delay_periods=0,
+                recovery_attempts_exhausted=False,
+                recovery_attempts_log=attempts,
+                migration_reference=None,
+                justification="Serie vigente sin periodicidad declarada o sin períodos temporales evaluados.",
+            )
+
+        if gap_report.delay_periods <= gap_report.tolerance:
+            tgt_st = DatasetLifecycleState.VIGENTE
+            return DatasetLifecycleRecord(
+                portal=portal,
+                dataset_id=dataset_id,
+                state=tgt_st,
+                previous_state=prev_st,
                 transition_rule=TransitionRule.VIG_AL_DIA.value,
-                transition_date=now_iso,
+                transition_date=_resolve_transition_date(tgt_st),
                 last_observed_period=gap_report.last_observed_period,
                 delay_periods=gap_report.delay_periods,
                 recovery_attempts_exhausted=False,
-                recovery_attempts_log=[],
+                recovery_attempts_log=attempts,
                 migration_reference=None,
                 justification=f"Serie vigente: retraso de {gap_report.delay_periods} período(s) dentro de la tolerancia permitida ({gap_report.tolerance}).",
             )
@@ -165,13 +195,14 @@ class DatasetLifecycleManager:
         )
 
         if ladder_exhausted:
+            tgt_st = DatasetLifecycleState.HISTORICO
             return DatasetLifecycleRecord(
                 portal=portal,
                 dataset_id=dataset_id,
-                state=DatasetLifecycleState.HISTORICO,
-                previous_state=previous_state,
+                state=tgt_st,
+                previous_state=prev_st,
                 transition_rule=TransitionRule.HIST_ESCALERA_AGOTADA.value,
-                transition_date=now_iso,
+                transition_date=_resolve_transition_date(tgt_st),
                 last_observed_period=gap_report.last_observed_period,
                 delay_periods=gap_report.delay_periods,
                 recovery_attempts_exhausted=True,
@@ -181,14 +212,15 @@ class DatasetLifecycleManager:
             )
 
         # Si el retraso excede la tolerancia pero la escalera no se agotó: ATRASADO
+        tgt_st = DatasetLifecycleState.ATRASADO
         missing_rungs = sorted(list(self.MANDATORY_RUNGS_FOR_EXHAUSTION - rungs_tested))
         return DatasetLifecycleRecord(
             portal=portal,
             dataset_id=dataset_id,
-            state=DatasetLifecycleState.ATRASADO,
-            previous_state=previous_state,
+            state=tgt_st,
+            previous_state=prev_st,
             transition_rule=TransitionRule.ATR_BUSQUEDA_PENDIENTE.value,
-            transition_date=now_iso,
+            transition_date=_resolve_transition_date(tgt_st),
             last_observed_period=gap_report.last_observed_period,
             delay_periods=gap_report.delay_periods,
             recovery_attempts_exhausted=False,
@@ -202,19 +234,27 @@ class DatasetLifecycleManager:
         fuente: str,
         institucion: str,
         crawler_source: str,
+        previous_record: Optional[DatasetLifecycleRecord] = None,
         previous_state: Optional[str] = None,
     ) -> DatasetLifecycleRecord:
         """
         Evalúa precedentes históricos catalogados (entidades disueltas como SPVS, SUPTRANS).
         """
         now_iso = datetime.now(timezone.utc).isoformat()
+        if previous_record is not None:
+            prev_st = previous_record.state.value if isinstance(previous_record.state, DatasetLifecycleState) else previous_record.state
+            t_date = previous_record.transition_date if (previous_record.state == DatasetLifecycleState.MIGRADO and previous_record.transition_date) else now_iso
+        else:
+            prev_st = previous_state
+            t_date = now_iso
+
         return DatasetLifecycleRecord(
             portal=crawler_source,
             dataset_id=fuente.lower().replace("-", "_"),
             state=DatasetLifecycleState.MIGRADO,
-            previous_state=previous_state,
+            previous_state=prev_st,
             transition_rule=TransitionRule.MIG_CATALOGO_HISTORICO.value,
-            transition_date=now_iso,
+            transition_date=t_date,
             last_observed_period=None,
             delay_periods=0,
             recovery_attempts_exhausted=False,

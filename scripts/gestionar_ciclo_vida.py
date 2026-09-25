@@ -22,7 +22,7 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from crawler.core.gap_detector import GapDetector, DatasetGapReport
 from crawler.core.lifecycle import (
@@ -78,18 +78,59 @@ def load_recovery_logs() -> Dict[str, List[Dict[str, Any]]]:
         if p.exists():
             try:
                 data = json.loads(p.read_text(encoding="utf-8"))
-                for rec in data.get("recovered_periods", []):
+                for rec in data.get("recoveries", []):
                     ds_key = f"{rec.get('portal', '')}/{rec.get('dataset_id', '')}".lower()
-                    recovery_by_ds.setdefault(ds_key, []).append({
-                        "rung": rec.get("recovery_rung"),
-                        "name": rec.get("rung_name"),
-                        "period": rec.get("period"),
-                        "success": True,
-                        "url": rec.get("url"),
-                    })
+                    status = rec.get("status", "")
+                    success = (status == "RECOVERED")
+                    attempts = recovery_by_ds.setdefault(ds_key, [])
+                    period = rec.get("period")
+                    rung = rec.get("recovery_rung")
+                    # Evitar duplicar el mismo intento si aparece en B-54 y B-54b
+                    if not any(a.get("period") == period and a.get("rung") == rung for a in attempts):
+                        attempts.append({
+                            "rung": rung,
+                            "name": rec.get("rung_name"),
+                            "period": period,
+                            "success": success,
+                            "url": rec.get("url"),
+                            "status": status,
+                        })
             except Exception as e:
                 logger.warning("Error leyendo %s: %s", p, e)
     return recovery_by_ds
+
+
+def load_previous_lifecycle(path: Path) -> Dict[Tuple[str, str], DatasetLifecycleRecord]:
+    """Carga el estado previo de ciclo de vida si existe en disco para preservar transition_date."""
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        res = {}
+        for d in data.get("datasets", []):
+            portal = d.get("portal", "").lower()
+            ds_id = d.get("dataset_id", "").lower()
+            st_str = d.get("state")
+            state = DatasetLifecycleState(st_str) if st_str in DatasetLifecycleState.__members__ else DatasetLifecycleState[st_str]
+            rec = DatasetLifecycleRecord(
+                portal=d.get("portal", ""),
+                dataset_id=d.get("dataset_id", ""),
+                state=state,
+                previous_state=d.get("previous_state"),
+                transition_rule=d.get("transition_rule", ""),
+                transition_date=d.get("transition_date", ""),
+                last_observed_period=d.get("last_observed_period"),
+                delay_periods=d.get("delay_periods", 0),
+                recovery_attempts_exhausted=d.get("recovery_attempts_exhausted", False),
+                recovery_attempts_log=d.get("recovery_attempts_log", []),
+                migration_reference=d.get("migration_reference"),
+                justification=d.get("justification", ""),
+            )
+            res[(portal, ds_id)] = rec
+        return res
+    except Exception as e:
+        logger.warning("Error cargando ciclo de vida previo desde %s: %s", path, e)
+        return {}
 
 
 def load_inheritance_proposals() -> List[Dict[str, Any]]:
@@ -152,6 +193,7 @@ def main():
     sources = [s.strip().lower() for s in args.sources.split(",") if s.strip()]
 
     manager = DatasetLifecycleManager(output_dir=args.output.parent)
+    previous_records = load_previous_lifecycle(args.output)
     recovery_logs = load_recovery_logs()
     proposals = load_inheritance_proposals()
     precedents = load_catalog_precedents()
@@ -182,6 +224,7 @@ def main():
 
             ds_key = f"{src}/{ds_id}".lower()
             attempts = recovery_logs.get(ds_key, [])
+            prev_rec = previous_records.get((src.lower(), ds_id.lower()))
 
             rec = manager.evaluate_dataset_lifecycle(
                 portal=src,
@@ -189,6 +232,7 @@ def main():
                 gap_report=gap_rep,
                 recovery_attempts=attempts,
                 inheritance_proposals=proposals,
+                previous_record=prev_rec,
             )
             all_records.append(rec)
 
@@ -199,10 +243,13 @@ def main():
         fuente = prec.get("Fuente", "")
         inst = prec.get("Institucion", "")
         c_src = prec.get("crawler_source", "") or "catalogo"
+        ds_id = fuente.lower().replace("-", "_")
+        prev_rec = previous_records.get((c_src.lower(), ds_id))
         rec = manager.evaluate_catalog_precedent(
             fuente=fuente,
             institucion=inst,
             crawler_source=c_src,
+            previous_record=prev_rec,
         )
         all_records.append(rec)
 

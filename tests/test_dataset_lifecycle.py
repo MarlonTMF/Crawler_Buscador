@@ -251,3 +251,144 @@ def test_lifecycle_persistence_and_transition_audit_trail(tmp_path):
     assert data["resumen_estados"]["VIGENTE"] == 1
     assert data["resumen_estados"]["HISTORICO"] == 1
     assert len(data["datasets"]) == 2
+
+
+def test_lifecycle_load_recovery_logs_real_json():
+    """
+    H-1: Verifica que load_recovery_logs cargue la clave 'recoveries' de los
+    JSON reales de B-54 y que 'bcb/deuda_externa' contenga intentos exitosos.
+    """
+    from scripts.gestionar_ciclo_vida import load_recovery_logs
+
+    logs_by_ds = load_recovery_logs()
+    assert "bcb/deuda_externa" in logs_by_ds, "bcb/deuda_externa debe tener intentos de recuperación en B-54"
+
+    deuda_logs = logs_by_ds["bcb/deuda_externa"]
+    assert len(deuda_logs) >= 3, f"Esperaba al menos 3 intentos, obtuve {len(deuda_logs)}"
+    for log in deuda_logs:
+        assert log["rung"] == 2
+        assert log["status"] == "RECOVERED"
+        assert log["success"] is True
+        assert log["url"]
+
+
+def test_lifecycle_transition_date_stable_across_runs():
+    """
+    H-2: Verifica que cuando el estado de un dataset no cambia entre corridas,
+    su transition_date se mantenga inalterada y previous_state se registre.
+    Cuando el estado cambia, transition_date debe actualizarse con la nueva fecha.
+    """
+    manager = DatasetLifecycleManager()
+    gap_rep1 = DatasetGapReport(
+        dataset_id="boletin_mensual",
+        periodicity="mensual",
+        tolerance=2,
+        total_resources=12,
+        first_observed_period="2025-01",
+        last_observed_period="2026-08",
+        delay_periods=1,
+        state=DatasetState.AL_DIA,
+    )
+
+    # 1era corrida: nuevo dataset
+    rec1 = manager.evaluate_dataset_lifecycle(
+        portal="asfi",
+        dataset_id="boletin_mensual",
+        gap_report=gap_rep1,
+        previous_record=None,
+    )
+    assert rec1.state == DatasetLifecycleState.VIGENTE
+    assert rec1.previous_state is None
+    date_run1 = rec1.transition_date
+
+    # 2da corrida: mismo estado VIGENTE -> transition_date debe ser IDÉNTICA
+    rec2 = manager.evaluate_dataset_lifecycle(
+        portal="asfi",
+        dataset_id="boletin_mensual",
+        gap_report=gap_rep1,
+        previous_record=rec1,
+    )
+    assert rec2.state == DatasetLifecycleState.VIGENTE
+    assert rec2.transition_date == date_run1
+    assert rec2.previous_state == DatasetLifecycleState.VIGENTE.value
+
+    # 3ra corrida: cambia a ATRASADO -> transition_date debe ser NUEVA
+    gap_rep_atrasado = DatasetGapReport(
+        dataset_id="boletin_mensual",
+        periodicity="mensual",
+        tolerance=2,
+        total_resources=12,
+        first_observed_period="2025-01",
+        last_observed_period="2026-01",
+        delay_periods=8,
+        state=DatasetState.ATRASADO,
+    )
+    rec3 = manager.evaluate_dataset_lifecycle(
+        portal="asfi",
+        dataset_id="boletin_mensual",
+        gap_report=gap_rep_atrasado,
+        previous_record=rec2,
+    )
+    assert rec3.state == DatasetLifecycleState.ATRASADO
+    assert rec3.previous_state == DatasetLifecycleState.VIGENTE.value
+    assert rec3.transition_rule == TransitionRule.ATR_BUSQUEDA_PENDIENTE.value
+
+
+def test_lifecycle_d18_exact_matching():
+    """
+    O-2: Cotejo exacto de (portal, dataset_id). Subcadenas no deben provocar
+    migraciones accidentales bajo D-18.
+    """
+    manager = DatasetLifecycleManager()
+    gap_rep = DatasetGapReport(
+        dataset_id="cuentas_nacionales_pib",
+        periodicity="anual",
+        tolerance=1,
+        total_resources=10,
+        first_observed_period="2000",
+        last_observed_period="2020",
+        delay_periods=5,
+        state=DatasetState.ATRASADO,
+    )
+    # Propuesta para un dataset distinto pero que contiene la subcadena
+    proposal_distinct = {
+        "origen_portal": "ine",
+        "origen_dataset": "cuentas_nacionales_pib_trimestral",
+        "destino_entidad": "BCB",
+        "status": "ACEPTADA",
+    }
+    rec = manager.evaluate_dataset_lifecycle(
+        portal="ine",
+        dataset_id="cuentas_nacionales_pib",
+        gap_report=gap_rep,
+        inheritance_proposals=[proposal_distinct],
+    )
+    # No debe migrar porque no es coincidencia exacta
+    assert rec.state != DatasetLifecycleState.MIGRADO
+    assert rec.state == DatasetLifecycleState.ATRASADO
+
+
+def test_lifecycle_vigente_sin_periodicidad():
+    """
+    O-3: Un dataset sin periodicidad o sin períodos temporales medibles
+    recibe la regla VIG_SIN_PERIODICIDAD en lugar de VIG_AL_DIA.
+    """
+    manager = DatasetLifecycleManager()
+    gap_rep = DatasetGapReport(
+        dataset_id="memorias_institucionales",
+        periodicity="anual",
+        tolerance=0,
+        total_resources=15,
+        first_observed_period=None,
+        last_observed_period=None,
+        delay_periods=0,
+        state=DatasetState.AL_DIA,
+    )
+    rec = manager.evaluate_dataset_lifecycle(
+        portal="bcb",
+        dataset_id="memorias_institucionales",
+        gap_report=gap_rep,
+    )
+    assert rec.state == DatasetLifecycleState.VIGENTE
+    assert rec.transition_rule == TransitionRule.VIG_SIN_PERIODICIDAD.value
+    assert "sin periodicidad declarada" in rec.justification.lower()
