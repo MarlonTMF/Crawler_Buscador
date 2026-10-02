@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from enum import IntEnum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
-from urllib.parse import quote, unquote, urlparse
+from urllib.parse import quote, unquote, urlparse, urljoin, urlunparse
 
 import requests
 import urllib3
@@ -326,163 +326,303 @@ class RecoveryLadder:
 
         return True, None
 
+    def _generate_url_variants(self, url: str) -> List[str]:
+        """Genera variantes deterministas de una URL conocida (codificación, separadores, capitalización)."""
+        parsed = urlparse(url)
+        path = parsed.path
+        if "/" in path:
+            dirname, filename = path.rsplit("/", 1)
+        else:
+            dirname, filename = "", path
+
+        fn_variants = set()
+        # 1. Variaciones de espacios y codificación
+        fn_unquoted = unquote(filename)
+        fn_variants.add(filename)
+        fn_variants.add(fn_unquoted)
+        fn_variants.add(quote(fn_unquoted))
+        fn_variants.add(fn_unquoted.replace(" ", "%20"))
+        fn_variants.add(fn_unquoted.replace("%20", " "))
+        fn_variants.add(fn_unquoted.replace(" ", "+"))
+        fn_variants.add(fn_unquoted.replace("+", " "))
+
+        # 2. Variaciones de separadores guion y guion bajo
+        more_vars = set()
+        for fn in fn_variants:
+            if "-" in fn:
+                more_vars.add(fn.replace("-", "_"))
+                more_vars.add(fn.replace("-", "%20"))
+                more_vars.add(fn.replace("-", " "))
+            if "_" in fn:
+                more_vars.add(fn.replace("_", "-"))
+                more_vars.add(fn.replace("_", "%20"))
+                more_vars.add(fn.replace("_", " "))
+            if "%20" in fn:
+                more_vars.add(fn.replace("%20", "-"))
+                more_vars.add(fn.replace("%20", "_"))
+            if " " in fn:
+                more_vars.add(fn.replace(" ", "-"))
+                more_vars.add(fn.replace(" ", "_"))
+        fn_variants.update(more_vars)
+
+        # 3. Capitalización y extensión
+        final_fn_variants = set()
+        for fn in fn_variants:
+            final_fn_variants.add(fn)
+            final_fn_variants.add(fn.upper())
+            final_fn_variants.add(fn.lower())
+            if fn.endswith(".pdf"):
+                final_fn_variants.add(fn[:-4] + ".PDF")
+            elif fn.endswith(".PDF"):
+                final_fn_variants.add(fn[:-4] + ".pdf")
+            if fn.endswith(".xlsx"):
+                final_fn_variants.add(fn[:-5] + ".XLSX")
+            elif fn.endswith(".XLSX"):
+                final_fn_variants.add(fn[:-5] + ".xlsx")
+
+        res_urls = []
+        for fn in final_fn_variants:
+            new_path = f"{dirname}/{fn}" if dirname else fn
+            variant_url = urlunparse((parsed.scheme, parsed.netloc, new_path, parsed.params, parsed.query, parsed.fragment))
+            if variant_url not in res_urls:
+                res_urls.append(variant_url)
+
+        return res_urls
+
     def _try_rung_1_known_url(
-        self, portal: str, dataset_id: str, period: str, periodicity: str
+        self,
+        portal: str,
+        dataset_id: str,
+        period: str,
+        periodicity: str,
+        known_url: Optional[str] = None,
     ) -> Optional[RecoveredPeriod]:
         """
-        Escalón 1: Buscar la misma URL conocida anteriormente en el catálogo / historial.
-        NOTA ESTRUCTURAL: Si los candidatos se obtienen de resource_audit_log de inventory.db
-        y luego se descartan mediante is_url_in_inventory (O-1), este escalón resulta inerte
-        para documentos ya cosechados. Su propósito funcional pleno requerirá una tabla de URLs
-        históricas o previamente fallidas no indexadas.
+        Escalón 1: Sigue el rastro de la URL conocida anteriormente (B-61 / P-2).
+        Estrategias deterministas no especulativas:
+          1. Probar la URL directa si no está en inventario.
+          2. Seguir la redirección si responde 301/302 (o fue marcada REDIRIGIDA en B-60).
+          3. Traducir a dominio sucesor conocido si la entidad migró (D-18 / moved_urls.json).
+          4. Si está ELIMINADA (404/410), consultar el directorio superior e identificar archivo del período.
+          5. Probar variantes deterministas de la misma URL (codificación, separadores, capitalización).
         """
-        db_path = self.base_output_dir / portal / "inventory.db"
-        if not db_path.exists():
-            return None
-
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        # Extraer año y subperíodo
-        year_str = period[:4]
-        sub_period = period[5:] if len(period) > 4 else ""
-
-        # Palabras clave según periodicidad
-        keywords = [year_str]
-        if periodicity == "semestral":
-            if sub_period == "S2":
-                keywords.extend(["final", "segundo_semestre", "2do_semestre", "cierre", "segundo"])
-            elif sub_period == "S1":
-                keywords.extend(["inicial", "primer_semestre", "1er_semestre", "apertura", "primer"])
-        elif periodicity == "trimestral":
-            tri_map = {"Q1": "primer", "Q2": "segundo", "Q3": "tercer", "Q4": "cuarto"}
-            if sub_period in tri_map:
-                keywords.append(tri_map[sub_period])
-
         candidate_urls: List[str] = []
-        try:
-            rows = cursor.execute(
-                "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ?",
-                (dataset_id,)
-            ).fetchall()
 
-            for (url,) in rows:
-                if not url or not url.startswith("http"):
-                    continue
-                lower_url = unquote(url).lower()
-                # O-3: Descartar si el año aparece como parte de un rango (ej: 1988-2016)
-                if re.search(r"\b\d{4}\s*[-_al/]+\s*\d{4}\b", lower_url):
-                    continue
-                # Coincidencia con límite de palabra / no dígito adyacente
-                if re.search(rf"(?<!\d){re.escape(year_str)}(?!\d)", lower_url):
-                    if len(keywords) > 1:
-                        # Verificar si contiene alguna de las palabras clave complementarias
-                        if any(kw in lower_url for kw in keywords[1:]):
-                            candidate_urls.append(url)
-                    else:
-                        candidate_urls.append(url)
-        finally:
-            conn.close()
+        if known_url:
+            candidate_urls.append(known_url)
+        else:
+            # 1. Buscar en los resultados de revalidación de B-60
+            reval_path = self.base_output_dir / f"revalidacion_{portal}.json"
+            year_str = period[:4]
+            if reval_path.exists():
+                try:
+                    reval_data = json.loads(reval_path.read_text(encoding="utf-8"))
+                    for item in reval_data.get("results", []):
+                        if item.get("dataset_id") == dataset_id or not item.get("dataset_id"):
+                            u = item.get("url", "")
+                            status = item.get("status", "")
+                            if status in ("REDIRIGIDA", "ELIMINADA") and year_str in u:
+                                candidate_urls.append(u)
+                except Exception as e:
+                    logger.debug("Error leyendo revalidación previa de %s: %s", reval_path, e)
 
-        # Priorizar informes oficiales sobre actas o presentaciones
-        candidate_urls.sort(
-            key=lambda u: 0 if "informe" in u.lower() else (1 if "resumen" in u.lower() else 2)
-        )
-        candidate_urls = candidate_urls[:2]
+            # 2. Buscar en inventory.db registros con URL para este dataset y período
+            db_path = self.base_output_dir / portal / "inventory.db"
+            if db_path.exists() and not candidate_urls:
+                try:
+                    conn = sqlite3.connect(db_path)
+                    try:
+                        cursor = conn.cursor()
+                        rows = cursor.execute(
+                            "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ?",
+                            (dataset_id,)
+                        ).fetchall()
+                        for (u,) in rows:
+                            if u and year_str in u and u not in candidate_urls:
+                                candidate_urls.append(u)
+                    finally:
+                        conn.close()
+                except Exception as e:
+                    logger.debug("Error consultando inventario para %s: %s", portal, e)
 
-        # Probar candidatos encontrados en la base de datos: solo admitir si NO está ya en inventario (O-1)
         for cand_url in candidate_urls:
             # 1. Probar la URL directa si no está en inventario
             if not self.is_url_in_inventory(portal, cand_url) and not self.is_url_already_recovered(cand_url):
                 res = self.fetch_and_verify(cand_url)
                 if res:
                     size, sha256 = res
-                    ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 1)
-                    if not ok_qg:
-                        continue
-                    return RecoveredPeriod(
-                        portal=portal,
-                        dataset_id=dataset_id,
-                        period=period,
-                        recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
-                        rung_name="misma_url",
-                        url=cand_url,
-                        file_size_bytes=size,
-                        content_sha256=sha256,
-                        verified_at=datetime.now(timezone.utc).isoformat(),
-                        metadata={"source_rung": 1, "method": "known_inventory_url"},
+                    sample = getattr(self, "_last_download_sample", b"")
+                    if sample and not self._verify_institution_content(portal, sample):
+                        pass
+                    else:
+                        ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 1)
+                        if ok_qg:
+                            return RecoveredPeriod(
+                                portal=portal,
+                                dataset_id=dataset_id,
+                                period=period,
+                                recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                rung_name="misma_url",
+                                url=cand_url,
+                                file_size_bytes=size,
+                                content_sha256=sha256,
+                                verified_at=datetime.now(timezone.utc).isoformat(),
+                                metadata={"source_rung": 1, "method": "known_inventory_url"},
+                            )
+
+            # 2. Seguimiento de redirecciones HTTP (301/302 hacia URL con 200)
+            redir_final_url = None
+            if hasattr(self, "relocation_manager"):
+                try:
+                    allowed_d = set(self._get_allowed_domains(portal))
+                    redir = self.relocation_manager.follow_redirect(
+                        cand_url, session=self._session, allowed_domains=allowed_d
                     )
+                    if redir.get("redirected") and redir.get("is_authorized"):
+                        redir_final_url = redir.get("final_url")
+                except Exception as e:
+                    logger.debug("Error en relocation_manager.follow_redirect para %s: %s", cand_url, e)
 
-            # 2. Seguimiento de redirecciones HTTP (301/302/308)
-            try:
-                allowed_d = set(self._get_allowed_domains(portal))
-                redir = self.relocation_manager.follow_redirect(
-                    cand_url, session=self._session, allowed_domains=allowed_d
-                )
-                if redir.get("redirected") and redir.get("is_authorized"):
-                    final_u = redir["final_url"]
-                    if not self.is_url_in_inventory(portal, final_u) and not self.is_url_already_recovered(final_u):
-                        res_redir = self.fetch_and_verify(final_u)
-                        if res_redir:
-                            size, sha256 = res_redir
-                            sample = getattr(self, "_last_download_sample", b"")
-                            if self._verify_institution_content(portal, sample):
-                                ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, final_u, sha256, 1)
-                                if not ok_qg:
+            if not redir_final_url:
+                try:
+                    head_resp = self.fetcher.session.head(cand_url, timeout=self.timeout, allow_redirects=True)
+                    if head_resp and head_resp.status_code == 200 and head_resp.history:
+                        final_u = str(head_resp.url)
+                        if final_u.rstrip("/") != cand_url.rstrip("/"):
+                            redir_final_url = final_u
+                except Exception as e:
+                    logger.debug("HEAD falló para %s: %s", cand_url, e)
+
+            if redir_final_url:
+                if not self.is_url_in_inventory(portal, redir_final_url) and not self.is_url_already_recovered(redir_final_url):
+                    res = self.fetch_and_verify(redir_final_url)
+                    if res:
+                        size, sha256 = res
+                        sample = getattr(self, "_last_download_sample", b"")
+                        if sample and not self._verify_institution_content(portal, sample):
+                            continue
+                        ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, redir_final_url, sha256, 1)
+                        if ok_qg:
+                            return RecoveredPeriod(
+                                portal=portal,
+                                dataset_id=dataset_id,
+                                period=period,
+                                recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                rung_name="misma_url_redireccion",
+                                url=redir_final_url,
+                                file_size_bytes=size,
+                                content_sha256=sha256,
+                                verified_at=datetime.now(timezone.utc).isoformat(),
+                                metadata={
+                                    "source_rung": 1,
+                                    "method": "redirect_follow",
+                                    "original_url": cand_url,
+                                    "redirected_from": cand_url,
+                                },
+                            )
+
+            # 3. Traducción a dominio sucesor (relocation_manager.translate_url_to_successor)
+            if hasattr(self, "relocation_manager"):
+                try:
+                    for succ_u in self.relocation_manager.translate_url_to_successor(cand_url):
+                        if self.is_url_in_inventory(portal, succ_u) or self.is_url_already_recovered(succ_u):
+                            continue
+                        if self._check_head(succ_u, require_document_type=True):
+                            res_succ = self.fetch_and_verify(succ_u)
+                            if res_succ:
+                                size, sha256 = res_succ
+                                sample = getattr(self, "_last_download_sample", b"")
+                                if sample and not self._verify_institution_content(portal, sample):
                                     continue
-                                return RecoveredPeriod(
-                                    portal=portal,
-                                    dataset_id=dataset_id,
-                                    period=period,
-                                    recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
-                                    rung_name="misma_url_redireccion",
-                                    url=final_u,
-                                    file_size_bytes=size,
-                                    content_sha256=sha256,
-                                    verified_at=datetime.now(timezone.utc).isoformat(),
-                                    metadata={
-                                        "source_rung": 1,
-                                        "method": "known_url_redirect",
-                                        "redirected_from": cand_url,
-                                    },
-                                )
-            except Exception as e:
-                logger.debug("Error siguiendo redirección para %s: %s", cand_url, e)
-
-            # 3. Traducción a dominio sucesor o mapeo en moved_urls.json
-            try:
-                for succ_u in self.relocation_manager.translate_url_to_successor(cand_url):
-                    if self.is_url_in_inventory(portal, succ_u) or self.is_url_already_recovered(succ_u):
-                        continue
-                    if self._check_head(succ_u, require_document_type=True):
-                        res_succ = self.fetch_and_verify(succ_u)
-                        if res_succ:
-                            size, sha256 = res_succ
-                            sample = getattr(self, "_last_download_sample", b"")
-                            if self._verify_institution_content(portal, sample):
                                 ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, succ_u, sha256, 1)
-                                if not ok_qg:
-                                    continue
-                                return RecoveredPeriod(
-                                    portal=portal,
-                                    dataset_id=dataset_id,
-                                    period=period,
-                                    recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
-                                    rung_name="misma_url_reubicada",
-                                    url=succ_u,
-                                    file_size_bytes=size,
-                                    content_sha256=sha256,
-                                    verified_at=datetime.now(timezone.utc).isoformat(),
-                                    metadata={
-                                        "source_rung": 1,
-                                        "method": "known_url_successor_mapping",
-                                        "original_url": cand_url,
-                                    },
-                                )
-            except Exception as e:
-                logger.debug("Error probando sucesor para %s: %s", cand_url, e)
+                                if ok_qg:
+                                    return RecoveredPeriod(
+                                        portal=portal,
+                                        dataset_id=dataset_id,
+                                        period=period,
+                                        recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                        rung_name="misma_url_reubicada",
+                                        url=succ_u,
+                                        file_size_bytes=size,
+                                        content_sha256=sha256,
+                                        verified_at=datetime.now(timezone.utc).isoformat(),
+                                        metadata={
+                                            "source_rung": 1,
+                                            "method": "known_url_successor_mapping",
+                                            "original_url": cand_url,
+                                        },
+                                    )
+                except Exception as e:
+                    logger.debug("Error probando sucesor para %s: %s", cand_url, e)
+
+            # 4. Si está ELIMINADA (404/410), consultar el directorio superior
+            # Solo aplica si cand_url no está en inventario
+            if not self.is_url_in_inventory(portal, cand_url):
+                parsed = urlparse(cand_url)
+                path_parts = [p for p in parsed.path.split("/") if p]
+                if path_parts:
+                    parent_path = "/" + "/".join(path_parts[:-1]) + "/"
+                    parent_url = urlunparse((parsed.scheme, parsed.netloc, parent_path, "", "", ""))
+                    try:
+                        dir_resp = self.fetcher.session.get(parent_url, timeout=self.timeout)
+                        if dir_resp.status_code == 200 and "text/html" in dir_resp.headers.get("Content-Type", ""):
+                            links = re.findall(r'<a\s+(?:[^>]*?\s+)?href=["\']([^"\']+)["\']', dir_resp.text, re.I)
+                            doc_exts = (".pdf", ".xlsx", ".xls", ".zip", ".csv")
+                            year_str = period[:4]
+                            for href in links:
+                                href_lower = href.lower()
+                                if any(href_lower.endswith(ext) for ext in doc_exts) and year_str in href_lower:
+                                    resolved_url = urljoin(parent_url, href)
+                                    if self.is_url_in_inventory(portal, resolved_url) or self.is_url_already_recovered(resolved_url):
+                                        continue
+                                    res = self.fetch_and_verify(resolved_url)
+                                    if res:
+                                        size, sha256 = res
+                                        ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, resolved_url, sha256, 1)
+                                        if ok_qg:
+                                            return RecoveredPeriod(
+                                                portal=portal,
+                                                dataset_id=dataset_id,
+                                                period=period,
+                                                recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                                rung_name="directorio_superior",
+                                                url=resolved_url,
+                                                file_size_bytes=size,
+                                                content_sha256=sha256,
+                                                verified_at=datetime.now(timezone.utc).isoformat(),
+                                                metadata={"source_rung": 1, "method": "parent_directory_listing", "original_url": cand_url},
+                                            )
+                    except Exception as e:
+                        logger.debug("Error consultando directorio superior %s: %s", parent_url, e)
+
+            # 5. Probar variantes deterministas de la misma URL (codificación, separadores, capitalización)
+            # Solo aplica si cand_url no está en inventario
+            if not self.is_url_in_inventory(portal, cand_url):
+                variants = self._generate_url_variants(cand_url)
+                for var_url in variants:
+                    if var_url == cand_url or self.is_url_in_inventory(portal, var_url) or self.is_url_already_recovered(var_url):
+                        continue
+                    res = self.fetch_and_verify(var_url)
+                    if res:
+                        size, sha256 = res
+                        ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, var_url, sha256, 1)
+                        if ok_qg:
+                            return RecoveredPeriod(
+                                portal=portal,
+                                dataset_id=dataset_id,
+                                period=period,
+                                recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                rung_name="variante_url_conocida",
+                                url=var_url,
+                                file_size_bytes=size,
+                                content_sha256=sha256,
+                                verified_at=datetime.now(timezone.utc).isoformat(),
+                                metadata={"source_rung": 1, "method": "url_variant", "original_url": cand_url},
+                            )
 
         return None
+
+
 
     def _build_template_urls(
         self, portal: str, dataset_id: str, period: str, periodicity: str
