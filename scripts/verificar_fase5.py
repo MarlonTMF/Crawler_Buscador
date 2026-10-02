@@ -132,25 +132,30 @@ def get_revalidation_metrics() -> Tuple[int, int]:
         Path("output/revalidacion_asfi.json"),
     ]
 
-    seen_urls: Set[str] = set()
+    seen_keys: Set[str] = set()
+    total_from_summary = 0
     for rf in reval_files:
         if rf.exists():
             try:
                 data = json.loads(rf.read_text(encoding="utf-8"))
                 if isinstance(data, dict):
                     urls = data.get("revalidated_urls") or data.get("results") or []
+                    src = data.get("source", "")
                     for u in urls:
                         if isinstance(u, str):
-                            seen_urls.add(u)
-                        elif isinstance(u, dict) and "url" in u:
-                            seen_urls.add(u["url"])
-                    if "total_revalidated" in data and not seen_urls:
-                        total_revalidated += data["total_revalidated"]
+                            seen_keys.add(u)
+                        elif isinstance(u, dict):
+                            k = f"{src}:{u.get('resource_id') or u.get('url')}"
+                            seen_keys.add(k)
+                    if "total_revalidated" in data:
+                        total_from_summary = max(total_from_summary, data["total_revalidated"])
             except Exception:
                 pass
 
-    if seen_urls:
-        total_revalidated = len(seen_urls)
+    if seen_keys:
+        total_revalidated = len(seen_keys)
+    elif total_from_summary > 0:
+        total_revalidated = total_from_summary
 
     return total_revalidated, total_target
 
