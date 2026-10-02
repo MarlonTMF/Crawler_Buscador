@@ -6,9 +6,10 @@ import threading
 import subprocess
 import uuid
 import time
+from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 from typing import Dict, Any
 
 from crawler.core.validation_engine import build_record_evidence, build_validation_summary, load_json_records
@@ -121,6 +122,108 @@ def _read_records_for_summary() -> dict:
     return summary
 
 
+def _get_relocations_data() -> dict:
+    from crawler.core.relocation_manager import RelocationManager, CANONICAL_SUCCESSIONS
+    rm = RelocationManager(config_dir=ROOT / 'config')
+
+    moved_urls = []
+    cfg_path = ROOT / 'config' / 'moved_urls.json'
+    if cfg_path.exists():
+        try:
+            moved_urls = json.loads(cfg_path.read_text(encoding='utf-8'))
+        except Exception:
+            moved_urls = []
+
+    successions = []
+    for key, val in CANONICAL_SUCCESSIONS.items():
+        successions.append({
+            "key": key,
+            "predecessor": val.get("predecessor"),
+            "successors": val.get("successors", [])
+        })
+
+    rungs_info = [
+        {
+            "rung": 1,
+            "name": "Misma URL y Redirecciones",
+            "description": "Seguimiento automático de redirecciones HTTP (301/302/308) y traducción a dominios sucesores registrados ante 404.",
+            "status": "Activo y Generalizado"
+        },
+        {
+            "rung": 2,
+            "name": "Plantilla de Serie (D-17)",
+            "description": "Extrapolación matemática de patrones de serie con validación HEAD obligatoria y tipo documental binario.",
+            "status": "Activo"
+        },
+        {
+            "rung": 3,
+            "name": "Variantes Dinámicas de Ruta",
+            "description": "Generación heurística de rutas alternativas (/docs/, /archivos/, /descargas/) y separadores agnóstica a portal.",
+            "status": "Activo y Generalizado"
+        },
+        {
+            "rung": 4,
+            "name": "Archivo Histórico (Wayback CDX)",
+            "description": "Consulta de snapshots históricos preservados en la Wayback Machine Availability API.",
+            "status": "Activo Universal"
+        },
+        {
+            "rung": 5,
+            "name": "Agente Asistente y Herencia Cruzada",
+            "description": "Propuestas generativas con autorización de dominios sucesores (D-18), validación D-01 y salvaguarda D-14.",
+            "status": "Activo con Guardarraíles"
+        }
+    ]
+
+    return {
+        "moved_urls": moved_urls,
+        "successions": successions,
+        "rungs": rungs_info,
+        "stats": {
+            "total_moved": len(moved_urls),
+            "confirmed_resolved": sum(1 for m in moved_urls if m.get("resolved")),
+            "canonical_successions": len(successions),
+            "active_rungs": 5
+        }
+    }
+
+
+def _get_bridge_status(source_id: str = "finrural") -> dict:
+    bridge_dir = ROOT / "output" / "bridge"
+    map_file = bridge_dir / f"external_map_{source_id}.json"
+    if not map_file.exists():
+        map_file = bridge_dir / "external_map_finrural.json"
+
+    if map_file.exists():
+        try:
+            stat = map_file.stat()
+            data = json.loads(map_file.read_text(encoding="utf-8"))
+            total_res = data.get("total_resources", 0)
+            run_id = data.get("run", {}).get("run_id", "")
+            return {
+                "exists": True,
+                "path": str(map_file.resolve()),
+                "filename": map_file.name,
+                "size_bytes": stat.st_size,
+                "total_resources": total_res,
+                "run_id": run_id,
+                "last_modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+            }
+        except Exception as e:
+            return {
+                "exists": True,
+                "path": str(map_file.resolve()),
+                "filename": map_file.name,
+                "error": str(e),
+            }
+    return {
+        "exists": False,
+        "path": str(map_file.resolve()),
+        "filename": map_file.name,
+        "total_resources": 0,
+    }
+
+
 class DashboardHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(DASHBOARD_DIR), **kwargs)
@@ -129,6 +232,25 @@ class DashboardHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/summary":
             payload = json.dumps(_read_records_for_summary()).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
+
+        if parsed.path == "/api/relocations":
+            payload = json.dumps(_get_relocations_data()).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
+
+        if parsed.path == "/api/bridge/status":
+            source = parse_qs(parsed.query).get("source", ["finrural"])[0]
+            payload = json.dumps(_get_bridge_status(source)).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(payload)))
@@ -246,6 +368,80 @@ class DashboardHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
+        if parsed.path == "/api/relocations/test":
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            try:
+                payload = json.loads(body.decode('utf-8') or '{}')
+            except Exception:
+                payload = {}
+            test_url = payload.get("url", "").strip()
+            portal = payload.get("portal", "").strip()
+
+            from crawler.core.relocation_manager import RelocationManager
+            rm = RelocationManager(config_dir=ROOT / 'config')
+
+            mapping = rm.get_moved_mapping(test_url)
+            successors = list(rm.get_successor_domains(test_url or portal))
+            translated = rm.translate_url_to_successor(test_url)
+            path_variants = rm.generate_path_variants(test_url)
+            redirect_info = rm.follow_redirect(test_url) if test_url.startswith("http") else None
+
+            res = {
+                "test_url": test_url,
+                "portal": portal,
+                "known_mapping": mapping,
+                "successor_domains": successors,
+                "translated_candidates": translated,
+                "path_variants": path_variants,
+                "redirect_check": redirect_info
+            }
+            resp_bytes = json.dumps(res).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(resp_bytes)))
+            self.end_headers()
+            self.wfile.write(resp_bytes)
+            return
+
+        if parsed.path == "/api/bridge/export":
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            try:
+                payload = json.loads(body.decode('utf-8') or '{}')
+            except Exception:
+                payload = {}
+            source_id = payload.get("source", "finrural").strip() or "finrural"
+            from_diag = bool(payload.get("from_diagnostic", False))
+
+            try:
+                from crawler.core.bridge_exporter import BridgeExporter
+                exporter = BridgeExporter(output_dir=ROOT / "output" / "bridge")
+                if from_diag:
+                    out_path = exporter.export_from_diagnostic(source_filter=source_id)
+                else:
+                    out_path = exporter.export_from_inventory(source_id=source_id)
+
+                status = _get_bridge_status(source_id)
+                resp = {
+                    "ok": True,
+                    "message": f"Exportación exitosa a {out_path.name}",
+                    "status": status,
+                }
+            except Exception as e:
+                resp = {
+                    "ok": False,
+                    "message": f"Error al exportar para Bridge: {str(e)}",
+                }
+
+            resp_bytes = json.dumps(resp).encode("utf-8")
+            self.send_response(200 if resp.get("ok") else 500)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(resp_bytes)))
+            self.end_headers()
+            self.wfile.write(resp_bytes)
+            return
+
         if parsed.path.startswith('/api/mapping/'):
             action = parsed.path.rsplit('/', 1)[-1]
             length = int(self.headers.get('Content-Length', 0))

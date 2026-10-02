@@ -21,6 +21,8 @@
           <button class="nav-item active" data-panel="overview">Resumen</button>
           <button class="nav-item" data-panel="records">Casos</button>
           <button class="nav-item" data-panel="risks">Debilidades</button>
+          <button class="nav-item" data-panel="relocations">Reubicación y Herencia</button>
+          <a href="/presentacion_ejecutiva.html" target="_blank" class="nav-item" style="text-decoration:none; display:flex; align-items:center; gap:6px; color:#38bdf8; font-weight:600;">📑 Presentación Ejecutiva ↗</a>
         </nav>
       </aside>
 
@@ -100,6 +102,144 @@
           <div class="card full-width">
             <h3>Observaciones clave</h3>
             <div id="riskSummary" class="risk-summary"></div>
+          </div>
+        </section>
+
+        <section id="relocations" class="panel">
+          <div class="kpis" id="relocationKpis">
+            <div class="kpi-card">
+              <span class="kpi-label">URLs Reubicadas (moved_urls.json)</span>
+              <strong class="kpi-value" id="kpiMovedTotal">-</strong>
+              <small class="kpi-sub" id="kpiMovedResolved">- confirmadas</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Sucesiones Canónicas</span>
+              <strong class="kpi-value" id="kpiSuccessionsTotal">-</strong>
+              <small class="kpi-sub">SPVS, SBEF, SUPTRANS, SEPREC, etc.</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Escalones de Recuperación</span>
+              <strong class="kpi-value" id="kpiLadderRungs">5</strong>
+              <small class="kpi-sub">Redirecciones, Rutas, Wayback, Herencia</small>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Salvaguardas de Integridad</span>
+              <strong class="kpi-value">D-01 / D-14</strong>
+              <small class="kpi-sub">Validación HEAD + Contenido + Binario</small>
+            </div>
+          </div>
+
+          <div class="card full-width" style="margin-top: 1rem;">
+            <div class="section-header">
+              <div>
+                <h3>Simulador de Búsqueda y Resolución en Vivo</h3>
+                <small style="color:var(--muted)">Prueba la resolución de redirecciones HTTP (301/302), traducción a dominios sucesores y generación de variantes de ruta en tiempo real.</small>
+              </div>
+            </div>
+            <div class="records-tools" style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <input id="testRelocationUrl" type="text" placeholder="Ej: https://www.spvs.gob.bo/archivos/memoria_2020.pdf o https://www.cadexco.org.bo" style="flex: 1; min-width: 320px;" />
+              <select id="testRelocationPortal" style="width: 160px;">
+                <option value="">Portal (Opcional)</option>
+                <option value="spvs">SPVS</option>
+                <option value="sbef">SBEF</option>
+                <option value="suptrans">SUPTRANS</option>
+                <option value="fundempresa">FUNDEMPRESA</option>
+                <option value="cadexco">CADEXCO</option>
+                <option value="ibch">IBCH</option>
+                <option value="aduana">ADUANA</option>
+                <option value="bcb">BCB</option>
+              </select>
+              <button id="btnTestRelocation" class="primary-btn">Evaluar Reubicación</button>
+            </div>
+            <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.78rem;">
+              <span style="color: var(--muted); font-weight: 600;">Probar casos en vivo:</span>
+              <button type="button" class="btn-demo-chip" data-url="https://www.spvs.gob.bo/archivos/memoria_2020.pdf" data-portal="spvs" style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;padding:2px 8px;border-radius:12px;cursor:pointer;font-size:0.75rem;">1. SPVS (Sucesión a ASFI/APS)</button>
+              <button type="button" class="btn-demo-chip" data-url="https://www.cadexco.org.bo" data-portal="cadexco" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:2px 8px;border-radius:12px;cursor:pointer;font-size:0.75rem;">2. CADEXCO (.org.bo → .bo)</button>
+              <button type="button" class="btn-demo-chip" data-url="https://www.aduana.gob.bo/aduana7/content/boletin-de-recaudaciones-0" data-portal="aduana" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;padding:2px 8px;border-radius:12px;cursor:pointer;font-size:0.75rem;">3. Aduana (Ruta cambiada)</button>
+              <button type="button" class="btn-demo-chip" data-url="https://www.bcp.gov.py/informe-de-inflacion-mensual-i362" data-portal="" style="background:#fdf2f8;color:#be185d;border:1px solid #fbcfe8;padding:2px 8px;border-radius:12px;cursor:pointer;font-size:0.75rem;">4. BCP Paraguay (Anti-Bot)</button>
+            </div>
+            <div id="relocationTestResult" style="margin-top: 1rem; display: none;"></div>
+          </div>
+
+          <div class="split-grid" style="margin-top: 1rem;">
+            <div class="card">
+              <h3>Sucesiones Institucionales (Herencia Cross-Domain)</h3>
+              <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">
+                Entidades extintas o reestructuradas cuyas funciones y archivos estadísticos migraron a nuevos dominios oficiales bajo la Decisión D-18.
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Predecesora</th>
+                      <th>Sucesora y Dominios</th>
+                      <th>Palabras Clave (D-01)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="successionsTable"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Escalones de la Escalera de Recuperación</h3>
+              <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">
+                Mecanismos encadenados de menor a mayor riesgo para localizar archivos faltantes o reubicados.
+              </p>
+              <div id="rungsList" class="list"></div>
+            </div>
+          <div class="card full-width" style="margin-top: 1rem; border: 1px solid var(--accent);">
+            <div class="section-header">
+              <div>
+                <h3>Puente Capa Bronze (<code style="color:var(--accent)">prospector_interno</code>)</h3>
+                <small style="color:var(--muted)">Exportación directa vía archivo JSON compatible con <code>ResourceCandidate</code> y <code>DuckDBDiffEngine</code>.</small>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button id="btnExportBridge" class="primary-btn">Generar / Actualizar Mapa para Bridge</button>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
+              <div class="kpi-card" style="background: rgba(255,255,255,0.02);">
+                <span class="kpi-label">Estado del Archivo</span>
+                <strong class="kpi-value" id="bridgeFileStatus" style="font-size: 1.1rem; color: #22c55e;">-</strong>
+                <small class="kpi-sub" id="bridgeFileName">external_map_finrural.json</small>
+              </div>
+              <div class="kpi-card" style="background: rgba(255,255,255,0.02);">
+                <span class="kpi-label">Recursos Exportados</span>
+                <strong class="kpi-value" id="bridgeTotalResources">0</strong>
+                <small class="kpi-sub">Listos para conciliación DuckDB</small>
+              </div>
+              <div class="kpi-card" style="background: rgba(255,255,255,0.02);">
+                <span class="kpi-label">Última Generación</span>
+                <strong class="kpi-value" id="bridgeLastModified" style="font-size: 0.95rem;">-</strong>
+                <small class="kpi-sub" id="bridgeFileSize">-</small>
+              </div>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.25); border-radius: 6px; font-family: monospace; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+              <span id="bridgeFilePath" style="color: var(--muted); word-break: break-all;">output/bridge/external_map_finrural.json</span>
+              <button id="btnCopyBridgePath" class="primary-btn small" style="white-space: nowrap;">Copiar Ruta</button>
+            </div>
+            <div id="bridgeExportMsg" style="margin-top: 0.5rem; display: none; font-size: 0.85rem;"></div>
+          </div>
+
+          <div class="card full-width" style="margin-top: 1rem;">
+            <div class="section-header">
+              <h3>Catálogo de URLs Reubicadas (<code style="font-size:0.9rem">config/moved_urls.json</code>)</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>URL Original</th>
+                    <th>URL / Dominio Resuelto</th>
+                    <th>Confianza</th>
+                    <th>Palabras Clave Validadas</th>
+                    <th>Motivo y Evidencia</th>
+                  </tr>
+                </thead>
+                <tbody id="movedUrlsTable"></tbody>
+              </table>
+            </div>
           </div>
         </section>
       </main>

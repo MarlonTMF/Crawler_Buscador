@@ -32,6 +32,9 @@ navButtons.forEach((btn) => {
     document.querySelectorAll('.panel').forEach((panel) => {
       panel.classList.toggle('active', panel.id === btn.dataset.panel);
     });
+    if (btn.dataset.panel === 'relocations') {
+      loadRelocations();
+    }
   });
 });
 
@@ -1025,6 +1028,288 @@ function hideToast() {
 
 refreshBtn?.addEventListener('click', () => {
   loadSummary();
+  if (document.getElementById('relocations')?.classList.contains('active')) {
+    loadRelocations();
+  }
 });
+
+async function loadRelocations() {
+  try {
+    const res = await fetch('/api/relocations', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // KPIs
+    const kpiMovedTotal = document.getElementById('kpiMovedTotal');
+    const kpiMovedResolved = document.getElementById('kpiMovedResolved');
+    const kpiSuccessionsTotal = document.getElementById('kpiSuccessionsTotal');
+    const kpiLadderRungs = document.getElementById('kpiLadderRungs');
+
+    if (kpiMovedTotal) kpiMovedTotal.textContent = data.stats?.total_moved ?? 0;
+    if (kpiMovedResolved) kpiMovedResolved.textContent = `${data.stats?.confirmed_resolved ?? 0} confirmadas`;
+    if (kpiSuccessionsTotal) kpiSuccessionsTotal.textContent = `${data.stats?.canonical_successions ?? 0} activas`;
+    if (kpiLadderRungs) kpiLadderRungs.textContent = `${data.stats?.active_rungs ?? 5} escalones`;
+
+    // Sucesiones Institucionales
+    const successionsTable = document.getElementById('successionsTable');
+    if (successionsTable) {
+      successionsTable.innerHTML = (data.successions || []).map((s) => {
+        const succHtml = (s.successors || []).map((succ) => {
+          const domBadges = (succ.domains || []).map((d) => `<span class="badge-relocated">${d}</span>`).join(' ');
+          return `<div style="margin-bottom:6px"><strong>${succ.entity}</strong><br/>${domBadges}</div>`;
+        }).join('');
+
+        const allKw = [];
+        (s.successors || []).forEach((succ) => {
+          (succ.keywords || []).forEach((kw) => {
+            if (!allKw.includes(kw)) allKw.push(kw);
+          });
+        });
+        const kwBadges = allKw.map((k) => `<span class="badge-successor" style="margin:2px">${k}</span>`).join(' ');
+
+        return `
+          <tr>
+            <td><strong>${s.predecessor || s.key.toUpperCase()}</strong><br/><small style="color:var(--muted)">Clave: ${s.key}</small></td>
+            <td>${succHtml}</td>
+            <td>${kwBadges}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Escalones de la Escalera
+    const rungsList = document.getElementById('rungsList');
+    if (rungsList) {
+      rungsList.innerHTML = (data.rungs || []).map((r) => `
+        <div class="rung-item">
+          <div class="rung-item-header">
+            <strong>Escalón ${r.rung}: ${r.name}</strong>
+            <span class="rung-item-badge">${r.status}</span>
+          </div>
+          <p style="margin:4px 0 0 0;font-size:0.8rem;color:var(--muted)">${r.description}</p>
+        </div>
+      `).join('');
+    }
+
+    // URLs Reubicadas (moved_urls.json)
+    const movedUrlsTable = document.getElementById('movedUrlsTable');
+    if (movedUrlsTable) {
+      movedUrlsTable.innerHTML = (data.moved_urls || []).map((m) => {
+        const confPct = Math.round((m.confidence || 0) * 100);
+        const resolvedHtml = m.resolved
+          ? `<a href="${m.resolved}" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none">${m.resolved}</a>`
+          : `<span style="color:var(--muted);font-style:italic">Revertido / Null</span>`;
+
+        const kwHtml = (m.matched_keywords || []).map((kw) => `<span class="badge-successor" style="margin:2px">${kw}</span>`).join(' ') || '<small style="color:var(--muted)">-</small>';
+
+        return `
+          <tr>
+            <td><code style="font-size:0.8rem">${m.original}</code></td>
+            <td>${resolvedHtml}</td>
+            <td><span class="badge-relocated">${confPct}%</span></td>
+            <td>${kwHtml}</td>
+            <td style="font-size:0.8rem;max-width:320px">${m.reason || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    await loadBridgeStatus();
+  } catch (err) {
+    console.error('Error cargando reubicaciones:', err);
+  }
+}
+
+async function loadBridgeStatus() {
+  try {
+    const res = await fetch('/api/bridge/status');
+    const data = await res.json();
+    const statusEl = document.getElementById('bridgeFileStatus');
+    const totalEl = document.getElementById('bridgeTotalResources');
+    const modEl = document.getElementById('bridgeLastModified');
+    const sizeEl = document.getElementById('bridgeFileSize');
+    const pathEl = document.getElementById('bridgeFilePath');
+
+    if (pathEl && data.path) pathEl.textContent = data.path;
+
+    if (data.exists) {
+      if (statusEl) {
+        statusEl.textContent = 'Disponible para Bridge';
+        statusEl.style.color = '#22c55e';
+      }
+      if (totalEl) totalEl.textContent = `${data.total_resources || 0} recursos`;
+      if (modEl && data.last_modified) {
+        const d = new Date(data.last_modified);
+        modEl.textContent = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      if (sizeEl && data.size_bytes) {
+        sizeEl.textContent = `${(data.size_bytes / 1024).toFixed(1)} KB (DuckDB Ready)`;
+      }
+    } else {
+      if (statusEl) {
+        statusEl.textContent = 'Pendiente de Generación';
+        statusEl.style.color = '#f59e0b';
+      }
+      if (totalEl) totalEl.textContent = '0';
+      if (modEl) modEl.textContent = 'No generado';
+      if (sizeEl) sizeEl.textContent = '-';
+    }
+  } catch (err) {
+    console.error('Error cargando estado del bridge:', err);
+  }
+}
+
+// Botón para exportar hacia el Bridge de prospector_interno
+document.getElementById('btnExportBridge')?.addEventListener('click', async () => {
+  const btn = document.getElementById('btnExportBridge');
+  const msgEl = document.getElementById('bridgeExportMsg');
+  if (btn) btn.disabled = true;
+  showToast('Generando mapa para Bridge (ResourceCandidate / DuckDB)...', 'info');
+
+  if (msgEl) {
+    msgEl.style.display = 'block';
+    msgEl.style.color = 'var(--muted)';
+    msgEl.textContent = 'Exportando inventario y estructurando para DuckDBDiffEngine...';
+  }
+
+  try {
+    const res = await fetch('/api/bridge/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'finrural' })
+    });
+    const result = await res.json();
+    if (result.ok) {
+      showToast(result.message || 'Mapa exportado con éxito', 'success');
+      if (msgEl) {
+        msgEl.style.color = '#22c55e';
+        msgEl.innerHTML = `✅ <strong>${result.message}</strong> (${result.status?.total_resources ?? 0} recursos exportados)`;
+      }
+      await loadBridgeStatus();
+    } else {
+      showToast(result.message || 'Error al exportar', 'error');
+      if (msgEl) {
+        msgEl.style.color = 'var(--danger)';
+        msgEl.textContent = `❌ ${result.message}`;
+      }
+    }
+  } catch (err) {
+    showToast(`Error al exportar: ${err.message}`, 'error');
+    if (msgEl) {
+      msgEl.style.color = 'var(--danger)';
+      msgEl.textContent = `❌ Error de red: ${err.message}`;
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+});
+
+// Copiar ruta del mapa al portapapeles
+document.getElementById('btnCopyBridgePath')?.addEventListener('click', () => {
+  const pathEl = document.getElementById('bridgeFilePath');
+  const path = pathEl?.textContent || '';
+  if (path) {
+    navigator.clipboard.writeText(path).then(() => {
+      showToast('Ruta copiada al portapapeles para external_map_path', 'success');
+    }).catch(() => {
+      showToast('No se pudo copiar automáticamente', 'warning');
+    });
+  }
+});
+
+// Simulador en vivo de reubicación y herencia
+document.getElementById('testRelocationUrl')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('btnTestRelocation')?.click();
+  }
+});
+
+document.querySelectorAll('.btn-demo-chip').forEach((chip) => {
+  chip.addEventListener('click', () => {
+    const urlInput = document.getElementById('testRelocationUrl');
+    const portalSelect = document.getElementById('testRelocationPortal');
+    if (urlInput && chip.dataset.url) urlInput.value = chip.dataset.url;
+    if (portalSelect && chip.dataset.portal !== undefined) portalSelect.value = chip.dataset.portal;
+    document.getElementById('btnTestRelocation')?.click();
+  });
+});
+
+document.getElementById('btnTestRelocation')?.addEventListener('click', async () => {
+  const urlInput = document.getElementById('testRelocationUrl');
+  const portalSelect = document.getElementById('testRelocationPortal');
+  const resultBox = document.getElementById('relocationTestResult');
+
+  const testUrl = (urlInput?.value || '').trim();
+  const portal = portalSelect?.value || '';
+
+  if (!testUrl) {
+    showToast('Por favor ingrese una URL a evaluar', 'warning');
+    return;
+  }
+
+  showToast('Evaluando reubicación y sucesión...', 'info');
+  if (resultBox) {
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = '<div class="test-result-box"><span class="spinner-small"></span> Analizando saltos de redirección, dominios sucesores y variantes...</div>';
+  }
+
+  try {
+    const res = await fetch('/api/relocations/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: jsonString({ url: testUrl, portal: portal })
+    });
+    const data = await res.json();
+
+    const mappingHtml = data.known_mapping
+      ? `<span class="badge-relocated">Encontrado en moved_urls.json: ${data.known_mapping.resolved} (${Math.round(data.known_mapping.confidence * 100)}% conf)</span>`
+      : '<span style="color:var(--muted)">Sin mapeo estático previo</span>';
+
+    const redirectHtml = data.redirect_check
+      ? `<div class="test-trace-item">
+          <strong>Seguimiento HTTP HEAD:</strong> Status ${data.redirect_check.status_code || '-'}, 
+          Redireccionado: ${data.redirect_check.redirected ? 'SÍ' : 'NO'}, 
+          Dominio autorizado: ${data.redirect_check.is_authorized ? '<span style="color:green">SÍ (Permitido)</span>' : '<span style="color:red">NO (Derivado a B-55)</span>'}<br/>
+          <small>Destino final: ${data.redirect_check.final_url}</small>
+        </div>`
+      : '';
+
+    const successorsHtml = (data.successor_domains || []).length
+      ? data.successor_domains.map((d) => `<span class="badge-successor" style="margin:2px">${d}</span>`).join(' ')
+      : '<span style="color:var(--muted)">Ninguno detectado</span>';
+
+    const candHtml = (data.translated_candidates || []).length
+      ? `<ul style="margin:4px 0 0 16px;padding:0;font-size:0.8rem">` + data.translated_candidates.map((c) => `<li><a href="${c}" target="_blank">${c}</a></li>`).join('') + `</ul>`
+      : '<span style="color:var(--muted);font-size:0.8rem">Sin candidatos traducidos</span>';
+
+    const pathHtml = (data.path_variants || []).length
+      ? `<ul style="margin:4px 0 0 16px;padding:0;font-size:0.8rem">` + data.path_variants.slice(0, 5).map((v) => `<li>${v}</li>`).join('') + `</ul>`
+      : '<span style="color:var(--muted);font-size:0.8rem">Sin variantes sintácticas</span>';
+
+    if (resultBox) {
+      resultBox.innerHTML = `
+        <div class="test-result-box">
+          <h4>Resultado de la Evaluación para: <code>${data.test_url}</code></h4>
+          <div style="margin-bottom:8px"><strong>Mapeo conocido:</strong> ${mappingHtml}</div>
+          <div style="margin-bottom:8px"><strong>Dominios sucesores autorizados:</strong> ${successorsHtml}</div>
+          ${redirectHtml}
+          <div style="margin-bottom:8px"><strong>Candidatos traducidos en dominio sucesor:</strong> ${candHtml}</div>
+          <div><strong>Variaciones de ruta heurísticas (Escalón 3):</strong> ${pathHtml}</div>
+        </div>
+      `;
+    }
+    showToast('Evaluación completada', 'success');
+  } catch (err) {
+    if (resultBox) {
+      resultBox.innerHTML = `<div class="test-result-box" style="border-color:var(--danger);color:var(--danger)">Error al evaluar reubicación: ${err.message}</div>`;
+    }
+    showToast(`Error al evaluar: ${err.message}`, 'error');
+  }
+});
+
+function jsonString(obj) {
+  return JSON.stringify(obj);
+}
 
 loadSummary();
