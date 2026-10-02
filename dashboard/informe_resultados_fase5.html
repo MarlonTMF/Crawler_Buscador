@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Resultados verificados de la segunda etapa del sistema de fuentes perdidas: revalidación de 1.165 direcciones, recuperación de períodos faltantes y evaluación del agente. BCB, INE y ASFI. Verificación del 2 de octubre de 2026.">
+<title>DATAX · Resultados de la segunda etapa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  [hidden]{display:none!important}
+  :root{
+    --page:#f4f4f2; --paper:#ffffff; --tint:#eceef0;
+    --ink:#1a1e23; --ink2:#4f5760; --ink3:#7d858d;
+    --rule:#d6d9dc; --rule-strong:#1a1e23;
+    --accent:#1f3a5f; --accent-soft:#c9d5e4;
+    --ok:#2c6a3f; --warn:#8a5d00; --warn-soft:#ead9b4; --bad:#98301f; --bad-soft:#ebc9c2;
+    --neutral:#cfd4d9;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --page:#111315; --paper:#181b1e; --tint:#22262a;
+    --ink:#e7e9eb; --ink2:#abb2b9; --ink3:#7d858d;
+    --rule:#30363c; --rule-strong:#c9ced3;
+    --accent:#8fb0d6; --accent-soft:#2c4562;
+    --ok:#7cc08f; --warn:#d7a84f; --warn-soft:#56431c; --bad:#e28a73; --bad-soft:#5b2a20;
+    --neutral:#3a4148;
+  }}
+  :root[data-theme="dark"]{
+    --page:#111315; --paper:#181b1e; --tint:#22262a;
+    --ink:#e7e9eb; --ink2:#abb2b9; --ink3:#7d858d;
+    --rule:#30363c; --rule-strong:#c9ced3;
+    --accent:#8fb0d6; --accent-soft:#2c4562;
+    --ok:#7cc08f; --warn:#d7a84f; --warn-soft:#56431c; --bad:#e28a73; --bad-soft:#5b2a20;
+    --neutral:#3a4148;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:15.5px;line-height:1.65}
+  .doc{max-width:860px;margin:0 auto;background:var(--paper);
+    padding-inline:clamp(18px,6vw,72px);padding-block:56px 72px;
+    border-inline:1px solid var(--rule)}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,'Times New Roman',serif;
+    font-weight:600;margin:0;color:var(--ink);text-wrap:balance}
+  p{margin:0 0 13px;max-width:68ch}
+  .num,code{font-family:'IBM Plex Mono',ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums}
+  code{font-size:.84em;background:var(--tint);padding:.08em .35em;border-radius:3px}
+  a{color:var(--accent)}
+
+  .org{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);
+    font-weight:600;padding-bottom:14px;border-bottom:1px solid var(--rule-strong)}
+  .portada{padding-block:34px 30px;border-bottom:1px solid var(--rule)}
+  .portada h1{font-size:clamp(1.8rem,4.2vw,2.35rem);line-height:1.15;letter-spacing:-.01em;max-width:22ch}
+  .portada .sub{margin-top:12px;font-size:1.02rem;color:var(--ink2);max-width:60ch}
+  .ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px 28px;margin:26px 0 0;font-size:.84rem}
+  .ficha dt{color:var(--ink3);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .ficha dd{margin:3px 0 0}
+
+  .indice{padding-block:22px;border-bottom:1px solid var(--rule);font-size:.88rem}
+  .indice h2{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Sans',sans-serif;color:var(--ink3);margin-bottom:8px}
+  .indice ol{margin:0;padding-left:1.3em;columns:2;column-gap:36px}
+  .indice li{margin-bottom:3px;break-inside:avoid}
+  .indice a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+  .indice a:hover{border-bottom-color:var(--ink)}
+
+  section{padding-block:34px 8px}
+  section+section{border-top:1px solid var(--rule)}
+  h2.s{font-size:1.42rem;margin-bottom:14px;display:flex;gap:12px;align-items:baseline}
+  h2.s .n{font-family:'IBM Plex Mono',monospace;font-size:.95rem;color:var(--ink3);font-weight:500}
+  h3{font-size:1.06rem;margin:24px 0 9px}
+
+  .cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);margin:20px 0 22px}
+  .cifras>div{padding:14px 16px 14px 0}
+  .cifras>div+div{padding-left:16px;border-left:1px solid var(--rule)}
+  .cifras .v{font-family:'Source Serif 4',serif;font-size:2rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+  .cifras .l{font-size:.8rem;color:var(--ink2);margin-top:7px;line-height:1.4}
+
+  .tbl{overflow-x:auto;margin:14px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+  caption{caption-side:top;text-align:left;font-size:.8rem;color:var(--ink2);padding-bottom:8px}
+  caption b{color:var(--ink)}
+  thead th{text-align:left;font-weight:600;font-size:.75rem;color:var(--ink2);padding:8px 10px;
+    border-top:1.5px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tbody tr:last-child td{border-bottom:1.5px solid var(--rule-strong)}
+  tfoot td{padding:8px 10px;font-weight:600;border-bottom:1.5px solid var(--rule-strong)}
+  td.r,th.r{text-align:right;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  .t-ok{color:var(--ok);font-weight:600} .t-bad{color:var(--bad);font-weight:600} .t-warn{color:var(--warn);font-weight:600}
+  .muted{color:var(--ink3)}
+  .fuente{font-size:.76rem;color:var(--ink3);margin:4px 0 0}
+
+  figure{margin:18px 0 8px}
+  figcaption{font-size:.8rem;color:var(--ink2);margin-top:10px;max-width:none}
+  figcaption b{color:var(--ink)}
+  .dg{width:100%;height:auto;display:block;color:var(--ink)}
+  .dg text{font-family:'IBM Plex Sans',sans-serif;fill:currentColor}
+  .dg .mn{font-family:'IBM Plex Mono',monospace}
+  .dg .ts{font-size:11px;fill:var(--ink2)}
+  .dg .tl{font-size:12.5px;font-weight:600}
+  .dg .hd{font-size:9.8px;font-weight:600;letter-spacing:.1em;fill:var(--ink3)}
+  .dg .s-vig{fill:var(--neutral)}
+  .dg .s-red{fill:var(--accent)}
+  .dg .s-eli{fill:var(--bad)}
+  .dg .s-ina{fill:var(--warn)}
+  .dg .frame{fill:none;stroke:var(--rule-strong);stroke-width:.8}
+
+  .nota{border-left:2px solid var(--rule-strong);padding:2px 0 2px 16px;margin:18px 0;font-size:.9rem;color:var(--ink2)}
+  .nota b{color:var(--ink)} .nota p{margin:0} .nota p+p{margin-top:8px}
+  .alerta{border-left-color:var(--bad)}
+
+  ol.pasos{padding-left:1.25em;margin:10px 0 0}
+  ol.pasos li{margin-bottom:10px;max-width:68ch}
+
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--rule-strong);font-size:.76rem;color:var(--ink3)}
+  footer p{max-width:none;margin-bottom:6px}
+
+  @media (max-width:560px){
+    .indice ol{columns:1}
+    .cifras>div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
+  }
+  @media print{
+    body{background:#fff;font-size:10.5pt}
+    .doc{border:0;padding:0;max-width:none}
+    .indice a{border:0}
+    figure,table{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<main class="doc">
+
+  <div class="org">DATAX · Laboratorio de Datos</div>
+
+  <header class="portada">
+    <h1>Resultados de la segunda etapa del sistema de fuentes perdidas</h1>
+    <p class="sub">Revalidación de las direcciones catalogadas, recuperación de períodos faltantes y evaluación del agente de búsqueda sobre las series del BCB, el INE y la ASFI.</p>
+    <dl class="ficha">
+      <div><dt>Fecha de verificación</dt><dd>2 de octubre de 2026</dd></div>
+      <div><dt>Alcance</dt><dd>BCB · INE · ASFI</dd></div>
+      <div><dt>Bloques evaluados</dt><dd>B-59 a B-66</dd></div>
+      <div><dt>Informe anterior</dt><dd>Medición del 30 de septiembre</dd></div>
+    </dl>
+  </header>
+
+  <nav class="indice" aria-label="Contenido">
+    <h2>Contenido</h2>
+    <ol>
+      <li><a href="#resumen">Resumen ejecutivo</a></li>
+      <li><a href="#implementado">Qué se implementó</a></li>
+      <li><a href="#movidos">Detección de documentos movidos</a></li>
+      <li><a href="#recuperacion">Recuperación de períodos faltantes</a></li>
+      <li><a href="#verificacion">Verificación independiente</a></li>
+      <li><a href="#agente">Evaluación del agente</a></li>
+      <li><a href="#fechas">Cobertura de fechas</a></li>
+      <li><a href="#indicadores">Indicadores: reportado y verificado</a></li>
+      <li><a href="#recomendaciones">Recomendaciones</a></li>
+      <li><a href="#anexo">Anexo: método</a></li>
+    </ol>
+  </nav>
+
+  <section id="resumen">
+    <h2 class="s"><span class="n">1</span>Resumen ejecutivo</h2>
+    <p>La segunda etapa tenía dos objetivos: incorporar la capacidad de detectar documentos que cambiaron de ubicación y mejorar la recuperación de los períodos faltantes. Este informe presenta los resultados <b>después de una verificación independiente</b>, que contrastó cada documento recuperado con el archivo que el servidor de la institución realmente entrega.</p>
+
+    <div class="cifras" role="list">
+      <div role="listitem"><div class="v">1.165</div><div class="l">direcciones catalogadas revalidadas</div></div>
+      <div role="listitem"><div class="v" style="color:var(--accent)">212</div><div class="l">documentos que cambiaron de dirección o fueron eliminados</div></div>
+      <div role="listitem"><div class="v" style="color:var(--ok)">3</div><div class="l">períodos recuperados y verificados, sin cambio desde la etapa anterior</div></div>
+      <div role="listitem"><div class="v" style="color:var(--bad)">8</div><div class="l">resultados reportados como válidos que no lo son</div></div>
+    </div>
+
+    <p><b>La detección de documentos movidos funciona y es el principal avance de la etapa.</b> Por primera vez el sistema sabe qué documentos ya catalogados dejaron de estar donde estaban: 200 direcciones del INE redirigen a otra ubicación y 12 documentos fueron eliminados.</p>
+    <p><b>La recuperación de períodos faltantes no mejoró.</b> El sistema reportó 11 recuperaciones; la verificación confirmó 3, las mismas de la etapa anterior. Las 8 restantes, todas del INE, entregan un documento de otro año. La causa está identificada y tiene corrección (sección 5).</p>
+    <p><b>La pregunta sobre el agente quedó respondida.</b> Con presupuesto suficiente, el modelo de lenguaje propuso 55 direcciones para 26 períodos faltantes, y ninguna existía. Se recomienda retirarlo de la secuencia de recuperación.</p>
+  </section>
+
+  <section id="implementado">
+    <h2 class="s"><span class="n">2</span>Qué se implementó</h2>
+    <p>La etapa se ejecutó en ocho bloques. La columna de la derecha resume el resultado verificado de cada uno.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 1.</b> Bloques de la segunda etapa</caption>
+        <thead><tr><th>Bloque</th><th>Contenido</th><th>Resultado verificado</th></tr></thead>
+        <tbody>
+          <tr><td class="num">B-59</td><td>Controles de calidad y revisión del código pendiente</td><td>El control de huella repetida funciona (15 rechazos). El control de año puede eludirse (sección 5). La aceptación automática de dominios sucesores quedó corregida.</td></tr>
+          <tr><td class="num">B-60</td><td>Revalidación de las direcciones catalogadas</td><td class="t-ok">Completo: 1.165 de 1.165 clasificadas.</td></tr>
+          <tr><td class="num">B-61</td><td>Estrategia 1: seguir la dirección conocida</td><td>Implementada. Sin recuperaciones en esta medición.</td></tr>
+          <tr><td class="num">B-62</td><td>Estrategia 3: candidatos derivados de cada serie</td><td class="t-bad">Genera candidatos, pero sus 8 resultados son falsos.</td></tr>
+          <tr><td class="num">B-63</td><td>Estrategia 4: archivo histórico mediante CDX</td><td>Implementada. Sin recuperaciones en esta medición.</td></tr>
+          <tr><td class="num">B-64</td><td>Período en el nombre del archivo</td><td class="t-warn">La cobertura confiable del BCB no cambió (sección 7).</td></tr>
+          <tr><td class="num">B-65</td><td>Agente con presupuesto completo</td><td>Medición concluyente: 0 de 55 candidatos existían.</td></tr>
+          <tr><td class="num">B-66</td><td>Corrida completa y actualización de informes</td><td class="t-bad">Los informes quedaron con cifras sin verificar (sección 8).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fuente">La suite de pruebas pasa completa: 255 pruebas.</p>
+  </section>
+
+  <section id="movidos">
+    <h2 class="s"><span class="n">3</span>Detección de documentos movidos</h2>
+    <p>El sistema consultó una por una las 1.165 direcciones catalogadas de los tres portales y clasificó su estado actual. Hasta esta etapa no existía forma de saber si un documento ya obtenido seguía disponible en su dirección.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 720 230" role="img" aria-label="Estado de las direcciones catalogadas por portal. BCB: 115 vigentes, 1 eliminada, 5 inaccesibles. INE: 135 vigentes, 200 redirigidas, 11 eliminadas, 97 inaccesibles. ASFI: 582 vigentes, 19 inaccesibles.">
+        <text class="hd" x="0" y="14">PROPORCIÓN DE DIRECCIONES POR ESTADO</text>
+
+        <text class="tl mn" x="0" y="54">BCB</text>
+        <text class="ts" x="0" y="70">121</text>
+        <rect class="s-vig" x="90" y="38" width="418.2" height="30"/>
+        <rect class="s-eli" x="508.2" y="38" width="3.6" height="30"/>
+        <rect class="s-ina" x="511.8" y="38" width="18.2" height="30"/>
+        <rect class="frame" x="90" y="38" width="440" height="30"/>
+        <text class="ts" x="542" y="57">115 vigentes · 1 eliminada · 5 inaccesibles</text>
+
+        <text class="tl mn" x="0" y="114">INE</text>
+        <text class="ts" x="0" y="130">443</text>
+        <rect class="s-vig" x="90" y="98" width="134.1" height="30"/>
+        <rect class="s-red" x="224.1" y="98" width="198.6" height="30"/>
+        <rect class="s-eli" x="422.7" y="98" width="10.9" height="30"/>
+        <rect class="s-ina" x="433.6" y="98" width="96.4" height="30"/>
+        <rect class="frame" x="90" y="98" width="440" height="30"/>
+        <text class="ts" x="542" y="111">135 vigentes · 200 redirigidas</text>
+        <text class="ts" x="542" y="126">11 eliminadas · 97 inaccesibles</text>
+
+        <text class="tl mn" x="0" y="174">ASFI</text>
+        <text class="ts" x="0" y="190">601</text>
+        <rect class="s-vig" x="90" y="158" width="426.1" height="30"/>
+        <rect class="s-ina" x="516.1" y="158" width="13.9" height="30"/>
+        <rect class="frame" x="90" y="158" width="440" height="30"/>
+        <text class="ts" x="542" y="177">582 vigentes · 19 inaccesibles</text>
+
+        <rect class="s-vig" x="90" y="210" width="10" height="10"/><text class="ts" x="105" y="219">Vigente</text>
+        <rect class="s-red" x="170" y="210" width="10" height="10"/><text class="ts" x="185" y="219">Redirigida</text>
+        <rect class="s-eli" x="260" y="210" width="10" height="10"/><text class="ts" x="275" y="219">Eliminada</text>
+        <rect class="s-ina" x="345" y="210" width="10" height="10"/><text class="ts" x="360" y="219">Inaccesible</text>
+      </svg>
+      <figcaption><b>Figura 1.</b> Estado de las direcciones catalogadas al 2 de octubre de 2026. Cada barra representa el total de direcciones del portal.</figcaption>
+    </figure>
+
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 2.</b> Resultado de la revalidación</caption>
+        <thead><tr><th>Portal</th><th class="r">Vigentes</th><th class="r">Redirigidas</th><th class="r">Eliminadas</th><th class="r">Inaccesibles</th><th class="r">Total</th></tr></thead>
+        <tbody>
+          <tr><td>BCB</td><td class="r">115</td><td class="r">0</td><td class="r">1</td><td class="r">5</td><td class="r">121</td></tr>
+          <tr><td>INE</td><td class="r">135</td><td class="r">200</td><td class="r">11</td><td class="r">97</td><td class="r">443</td></tr>
+          <tr><td>ASFI</td><td class="r">582</td><td class="r">0</td><td class="r">0</td><td class="r">19</td><td class="r">601</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td class="r">832</td><td class="r">200</td><td class="r">12</td><td class="r">121</td><td class="r">1.165</td></tr></tfoot>
+      </table>
+    </div>
+
+    <p>El INE concentra los cambios: casi la mitad de sus direcciones (200 de 443) redirigen a otra ubicación, lo que indica una reorganización del portal. En el BCB y la ASFI, más del 95 % de las direcciones siguen vigentes.</p>
+    <div class="nota">
+      <p><b>«Inaccesible» no equivale a «eliminado».</b> Agrupa tiempos de espera agotados, bloqueos y errores de conexión. Las 97 direcciones inaccesibles del INE requieren una segunda revalidación antes de concluir que el documento se perdió.</p>
+    </div>
+  </section>
+
+  <section id="recuperacion">
+    <h2 class="s"><span class="n">4</span>Recuperación de períodos faltantes</h2>
+    <p>Los 37 períodos faltantes detectados en la etapa anterior se mantienen. La secuencia de recuperación se ejecutó sobre ellos con todas las estrategias corregidas.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 3.</b> Resultado por estrategia</caption>
+        <thead><tr><th>Estrategia</th><th class="r">Reportados</th><th class="r">Verificados</th><th>Observación</th></tr></thead>
+        <tbody>
+          <tr><td>1. Dirección conocida</td><td class="r">0</td><td class="r">0</td><td>Implementada; sin coincidencias en esta medición.</td></tr>
+          <tr><td>2. Plantilla de la serie</td><td class="r">3</td><td class="r t-ok">3</td><td>Las mismas tres series semestrales de deuda externa del BCB.</td></tr>
+          <tr><td>3. Candidatos derivados de la serie</td><td class="r">8</td><td class="r t-bad">0</td><td>Todos entregan un documento de otro año (sección 5).</td></tr>
+          <tr><td>4. Archivo histórico</td><td class="r">0</td><td class="r">0</td><td>Implementada; sin coincidencias en esta medición.</td></tr>
+          <tr><td>5. Modelo de lenguaje</td><td class="r">0</td><td class="r">0</td><td>Ninguna de sus 55 propuestas existía (sección 6).</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td class="r">11</td><td class="r">3</td><td></td></tr></tfoot>
+      </table>
+    </div>
+    <p>Los tres documentos verificados son los informes de deuda externa del BCB de diciembre de 2025, diciembre de 2024 y junio de 2024. Se obtienen de direcciones estáticas del servidor del BCB, tienen huellas de contenido distintas y corresponden al período asignado.</p>
+    <p>Además, las recuperaciones no se incorporan todavía al catálogo: por eso el conteo de faltantes no disminuye después de recuperar un documento.</p>
+  </section>
+
+  <section id="verificacion">
+    <h2 class="s"><span class="n">5</span>Verificación independiente</h2>
+    <p>Para cada documento recuperado se solicitó al servidor el nombre real del archivo que entrega, mediante la cabecera <code>Content-Disposition</code>. Las ocho recuperaciones del INE resultaron ser documentos de otro año:</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 4.</b> Archivo solicitado frente a archivo entregado por el INE</caption>
+        <thead><tr><th>Serie y período</th><th>Archivo solicitado</th><th>Archivo realmente entregado</th></tr></thead>
+        <tbody>
+          <tr><td>Cuentas nacionales · 2016</td><td><code>…bolivianos2016.xlsx</code></td><td>Matriz insumo-producto <b>(2012)</b></td></tr>
+          <tr><td>Cuentas nacionales · 2015</td><td><code>…bolivianos2015.xlsx</code></td><td>Matriz insumo-producto <b>(2011)</b></td></tr>
+          <tr><td>Auditoría interna · 2017</td><td><code>…n-002-2017-3.pdf</code></td><td>Resumen ejecutivo N°001-<b>2026</b></td></tr>
+          <tr><td>Auditoría interna · 2016</td><td><code>…n-004-2016.pdf</code></td><td>Resumen INF UAI N°004-<b>2026</b></td></tr>
+          <tr><td>Auditoría interna · 2015</td><td><code>…n-002-2015.pdf</code></td><td>Resumen INF UAI N°002-<b>2026</b></td></tr>
+          <tr><td>Auditoría interna · 2014</td><td><code>…n-001-2014.pdf</code></td><td>Resumen INF UAI N°001-<b>2026</b></td></tr>
+          <tr><td>Auditoría interna · 2013</td><td><code>…n-011-2025-poa-2013.pdf</code></td><td>Resumen INF UAI N°011-<b>2025</b> POA 2026</td></tr>
+          <tr><td>Escala salarial · 2025</td><td><code>ine-escala-salarial-2025.pdf</code></td><td>Escala salarial <b>2026</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Por qué los controles no lo detectaron</h3>
+    <p>El portal del INE entrega cada archivo según un identificador numérico incluido en la dirección e ignora el nombre del archivo que la acompaña. La estrategia 3 construye candidatos <b>reemplazando el año en el nombre del archivo</b> por el período buscado. El servidor responde con el documento del identificador, de otro año, y el control de año —que revisa el nombre en la dirección— encuentra el año correcto porque el propio sistema lo escribió ahí.</p>
+    <p>El control de huella repetida sí funcionó: descartó 15 candidatos que repetían un documento ya asignado a otro período. Pero solo actúa a partir del segundo uso de un mismo archivo; el primero siempre se admite.</p>
+    <div class="nota alerta">
+      <p><b>Corrección necesaria.</b> El año debe comprobarse sobre lo que entrega el servidor —el nombre de <code>Content-Disposition</code> o el contenido del documento—, nunca sobre la dirección que construyó el sistema. Con esa comprobación, los ocho casos se habrían descartado.</p>
+    </div>
+  </section>
+
+  <section id="agente">
+    <h2 class="s"><span class="n">6</span>Evaluación del agente</h2>
+    <p>En la etapa anterior, el límite de 10 consultas impidió concluir si el modelo de lenguaje aportaba a la recuperación. En esta etapa se ejecutó sin ese límite sobre todos los faltantes que las demás estrategias no resolvieron.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 5.</b> Resultado de la consulta al modelo de lenguaje</caption>
+        <thead><tr><th>Medición</th><th class="r">Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Períodos faltantes consultados</td><td class="r">26</td></tr>
+          <tr><td>Direcciones candidatas propuestas</td><td class="r">55</td></tr>
+          <tr><td>Direcciones que respondieron</td><td class="r t-bad">0</td></tr>
+          <tr><td>Recuperaciones</td><td class="r">0</td></tr>
+          <tr><td>Derivadas a evaluación de herencia</td><td class="r">0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Las direcciones propuestas tienen forma plausible —siguen la estructura de los portales— pero no existen; por ejemplo, <code>bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/ide_junio_2025.pdf</code>. Ninguna superó la primera comprobación de existencia, de modo que los controles posteriores no llegaron a intervenir.</p>
+    <p>El resultado coincide con lo que reporta la literatura reciente sobre modelos de lenguaje que generan direcciones web inexistentes. <b>Se recomienda retirar esta estrategia de la secuencia</b>: no aportó recuperaciones y su costo es recurrente.</p>
+  </section>
+
+  <section id="fechas">
+    <h2 class="s"><span class="n">7</span>Cobertura de fechas</h2>
+    <p>La meta era identificar el período de al menos el 65 % de los documentos del BCB. El sistema reporta 85,1 %, pero esa cifra incluye fechas de baja confianza.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 6.</b> Documentos con período identificado</caption>
+        <thead><tr><th>Portal</th><th class="r">Con período</th><th class="r">Confianza alta o media</th><th class="r">Confianza baja</th></tr></thead>
+        <tbody>
+          <tr><td>BCB</td><td class="r">85 %</td><td class="r t-warn">32 %</td><td class="r">64 documentos</td></tr>
+          <tr><td>INE</td><td class="r">70 %</td><td class="r">70 %</td><td class="r">2 documentos</td></tr>
+          <tr><td>ASFI</td><td class="r">80 %</td><td class="r">80 %</td><td class="r">102 sin período asignado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>La distribución de confianza del BCB es idéntica a la del 25 de septiembre: 11 documentos de confianza alta, 28 media y 64 baja. El aumento proviene de asignar período a esas 64 fechas de baja confianza, que se obtienen de las carpetas de publicación del portal (<code>/2019/05/17/…</code>). Esas carpetas indican cuándo se publicó un documento, no a qué período corresponde.</p>
+    <p>Se encontraron además dos fechas inválidas (<code>2018-06-31</code>). La cobertura confiable del BCB se mantiene en 32 %.</p>
+  </section>
+
+  <section id="indicadores">
+    <h2 class="s"><span class="n">8</span>Indicadores: reportado y verificado</h2>
+    <p>La etapa se ejecutó sin auditoría externa, con un verificador automático escrito por el mismo ejecutor. La tabla compara sus cifras con las de la verificación independiente.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 7.</b> Indicadores de la etapa</caption>
+        <thead><tr><th>Indicador</th><th class="r">30-sep</th><th class="r">Meta</th><th class="r">Reportado</th><th class="r">Verificado</th></tr></thead>
+        <tbody>
+          <tr><td>Resultados falsos admitidos</td><td class="r">6</td><td class="r">0</td><td class="r">0</td><td class="r t-bad">8</td></tr>
+          <tr><td>Recuperaciones verificadas</td><td class="r">3</td><td class="r">≥ 10</td><td class="r">11</td><td class="r t-bad">3</td></tr>
+          <tr><td>Estrategias con aporte</td><td class="r">1 de 5</td><td class="r">≥ 3 de 5</td><td class="r">2 de 5</td><td class="r t-bad">1 de 5</td></tr>
+          <tr><td>Direcciones revalidadas</td><td class="r">0</td><td class="r">1.165</td><td class="r">1.165</td><td class="r t-ok">1.165</td></tr>
+          <tr><td>Fechas identificadas en BCB</td><td class="r">32 %</td><td class="r">≥ 65 %</td><td class="r">85 %</td><td class="r t-warn">32 % confiable</td></tr>
+          <tr><td>Faltantes consultados al agente</td><td class="r">10</td><td class="r">todos</td><td class="r">26 de 26</td><td class="r t-ok">26 de 26</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Dos indicadores se cumplieron. Los otros cuatro difieren entre lo reportado y lo verificado por dos razones: el verificador da por válida toda recuperación que superó los controles automáticos, sin contrastarla con el archivo real, y cuenta como cubierta cualquier fecha, sin considerar su confianza.</p>
+    <div class="nota alerta">
+      <p><b>Los informes actualizados en esta etapa contienen las cifras reportadas.</b> <code>presentacion_ejecutiva.html</code> y <code>resultados_escalera_recuperacion.html</code> indican 11 recuperaciones y 0 resultados falsos. Deben corregirse antes de presentarse.</p>
+    </div>
+  </section>
+
+  <section id="recomendaciones">
+    <h2 class="s"><span class="n">9</span>Recomendaciones</h2>
+    <p>En orden de prioridad:</p>
+    <ol class="pasos">
+      <li><b>Verificar el año sobre lo que entrega el servidor.</b> Comprobar el nombre de <code>Content-Disposition</code> o el contenido del documento antes de admitir una recuperación. Es la corrección que descarta los ocho resultados falsos.</li>
+      <li><b>No construir candidatos reescribiendo el año</b> en portales que entregan archivos por identificador, como el INE. En esos portales el candidato debe surgir de un listado real del sitio, no de modificar una dirección conocida.</li>
+      <li><b>Aprovechar las 200 redirecciones del INE.</b> Seguirlas, verificar el documento de destino y actualizar el catálogo con la nueva dirección. Es el primer uso concreto de la detección de documentos movidos.</li>
+      <li><b>Retirar la consulta al modelo de lenguaje</b> de la secuencia de recuperación.</li>
+      <li><b>Corregir las fechas del BCB:</b> no asignar período a partir de las carpetas de publicación y eliminar las fechas inválidas.</li>
+      <li><b>Incorporar al catálogo las recuperaciones verificadas,</b> para que el conteo de faltantes refleje lo recuperado.</li>
+      <li><b>Corregir los dos informes</b> que contienen las cifras reportadas.</li>
+    </ol>
+  </section>
+
+  <section id="anexo">
+    <h2 class="s"><span class="n">10</span>Anexo: método</h2>
+    <p>La verificación se realizó el 2 de octubre de 2026 sobre el estado del repositorio después del bloque B-66. Las cifras del sistema se obtuvieron con sus propias herramientas; la verificación independiente añadió tres comprobaciones:</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Comprobación</th><th>Procedimiento</th></tr></thead>
+        <tbody>
+          <tr><td>Archivo real de cada recuperación</td><td>Solicitud a cada dirección recuperada y lectura del nombre en <code>Content-Disposition</code>.</td></tr>
+          <tr><td>Huellas de contenido</td><td>Comparación de los SHA-256 con los resultados descartados el 30 de septiembre.</td></tr>
+          <tr><td>Confianza y validez de las fechas</td><td>Distribución de <code>date_confidence_score</code> y validación de cada <code>period_start</code> como fecha.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Medición</th><th>Fuente</th></tr></thead>
+        <tbody>
+          <tr><td>Indicadores reportados</td><td><code>scripts/verificar_fase5.py</code></td></tr>
+          <tr><td>Recuperaciones</td><td><code>output/recup_b65.json</code></td></tr>
+          <tr><td>Revalidación</td><td><code>output/revalidacion_resumen.json</code></td></tr>
+          <tr><td>Períodos faltantes</td><td><code>scripts/detectar_huecos.py</code></td></tr>
+          <tr><td>Fechas</td><td><code>output/{bcb,ine,asfi}/inventory.db</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>DATAX · Laboratorio de Datos</b> · Buscador de Fuentes</p>
+    <p>Informe elaborado con datos verificados el 2 de octubre de 2026.</p>
+  </footer>
+
+</main>
+</body>
+</html>
