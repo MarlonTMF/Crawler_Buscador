@@ -117,6 +117,8 @@ classification:
       name: "Informes y Reglamentos de Deuda Externa Pública"
       periodicity: semestral
       tolerance: 1
+      # Solo los informes DEPEX arman el calendario; el reglamento de 2022 no es parte de la serie semestral.
+      series_pattern: "DEPEX"
       url_patterns:
         - "DEPEX"
         - "deudaexterna"

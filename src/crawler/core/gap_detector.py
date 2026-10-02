@@ -4,12 +4,31 @@ Compara períodos observados contra períodos esperados según la periodicidad
 y tolerancia declarada en los archivos YAML de configuración.
 """
 
+import re
 import sqlite3
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
+from urllib.parse import unquote, urlparse
+
+# Extensiones que cuentan como documento de una serie. Una página índice o una
+# URL de navegación no puede anclar ni completar un calendario.
+DOCUMENT_EXTENSIONS = (".pdf", ".xls", ".xlsx", ".xlsm", ".ods", ".csv", ".zip", ".doc", ".docx")
+
+
+def _document_name(url: Optional[str]) -> Optional[str]:
+    """Nombre del documento si la URL apunta a un archivo; None si es una página.
+
+    Las entradas extraídas de un comprimido (``archivo.zip#interno.xls``) usan
+    el nombre interno.
+    """
+    if not url:
+        return None
+    parsed = urlparse(url)
+    nombre = unquote(parsed.fragment or parsed.path).rstrip("/").split("/")[-1]
+    return nombre if nombre.lower().endswith(DOCUMENT_EXTENSIONS) else None
 
 
 class DatasetState(str, Enum):
@@ -33,6 +52,7 @@ class DatasetGapReport:
     delay_periods: int = 0
     state: DatasetState = DatasetState.AL_DIA
     summary: str = ""
+    excluded_from_calendar: int = 0
 
     def to_dict(self) -> Dict:
         return {
@@ -48,6 +68,7 @@ class DatasetGapReport:
             "delay_periods": self.delay_periods,
             "state": self.state.value,
             "summary": self.summary,
+            "excluded_from_calendar": self.excluded_from_calendar,
         }
 
 
@@ -185,8 +206,16 @@ class GapDetector:
         dataset_id: str,
         periodicity: str = "anual",
         tolerance: int = 1,
+        series_pattern: Optional[str] = None,
     ) -> DatasetGapReport:
-        """Evalúa un dataset contra la base de inventario y genera el reporte de huecos y atrasos."""
+        """Evalúa un dataset contra la base de inventario y genera el reporte de huecos y atrasos.
+
+        Solo los documentos de la propia serie arman el calendario: se descartan
+        las URLs que no apuntan a un archivo documental y, si el YAML declara
+        ``series_pattern`` (expresión regular, sin distinguir mayúsculas), los
+        documentos cuyo nombre no lo cumple. Sin esto, un reglamento o un
+        informe suelto anclan la serie años antes de su primer número real.
+        """
         cursor = self.conn.execute(
             "SELECT canonical_url, period_start, period_end, published_at FROM resource_audit_log WHERE dataset_id = ?",
             (dataset_id,)
@@ -214,9 +243,18 @@ class GapDetector:
                 summary="Dataset sin registros en la base de inventario",
             )
 
+        patron = re.compile(series_pattern, re.IGNORECASE) if series_pattern else None
+        en_serie = []
+        for r in rows:
+            url = r[0] if isinstance(r, (tuple, list)) else r["canonical_url"]
+            nombre = _document_name(url)
+            if nombre and (patron is None or patron.search(nombre)):
+                en_serie.append(r)
+        excluidos = total_rows - len(en_serie)
+
         # Mapear registros a tokens de período
         observed_tokens: Set[str] = set()
-        for r in rows:
+        for r in en_serie:
             # Soportar tanto sqlite3.Row como tupla común
             p_start = r[1] if isinstance(r, (tuple, list)) else r["period_start"]
             p_end = r[2] if isinstance(r, (tuple, list)) else r["period_end"]
@@ -237,6 +275,7 @@ class GapDetector:
                 total_resources=total_rows,
                 state=DatasetState.INACTIVO,
                 summary="Dataset con registros pero sin fechas identificables",
+                excluded_from_calendar=excluidos,
             )
 
         sorted_tokens = sorted(observed_tokens)
@@ -301,4 +340,5 @@ class GapDetector:
             delay_periods=delay_count,
             state=state,
             summary=summary,
+            excluded_from_calendar=excluidos,
         )

@@ -236,8 +236,11 @@ def test_recovery_ladder_real_recoveries_not_in_inventory():
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     for u in recovered_depex_urls:
-        row = c.execute("SELECT 1 FROM resource_audit_log WHERE canonical_url = ?", (u,)).fetchone()
-        assert row is None, f"La URL recuperada {u} ya existía en resource_audit_log del BCB!"
+        # No existía como documento cosechado: la única fila admitida es la que
+        # agrega scripts/incorporar_recuperaciones.py, con estado propio.
+        cosechada = c.execute("SELECT 1 FROM resource_audit_log WHERE canonical_url = ? "
+                              "AND status != 'RECUPERADO_VIA_ESCALERA'", (u,)).fetchone()
+        assert cosechada is None, f"La URL recuperada {u} ya existía en resource_audit_log del BCB!"
     conn.close()
 
 

@@ -70,26 +70,26 @@ def test_b53_synthetic_dataset_states(tmp_path):
     for m in ["2026-06-01", "2026-07-01", "2026-08-01"]:
         conn.execute(
             "INSERT INTO resource_audit_log (resource_id, source_id, dataset_id, canonical_url, status, period_start) VALUES (?, 'src1', 'ds_al_dia', ?, 'SUCCESS', ?)",
-            (f"id_{m}", f"http://ex.com/{m}", m)
+            (f"id_{m}", f"http://ex.com/{m}.pdf", m)
         )
 
     # 2. Dataset Mensual CON_HUECOS: 2026-01, 2026-02, 2026-04 (falta marzo)
     for m in ["2026-01-01", "2026-02-01", "2026-04-01"]:
         conn.execute(
             "INSERT INTO resource_audit_log (resource_id, source_id, dataset_id, canonical_url, status, period_start) VALUES (?, 'src1', 'ds_huecos', ?, 'SUCCESS', ?)",
-            (f"id_{m}", f"http://ex.com/{m}", m)
+            (f"id_{m}", f"http://ex.com/{m}.pdf", m)
         )
 
     # 3. Dataset Mensual ATRASADO: 2025-10, 2025-11, 2025-12 (ref: 2026-09-15, tol: 2 -> atraso de 7 meses)
     for m in ["2025-10-01", "2025-11-01", "2025-12-01"]:
         conn.execute(
             "INSERT INTO resource_audit_log (resource_id, source_id, dataset_id, canonical_url, status, period_start) VALUES (?, 'src1', 'ds_atrasado', ?, 'SUCCESS', ?)",
-            (f"id_{m}", f"http://ex.com/{m}", m)
+            (f"id_{m}", f"http://ex.com/{m}.pdf", m)
         )
 
     # 4. Dataset INACTIVO: último dato en 2021
     conn.execute(
-        "INSERT INTO resource_audit_log (resource_id, source_id, dataset_id, canonical_url, status, period_start) VALUES ('id_old', 'src1', 'ds_inactivo', 'http://ex.com/old', 'SUCCESS', '2021-01-01')"
+        "INSERT INTO resource_audit_log (resource_id, source_id, dataset_id, canonical_url, status, period_start) VALUES ('id_old', 'src1', 'ds_inactivo', 'http://ex.com/old.pdf', 'SUCCESS', '2021-01-01')"
     )
     conn.commit()
 
@@ -118,9 +118,10 @@ def test_b53_synthetic_dataset_states(tmp_path):
 def test_b53_real_gap_verified_against_portal():
     """
     Criterio de aceptación B-53: Verificar al menos un hueco real contra el portal.
-    En BCB 'deuda_externa' (semestral), el inventario tiene solo 2022 y 2026-06.
-    Comprueba que el detector señale los semestres faltantes (ej. 2024-S1, 2024-S2, 2025-S2)
-    cuya existencia con HTTP 200 fue verificada en el portal.
+    En BCB 'deuda_externa' (semestral) la serie de informes DEPEX va de 2024-S1 a
+    2026-S1. Los semestres 2024-S1, 2024-S2 y 2025-S2 se recuperaron (HTTP 200,
+    verificados) y se incorporaron al inventario; el que queda es 2025-S1, cuyo
+    DEPEX jun25 responde 404 en el portal.
     """
     db_path = Path("output/bcb/inventory.db")
     if not db_path.exists():
@@ -128,13 +129,13 @@ def test_b53_real_gap_verified_against_portal():
 
     conn = sqlite3.connect(db_path)
     detector = GapDetector(conn=conn, reference_date=date(2026, 9, 24))
-    rep = detector.evaluate_dataset("deuda_externa", periodicity="semestral", tolerance=1)
+    rep = detector.evaluate_dataset("deuda_externa", periodicity="semestral", tolerance=1,
+                                    series_pattern="DEPEX")
 
     assert rep.state in (DatasetState.CON_HUECOS, DatasetState.ATRASADO)
-    assert len(rep.intermediate_gaps) > 0
-    # 2024-S2 y 2025-S2 (verificados 200 OK en el portal) deben figurar como huecos detectados
-    assert any("2024" in g for g in rep.intermediate_gaps)
-    assert any("2025" in g for g in rep.intermediate_gaps)
+    assert rep.first_observed_period == "2024-S1"
+    assert "2025-S1" in rep.intermediate_gaps
+    assert not any("2024" in g for g in rep.intermediate_gaps)
 
 
 def test_b53_semanal_and_unsupported_periodicity():

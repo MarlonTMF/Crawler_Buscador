@@ -173,9 +173,21 @@ def _faltantes() -> dict:
                     esperados = GapDetector.generate_expected_periods(first, last, per)
                 except Exception:  # noqa: BLE001
                     esperados = []
+            recuperados = []
+            db = OUT / portal / "inventory.db"
+            if db.exists() and per not in (None, "eventual"):
+                import sqlite3
+                with sqlite3.connect(f"file:{db}?mode=ro", uri=True) as c:
+                    for (ps,) in c.execute("SELECT period_start FROM resource_audit_log WHERE dataset_id = ? "
+                                           "AND status = 'RECUPERADO_VIA_ESCALERA'", (ds["dataset_id"],)):
+                        tok = GapDetector.date_to_period_token(ps, per) if ps else None
+                        if tok:
+                            recuperados.append(tok)
             series.append({
                 "portal": portal,
                 "dataset_id": ds["dataset_id"],
+                "recuperados": sorted(set(recuperados)),
+                "excluidos_del_calendario": ds.get("excluded_from_calendar", 0),
                 "nombre": _humano(ds["dataset_id"]),
                 "periodicidad": per,
                 "tolerancia": ds.get("tolerance"),

@@ -79,7 +79,7 @@ class BridgeExporter:
             SELECT resource_id, canonical_url, download_url, content_sha256, file_size_bytes,
                    period_start, period_end, date_confidence_score, status, execution_timestamp
             FROM resource_audit_log
-            WHERE status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')
+            WHERE status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA', 'RECUPERADO_VIA_ESCALERA')
         """)
         rows = cur.fetchall()
         conn.close()
@@ -132,7 +132,7 @@ class BridgeExporter:
             # Estado de cambio
             if url in eliminadas:
                 change_status = "REMOVED"
-            elif status == "RECUPERADO_VIA_CONTINGENCIA":
+            elif status in ("RECUPERADO_VIA_CONTINGENCIA", "RECUPERADO_VIA_ESCALERA"):
                 change_status = "NEW"
             else:
                 change_status = "UNCHANGED"

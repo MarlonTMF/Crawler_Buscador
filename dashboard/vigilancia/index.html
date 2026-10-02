@@ -103,8 +103,12 @@ const reval = D.revalidacion || {};
 const vig = D.vigencia || {series: [], resumen: {}};
 const falt = D.faltantes || {series: []};
 const rec = D.recuperacion || {verificadas: [], descartadas: [], rechazos_compuertas: [], por_estrategia: [], agente: {}};
-const recSet = new Set(rec.verificadas.map(r => `${r.portal}|${r.dataset_id}|${r.periodo}`));
+const recSet = new Set([
+  ...rec.verificadas.map(r => `${r.portal}|${r.dataset_id}|${r.periodo}`),
+  ...falt.series.flatMap(s => (s.recuperados || []).map(p => `${s.portal}|${s.dataset_id}|${p}`))]);
+const recDe = s => (s.recuperados || []).length;
 const pendientes = s => s.faltantes.filter(p => !recSet.has(`${s.portal}|${s.dataset_id}|${p}`));
+const conFalt = s => s.faltantes.length + recDe(s) > 0;
 
 function totales() {
   const t = {dir:0, VIGENTE:0, REDIRIGIDA:0, ELIMINADA:0, INACCESIBLE:0, series:0, AL_DIA:0, ATRASADA:0, FECHA_FUTURA:0,
@@ -115,8 +119,8 @@ function totales() {
     const fs = falt.series.filter(s => s.portal === p);
     const fila = {dir: r.total_urls || 0, VIGENTE: r.VIGENTE || 0, REDIRIGIDA: r.REDIRIGIDA || 0, ELIMINADA: r.ELIMINADA || 0,
       INACCESIBLE: r.INACCESIBLE || 0, series: v.total || 0, AL_DIA: v.AL_DIA || 0, ATRASADA: v.ATRASADA || 0,
-      FECHA_FUTURA: v.FECHA_FUTURA || 0, falt: fs.reduce((a, s) => a + s.faltantes.length, 0),
-      recu: rec.verificadas.filter(x => x.portal === p).length};
+      FECHA_FUTURA: v.FECHA_FUTURA || 0, falt: fs.reduce((a, s) => a + s.faltantes.length + recDe(s), 0),
+      recu: fs.reduce((a, s) => a + recDe(s), 0)};
     t.porInst[p] = fila;
     for (const k of Object.keys(fila)) t[k] += fila[k];
   }
@@ -181,7 +185,7 @@ function vResumen() {
         <div class="text-xs text-error mt-0.5 flex justify-between"><span>Último archivo ya no disponible</span><span class="num">${n(t.atr_nodisp)}</span></div></div>
       <div class="flex justify-between bg-surface-container-low p-2"><span>${chip('Fecha posterior a la foto','warn')}</span><span class="num">${n(t.FECHA_FUTURA)}</span></div>
     </div>`) +
-  card(`<div class="flex justify-between lbl text-on-surface-variant"><span>Períodos faltantes</span><span>${n(falt.series.filter(s => enInst(s.portal) && s.faltantes.length).length)} series</span></div>
+  card(`<div class="flex justify-between lbl text-on-surface-variant"><span>Períodos faltantes</span><span>${n(falt.series.filter(s => enInst(s.portal) && conFalt(s)).length)} series</span></div>
     <div class="flex items-baseline justify-between mt-2"><span class="text-[1.75rem] font-semibold num">${n(t.falt)}</span><span class="text-on-surface-variant">períodos detectados</span></div>
     ${barra([[100*t.recu/(t.falt||1),'bg-primary-container','Recuperados'],[100*pend/(t.falt||1),'bg-error-container','Sin recuperar']])}
     <div class="mt-4 space-y-2">
@@ -281,18 +285,19 @@ function linea(s, big) {
   }).join('')}</div><div class="flex justify-between text-xs text-on-surface-variant mt-1 num"><span>${esc(per[0])}</span><span>${esc(per[per.length-1])}</span></div>`;
 }
 function vFaltantes() {
-  const ss = falt.series.filter(s => enInst(s.portal) && s.faltantes.length);
-  const tot = ss.reduce((a, s) => a + s.faltantes.length, 0);
+  const ss = falt.series.filter(s => enInst(s.portal) && conFalt(s));
+  const tot = ss.reduce((a, s) => a + s.faltantes.length + recDe(s), 0);
+  const recTot = ss.reduce((a, s) => a + recDe(s), 0);
   const ver = rec.verificadas.filter(x => enInst(x.portal));
   const desc = rec.descartadas.filter(x => enInst(x.portal));
   const comp = rec.rechazos_compuertas.filter(x => enInst(x.portal));
   const ag = rec.agente || {};
   return titulo('Períodos faltantes y búsqueda', 'Qué falta en cada serie y qué se pudo recuperar',
-      `Faltantes calculados el ${fecha(falt.fecha_referencia)} comparando cada serie con su calendario esperado. Búsqueda: corrida del ${fecha(rec.fecha_corrida)}; cada recuperación se contrastó con el archivo que el servidor declara entregar.`) +
+      `Faltantes calculados el ${fecha(falt.fecha_referencia)} comparando cada serie con su calendario esperado; el calendario se arma solo con los documentos de la propia serie (se excluyen páginas índice y documentos ajenos). Búsqueda: corrida del ${fecha(rec.fecha_corrida)}; cada recuperación se contrastó con el archivo que el servidor declara entregar.`) +
   `<div class="grid gap-4 md:grid-cols-3">` +
   card(`<div class="lbl text-on-surface-variant">Faltantes detectados</div><div class="text-[1.75rem] font-semibold num mt-1">${n(tot)}</div><div class="text-on-surface-variant">en ${n(ss.length)} series</div>`) +
-  card(`<div class="lbl text-on-surface-variant">Recuperados y verificados</div><div class="text-[1.75rem] font-semibold num mt-1 text-ok">${n(ver.length)}</div><div class="text-on-surface-variant">${pct(ver.length, tot)} de los faltantes</div>`) +
-  card(`<div class="lbl text-on-surface-variant">Sin recuperar todavía</div><div class="text-[1.75rem] font-semibold num mt-1">${n(tot - ver.length)}</div><div class="text-on-surface-variant">No se encontraron con las estrategias actuales; no significa que no existan.</div>`) +
+  card(`<div class="lbl text-on-surface-variant">Recuperados y verificados</div><div class="text-[1.75rem] font-semibold num mt-1 text-ok">${n(recTot)}</div><div class="text-on-surface-variant">${pct(recTot, tot)} de los faltantes</div>`) +
+  card(`<div class="lbl text-on-surface-variant">Sin recuperar todavía</div><div class="text-[1.75rem] font-semibold num mt-1">${n(tot - recTot)}</div><div class="text-on-surface-variant">No se encontraron con las estrategias actuales; no significa que no existan.</div>`) +
   `</div>` +
   card(`<h2 class="text-lg font-semibold mb-3">Las cinco estrategias, en orden de aplicación</h2><div class="grid gap-3 md:grid-cols-5">
     ${rec.por_estrategia.map(e => {
@@ -308,8 +313,8 @@ function vFaltantes() {
       <th class="p-2 text-left">Serie</th><th class="p-2 text-left">Periodicidad</th><th class="p-2 text-right">Faltantes</th><th class="p-2 text-right">Recuperados</th><th class="p-2 text-left w-[45%]">Períodos esperados</th><th class="p-2"></th></tr></thead><tbody>
     ${ss.map(s => `<tr class="border-b border-surface-container align-top">
       <td class="p-2"><span class="lbl">${s.portal.toUpperCase()}</span><div>${esc(s.nombre)}</div><div class="text-xs">${chip(...(EST_GAP[s.estado] || [s.estado,'outline']))}</div></td>
-      <td class="p-2">${PERIOD_LBL[s.periodicidad] || s.periodicidad}</td><td class="p-2 text-right num text-error">${n(s.faltantes.length)}</td>
-      <td class="p-2 text-right num">${n(s.faltantes.length - pendientes(s).length)}</td><td class="p-2">${linea(s)}</td>
+      <td class="p-2">${PERIOD_LBL[s.periodicidad] || s.periodicidad}</td><td class="p-2 text-right num text-error">${n(s.faltantes.length + recDe(s))}</td>
+      <td class="p-2 text-right num">${n(recDe(s))}</td><td class="p-2">${linea(s)}</td>
       <td class="p-2"><a href="#ficha/${s.portal}/${s.dataset_id}" class="lbl border border-outline-variant px-2 py-1 whitespace-nowrap">Ver ficha</a></td></tr>`).join('')}</tbody></table></div>`, 'mt-4') +
   card(`<h2 class="text-lg font-semibold">Control de calidad: recuperaciones descartadas</h2>
     <p class="text-on-surface-variant mt-1 mb-3">Para cada recuperación se pidió al servidor el nombre del archivo que entrega. Estas parecían válidas, pero el documento real es de otro año.</p>
@@ -326,14 +331,14 @@ function vFicha() {
   const ss = falt.series.filter(s => enInst(s.portal));
   if (!ss.length) return titulo('Ficha de serie', 'Sin series para la selección');
   let s = fichaSel && ss.find(x => `${x.portal}/${x.dataset_id}` === fichaSel);
-  if (!s) s = ss.find(x => x.faltantes.length) || ss[0];
+  if (!s) s = ss.find(conFalt) || ss[0];
   const k = (x) => x.portal === s.portal && x.dataset_id === s.dataset_id;
   const ver = rec.verificadas.filter(k), desc = rec.descartadas.filter(k), comp = rec.rechazos_compuertas.filter(k);
   const ags = (rec.agente_consultas || []).filter(k);
   const urls = (reval[s.portal]?.detalle || []).filter(x => x.dataset_id === s.dataset_id);
   return titulo('Ficha de serie', `${s.portal.toUpperCase()} · ${s.nombre}`, `Identificador <span class="num">${esc(s.dataset_id)}</span> · ${n(s.recursos)} recursos catalogados.`) +
   card(`<label class="flex flex-wrap gap-2 items-center"><span class="lbl text-on-surface-variant">Serie</span><select id="ficha-sel" class="border border-outline-variant bg-surface-container-lowest p-1.5 min-w-[320px]">
-    ${ss.map(x => `<option value="${x.portal}/${x.dataset_id}" ${x === s ? 'selected' : ''}>${x.portal.toUpperCase()} · ${esc(x.nombre)}${x.faltantes.length ? ` (${x.faltantes.length} faltantes)` : ''}</option>`).join('')}</select></label>`) +
+    ${ss.map(x => `<option value="${x.portal}/${x.dataset_id}" ${x === s ? 'selected' : ''}>${x.portal.toUpperCase()} · ${esc(x.nombre)}${x.faltantes.length ? ` (${x.faltantes.length} sin recuperar)` : ''}</option>`).join('')}</select></label>`) +
   `<div class="grid gap-4 md:grid-cols-4 mt-4">` +
   [['Periodicidad', PERIOD_LBL[s.periodicidad] || s.periodicidad || '—'], ['Primer período', s.primero || '—'], ['Último período', s.ultimo || '—'], ['Estado', (EST_GAP[s.estado] || [s.estado])[0]]]
     .map(([l, v]) => card(`<div class="lbl text-on-surface-variant">${l}</div><div class="text-lg font-semibold num mt-1">${esc(v)}</div>`)).join('') + `</div>` +

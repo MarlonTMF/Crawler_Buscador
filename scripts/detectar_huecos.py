@@ -52,6 +52,7 @@ def run_gap_detection(
                 dataset_id=ds_id,
                 periodicity=periodicity,
                 tolerance=tolerance,
+                series_pattern=rule.get("series_pattern"),
             )
             src_reports.append(rep)
 
