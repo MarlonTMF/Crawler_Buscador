@@ -73,6 +73,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-55 | 🅲/🅰️ | Búsqueda de herencia (Fase 4) | 120/95 | Aprob. c/obs | Decisión D-18; 4 compuertas independientes; procedencia estricta de bytes (C-1); 3 propuestas rechazadas honestamente (`8fb20e0`, R2) |
 | B-56 | 🅰️ | Ciclo de vida e histórico (Fase 4) | 80/65 | Aprob. c/obs | DatasetLifecycleRecord; 4 estados; transiciones auditables; subsanación R2 con estabilidad de fecha y 11 tests (`455ee5b` / `9e8d44f`) |
 | B-57 | 🅲/🅰️ | Cruce con el crawler interno (Fase 4) | 120/50 | Entregado | Decisión D-19 (C-1..C-10); cotejo en 3 pasadas por URL; umbral 10% (BCB CLAVE_NO_VALIDADA 0.83%); contrato ResourceCandidate; invariante C-10 de totalidad probada |
+| B-59 | 🅰️ | Base limpia, compuertas de calidad y verificador (Fase 5) | 120/115 | Aprobado (solo) | 0 falsos positivos admitidos (vs 6 el 30-sep); parada P-6 ejecutada (sucesores a cola D-18); 2 compuertas de calidad activas; scripts/verificar_fase5.py creado; suite en 230 tests verdes (`73abbf5`) |
 
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
@@ -167,6 +168,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-56 (Ciclo de vida) | **Archivado justificado** | Invariante central: paso a `HISTORICO` nunca automático por silencio. 21 datasets clasificados (16 VIGENTE, 2 ATRASADO, 3 MIGRADO, 0 HISTORICO). Fechas estables entre corridas e integración con recuperaciones reales B-54 (`455ee5b`, R2). |
 | Tras B-57 (Cruce interno D-19) | **Conciliación de catálogos** | Cruce de 3.389 registros de Rolando vs 1.165 externos: 4.214 entidades conciliadas, 323 URLs coincidentes constatadas (100 INE, 223 ASFI), brecha intacta en 716 SOLO_EXTERNO / 2.237 SOLO_INTERNO. BCB (0.83%) en cuarentena bajo C-3 para prevenir falsos positivos de brecha. Aprobado con observaciones (`f0cd08f`, R2). |
 | Tras B-58 (Cierre Fase 4) | **Vigencia y huecos cerrados** | 18 datasets evaluados en calendario (12 AL_DIA [66.7%], 5 CON_HUECOS [27.8%], 1 INACTIVO [5.6%]). 21 datasets en ciclo de vida (16 VIGENTE, 2 ATRASADO, 3 MIGRADO, 0 HISTORICO). 209/209 tests verdes. Capacidades a medias formalmente documentadas. |
+| Tras B-59 (Fase 5 base limpia) | **0 falsos positivos admitidos** | 2 compuertas de calidad (huella SHA-256 repetida y año contradictorio); reversión P-6 (sucesores a cola D-18); 0 falsos admitidos (vs 6); verificador de Fase 5 oficial; 230 tests verdes (`73abbf5`). |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
