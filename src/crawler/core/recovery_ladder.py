@@ -724,49 +724,229 @@ class RecoveryLadder:
 
         return None
 
+    def _get_sitemap_urls(self, portal: str, dataset_id: str, period: str) -> List[str]:
+        """
+        Consulta sitemap.xml del portal y devuelve URLs documentales que coincidan
+        con el dataset y período buscado.
+        """
+        if not hasattr(self, "_sitemap_cache"):
+            self._sitemap_cache = {}
+        cache_key = (portal.lower(), dataset_id, period[:4])
+        if cache_key in self._sitemap_cache:
+            return self._sitemap_cache[cache_key]
+
+        sitemap_urls: List[str] = []
+        endpoints = [
+            f"https://www.{portal}.gob.bo/sitemap.xml",
+            f"https://{portal}.gob.bo/sitemap.xml",
+        ]
+        if portal == "bcb":
+            endpoints.append("https://www.bcb.gob.bo/sitemap_index.xml")
+
+        year_str = period[:4]
+        ds_keywords = [w.lower() for w in re.split(r"[_\W]+", dataset_id) if len(w) >= 3]
+
+        for ep in endpoints:
+            try:
+                resp = self.fetcher.session.get(ep, timeout=5)
+                if resp.status_code == 200 and ("xml" in resp.headers.get("Content-Type", "") or "<urlset" in resp.text or "<sitemapindex" in resp.text):
+                    locs = re.findall(r"<loc>(https?://[^<]+)</loc>", resp.text, re.I)
+                    for loc in locs:
+                        loc_lower = loc.lower()
+                        if year_str in loc_lower and any(kw in loc_lower for kw in ds_keywords):
+                            if loc not in sitemap_urls:
+                                sitemap_urls.append(loc)
+                    if sitemap_urls:
+                        break
+            except Exception as e:
+                logger.debug("Error consultando sitemap %s: %s", ep, e)
+
+        self._sitemap_cache[cache_key] = sitemap_urls
+        return sitemap_urls
+
+    def _derive_candidates_from_dataset_urls(
+        self, portal: str, dataset_id: str, period: str, periodicity: str
+    ) -> List[str]:
+        """
+        Escalón 3 (B-62 / P-3): Deriva candidatos a partir de las URLs observadas
+        en inventory.db para el propio dataset, infiriendo la parte que varía con
+        el período y buscando además en sitemap.xml si el portal lo publica.
+        """
+        target_year = period[:4]
+        try:
+            target_yy = f"{int(target_year) % 100:02d}"
+        except Exception:
+            target_yy = ""
+
+        observed_urls: List[str] = []
+        db_path = self.base_output_dir / portal / "inventory.db"
+        if db_path.exists():
+            try:
+                conn = sqlite3.connect(db_path)
+                try:
+                    cursor = conn.cursor()
+                    rows = cursor.execute(
+                        "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ? AND canonical_url LIKE 'http%'",
+                        (dataset_id,)
+                    ).fetchall()
+                    for (u,) in rows:
+                        if u and u not in observed_urls:
+                            observed_urls.append(u)
+                finally:
+                    conn.close()
+            except Exception as e:
+                logger.debug("Error leyendo URLs de dataset %s en inventory: %s", dataset_id, e)
+
+        sitemap_urls = self._get_sitemap_urls(portal, dataset_id, period)
+        for sm_u in sitemap_urls:
+            if sm_u not in observed_urls:
+                observed_urls.append(sm_u)
+
+        if not observed_urls:
+            return []
+
+        q_map = {
+            1: {"full": "primer trimestre", "short": "primer", "ord": "1er", "tok": "Q1"},
+            2: {"full": "segundo trimestre", "short": "segundo", "ord": "2do", "tok": "Q2"},
+            3: {"full": "tercer trimestre", "short": "tercer", "ord": "3er", "tok": "Q3"},
+            4: {"full": "cuarto trimestre", "short": "cuarto", "ord": "4to", "tok": "Q4"},
+        }
+        sem_map = {
+            1: {"full": "primer semestre", "short": "primer", "mon": "jun", "ord": "1er", "tok": "S1"},
+            2: {"full": "segundo semestre", "short": "segundo", "mon": "dic", "ord": "2do", "tok": "S2"},
+        }
+        mes_map = {
+            1: ("enero", "ene", "01"), 2: ("febrero", "feb", "02"), 3: ("marzo", "mar", "03"),
+            4: ("abril", "abr", "04"), 5: ("mayo", "may", "05"), 6: ("junio", "jun", "06"),
+            7: ("julio", "jul", "07"), 8: ("agosto", "ago", "08"), 9: ("septiembre", "sep", "09"),
+            10: ("octubre", "oct", "10"), 11: ("noviembre", "nov", "11"), 12: ("diciembre", "dic", "12"),
+        }
+
+        derived_candidates: List[str] = []
+
+        for raw_u in observed_urls:
+            unquoted_u = unquote(raw_u)
+            src_years = set(re.findall(r"(?<!\d)(19\d\d|20\d\d)(?!\d)", unquoted_u))
+            if not src_years:
+                src_years = set(re.findall(r"(?<!\d)(\d{2})(?!\d)", unquoted_u))
+
+            if periodicity == "trimestral":
+                target_q = None
+                if "-Q" in period:
+                    try:
+                        target_q = int(period.split("-Q")[-1])
+                    except Exception:
+                        pass
+                if not target_q or target_q not in q_map:
+                    target_q = 1
+
+                t_info = q_map[target_q]
+                all_q_words = ["primer", "primero", "segundo", "tercer", "tercero", "cuarto", "Cuarto", "1er", "2do", "3er", "4to"]
+
+                for sy in src_years:
+                    u_replaced_year = re.sub(rf"(?<!\d){re.escape(sy)}(?!\d)", target_year, unquoted_u)
+                    for qw in all_q_words:
+                        if re.search(rf"\b{re.escape(qw)}\b", u_replaced_year, re.I):
+                            cand1 = re.sub(rf"\b{re.escape(qw)}\b", t_info["short"], u_replaced_year, flags=re.I)
+                            cand2 = re.sub(rf"\b{re.escape(qw)}\b", t_info["ord"], u_replaced_year, flags=re.I)
+                            for c in (cand1, cand2):
+                                for fin_cand in (c, c.replace(" ", "%20")):
+                                    if fin_cand not in derived_candidates:
+                                        derived_candidates.append(fin_cand)
+
+                    for q_num in (1, 2, 3, 4):
+                        tok = f"Q{q_num}"
+                        if tok in u_replaced_year or tok.lower() in u_replaced_year.lower():
+                            cand = re.sub(rf"\b{tok}\b", t_info["tok"], u_replaced_year, flags=re.I)
+                            for fin_cand in (cand, cand.replace(" ", "%20")):
+                                if fin_cand not in derived_candidates:
+                                    derived_candidates.append(fin_cand)
+
+            elif periodicity == "semestral":
+                target_s = 2 if period.endswith("S2") or period.endswith("2") else 1
+                s_info = sem_map[target_s]
+                all_sem_words = ["primer", "segundo", "1er", "2do"]
+                all_months = ["jun", "junio", "dic", "diciembre"]
+
+                for sy in src_years:
+                    # Si sy es de 2 dígitos, reemplazar por target_yy o target_year
+                    sub_y = target_yy if len(sy) == 2 and target_yy else target_year
+                    u_replaced_year = re.sub(rf"(?<!\d){re.escape(sy)}(?!\d)", sub_y, unquoted_u)
+                    u_replaced_4y = re.sub(rf"(?<!\d){re.escape(sy)}(?!\d)", target_year, unquoted_u)
+
+                    for u_base in (u_replaced_year, u_replaced_4y):
+                        for sw in all_sem_words:
+                            if re.search(rf"\b{re.escape(sw)}\b", u_base, re.I):
+                                cand = re.sub(rf"\b{re.escape(sw)}\b", s_info["short"], u_base, flags=re.I)
+                                for fin_cand in (cand, cand.replace(" ", "%20")):
+                                    if fin_cand not in derived_candidates:
+                                        derived_candidates.append(fin_cand)
+                        for mw in all_months:
+                            pattern_m = rf"(?<![a-zA-Z]){re.escape(mw)}(?![a-zA-Z])"
+                            if re.search(pattern_m, u_base, re.I):
+                                cand = re.sub(pattern_m, s_info["mon"], u_base, flags=re.I)
+                                for fin_cand in (cand, cand.replace(" ", "%20")):
+                                    if fin_cand not in derived_candidates:
+                                        derived_candidates.append(fin_cand)
+                        for s_num in (1, 2):
+                            tok = f"S{s_num}"
+                            if tok in u_base or tok.lower() in u_base.lower():
+                                cand = re.sub(rf"\b{tok}\b", s_info["tok"], u_base, flags=re.I)
+                                for fin_cand in (cand, cand.replace(" ", "%20")):
+                                    if fin_cand not in derived_candidates:
+                                        derived_candidates.append(fin_cand)
+
+            elif periodicity == "mensual":
+                try:
+                    m_num = int(period.split("-")[1])
+                except Exception:
+                    m_num = 1
+                m_full, m_short, m_two = mes_map.get(m_num, ("enero", "ene", "01"))
+
+                for sy in src_years:
+                    sub_y = target_yy if len(sy) == 2 and target_yy else target_year
+                    u_replaced_year = re.sub(rf"(?<!\d){re.escape(sy)}(?!\d)", sub_y, unquoted_u)
+                    for num, (f_name, s_name, t_dig) in mes_map.items():
+                        pat_full = rf"(?<![a-zA-Z]){re.escape(f_name)}(?![a-zA-Z])"
+                        if re.search(pat_full, u_replaced_year, re.I):
+                            cand = re.sub(pat_full, m_full, u_replaced_year, flags=re.I)
+                            for fin_cand in (cand, cand.replace(" ", "%20")):
+                                if fin_cand not in derived_candidates:
+                                    derived_candidates.append(fin_cand)
+                        pat_short = rf"(?<![a-zA-Z]){re.escape(s_name)}(?![a-zA-Z])"
+                        if re.search(pat_short, u_replaced_year, re.I):
+                            cand = re.sub(pat_short, m_short, u_replaced_year, flags=re.I)
+                            for fin_cand in (cand, cand.replace(" ", "%20")):
+                                if fin_cand not in derived_candidates:
+                                    derived_candidates.append(fin_cand)
+                        if re.search(rf"(?:_|-){t_dig}(?:\.|\b)", u_replaced_year):
+                            cand = re.sub(rf"(?<=_|-){t_dig}(?=\.|\b)", m_two, u_replaced_year)
+                            for fin_cand in (cand, cand.replace(" ", "%20")):
+                                if fin_cand not in derived_candidates:
+                                    derived_candidates.append(fin_cand)
+
+            else:
+                for sy in src_years:
+                    cand = re.sub(rf"(?<!\d){re.escape(sy)}(?!\d)", target_year, unquoted_u)
+                    for fin_cand in (cand, cand.replace(" ", "%20")):
+                        if fin_cand not in derived_candidates:
+                            derived_candidates.append(fin_cand)
+
+        return derived_candidates
+
     def _try_rung_3_same_domain_alternate(
         self, portal: str, dataset_id: str, period: str, periodicity: str
     ) -> Optional[RecoveredPeriod]:
         """
-        Escalón 3: Otra ruta dentro del mismo dominio (variaciones sintácticas).
-        NOTA: Implementación heurística acotada a variaciones de ruta para bcb/deuda_externa.
-        No incluye aún rastreo de sitemap ni buscador interno del portal (desviación declarada).
+        Escalón 3: Otra ruta dentro del mismo dominio (variaciones sintácticas y derivación de serie).
+        Deriva candidatos de las URLs observadas del propio dataset (inventory.db y sitemap.xml)
+        reemplazando año y período, complementado con variaciones sintácticas de ruta (B-62 / P-3).
         """
-        # Variaciones de formato y encoding
-        year = int(period[:4])
-        yy = f"{year % 100:02d}"
-        candidate_urls: List[str] = []
+        candidate_urls = self._derive_candidates_from_dataset_urls(portal, dataset_id, period, periodicity)
 
-        if portal == "bcb" and dataset_id == "deuda_externa":
-            sem = period[-1] if "S" in period else "1"
-            mon = "jun" if sem == "1" else "dic"
-            # Variaciones de espacios no codificados vs codificados y separadores
-            variants = [
-                f"https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX {mon}{yy}.pdf",
-                f"https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX_{mon}{yy}.pdf",
-                f"https://www.bcb.gob.bo/webdocs/informes_deudaexterna/depex_{mon}{yy}.pdf",
-                f"https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX_{mon}_{year}.pdf",
-            ]
-            candidate_urls.extend(variants)
-
-        # Generalización para cualquier portal y dataset mediante RelocationManager
-        if not candidate_urls:
-            seed_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
-            db_path = self.base_output_dir / portal / "inventory.db"
-            if db_path.exists():
-                try:
-                    with sqlite3.connect(db_path) as conn:
-                        rows = conn.execute(
-                            "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ? LIMIT 5",
-                            (dataset_id,)
-                        ).fetchall()
-                        for (u,) in rows:
-                            if u and u.startswith("http") and u not in seed_urls:
-                                seed_urls.append(u)
-                except Exception:
-                    pass
-
-            for s_url in seed_urls:
+        template_seeds = self._build_template_urls(portal, dataset_id, period, periodicity)
+        if hasattr(self, "relocation_manager"):
+            for s_url in template_seeds:
                 for var_u in self.relocation_manager.generate_path_variants(s_url, period=period):
                     if var_u not in candidate_urls:
                         candidate_urls.append(var_u)
@@ -1240,3 +1420,55 @@ class RecoveryLadder:
             self.save_inheritance_candidates()
 
         return all_recovered
+
+    def dry_run_candidates(
+        self, sources: Optional[List[str]] = None
+    ) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
+        """
+        Modo dry-run (B-62 / P-3): Lista los candidatos generados/derivados para
+        cada período faltante en los datasets con huecos detectados, sin realizar
+        descargas ni consumir presupuestos de red/LLM.
+        """
+        sources = sources or ["bcb", "ine", "asfi"]
+        results: Dict[str, Dict[str, Dict[str, List[str]]]] = {}
+
+        for src in sources:
+            db_path = self.base_output_dir / src / "inventory.db"
+            cfg_path = self.base_config_dir / f"source_{src}.yaml"
+            if not db_path.exists() or not cfg_path.exists():
+                continue
+
+            adapter = GenericSourceAdapter(cfg_path)
+            detector = GapDetector(db_path=db_path)
+            results[src] = {}
+
+            for rule in adapter.dataset_rules:
+                ds_id = rule.get("id")
+                periodicity = rule.get("periodicity", "anual")
+                tolerance = rule.get("tolerance", 1)
+
+                if periodicity == "eventual":
+                    continue
+
+                rep = detector.evaluate_dataset(ds_id, periodicity=periodicity, tolerance=tolerance)
+                if not rep.intermediate_gaps:
+                    continue
+
+                results[src][ds_id] = {}
+
+                for gap in rep.intermediate_gaps:
+                    cands = self._derive_candidates_from_dataset_urls(
+                        portal=src,
+                        dataset_id=ds_id,
+                        period=gap,
+                        periodicity=periodicity,
+                    )
+                    for t_url in self._build_template_urls(src, ds_id, gap, periodicity):
+                        if t_url not in cands:
+                            cands.append(t_url)
+
+                    results[src][ds_id][gap] = cands
+
+            detector.close()
+
+        return results

@@ -104,6 +104,11 @@ def main():
         help="Límite máximo de llamadas a la API de Gemini para el escalón 5 (por defecto: 10)",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Modo simulación: lista los candidatos generados/derivados para cada período faltante sin descargar ni consumir cuotas",
+    )
+    parser.add_argument(
         "--format",
         choices=["table", "json"],
         default="table",
@@ -120,6 +125,35 @@ def main():
     sources = [s.strip().lower() for s in args.sources.split(",") if s.strip()]
 
     ladder = RecoveryLadder(max_gemini_calls=args.max_gemini_calls)
+
+    if args.dry_run:
+        print("=" * 135)
+        print(f"DRY-RUN: CANDIDATOS GENERADOS PARA PERÍODOS FALTANTES (B-62) -- {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("=" * 135)
+        dry_results = ladder.dry_run_candidates(sources=sources)
+        total_gaps = 0
+        gaps_with_candidates = 0
+
+        for src, datasets in dry_results.items():
+            print(f"\n--- FUENTE: {src.upper()} ---")
+            for ds_id, periods in datasets.items():
+                print(f"Dataset: {ds_id} ({len(periods)} períodos con huecos detectados):")
+                for period, cands in periods.items():
+                    total_gaps += 1
+                    if cands:
+                        gaps_with_candidates += 1
+                        sample = cands[0]
+                        sample_disp = sample if len(sample) <= 85 else (sample[:82] + "...")
+                        print(f"  [{period}] {len(cands):2d} candidatos derivados | Ejemplo: {sample_disp}")
+                    else:
+                        print(f"  [{period}]  0 candidatos generados")
+
+        print("-" * 135)
+        pct = (gaps_with_candidates / total_gaps * 100) if total_gaps else 0
+        print(f"RESUMEN DRY-RUN: {gaps_with_candidates} de {total_gaps} períodos faltantes tienen candidatos derivados ({pct:.1f}%).")
+        print("=" * 135)
+        return
+
     t0 = time.time()
     recovered = ladder.recover_missing_periods(sources=sources, max_recoveries=args.max_recoveries)
     elapsed = time.time() - t0
