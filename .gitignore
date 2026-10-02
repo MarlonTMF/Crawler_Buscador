@@ -107,3 +107,6 @@ resultadosPrimerCrawleoUnido.xlsx
 !output/excel_urls_diagnostic.json
 !output/url_resolution_log.json
 !output/fuentes_pendientes_decision_negocio.json
+
+# Datos de la interfaz de vigilancia: derivados del catalogo de SPIM, no se publican
+dashboard/vigilancia/data.js

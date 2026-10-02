@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATAX · Vigilancia de fuentes oficiales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { "surface":"#f8f9ff","surface-container-lowest":"#ffffff","surface-container-low":"#eff4ff","surface-container":"#e5eeff",
+    "surface-container-high":"#dce9ff","on-surface":"#0b1c30","on-surface-variant":"#43474d","outline":"#74777e","outline-variant":"#c3c6ce",
+    "primary":"#001428","primary-container":"#0f2942","secondary":"#455f87","secondary-container":"#b5d0fd","on-secondary-container":"#3e5980",
+    "error":"#ba1a1a","error-container":"#ffdad6","on-error-container":"#93000a","ok":"#1f6b45","ok-container":"#d6eedf","warn":"#7a5300","warn-container":"#f6e4bf" },
+  borderRadius: { DEFAULT:"0.125rem", lg:"0.25rem", xl:"0.5rem" },
+  fontFamily: { sans:["Geist","system-ui","sans-serif"], mono:["JetBrains Mono","ui-monospace","monospace"] }
+}}};
+</script>
+<style>
+  body{font-feature-settings:"tnum" 1}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .lbl{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.6875rem;letter-spacing:.04em;text-transform:uppercase}
+  .cell{width:14px;height:14px;display:inline-block;border-radius:2px}
+  .cell-big{width:26px;height:22px;display:inline-flex;align-items:center;justify-content:center;border-radius:2px;font-size:10px}
+  .c-ok{background:#0f2942;color:#fff}
+  .c-falta{background:repeating-linear-gradient(135deg,#ffdad6 0 3px,#f3b3ab 3px 6px);color:#93000a}
+  .c-rec{background:#b5d0fd;color:#0f2942;outline:1px solid #455f87}
+  [hidden]{display:none!important}
+  a.ext{color:#455f87;text-decoration:underline;text-underline-offset:2px;word-break:break-all}
+</style>
+</head>
+<body class="bg-surface text-on-surface antialiased font-sans text-sm">
+
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
+  <div class="max-w-[1440px] mx-auto px-6 pt-2">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-surface-container pb-2">
+      <div class="flex items-baseline gap-2">
+        <span class="text-[1.375rem] font-bold tracking-tight text-primary">DATAX</span>
+        <span class="h-4 w-px bg-outline-variant self-center"></span>
+        <span class="text-xs text-on-surface-variant font-medium">Laboratorio de Datos · Vigilancia de fuentes oficiales de Bolivia</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="lbl text-on-surface-variant flex gap-3">
+          <span>Verificación: <b class="text-on-surface" id="h-verif">—</b></span>
+          <span class="text-outline-variant">|</span>
+          <span>Foto catálogo SPIM: <b class="text-on-surface" id="h-foto">—</b></span>
+        </div>
+        <div class="flex bg-surface-container-low p-0.5 rounded-lg border border-outline-variant" role="group" aria-label="Institución" id="filtro-inst"></div>
+      </div>
+    </div>
+    <nav class="flex gap-5 overflow-x-auto h-10" id="nav" aria-label="Secciones"></nav>
+  </div>
+</header>
+
+<main class="max-w-[1440px] mx-auto px-6 py-5">
+  <div id="sin-datos" class="hidden border border-error bg-error-container text-on-error-container p-4">
+    No se encontró <code>data.js</code>. Generalo con <code>python scripts/construir_vigilancia.py</code>.
+  </div>
+  <section id="v-resumen" data-view></section>
+  <section id="v-vigencia" data-view hidden></section>
+  <section id="v-integridad" data-view hidden></section>
+  <section id="v-faltantes" data-view hidden></section>
+  <section id="v-ficha" data-view hidden></section>
+</main>
+
+<footer class="max-w-[1440px] mx-auto px-6 py-4 border-t border-outline-variant lbl text-on-surface-variant flex flex-wrap justify-between gap-2">
+  <span>DATAX · Buscador de Fuentes · datos generados con scripts/construir_vigilancia.py</span>
+  <span id="f-gen"></span>
+</footer>
+
+<script src="data.js"></script>
+<script>
+(function(){
+const D = window.VIGILANCIA;
+if (!D) { document.getElementById('sin-datos').classList.remove('hidden'); return; }
+
+/* ── utilidades ─────────────────────────────────────────── */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const n = x => (x == null ? '—' : Number(x).toLocaleString('es-BO'));
+const pct = (a, b) => b ? (100 * a / b).toLocaleString('es-BO', {maximumFractionDigits: 1}) + ' %' : '—';
+const fecha = iso => { if (!iso) return '—'; const s = String(iso).slice(0, 10).split('-'); return s.length === 3 ? `${s[2]}/${s[1]}/${s[0]}` : iso; };
+const PORT = Object.fromEntries(D.portales.map(p => [p.id, p.nombre]));
+const PERIOD_LBL = {diaria:'Diaria',semanal:'Semanal',mensual:'Mensual',bimestral:'Bimestral',trimestral:'Trimestral',semestral:'Semestral',anual:'Anual',eventual:'Eventual'};
+const EST_VIG = {AL_DIA:['Al día','ok'],ATRASADA:['Atrasada','error'],FECHA_FUTURA:['Fecha posterior a la foto','warn'],SIN_FECHA:['Sin fecha','outline'],SIN_PERIODICIDAD:['Sin periodicidad','outline']};
+const EST_URL = {VIGENTE:['Vigente','ok'],REDIRIGIDA:['Redirigida','secondary'],ELIMINADA:['Eliminada','error'],INACCESIBLE:['Inaccesible','warn']};
+const EST_GAP = {AL_DIA:['Al día','ok'],CON_HUECOS:['Con faltantes','error'],ATRASADO:['Atrasada','warn'],INACTIVO:['Inactiva','outline']};
+const chip = (txt, tono) => {
+  const map = {ok:'bg-ok-container text-ok', error:'bg-error-container text-on-error-container', warn:'bg-warn-container text-warn',
+               secondary:'bg-secondary-container text-on-secondary-container', outline:'bg-surface-container text-on-surface-variant'};
+  return `<span class="lbl px-1.5 py-0.5 rounded ${map[tono] || map.outline}">${esc(txt)}</span>`;
+};
+const card = (inner, extra = '') => `<div class="bg-surface-container-lowest border border-outline-variant p-4 ${extra}">${inner}</div>`;
+const titulo = (lbl, t, sub = '') => `<div class="mb-4"><div class="lbl text-secondary mb-1">${esc(lbl)}</div><h1 class="text-[1.375rem] font-semibold tracking-tight">${esc(t)}</h1>${sub ? `<p class="text-on-surface-variant mt-1 max-w-3xl">${sub}</p>` : ''}</div>`;
+
+let INST = 'todas';
+const enInst = p => INST === 'todas' || p === INST;
+
+/* ── datos derivados ────────────────────────────────────── */
+const reval = D.revalidacion || {};
+const vig = D.vigencia || {series: [], resumen: {}};
+const falt = D.faltantes || {series: []};
+const rec = D.recuperacion || {verificadas: [], descartadas: [], rechazos_compuertas: [], por_estrategia: [], agente: {}};
+const recSet = new Set(rec.verificadas.map(r => `${r.portal}|${r.dataset_id}|${r.periodo}`));
+const pendientes = s => s.faltantes.filter(p => !recSet.has(`${s.portal}|${s.dataset_id}|${p}`));
+
+function totales() {
+  const t = {dir:0, VIGENTE:0, REDIRIGIDA:0, ELIMINADA:0, INACCESIBLE:0, series:0, AL_DIA:0, ATRASADA:0, FECHA_FUTURA:0,
+             falt:0, recu:0, atr_disp:0, atr_nodisp:0, porInst:{}};
+  for (const p of D.portales.map(x => x.id)) {
+    if (!enInst(p)) continue;
+    const r = reval[p]?.resumen || {}, v = vig.resumen?.[p] || {};
+    const fs = falt.series.filter(s => s.portal === p);
+    const fila = {dir: r.total_urls || 0, VIGENTE: r.VIGENTE || 0, REDIRIGIDA: r.REDIRIGIDA || 0, ELIMINADA: r.ELIMINADA || 0,
+      INACCESIBLE: r.INACCESIBLE || 0, series: v.total || 0, AL_DIA: v.AL_DIA || 0, ATRASADA: v.ATRASADA || 0,
+      FECHA_FUTURA: v.FECHA_FUTURA || 0, falt: fs.reduce((a, s) => a + s.faltantes.length, 0),
+      recu: rec.verificadas.filter(x => x.portal === p).length};
+    t.porInst[p] = fila;
+    for (const k of Object.keys(fila)) t[k] += fila[k];
+  }
+  for (const s of vig.series) if (enInst(s.institucion) && s.estado === 'ATRASADA') {
+    if (s.ultimo_archivo === 'DISPONIBLE') t.atr_disp++; else if (s.ultimo_archivo === 'NO_DISPONIBLE') t.atr_nodisp++;
+  }
+  return t;
+}
+
+/* ── encabezado y navegación ────────────────────────────── */
+const VISTAS = [['resumen','Resumen general'],['vigencia','Vigencia de series'],['integridad','Documentos movidos'],
+                ['faltantes','Períodos faltantes y búsqueda'],['ficha','Ficha de serie']];
+$('#h-verif').textContent = fecha(D.verificado_en);
+$('#h-foto').textContent = fecha(vig.fecha_foto_respaldo);
+$('#f-gen').textContent = 'Generado: ' + new Date(D.generado_en).toLocaleString('es-BO');
+
+function pintaFiltro() {
+  $('#filtro-inst').innerHTML = [['todas','Todas'], ...D.portales.map(p => [p.id, p.id.toUpperCase()])].map(([id, t]) =>
+    `<button type="button" data-inst="${id}" aria-pressed="${INST === id}" class="px-2.5 py-1 lbl rounded ${INST === id ? 'bg-surface-container-lowest text-primary shadow-sm font-semibold' : 'text-on-surface-variant hover:text-on-surface'}">${t}</button>`).join('');
+}
+function pintaNav(actual) {
+  const t = totales();
+  const badge = {vigencia: t.series, integridad: t.dir};
+  $('#nav').innerHTML = VISTAS.map(([id, t2]) =>
+    `<a href="#${id}" class="h-full inline-flex items-center gap-1.5 px-1 whitespace-nowrap border-b-2 ${actual === id ? 'border-primary text-primary font-semibold' : 'border-transparent text-on-surface-variant hover:text-on-surface'}">${t2}${badge[id] != null ? `<span class="px-1.5 rounded-full bg-surface-container text-on-secondary-container lbl">${n(badge[id])}</span>` : ''}</a>`).join('');
+}
+$('#filtro-inst').addEventListener('click', e => { const b = e.target.closest('[data-inst]'); if (!b) return; INST = b.dataset.inst; render(); });
+
+/* ── 1. resumen ─────────────────────────────────────────── */
+function vResumen() {
+  const t = totales();
+  const barra = (partes) => `<div class="flex h-2.5 w-full bg-surface-container mt-3">${partes.map(([v, c, tt]) => `<div title="${esc(tt)}" style="width:${t.dir || 1 ? v : 0}%" class="${c}"></div>`).join('')}</div>`;
+  const pend = t.falt - t.recu;
+  const alertas = [];
+  for (const [p, f] of Object.entries(t.porInst)) if (f.REDIRIGIDA) alertas.push(['Alta', p, `${n(f.REDIRIGIDA)} documentos de ${p.toUpperCase()} redirigen a otra dirección`,
+    `${pct(f.REDIRIGIDA, f.dir)} de sus direcciones catalogadas ya no están donde estaban. Conviene seguir la redirección y actualizar el catálogo.`, `${n(f.REDIRIGIDA)} documentos`]);
+  if (t.atr_nodisp) alertas.push(['Alta', null, `${n(t.atr_nodisp)} series atrasadas cuyo último archivo ya no está disponible`,
+    'Son las candidatas directas a recuperación: además de atrasadas, el último archivo descargado dejó de responder.', `${n(t.atr_nodisp)} series`]);
+  if (t.FECHA_FUTURA) alertas.push(['Dato', null, `${n(t.FECHA_FUTURA)} series con fecha posterior a la foto del catálogo`,
+    'SPIM registra que están actualizadas hasta una fecha que todavía no había ocurrido: es un dato inconsistente en el catálogo de producción.', `${n(t.FECHA_FUTURA)} series`]);
+  const desc = rec.descartadas.filter(x => enInst(x.portal)).length;
+  if (desc) alertas.push(['Calidad', null, `${n(desc)} recuperaciones descartadas al verificar el archivo entregado`,
+    'El servidor entregó un documento de otro año. Están excluidas de todas las cifras de recuperación.', `${n(desc)} descartes`]);
+
+  return titulo('Resumen general', 'Estado de las fuentes oficiales',
+      `Direcciones verificadas el ${fecha(D.verificado_en)}; vigencia calculada sobre la foto del catálogo de producción SPIM del ${fecha(vig.fecha_foto_respaldo)}.`) +
+  `<div class="grid gap-4 lg:grid-cols-3">` +
+  card(`<div class="flex justify-between lbl text-on-surface-variant"><span>Documentos catalogados</span><span>${n(t.dir)} direcciones</span></div>
+    <div class="flex items-baseline justify-between mt-2"><span class="text-[1.75rem] font-semibold num">${pct(t.VIGENTE, t.dir)}</span><span class="text-on-surface-variant">${n(t.VIGENTE)} vigentes</span></div>
+    ${barra([[100*t.VIGENTE/(t.dir||1),'bg-primary-container','Vigentes'],[100*t.REDIRIGIDA/(t.dir||1),'bg-secondary','Redirigidas'],[100*t.INACCESIBLE/(t.dir||1),'bg-[#e0b45c]','Inaccesibles'],[100*t.ELIMINADA/(t.dir||1),'bg-error','Eliminadas']])}
+    <div class="grid grid-cols-2 gap-2 mt-4">
+      ${[['Vigentes',t.VIGENTE,'ok'],['Redirigidas',t.REDIRIGIDA,'secondary'],['Inaccesibles',t.INACCESIBLE,'warn'],['Eliminadas',t.ELIMINADA,'error']].map(([l,v,c]) =>
+        `<div class="bg-surface-container-low p-2"><div class="flex justify-between">${chip(l,c)}<span class="num font-semibold">${n(v)}</span></div><div class="text-xs text-on-surface-variant mt-1">${pct(v,t.dir)}</div></div>`).join('')}
+    </div>`) +
+  card(`<div class="flex justify-between lbl text-on-surface-variant"><span>Series de producción (SPIM)</span><span>${n(t.series)} series</span></div>
+    <div class="flex items-baseline justify-between mt-2"><span class="text-[1.75rem] font-semibold num">${pct(t.AL_DIA, t.series)}</span><span class="text-on-surface-variant">${n(t.AL_DIA)} al día</span></div>
+    ${barra([[100*t.AL_DIA/(t.series||1),'bg-primary-container','Al día'],[100*t.ATRASADA/(t.series||1),'bg-secondary-container','Atrasadas'],[100*t.FECHA_FUTURA/(t.series||1),'bg-error','Fecha posterior']])}
+    <div class="mt-4 space-y-2">
+      <div class="flex justify-between bg-surface-container-low p-2"><span>${chip('Al día','ok')}</span><span class="num">${n(t.AL_DIA)}</span></div>
+      <div class="bg-surface-container-low p-2"><div class="flex justify-between"><span>${chip('Atrasadas','error')}</span><span class="num">${n(t.ATRASADA)}</span></div>
+        <div class="text-xs text-on-surface-variant mt-1.5 flex justify-between"><span>Último archivo aún disponible</span><span class="num">${n(t.atr_disp)}</span></div>
+        <div class="text-xs text-error mt-0.5 flex justify-between"><span>Último archivo ya no disponible</span><span class="num">${n(t.atr_nodisp)}</span></div></div>
+      <div class="flex justify-between bg-surface-container-low p-2"><span>${chip('Fecha posterior a la foto','warn')}</span><span class="num">${n(t.FECHA_FUTURA)}</span></div>
+    </div>`) +
+  card(`<div class="flex justify-between lbl text-on-surface-variant"><span>Períodos faltantes</span><span>${n(falt.series.filter(s => enInst(s.portal) && s.faltantes.length).length)} series</span></div>
+    <div class="flex items-baseline justify-between mt-2"><span class="text-[1.75rem] font-semibold num">${n(t.falt)}</span><span class="text-on-surface-variant">períodos detectados</span></div>
+    ${barra([[100*t.recu/(t.falt||1),'bg-primary-container','Recuperados'],[100*pend/(t.falt||1),'bg-error-container','Sin recuperar']])}
+    <div class="mt-4 space-y-2">
+      <div class="flex justify-between bg-surface-container-low p-2"><span>Recuperados y verificados</span><span class="num">${n(t.recu)} <span class="text-on-surface-variant">(${pct(t.recu,t.falt)})</span></span></div>
+      <div class="flex justify-between bg-surface-container-low p-2"><span>Sin recuperar todavía</span><span class="num">${n(pend)}</span></div>
+      <div class="flex justify-between bg-surface-container-low p-2"><span>Descartados al verificar</span><span class="num">${n(desc)}</span></div>
+    </div>`) +
+  `</div>` +
+  card(`<h2 class="text-lg font-semibold mb-3">Detalle por institución</h2><div class="overflow-x-auto"><table class="w-full min-w-[900px] text-sm">
+    <thead class="lbl text-on-surface-variant bg-surface-container"><tr>${['Institución','Direcciones','Vigentes','Redirigidas','Inaccesibles','Eliminadas','Series','Al día','Atrasadas','Fecha post.','Faltantes','Recuperados'].map((h,i) => `<th class="p-2 ${i ? 'text-right' : 'text-left'}">${h}</th>`).join('')}</tr></thead>
+    <tbody>${Object.entries(t.porInst).map(([p, f]) => `<tr class="border-b border-surface-container">
+      <td class="p-2"><span class="lbl bg-surface-container px-1.5 py-0.5 mr-2">${p.toUpperCase()}</span>${esc(PORT[p])}</td>
+      ${[f.dir,f.VIGENTE,f.REDIRIGIDA,f.INACCESIBLE,f.ELIMINADA,f.series,f.AL_DIA,f.ATRASADA,f.FECHA_FUTURA,f.falt,f.recu].map((v,i) => `<td class="p-2 text-right num ${(i===4||i===7)&&v ? 'text-error' : ''}">${n(v)}</td>`).join('')}</tr>`).join('')}</tbody>
+    <tfoot class="font-semibold bg-surface-container-low"><tr><td class="p-2">Total</td>${[t.dir,t.VIGENTE,t.REDIRIGIDA,t.INACCESIBLE,t.ELIMINADA,t.series,t.AL_DIA,t.ATRASADA,t.FECHA_FUTURA,t.falt,t.recu].map(v => `<td class="p-2 text-right num">${n(v)}</td>`).join('')}</tr></tfoot>
+  </table></div>`, 'mt-4') +
+  `<h2 class="text-lg font-semibold mt-6 mb-3">Qué requiere atención</h2><div class="space-y-2">` +
+  (alertas.length ? alertas.map(([niv, p, t1, t2, imp]) => card(`<div class="flex flex-wrap gap-3 justify-between"><div class="max-w-4xl"><div class="flex gap-2 items-center mb-1">${chip(niv, niv === 'Alta' ? 'error' : 'warn')}${p ? `<span class="lbl bg-surface-container px-1.5">${p.toUpperCase()}</span>` : ''}<b>${esc(t1)}</b></div><p class="text-on-surface-variant">${esc(t2)}</p></div><div class="text-right"><div class="lbl text-on-surface-variant">Impacto</div><div class="num text-error">${esc(imp)}</div></div></div>`)).join('') : card('Sin alertas para la selección.')) + `</div>`;
+}
+
+/* ── 2. vigencia ────────────────────────────────────────── */
+const fv = {estado: 'todos', per: 'todas', q: '', lim: 100};
+function vVigencia() {
+  const base = vig.series.filter(s => enInst(s.institucion));
+  const filas = base.filter(s => (fv.estado === 'todos' || s.estado === fv.estado || (fv.estado === 'NODISP' && s.ultimo_archivo === 'NO_DISPONIBLE'))
+    && (fv.per === 'todas' || s.periodicidad === fv.per) && (!fv.q || (s.nombre || '').toLowerCase().includes(fv.q.toLowerCase())));
+  const pers = [...new Set(base.map(s => s.periodicidad).filter(Boolean))];
+  const cnt = k => base.filter(s => s.estado === k).length;
+  return titulo('Vigencia de series', 'Series de producción de DATAX según SPIM',
+      `Cada serie se compara con la foto del catálogo (${fecha(vig.fecha_foto_respaldo)}). Se considera atrasada si pasó más tiempo que la tolerancia de su periodicidad: ${Object.entries(vig.tolerancia_meses || {}).map(([k,v]) => `${PERIOD_LBL[k]||k} ${String(v).replace('.',',')} m`).join(' · ')}.`) +
+  card(`<div class="flex flex-wrap gap-3 items-end">
+    <label class="flex flex-col gap-1"><span class="lbl text-on-surface-variant">Estado</span>
+      <select id="fv-estado" class="border border-outline-variant bg-surface-container-lowest p-1.5">
+        ${[['todos',`Todos (${n(base.length)})`],['AL_DIA',`Al día (${n(cnt('AL_DIA'))})`],['ATRASADA',`Atrasadas (${n(cnt('ATRASADA'))})`],['NODISP','Atrasadas sin último archivo'],['FECHA_FUTURA',`Fecha posterior (${n(cnt('FECHA_FUTURA'))})`]].map(([v,t]) => `<option value="${v}" ${fv.estado===v?'selected':''}>${t}</option>`).join('')}
+      </select></label>
+    <label class="flex flex-col gap-1"><span class="lbl text-on-surface-variant">Periodicidad</span>
+      <select id="fv-per" class="border border-outline-variant bg-surface-container-lowest p-1.5"><option value="todas">Todas</option>
+        ${pers.map(p => `<option value="${p}" ${fv.per===p?'selected':''}>${PERIOD_LBL[p]||p}</option>`).join('')}</select></label>
+    <label class="flex flex-col gap-1 grow"><span class="lbl text-on-surface-variant">Buscar serie</span>
+      <input id="fv-q" value="${esc(fv.q)}" class="border border-outline-variant bg-surface-container-lowest p-1.5" placeholder="Nombre de la serie"></label>
+    <span class="lbl text-on-surface-variant">${n(filas.length)} series</span></div>`) +
+  card(`<div class="overflow-x-auto"><table class="w-full min-w-[960px]"><thead class="lbl text-on-surface-variant bg-surface-container"><tr>
+      <th class="p-2 text-left">Inst.</th><th class="p-2 text-left">Serie</th><th class="p-2 text-left">Periodicidad</th><th class="p-2 text-right">Actualizada hasta</th>
+      <th class="p-2 text-right">Meses</th><th class="p-2 text-left">Estado</th><th class="p-2 text-left">Último archivo</th></tr></thead><tbody>
+    ${filas.slice(0, fv.lim).map(s => `<tr class="border-b border-surface-container align-top">
+      <td class="p-2 lbl">${(s.institucion||'').toUpperCase()}</td>
+      <td class="p-2"><div>${esc(s.nombre)}</div><div class="text-xs text-on-surface-variant num">${esc(s.codigo)}</div></td>
+      <td class="p-2">${PERIOD_LBL[s.periodicidad] || '—'}</td>
+      <td class="p-2 text-right num">${fecha(s.actualizada_hasta)}</td>
+      <td class="p-2 text-right num">${s.meses_desde_actualizacion == null ? '—' : String(s.meses_desde_actualizacion).replace('.',',')}</td>
+      <td class="p-2">${chip(...(EST_VIG[s.estado] || [s.estado,'outline']))}</td>
+      <td class="p-2">${s.estado !== 'ATRASADA' ? '<span class="text-on-surface-variant">—</span>' :
+          s.ultimo_archivo === 'DISPONIBLE' ? chip('Disponible','ok') : s.ultimo_archivo === 'NO_DISPONIBLE' ?
+          `${chip('No disponible','error')}<div class="text-xs mt-1">${(s.enlaces||[]).filter(e => e.estado !== 'DISPONIBLE').map(e => `<div>${esc(e.estado)} · <a class="ext" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.url.split('/').pop() || e.url)}</a></div>`).join('')}</div>` : chip('Sin comprobar','outline')}</td>
+    </tr>`).join('')}</tbody></table></div>
+    ${filas.length > fv.lim ? `<button id="fv-mas" class="mt-3 border border-outline-variant px-3 py-1.5 lbl">Mostrar ${n(Math.min(100, filas.length - fv.lim))} más de ${n(filas.length - fv.lim)}</button>` : ''}`, 'mt-4');
+}
+
+/* ── 3. integridad ──────────────────────────────────────── */
+const fi = {estado: 'todas', lim: 100};
+function vIntegridad() {
+  const ports = D.portales.map(p => p.id).filter(enInst);
+  const det = ports.flatMap(p => (reval[p]?.detalle || []).map(x => ({...x, portal: p})))
+    .filter(x => fi.estado === 'todas' || x.status === fi.estado);
+  const fechaR = ports.map(p => reval[p]?.fecha).filter(Boolean).sort().pop();
+  return titulo('Documentos movidos', 'Estado de las direcciones ya catalogadas',
+      `Cada dirección conocida se volvió a consultar una por una el ${fecha(fechaR)}. «Inaccesible» no equivale a «eliminada»: agrupa tiempos de espera, bloqueos y errores de conexión.`) +
+  `<div class="grid gap-4 md:grid-cols-${ports.length}">` + ports.map(p => {
+    const r = reval[p]?.resumen || {}; const tot = r.total_urls || 1;
+    return card(`<div class="flex justify-between items-baseline"><b>${p.toUpperCase()}</b><span class="lbl text-on-surface-variant">${n(r.total_urls)} direcciones</span></div>
+      <div class="flex h-3 mt-3 bg-surface-container">${[['VIGENTE','bg-primary-container'],['REDIRIGIDA','bg-secondary'],['INACCESIBLE','bg-[#e0b45c]'],['ELIMINADA','bg-error']].map(([k,c]) => `<div class="${c}" style="width:${100*(r[k]||0)/tot}%" title="${EST_URL[k][0]}: ${n(r[k])}"></div>`).join('')}</div>
+      <div class="grid grid-cols-2 gap-1 mt-3 text-sm">${Object.entries(EST_URL).map(([k,[l,c]]) => `<div class="flex justify-between bg-surface-container-low px-2 py-1">${chip(l,c)}<span class="num">${n(r[k])}</span></div>`).join('')}</div>`);
+  }).join('') + `</div>` +
+  card(`<div class="flex flex-wrap gap-3 items-end justify-between"><h2 class="text-lg font-semibold">Direcciones que no están vigentes</h2>
+      <label class="flex gap-2 items-center"><span class="lbl text-on-surface-variant">Estado</span><select id="fi-estado" class="border border-outline-variant bg-surface-container-lowest p-1.5">
+      ${[['todas','Todas'],['REDIRIGIDA','Redirigidas'],['ELIMINADA','Eliminadas'],['INACCESIBLE','Inaccesibles']].map(([v,t]) => `<option value="${v}" ${fi.estado===v?'selected':''}>${t}</option>`).join('')}</select>
+      <span class="lbl text-on-surface-variant">${n(det.length)}</span></label></div>
+    <div class="overflow-x-auto mt-3"><table class="w-full min-w-[900px]"><thead class="lbl text-on-surface-variant bg-surface-container"><tr>
+      <th class="p-2 text-left">Inst.</th><th class="p-2 text-left">Estado</th><th class="p-2 text-left">Dirección catalogada</th><th class="p-2 text-left">Destino o error</th><th class="p-2 text-left">Serie</th></tr></thead><tbody>
+    ${det.slice(0, fi.lim).map(x => `<tr class="border-b border-surface-container align-top">
+      <td class="p-2 lbl">${x.portal.toUpperCase()}</td><td class="p-2">${chip(...(EST_URL[x.status] || [x.status,'outline']))}<div class="num text-xs mt-1">${x.http_status ?? ''}</div></td>
+      <td class="p-2 text-xs"><a class="ext" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(decodeURIComponent(x.url))}</a></td>
+      <td class="p-2 text-xs">${x.status === 'REDIRIGIDA' && x.final_url ? `<a class="ext" href="${esc(x.final_url)}" target="_blank" rel="noopener">${esc(x.final_url)}</a>` : esc(x.error_message || '—')}</td>
+      <td class="p-2 text-xs">${esc(x.dataset_id || '—')}</td></tr>`).join('')}</tbody></table></div>
+    ${det.length > fi.lim ? `<button id="fi-mas" class="mt-3 border border-outline-variant px-3 py-1.5 lbl">Mostrar 100 más de ${n(det.length - fi.lim)}</button>` : ''}`, 'mt-4');
+}
+
+/* ── 4. faltantes ───────────────────────────────────────── */
+function linea(s, big) {
+  const per = s.esperados.length ? s.esperados : [];
+  if (!per.length) return '<span class="text-on-surface-variant text-xs">Sin calendario: periodicidad eventual o sin períodos fechados</span>';
+  const f = new Set(s.faltantes);
+  return `<div class="flex flex-wrap gap-[3px]">${per.map(p => {
+    const k = `${s.portal}|${s.dataset_id}|${p}`;
+    const cls = recSet.has(k) ? 'c-rec' : f.has(p) ? 'c-falta' : 'c-ok';
+    const t = recSet.has(k) ? 'Recuperado' : f.has(p) ? 'Faltante' : 'Disponible';
+    return big ? `<span class="cell-big ${cls} num" title="${p} · ${t}">${esc(p.slice(-2))}</span>` : `<span class="cell ${cls}" title="${p} · ${t}"></span>`;
+  }).join('')}</div><div class="flex justify-between text-xs text-on-surface-variant mt-1 num"><span>${esc(per[0])}</span><span>${esc(per[per.length-1])}</span></div>`;
+}
+function vFaltantes() {
+  const ss = falt.series.filter(s => enInst(s.portal) && s.faltantes.length);
+  const tot = ss.reduce((a, s) => a + s.faltantes.length, 0);
+  const ver = rec.verificadas.filter(x => enInst(x.portal));
+  const desc = rec.descartadas.filter(x => enInst(x.portal));
+  const comp = rec.rechazos_compuertas.filter(x => enInst(x.portal));
+  const ag = rec.agente || {};
+  return titulo('Períodos faltantes y búsqueda', 'Qué falta en cada serie y qué se pudo recuperar',
+      `Faltantes calculados el ${fecha(falt.fecha_referencia)} comparando cada serie con su calendario esperado. Búsqueda: corrida del ${fecha(rec.fecha_corrida)}; cada recuperación se contrastó con el archivo que el servidor declara entregar.`) +
+  `<div class="grid gap-4 md:grid-cols-3">` +
+  card(`<div class="lbl text-on-surface-variant">Faltantes detectados</div><div class="text-[1.75rem] font-semibold num mt-1">${n(tot)}</div><div class="text-on-surface-variant">en ${n(ss.length)} series</div>`) +
+  card(`<div class="lbl text-on-surface-variant">Recuperados y verificados</div><div class="text-[1.75rem] font-semibold num mt-1 text-ok">${n(ver.length)}</div><div class="text-on-surface-variant">${pct(ver.length, tot)} de los faltantes</div>`) +
+  card(`<div class="lbl text-on-surface-variant">Sin recuperar todavía</div><div class="text-[1.75rem] font-semibold num mt-1">${n(tot - ver.length)}</div><div class="text-on-surface-variant">No se encontraron con las estrategias actuales; no significa que no existan.</div>`) +
+  `</div>` +
+  card(`<h2 class="text-lg font-semibold mb-3">Las cinco estrategias, en orden de aplicación</h2><div class="grid gap-3 md:grid-cols-5">
+    ${rec.por_estrategia.map(e => {
+      const v = ver.filter(x => x.estrategia === e.n).length, d = desc.filter(x => x.estrategia === e.n).length, c = comp.filter(x => x.estrategia === e.n).length;
+      const extra = e.n === 5 ? `<div class="text-xs mt-2">Propuso ${n(ag.candidatos_propuestos)} direcciones para ${n(ag.faltantes_consultados)} faltantes; existían ${n(ag.pasaron_head)}.</div>` : '';
+      return `<div class="border border-outline-variant p-3 ${v ? 'bg-surface-container-low' : ''}"><div class="lbl text-on-surface-variant">Paso ${e.n}</div>
+        <b class="block mt-1">${esc(e.nombre)}</b><div class="text-[1.375rem] font-semibold num mt-2 ${v ? 'text-ok' : ''}">${n(v)}</div><div class="text-xs text-on-surface-variant">verificados</div>
+        ${d ? `<div class="text-xs text-error mt-1">${n(d)} descartados: otro año</div>` : ''}${c ? `<div class="text-xs text-on-surface-variant">${n(c)} rechazados por huella repetida</div>` : ''}${extra}</div>`;
+    }).join('')}</div>`, 'mt-4') +
+  card(`<div class="flex flex-wrap justify-between gap-2 mb-3"><h2 class="text-lg font-semibold">Series con faltantes</h2>
+      <div class="flex gap-3 text-xs items-center"><span class="cell c-ok"></span>Disponible<span class="cell c-rec"></span>Recuperado<span class="cell c-falta"></span>Faltante</div></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[900px]"><thead class="lbl text-on-surface-variant bg-surface-container"><tr>
+      <th class="p-2 text-left">Serie</th><th class="p-2 text-left">Periodicidad</th><th class="p-2 text-right">Faltantes</th><th class="p-2 text-right">Recuperados</th><th class="p-2 text-left w-[45%]">Períodos esperados</th><th class="p-2"></th></tr></thead><tbody>
+    ${ss.map(s => `<tr class="border-b border-surface-container align-top">
+      <td class="p-2"><span class="lbl">${s.portal.toUpperCase()}</span><div>${esc(s.nombre)}</div><div class="text-xs">${chip(...(EST_GAP[s.estado] || [s.estado,'outline']))}</div></td>
+      <td class="p-2">${PERIOD_LBL[s.periodicidad] || s.periodicidad}</td><td class="p-2 text-right num text-error">${n(s.faltantes.length)}</td>
+      <td class="p-2 text-right num">${n(s.faltantes.length - pendientes(s).length)}</td><td class="p-2">${linea(s)}</td>
+      <td class="p-2"><a href="#ficha/${s.portal}/${s.dataset_id}" class="lbl border border-outline-variant px-2 py-1 whitespace-nowrap">Ver ficha</a></td></tr>`).join('')}</tbody></table></div>`, 'mt-4') +
+  card(`<h2 class="text-lg font-semibold">Control de calidad: recuperaciones descartadas</h2>
+    <p class="text-on-surface-variant mt-1 mb-3">Para cada recuperación se pidió al servidor el nombre del archivo que entrega. Estas parecían válidas, pero el documento real es de otro año.</p>
+    ${desc.length ? `<div class="overflow-x-auto"><table class="w-full min-w-[900px]"><thead class="lbl text-on-surface-variant bg-surface-container"><tr>
+      <th class="p-2 text-left">Serie y período buscado</th><th class="p-2 text-left">Dirección solicitada</th><th class="p-2 text-left">Archivo que entregó el servidor</th></tr></thead><tbody>
+      ${desc.map(x => `<tr class="border-b border-surface-container align-top"><td class="p-2"><span class="lbl">${x.portal.toUpperCase()}</span> ${esc(x.dataset_id)} · <b class="num">${esc(x.periodo)}</b></td>
+        <td class="p-2 text-xs"><a class="ext" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(decodeURIComponent(x.url).split('/').pop())}</a></td>
+        <td class="p-2"><b>${esc(x.servido)}</b><div class="text-xs text-on-surface-variant">HTTP ${x.http ?? '—'}</div></td></tr>`).join('')}</tbody></table></div>` : '<p class="text-on-surface-variant">Ninguna en la selección.</p>'}`, 'mt-4');
+}
+
+/* ── 5. ficha ───────────────────────────────────────────── */
+let fichaSel = null;
+function vFicha() {
+  const ss = falt.series.filter(s => enInst(s.portal));
+  if (!ss.length) return titulo('Ficha de serie', 'Sin series para la selección');
+  let s = fichaSel && ss.find(x => `${x.portal}/${x.dataset_id}` === fichaSel);
+  if (!s) s = ss.find(x => x.faltantes.length) || ss[0];
+  const k = (x) => x.portal === s.portal && x.dataset_id === s.dataset_id;
+  const ver = rec.verificadas.filter(k), desc = rec.descartadas.filter(k), comp = rec.rechazos_compuertas.filter(k);
+  const ags = (rec.agente_consultas || []).filter(k);
+  const urls = (reval[s.portal]?.detalle || []).filter(x => x.dataset_id === s.dataset_id);
+  return titulo('Ficha de serie', `${s.portal.toUpperCase()} · ${s.nombre}`, `Identificador <span class="num">${esc(s.dataset_id)}</span> · ${n(s.recursos)} recursos catalogados.`) +
+  card(`<label class="flex flex-wrap gap-2 items-center"><span class="lbl text-on-surface-variant">Serie</span><select id="ficha-sel" class="border border-outline-variant bg-surface-container-lowest p-1.5 min-w-[320px]">
+    ${ss.map(x => `<option value="${x.portal}/${x.dataset_id}" ${x === s ? 'selected' : ''}>${x.portal.toUpperCase()} · ${esc(x.nombre)}${x.faltantes.length ? ` (${x.faltantes.length} faltantes)` : ''}</option>`).join('')}</select></label>`) +
+  `<div class="grid gap-4 md:grid-cols-4 mt-4">` +
+  [['Periodicidad', PERIOD_LBL[s.periodicidad] || s.periodicidad || '—'], ['Primer período', s.primero || '—'], ['Último período', s.ultimo || '—'], ['Estado', (EST_GAP[s.estado] || [s.estado])[0]]]
+    .map(([l, v]) => card(`<div class="lbl text-on-surface-variant">${l}</div><div class="text-lg font-semibold num mt-1">${esc(v)}</div>`)).join('') + `</div>` +
+  card(`<h2 class="text-lg font-semibold mb-3">Línea de tiempo</h2>${linea(s, true)}
+    ${s.faltantes.length ? `<div class="mt-3 text-sm">Faltantes sin recuperar: <span class="num">${esc(pendientes(s).join(', ') || 'ninguno')}</span></div>` : ''}`, 'mt-4') +
+  `<div class="grid gap-4 lg:grid-cols-2 mt-4">` +
+  card(`<h2 class="text-lg font-semibold mb-2">Intentos de recuperación</h2>
+    ${!ver.length && !desc.length && !comp.length && !ags.length ? '<p class="text-on-surface-variant">Sin intentos registrados en la última corrida.</p>' : ''}
+    ${ver.map(x => `<div class="border-l-2 border-ok pl-3 mb-3"><div>${chip('Verificado','ok')} <b class="num">${esc(x.periodo)}</b> · estrategia ${x.estrategia}</div>
+      <div class="text-xs mt-1"><a class="ext" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(decodeURIComponent(x.url))}</a></div>
+      <div class="text-xs text-on-surface-variant num">${n(x.bytes)} bytes · SHA-256 ${esc((x.sha256||'').slice(0,16))}…</div></div>`).join('')}
+    ${desc.map(x => `<div class="border-l-2 border-error pl-3 mb-3"><div>${chip('Descartado','error')} <b class="num">${esc(x.periodo)}</b> · estrategia ${x.estrategia}</div>
+      <div class="text-xs mt-1">El servidor entregó <b>${esc(x.servido)}</b></div></div>`).join('')}
+    ${comp.length ? `<div class="text-xs text-on-surface-variant">${n(comp.length)} candidatos rechazados por repetir un archivo ya asignado a otro período.</div>` : ''}
+    ${ags.length ? `<div class="mt-3 text-xs"><b>Consultas al modelo de lenguaje:</b> ${ags.map(a => `${esc(a.periodo)}: ${n(a.propuestos)} propuestas, ${n(a.pasaron_head)} existentes`).join(' · ')}</div>` : ''}`) +
+  card(`<h2 class="text-lg font-semibold mb-2">Direcciones de la serie que no están vigentes</h2>
+    ${urls.length ? urls.map(x => `<div class="mb-2 text-xs">${chip(...(EST_URL[x.status] || [x.status,'outline']))} <a class="ext" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(decodeURIComponent(x.url))}</a>${x.final_url && x.status === 'REDIRIGIDA' ? `<div>→ <a class="ext" href="${esc(x.final_url)}" target="_blank" rel="noopener">${esc(x.final_url)}</a></div>` : ''}</div>`).join('')
+      : '<p class="text-on-surface-variant">Todas sus direcciones catalogadas están vigentes.</p>'}`) + `</div>`;
+}
+
+/* ── enrutado ───────────────────────────────────────────── */
+const RENDER = {resumen: vResumen, vigencia: vVigencia, integridad: vIntegridad, faltantes: vFaltantes, ficha: vFicha};
+function render() {
+  const [vista, a, b] = (location.hash.slice(1) || 'resumen').split('/');
+  const v = RENDER[vista] ? vista : 'resumen';
+  if (v === 'ficha' && a && b) fichaSel = `${a}/${b}`;
+  pintaFiltro(); pintaNav(v);
+  document.querySelectorAll('[data-view]').forEach(el => el.hidden = el.id !== 'v-' + v);
+  $('#v-' + v).innerHTML = RENDER[v]();
+  enlazar(v);
+}
+function enlazar(v) {
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+  if (v === 'vigencia') {
+    on('fv-estado', 'change', e => { fv.estado = e.target.value; fv.lim = 100; render(); });
+    on('fv-per', 'change', e => { fv.per = e.target.value; fv.lim = 100; render(); });
+    on('fv-q', 'change', e => { fv.q = e.target.value; fv.lim = 100; render(); });
+    on('fv-mas', 'click', () => { fv.lim += 100; render(); });
+  }
+  if (v === 'integridad') {
+    on('fi-estado', 'change', e => { fi.estado = e.target.value; fi.lim = 100; render(); });
+    on('fi-mas', 'click', () => { fi.lim += 100; render(); });
+  }
+  if (v === 'ficha') on('ficha-sel', 'change', e => { location.hash = 'ficha/' + e.target.value; });
+}
+window.addEventListener('hashchange', render);
+render();
+})();
+</script>
+</body>
+</html>
