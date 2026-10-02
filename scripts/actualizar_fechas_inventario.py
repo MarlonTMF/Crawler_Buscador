@@ -87,11 +87,17 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry
         if not final_published_at and prev_last_mod:
             final_published_at = prev_last_mod
 
-        # Si solo tenemos published_at de carpeta o header, confianza no puede ser high
+        # Si solo tenemos published_at de carpeta o header, confianza no puede ser high (B-64)
         final_confidence = date_res.confidence
-        if final_published_at and not date_res.period_start:
-            if final_confidence == "high":
-                final_confidence = "low"
+        final_period_start = date_res.period_start
+        final_period_end = date_res.period_end
+        final_method = date_res.method
+
+        if final_published_at and not final_period_start:
+            final_period_start = final_published_at
+            final_period_end = final_published_at
+            final_confidence = "low"
+            final_method = "url_folder"
 
         if not dry_run:
             control_db.conn.execute(
@@ -107,22 +113,22 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry
                 """,
                 (
                     new_dataset_id,
-                    date_res.period_start,
-                    date_res.period_end,
+                    final_period_start,
+                    final_period_end,
                     final_published_at,
                     final_confidence,
-                    date_res.method,
+                    final_method,
                     rid,
                 )
             )
 
         updated_records[c_url] = {
             "dataset_id": new_dataset_id,
-            "period_start": date_res.period_start,
-            "period_end": date_res.period_end,
+            "period_start": final_period_start,
+            "period_end": final_period_end,
             "published_at": final_published_at,
             "confidence": final_confidence,
-            "method": date_res.method,
+            "method": final_method,
         }
 
     if not dry_run:
@@ -153,7 +159,7 @@ def reindex_source_dates(source_id: str, output_base: Path = Path("output"), dry
         "SELECT count(*) FROM resource_audit_log WHERE date_confidence_score = 'high'"
     ).fetchone()[0]
     folder_only_high = control_db.conn.execute(
-        "SELECT count(*) FROM resource_audit_log WHERE date_confidence_score = 'high' AND period_start IS NULL AND published_at IS NOT NULL"
+        "SELECT count(*) FROM resource_audit_log WHERE date_confidence_score = 'high' AND date_method = 'url_folder'"
     ).fetchone()[0]
     conf_breakdown = control_db.conn.execute(
         "SELECT date_confidence_score, count(*) FROM resource_audit_log GROUP BY date_confidence_score"

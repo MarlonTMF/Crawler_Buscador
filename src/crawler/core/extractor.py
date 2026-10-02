@@ -176,17 +176,17 @@ class MetadataExtractor:
                     y, m = int(m_ym_rev.group("y")), int(m_ym_rev.group("m"))
                     period_start, period_end = self._format_period(y, m)
 
-        # d) AAAAMM_
+        # d) AAAAMM al inicio del nombre o delimitado (B-64)
         if not period_start:
-            m_ym_ = re.search(r"(?<!\d)(?P<y>20\d{2})(?P<m>0[1-9]|1[0-2])_", filename)
+            m_ym_ = re.search(r"(?:^|(?<!\d))(?P<y>19\d{2}|20\d{2})(?P<m>0[1-9]|1[0-2])(?=[_\-\s\.]|[a-zA-Z]|$)", filename)
             if m_ym_:
                 y, m = int(m_ym_.group("y")), int(m_ym_.group("m"))
                 period_start, period_end = self._format_period(y, m)
 
-        # e) mes AAAA (ej. Septiembre 2025, jun26, Marzo__2026, etc. O-1)
+        # e) mes + año (mes abreviado dic25, jun24; o mes completo Septiembre 2023) (B-64 / P-7)
         if not period_start:
             for mes_str, m_num in sorted(self.months_es.items(), key=lambda x: -len(x[0])):
-                pattern = rf"\b{mes_str}[\s_\-]*(?P<y>20\d{{2}}|(?<!\d)2\d(?!\d))"
+                pattern = rf"(?<![a-zA-Z]){mes_str}[\s_\-]*(?:de[\s_\-]*)?(?P<y>20\d{{2}}|19\d{{2}}|(?<!\d)2\d(?!\d))"
                 m_mes = re.search(pattern, fname_lower)
                 if m_mes:
                     raw_y = m_mes.group("y")

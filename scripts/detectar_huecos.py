@@ -115,9 +115,9 @@ def main():
     )
     parser.add_argument(
         "--format",
-        choices=["table", "json"],
+        choices=["table", "json", "resumen"],
         default="table",
-        help="Formato de salida (table o json)",
+        help="Formato de salida (table, json o resumen)",
     )
     parser.add_argument(
         "--ref-date",

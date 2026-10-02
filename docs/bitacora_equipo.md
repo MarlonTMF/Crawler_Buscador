@@ -75,6 +75,10 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-57 | 🅲/🅰️ | Cruce con el crawler interno (Fase 4) | 120/50 | Entregado | Decisión D-19 (C-1..C-10); cotejo en 3 pasadas por URL; umbral 10% (BCB CLAVE_NO_VALIDADA 0.83%); contrato ResourceCandidate; invariante C-10 de totalidad probada |
 | B-59 | 🅰️ | Base limpia, compuertas de calidad y verificador (Fase 5) | 120/115 | Aprobado (solo) | 0 falsos positivos admitidos (vs 6 el 30-sep); parada P-6 ejecutada (sucesores a cola D-18); 2 compuertas de calidad activas; scripts/verificar_fase5.py creado; suite en 230 tests verdes (`73abbf5`) |
 | B-60 | 🅰️ | Revalidación de las 1.165 URLs catalogadas (Fase 5) | 120/95 | Aprobado (solo) | 1.165/1.165 URLs catalogadas revalidadas (meta cumplida 100%); resuelve P-1; detectadas 200 URLs redirigidas en INE a Nextcloud y 12 eliminadas (insumo B-61); suite en 236 tests verdes (`f23bd2f`) |
+| B-61 | 🅰️ | Escalón 1 real sobre URL conocida (Fase 5) | 90/60 | Aprobado (solo) | Escalón 1 completado sobre rastro determinista de URL conocida (redirecciones 301/302, directorio superior en 404, variantes de codificación/separadores); resuelve P-2; 240 tests verdes (`8191bce`) |
+| B-62 | 🅰️ | Escalón 3 derivado de serie y sitemap (Fase 5) | 90/65 | Aprobado (solo) | Escalón 3 generalizado sobre patrones de serie observados y sitemaps para todos los datasets; resuelve P-3; 100% de huecos con candidatos en dry-run; 244 tests verdes (`0c39ab4`) |
+| B-63 | 🅰️ | Escalón 4 sobre motor CDX de Wayback (Fase 5) | 90/60 | Aprobado (solo) | Escalón 4 desacoplado de condicionales con motor CDX genérico (`wayback_engine.py`, timeout ≥15s, caché en disco); resuelve P-4; 6 datasets con instantáneas CDX en dry-run; 249 tests verdes (`aa0bf0f`) |
+| B-64 | 🅰️ | Reconocimiento de período en nombre de archivo (Fase 5) | 90/70 | Aprobado (solo) | Extractor reconoce mes abreviado con año corto/largo (`DEPEX_jun24.pdf`), mes completo (`Septiembre 2023`) y `AAAAMM`; cobertura BCB salta de 32% a 85.1%; 0 filas `high` desde solo carpeta; 252 tests verdes |
 
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
@@ -174,6 +178,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-61 (Escalón 1 real) | **Escalón 1 sobre URL conocida** | Escalón 1 operativo sobre rastro determinista de URL conocida (redirección 301/302, directorio superior si 404, variantes de codificación/separadores/capitalización). Resuelve P-2. No es sondeo especulativo (D-02). 240 tests verdes (`8191bce`). |
 | Tras B-62 (Escalón 3 serie) | **Escalón 3 derivado de serie** | Escalón 3 generalizado para cualquier dataset a partir de URLs observadas e integración sitemap.xml. Resuelve P-3 en cobertura. 22/22 faltantes con candidatos en dry-run (100% de los 20 en asfi/poa_seguimiento). 244 tests verdes (`0c39ab4`). |
 | Tras B-63 (Escalón 4 CDX) | **Motor CDX en Escalón 4** | Escalón 4 desacoplado de condicionales cableados: consulta dinámica a la API CDX de Wayback Machine mediante `wayback_engine.py` (timeout ≥ 15s, caché en disco, soporte de sesión), derivación de comodines por dataset y filtro por período. Resuelve P-4. Dry-run reporta consultas CDX e instantáneas para los 6 datasets con faltantes. 249 tests verdes. |
+| Tras B-64 (Fechas en filename) | **Cobertura BCB ≥ 65 %** | Extractor enriquecido con meses abreviados/completos y AAAAMM; cobertura BCB sube de 32% a 85.1%; 0 filas `high` desde solo carpeta de publicación (`folder_only_high == 0`). Resuelve P-7. 252 tests verdes. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
