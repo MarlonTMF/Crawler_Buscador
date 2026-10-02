@@ -21,6 +21,9 @@ from crawler.core.internal_reconciler import build_period_label
 
 logger = logging.getLogger(__name__)
 
+# Solo estas confianzas producen period_label en el mapa exportado.
+PERIOD_CONFIDENCE_EXPORTED = {"high", "medium"}
+
 MIME_TYPE_MAP = {
     "pdf": "application/pdf",
     "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -48,14 +51,19 @@ class BridgeExporter:
         output_path: Optional[Path] = None,
         source_name: Optional[str] = None,
         base_url: Optional[str] = None,
+        revalidation_path: Optional[Path] = None,
     ) -> Path:
         """
         Lee 'inventory.db' y genera el mapa estructurado para el Bridge.
+
+        - ``period_label`` solo se emite con confianza alta o media: las fechas
+          de baja confianza provienen de carpetas de publicación y el interno
+          concilia por período cuando no hay huella de contenido.
+        - Si se indica ``revalidation_path`` (salida de scripts/revalidar_urls.py),
+          las URLs clasificadas como ELIMINADA salen con ``change_status`` REMOVED.
         """
         if db_path is None:
             db_path = Path(f"output/{source_id}/inventory.db")
-            if not db_path.exists():
-                db_path = Path("output/finrural/inventory.db")
 
         if not db_path.exists():
             raise FileNotFoundError(f"No se encontró la base de datos en '{db_path}'")
@@ -75,6 +83,11 @@ class BridgeExporter:
         """)
         rows = cur.fetchall()
         conn.close()
+
+        eliminadas = set()
+        if revalidation_path is not None and Path(revalidation_path).exists():
+            reval = json.loads(Path(revalidation_path).read_text(encoding="utf-8"))
+            eliminadas = {r.get("url") for r in reval.get("results", []) if r.get("status") == "ELIMINADA"}
 
         run_id = f"run_{source_id}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
         resources: List[Dict[str, Any]] = []
@@ -98,8 +111,11 @@ class BridgeExporter:
             file_extension = f".{ext}"
             content_type = MIME_TYPE_MAP.get(ext, "application/octet-stream")
 
-            # Período canónico
-            p_label, _ = build_period_label(p_start, p_end)
+            # Período canónico, solo si la fecha es confiable
+            if (conf or "").lower() in PERIOD_CONFIDENCE_EXPORTED:
+                p_label, _ = build_period_label(p_start, p_end)
+            else:
+                p_label = None
 
             # Clave de recurso canónica
             key = res_id or self.canonicalizer.generate_resource_key(
@@ -114,7 +130,12 @@ class BridgeExporter:
             title = clean_path.rsplit("/", 1)[-1] or key
 
             # Estado de cambio
-            change_status = "NEW" if status == "RECUPERADO_VIA_CONTINGENCIA" else "UNCHANGED"
+            if url in eliminadas:
+                change_status = "REMOVED"
+            elif status == "RECUPERADO_VIA_CONTINGENCIA":
+                change_status = "NEW"
+            else:
+                change_status = "UNCHANGED"
 
             resource_candidate = {
                 "resource_key": key,
@@ -287,6 +308,8 @@ def main():
     parser.add_argument("--db", type=Path, default=None, help="Ruta al archivo inventory.db")
     parser.add_argument("--out", type=Path, default=None, help="Ruta destino del archivo JSON exportado")
     parser.add_argument("--from-diagnostic", action="store_true", help="Exportar desde excel_urls_diagnostic.json")
+    parser.add_argument("--revalidation", type=Path, default=None,
+                        help="Salida de revalidar_urls.py (por defecto output/revalidacion_<fuente>.json si existe)")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -295,7 +318,11 @@ def main():
     if args.from_diagnostic:
         out = exporter.export_from_diagnostic(output_path=args.out, source_filter=args.source)
     else:
-        out = exporter.export_from_inventory(source_id=args.source, db_path=args.db, output_path=args.out)
+        reval = args.revalidation or Path(f"output/revalidacion_{args.source}.json")
+        out = exporter.export_from_inventory(
+            source_id=args.source, db_path=args.db, output_path=args.out,
+            revalidation_path=reval if reval.exists() else None,
+        )
 
     print(f"Exportación completada exitosamente: {out.resolve()}")
 
