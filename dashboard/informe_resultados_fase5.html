@@ -193,7 +193,7 @@
           <tr><td class="num">B-63</td><td>Estrategia 4: archivo histórico mediante CDX</td><td>Implementada. Sin recuperaciones en esta medición.</td></tr>
           <tr><td class="num">B-64</td><td>Período en el nombre del archivo</td><td class="t-warn">La cobertura confiable del BCB no cambió (sección 7).</td></tr>
           <tr><td class="num">B-65</td><td>Agente con presupuesto completo</td><td>Medición concluyente: 0 de 55 candidatos existían.</td></tr>
-          <tr><td class="num">B-66</td><td>Corrida completa y actualización de informes</td><td class="t-bad">Los informes quedaron con cifras sin verificar (sección 8).</td></tr>
+          <tr><td class="num">B-66</td><td>Corrida completa y actualización de informes</td><td class="t-warn">Los informes quedaron con cifras sin verificar; corregidos el 2 de octubre (sección 8).</td></tr>
         </tbody>
       </table>
     </div>
@@ -339,12 +339,13 @@
         <tbody>
           <tr><td>BCB</td><td class="r">85 %</td><td class="r t-warn">32 %</td><td class="r">64 documentos</td></tr>
           <tr><td>INE</td><td class="r">70 %</td><td class="r">70 %</td><td class="r">2 documentos</td></tr>
-          <tr><td>ASFI</td><td class="r">80 %</td><td class="r">80 %</td><td class="r">102 sin período asignado</td></tr>
+          <tr><td>ASFI</td><td class="r">97 %</td><td class="r">80 %</td><td class="r">102 documentos</td></tr>
         </tbody>
       </table>
     </div>
     <p>La distribución de confianza del BCB es idéntica a la del 25 de septiembre: 11 documentos de confianza alta, 28 media y 64 baja. El aumento proviene de asignar período a esas 64 fechas de baja confianza, que se obtienen de las carpetas de publicación del portal (<code>/2019/05/17/…</code>). Esas carpetas indican cuándo se publicó un documento, no a qué período corresponde.</p>
-    <p>Se encontraron además dos fechas inválidas (<code>2018-06-31</code>). La cobertura confiable del BCB se mantiene en 32 %.</p>
+    <p>La ASFI muestra el mismo patrón: el 97 % reportado incluye 102 fechas de baja confianza, y su cobertura confiable se mantiene en 80 %.</p>
+    <p>Se encontraron además dos fechas inválidas en el BCB (<code>2018-06-31</code>). La cobertura confiable del BCB se mantiene en 32 %.</p>
   </section>
 
   <section id="indicadores">
@@ -366,7 +367,7 @@
     </div>
     <p>Dos indicadores se cumplieron. Los otros cuatro difieren entre lo reportado y lo verificado por dos razones: el verificador da por válida toda recuperación que superó los controles automáticos, sin contrastarla con el archivo real, y cuenta como cubierta cualquier fecha, sin considerar su confianza.</p>
     <div class="nota alerta">
-      <p><b>Los informes actualizados en esta etapa contienen las cifras reportadas.</b> <code>presentacion_ejecutiva.html</code> y <code>resultados_escalera_recuperacion.html</code> indican 11 recuperaciones y 0 resultados falsos. Deben corregirse antes de presentarse.</p>
+      <p><b>Los informes actualizados en esta etapa contenían las cifras reportadas</b> —11 recuperaciones y 0 resultados falsos, con nombres de archivo que no corresponden a los documentos reales—. <code>presentacion_ejecutiva.html</code> y <code>resultados_escalera_recuperacion.html</code> se corrigieron el 2 de octubre con las cifras verificadas.</p>
     </div>
   </section>
 
@@ -380,8 +381,7 @@
       <li><b>Retirar la consulta al modelo de lenguaje</b> de la secuencia de recuperación.</li>
       <li><b>Corregir las fechas del BCB:</b> no asignar período a partir de las carpetas de publicación y eliminar las fechas inválidas.</li>
       <li><b>Incorporar al catálogo las recuperaciones verificadas,</b> para que el conteo de faltantes refleje lo recuperado.</li>
-      <li><b>Corregir los dos informes</b> que contienen las cifras reportadas.</li>
-    </ol>
+          </ol>
   </section>
 
   <section id="anexo">
