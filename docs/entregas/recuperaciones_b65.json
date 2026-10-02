@@ -1,0 +1,1067 @@
+{
+  "timestamp": "2026-10-02T00:19:55.133755",
+  "elapsed_seconds": 1143.5764405727386,
+  "total_recovered": 11,
+  "gemini_calls_count": 26,
+  "gemini_max_calls": 50,
+  "gemini_budget_exhausted": false,
+  "agent_stats": {
+    "faltantes_consultados": 26,
+    "candidatos_propuestos": 55,
+    "pasaron_head": 0,
+    "pasaron_contenido": 0,
+    "pasaron_compuertas": 0,
+    "recuperados_rung_5": 0,
+    "derivados_herencia": 0
+  },
+  "agent_query_log": [
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2025-S1",
+      "periodicity": "semestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.bcb.gob.bo/?q=pub_deuda-externa",
+        "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/ide_junio_2025.pdf",
+        "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/ide_2025_1.pdf",
+        "https://www.bcb.gob.bo/?q=informes-deuda-externa-publica",
+        "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/informe_deuda_externa_2025_semestre1.pdf"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.bcb.gob.bo/?q=pub_deuda-externa",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/ide_junio_2025.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/ide_2025_1.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/?q=informes-deuda-externa-publica",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webpublico/textos_completos/informes/deuda_externa/informe_deuda_externa_2025_semestre1.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2023-S2",
+      "periodicity": "semestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.bcb.gob.bo/?q=pub_deuda_externa",
+        "https://www.bcb.gob.bo/?q=deuda-externa-publica",
+        "https://www.bcb.gob.bo/webpub/index.php?codigo=DEUDA_EXTERNA",
+        "https://www.bcb.gob.bo/sites/default/files/deuda_externa_2023_2.pdf",
+        "https://www.bcb.gob.bo/webpub/archivos/deuda_externa_semestral_2023_s2.pdf"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.bcb.gob.bo/?q=pub_deuda_externa",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/?q=deuda-externa-publica",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webpub/index.php?codigo=DEUDA_EXTERNA",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/sites/default/files/deuda_externa_2023_2.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webpub/archivos/deuda_externa_semestral_2023_s2.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2023-S1",
+      "periodicity": "semestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2022-S2",
+      "periodicity": "semestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.bcb.gob.bo/?q=informes_deuda_externa",
+        "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/informe_deuda_externa_dic_2022.pdf",
+        "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/informe_semestral_2_2022.pdf",
+        "https://www.bcb.gob.bo/webdocs/deuda_externa/informe_deuda_externa_2022_semestre2.pdf",
+        "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/Deuda_Externa_al_31_de_diciembre_de_2022.pdf"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.bcb.gob.bo/?q=informes_deuda_externa",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/informe_deuda_externa_dic_2022.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/informe_semestral_2_2022.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webdocs/deuda_externa/informe_deuda_externa_2022_semestre2.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.bcb.gob.bo/webdocs/deuda_externa/2022/Deuda_Externa_al_31_de_diciembre_de_2022.pdf",
+          "domain": "www.bcb.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "balance_general",
+      "period": "2025-12",
+      "periodicity": "mensual",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "balance_general",
+      "period": "2025-11",
+      "periodicity": "mensual",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2024-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2019-Q4",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/images/PLANIFICACION/POA/Evaluacion_POA_4to_Trimestre_2019.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_IV_Trimestre_2019.pdf",
+        "https://www.asfi.gob.bo/images/PLANIFICACION/POA/Evaluacion_Anual_POA_2019.pdf",
+        "https://www.asfi.gob.bo/index.php/institucional/planificacion-institucional/poa.html",
+        "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/images/PLANIFICACION/POA/Evaluacion_POA_4to_Trimestre_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_IV_Trimestre_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/PLANIFICACION/POA/Evaluacion_Anual_POA_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/institucional/planificacion-institucional/poa.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2019-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional",
+        "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/2019/Seguimiento_POA_2019_3Trimestre.pdf",
+        "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/2019/POA_2019_3Trimestre.pdf",
+        "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/Seguimiento_POA_3T_2019.pdf",
+        "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/PLANIFICACION/2019/POA_Seguimiento_3Trimestre.pdf"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/2019/Seguimiento_POA_2019_3Trimestre.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/2019/POA_2019_3Trimestre.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/POA/Seguimiento_POA_3T_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/ASFI/DOCS/TRANSPARENCIA/PLANIFICACION/2019/POA_Seguimiento_3Trimestre.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2019-Q2",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/images/transparencia/poa/2019/Evaluacion_POA_Segundo_Trimestre_2019.pdf",
+        "https://www.asfi.gob.bo/images/transparencia/poa/2019/Seguimiento_POA_II_Trimestre_2019.pdf",
+        "https://www.asfi.gob.bo/images/transparencia/poa/2019/Evaluacion_POA_Primer_Semestre_2019.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional/evaluacion-poa.html",
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/2019/Evaluacion_POA_Segundo_Trimestre_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/2019/Seguimiento_POA_II_Trimestre_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/2019/Evaluacion_POA_Primer_Semestre_2019.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional/evaluacion-poa.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2019-Q1",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2018-Q4",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2018-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/index.php/transparencia/poa.html",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Evaluacion_POA_3er_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_al_Tercer_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/2018/Evaluacion_POA_al_tercer_trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/poa.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Evaluacion_POA_3er_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_al_Tercer_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/2018/Evaluacion_POA_al_tercer_trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2018-Q2",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/images/transparencia/poa/Seguimiento_POA_2do_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Evaluacion_POA_II_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/Planificacion/POA/Seguimiento_POA_2018_Segundo_Trimestre.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+        "https://www.asfi.gob.bo/images/transparencia/rendicion_cuentas/Informe_Evaluacion_POA_2T_2018.pdf"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/Seguimiento_POA_2do_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Evaluacion_POA_II_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/Planificacion/POA/Seguimiento_POA_2018_Segundo_Trimestre.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/rendicion_cuentas/Informe_Evaluacion_POA_2T_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2018-Q1",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/index.php/transparencia/seguimiento-al-poa.html",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/archivos/Seguimiento_POA_Primer_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/archivos/Evaluacion_POA_1er_Trimestre_2018.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_2018_1erTrimestre.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/seguimiento-al-poa.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/archivos/Seguimiento_POA_Primer_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/archivos/Evaluacion_POA_1er_Trimestre_2018.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/POA/Seguimiento_POA_2018_1erTrimestre.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2017-Q4",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Evaluacion_POA_IV_Trimestre_2017.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Seguimiento_POA_4to_Trimestre_2017.pdf",
+        "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Evaluacion_Final_POA_2017.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Evaluacion_POA_IV_Trimestre_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Seguimiento_POA_4to_Trimestre_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/TRANSPARENCIA/PLANIFICACION/Evaluacion_Final_POA_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/rendicion-publica-de-cuentas.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2017-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 5,
+      "candidatos": [
+        "https://www.asfi.gob.bo/index.php/transparencia/seguimiento-al-poa.html",
+        "https://www.asfi.gob.bo/images/transparencia/poa/Seguimiento_POA_3er_Trimestre_2017.pdf",
+        "https://www.asfi.gob.bo/images/transparencia/poa/Evaluacion_POA_III_Trimestre_2017.pdf",
+        "https://www.asfi.gob.bo/images/transparencia/poa/2017/Seguimiento_POA_al_tercer_trimestre_2017.pdf",
+        "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html"
+      ],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": [
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/seguimiento-al-poa.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/Seguimiento_POA_3er_Trimestre_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/Evaluacion_POA_III_Trimestre_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/images/transparencia/poa/2017/Seguimiento_POA_al_tercer_trimestre_2017.pdf",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        },
+        {
+          "url": "https://www.asfi.gob.bo/index.php/transparencia/planificacion-institucional.html",
+          "domain": "www.asfi.gob.bo",
+          "status": "FALLO_HEAD"
+        }
+      ]
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2017-Q2",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2017-Q1",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2016-Q4",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2016-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2016-Q2",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2016-Q1",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2015-Q4",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2015-Q3",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    },
+    {
+      "portal": "asfi",
+      "dataset_id": "poa_seguimiento",
+      "period": "2015-Q2",
+      "periodicity": "trimestral",
+      "candidatos_propuestos": 0,
+      "candidatos": [],
+      "pasaron_head": 0,
+      "pasaron_contenido": 0,
+      "pasaron_compuertas": 0,
+      "recuperados": 0,
+      "derivados_herencia": 0,
+      "candidatos_detalle": []
+    }
+  ],
+  "inheritance_candidates_count": 0,
+  "rechazos_calidad_count": 15,
+  "recoveries": [
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2025-S2",
+      "recovery_rung": 2,
+      "rung_name": "plantilla_serie",
+      "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20dic25.pdf",
+      "file_size_bytes": 816316,
+      "content_sha256": "7cba6779ec35a3e6e751b461b9261ea3415dbb366478a34f8e47c97900bf2a3d",
+      "verified_at": "2026-10-02T04:00:54.959488+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 2,
+        "method": "series_template_d17"
+      }
+    },
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2024-S2",
+      "recovery_rung": 2,
+      "rung_name": "plantilla_serie",
+      "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20dic24.pdf",
+      "file_size_bytes": 4973960,
+      "content_sha256": "9041f2c4f99582105e2c6f2a0562d10b41c17cde9059a659a15fb4d6f4dbb6ce",
+      "verified_at": "2026-10-02T04:01:40.910818+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 2,
+        "method": "series_template_d17"
+      }
+    },
+    {
+      "portal": "bcb",
+      "dataset_id": "deuda_externa",
+      "period": "2024-S1",
+      "recovery_rung": 2,
+      "rung_name": "plantilla_serie",
+      "url": "https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20jun24.pdf",
+      "file_size_bytes": 4920873,
+      "content_sha256": "7356a829f64651d22a33d5d85ef9f861c923ed6c3b646b1408c478d9289e6d66",
+      "verified_at": "2026-10-02T04:01:49.130602+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 2,
+        "method": "series_template_d17"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "cuentas_nacionales_pib",
+      "period": "2016",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44599/matriz-de-insumo-producto-en-miles-de-bolivianos2016.xlsx",
+      "file_size_bytes": 48385,
+      "content_sha256": "fe7af0ff45ad7d88ca65a8292cea2c6b8452c0b4ca8815d938c489067b0aef73",
+      "verified_at": "2026-10-02T04:05:18.260459+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "cuentas_nacionales_pib",
+      "period": "2015",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44598/matriz-de-insumo-producto-en-miles-de-bolivianos2015.xlsx",
+      "file_size_bytes": 47512,
+      "content_sha256": "2808cf52e404d908c23cc3bba4897aa227b046d66f61d4bc15a3093b881bd8f0",
+      "verified_at": "2026-10-02T04:07:07.795522+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2017",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2017/76983/resumen-inf-rel-especi-n-002-2017-3.pdf",
+      "file_size_bytes": 470062,
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "verified_at": "2026-10-02T04:07:14.475501+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2016",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2016/73742/resumen-inf-uai-n-004-2016.pdf",
+      "file_size_bytes": 318856,
+      "content_sha256": "67848c6a27ba9fc646c2fc99bf8d07531126121a89b05ed13728fbc4cb38134c",
+      "verified_at": "2026-10-02T04:07:40.983302+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2015",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2015/73740/resumen-inf-uai-n-002-2015.pdf",
+      "file_size_bytes": 289012,
+      "content_sha256": "179870152f24c4166a42c3b89185e6e0c530a52d237fa020a2fa3f0baf9c3927",
+      "verified_at": "2026-10-02T04:08:11.584397+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2014/73739/resumen-inf-uai-n-001-2014.pdf",
+      "file_size_bytes": 290664,
+      "content_sha256": "a3802b8bb8badfb2b77f26e12da3a503527d473cf0970db342e861366a5601b9",
+      "verified_at": "2026-10-02T04:08:46.717060+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/672/informes-auditoria-interna-2025/70935/resumen-ejecutivo-inf-uai-n-011-2025-poa-2013.pdf",
+      "file_size_bytes": 726864,
+      "content_sha256": "5a266f10bfd7e86417fd5c4171d9a791adfc76e1df0875641bf1cb7be59807e1",
+      "verified_at": "2026-10-02T04:09:36.882250+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "escala_salarial",
+      "period": "2025",
+      "recovery_rung": 3,
+      "rung_name": "ruta_alterna_dominio",
+      "url": "https://www.ine.gob.bo/index.php/descarga/765/escala-salarial/74533/ine-escala-salarial-2025.pdf",
+      "file_size_bytes": 88273,
+      "content_sha256": "6fce0a4f73e88b56ec3c62f997f109009134b989e82bbb4da5dcf9ec30cc27f6",
+      "verified_at": "2026-10-02T04:09:40.942871+00:00",
+      "status": "RECOVERED",
+      "metadata": {
+        "source_rung": 3,
+        "method": "same_domain_alternate_path"
+      }
+    }
+  ],
+  "rechazos_calidad": [
+    {
+      "portal": "ine",
+      "dataset_id": "cuentas_nacionales_pib",
+      "period": "2015",
+      "url": "https://www.ine.gob.bo/index.php/descarga/406/matrices-de-insumo-producto-corriente/44599/matriz-de-insumo-producto-en-miles-de-bolivianos2015.xlsx",
+      "content_sha256": "fe7af0ff45ad7d88ca65a8292cea2c6b8452c0b4ca8815d938c489067b0aef73",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 fe7af0ff45ad7d88... ya asignado al período 2016 en este dataset",
+      "timestamp": "2026-10-02T04:07:05.624084+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2016",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2016/76983/resumen-inf-rel-especi-n-002-2016-3.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:07:21.639592+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2016",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2016/76982/resumen-ejecutivo-inf-relev-no001-2016.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:07:25.373169+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2015",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2015/76983/resumen-inf-rel-especi-n-002-2015-3.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:07:49.346191+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2015",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2015/76982/resumen-ejecutivo-inf-relev-no001-2015.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:07:52.489869+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2015",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2015/73742/resumen-inf-uai-n-004-2015.pdf",
+      "content_sha256": "67848c6a27ba9fc646c2fc99bf8d07531126121a89b05ed13728fbc4cb38134c",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 67848c6a27ba9fc6... ya asignado al período 2016 en este dataset",
+      "timestamp": "2026-10-02T04:08:07.323738+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2014/76983/resumen-inf-rel-especi-n-002-2014-3.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:08:18.121916+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2014/76982/resumen-ejecutivo-inf-relev-no001-2014.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:08:20.903712+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2014/73742/resumen-inf-uai-n-004-2014.pdf",
+      "content_sha256": "67848c6a27ba9fc646c2fc99bf8d07531126121a89b05ed13728fbc4cb38134c",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 67848c6a27ba9fc6... ya asignado al período 2016 en este dataset",
+      "timestamp": "2026-10-02T04:08:38.842174+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2014",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2014/73740/resumen-inf-uai-n-002-2014.pdf",
+      "content_sha256": "179870152f24c4166a42c3b89185e6e0c530a52d237fa020a2fa3f0baf9c3927",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 179870152f24c416... ya asignado al período 2015 en este dataset",
+      "timestamp": "2026-10-02T04:08:44.472502+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2013/76983/resumen-inf-rel-especi-n-002-2013-3.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:08:53.542187+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2013/76982/resumen-ejecutivo-inf-relev-no001-2013.pdf",
+      "content_sha256": "c599975b3f20ab105c7950daf0e5b1c61ecc9749bbd0f1cd0aa3a71b76bb6990",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 c599975b3f20ab10... ya asignado al período 2017 en este dataset",
+      "timestamp": "2026-10-02T04:08:56.591014+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2013/73742/resumen-inf-uai-n-004-2013.pdf",
+      "content_sha256": "67848c6a27ba9fc646c2fc99bf8d07531126121a89b05ed13728fbc4cb38134c",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 67848c6a27ba9fc6... ya asignado al período 2016 en este dataset",
+      "timestamp": "2026-10-02T04:09:14.317255+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2013/73740/resumen-inf-uai-n-002-2013.pdf",
+      "content_sha256": "179870152f24c4166a42c3b89185e6e0c530a52d237fa020a2fa3f0baf9c3927",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 179870152f24c416... ya asignado al período 2015 en este dataset",
+      "timestamp": "2026-10-02T04:09:19.924616+00:00"
+    },
+    {
+      "portal": "ine",
+      "dataset_id": "auditoria_interna",
+      "period": "2013",
+      "url": "https://www.ine.gob.bo/index.php/descarga/778/informes-auditoria-interna-2013/73739/resumen-inf-uai-n-001-2013.pdf",
+      "content_sha256": "a3802b8bb8badfb2b77f26e12da3a503527d473cf0970db342e861366a5601b9",
+      "source_rung": 3,
+      "motivo": "huella_repetida: content_sha256 a3802b8bb8badfb2... ya asignado al período 2014 en este dataset",
+      "timestamp": "2026-10-02T04:09:22.764624+00:00"
+    }
+  ]
+}

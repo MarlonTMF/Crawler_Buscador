@@ -133,6 +133,16 @@ class RecoveryLadder:
         self.relocation_manager = RelocationManager(config_dir=self.base_config_dir)
         self._cdx_snapshots_cache: Dict[Tuple[str, str], List[Dict[str, str]]] = {}
         self.dry_run_cdx_queries: Dict[Tuple[str, str], Tuple[str, int]] = {}
+        self.agent_stats: Dict[str, int] = {
+            "faltantes_consultados": 0,
+            "candidatos_propuestos": 0,
+            "pasaron_head": 0,
+            "pasaron_contenido": 0,
+            "pasaron_compuertas": 0,
+            "recuperados_rung_5": 0,
+            "derivados_herencia": 0,
+        }
+        self.agent_query_log: List[Dict[str, Any]] = []
 
     DOCUMENTARY_CONTENT_TYPES = {
         "application/pdf",
@@ -1401,9 +1411,30 @@ class RecoveryLadder:
         5. Límite de llamadas acotado y registrado por corrida (max_gemini_calls / D-08).
         6. Queda registrado en el registro que provino del escalón 5 (agente_gemini).
         """
+        self.agent_stats["faltantes_consultados"] += 1
+        query_entry: Dict[str, Any] = {
+            "portal": portal,
+            "dataset_id": dataset_id,
+            "period": period,
+            "periodicity": periodicity,
+            "candidatos_propuestos": 0,
+            "candidatos": [],
+            "pasaron_head": 0,
+            "pasaron_contenido": 0,
+            "pasaron_compuertas": 0,
+            "recuperados": 0,
+            "derivados_herencia": 0,
+            "candidatos_detalle": [],
+        }
+
         candidates = self._ask_gemini_for_candidates(portal, dataset_id, period, periodicity)
         if not candidates:
+            self.agent_query_log.append(query_entry)
             return None
+
+        query_entry["candidatos_propuestos"] = len(candidates)
+        query_entry["candidatos"] = list(candidates)
+        self.agent_stats["candidatos_propuestos"] += len(candidates)
 
         allowed_domains = self._get_allowed_domains(portal)
 
@@ -1442,15 +1473,36 @@ class RecoveryLadder:
                     "reason": reason,
                     "is_successor": is_succ,
                 })
+                self.agent_stats["derivados_herencia"] += 1
+                query_entry["derivados_herencia"] += 1
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "DERIVADO_HERENCIA",
+                    "reason": reason,
+                })
                 continue
 
             # Regla 2: HEAD status 200, tamaño > 0 Y TIPO DOCUMENTAL (D-17 / H-2)
             if not self._check_head(cand_url, require_document_type=True):
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "FALLO_HEAD",
+                })
                 continue
+
+            self.agent_stats["pasaron_head"] += 1
+            query_entry["pasaron_head"] += 1
 
             # Descargar y calcular bytes y SHA-256 (rechaza text/html en streaming / H-1)
             res = self.fetch_and_verify(cand_url)
             if not res:
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "FALLO_DESCARGA",
+                })
                 continue
             size, sha256 = res
 
@@ -1458,21 +1510,58 @@ class RecoveryLadder:
             sample = getattr(self, "_last_download_sample", b"")
             if not self._verify_institution_content(portal, sample):
                 logger.info("Candidato del agente descartado por fallar verificación de contenido (D-01): %s", cand_url)
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "FALLO_CONTENIDO_INSTITUCIONAL",
+                })
                 continue
 
             # Regla H-3: Verificación de correspondencia con el período pedido
             if not self._verify_period_correspondence(period, periodicity, cand_url, sample):
                 logger.info("Candidato descartado por no corresponder al período %s: %s", period, cand_url)
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "FALLO_CORRESPONDENCIA_PERIODO",
+                })
                 continue
+
+            self.agent_stats["pasaron_contenido"] += 1
+            query_entry["pasaron_contenido"] += 1
 
             # Regla H-3 & O-1: No admitir documentos que ya estén en inventory.db ni repetidos en la corrida
             if self.is_url_in_inventory(portal, cand_url) or self.is_url_already_recovered(cand_url):
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "YA_EXISTE_EN_INVENTARIO",
+                })
                 continue
 
             # Compuertas de calidad Fase 5 (B-59)
-            ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 5)
+            ok_qg, reason_qg = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 5)
             if not ok_qg:
+                query_entry["candidatos_detalle"].append({
+                    "url": cand_url,
+                    "domain": domain,
+                    "status": "RECHAZO_COMPUERTA_CALIDAD",
+                    "motivo": reason_qg,
+                })
                 continue
+
+            self.agent_stats["pasaron_compuertas"] += 1
+            query_entry["pasaron_compuertas"] += 1
+            self.agent_stats["recuperados_rung_5"] += 1
+            query_entry["recuperados"] += 1
+            query_entry["candidatos_detalle"].append({
+                "url": cand_url,
+                "domain": domain,
+                "status": "RECUPERADO",
+                "file_size_bytes": size,
+                "content_sha256": sha256,
+            })
+            self.agent_query_log.append(query_entry)
 
             self._recovered_urls.add(cand_url)
             return RecoveredPeriod(
@@ -1492,6 +1581,7 @@ class RecoveryLadder:
                 },
             )
 
+        self.agent_query_log.append(query_entry)
         return None
 
     def recover_period(

@@ -161,11 +161,21 @@ def main():
     elapsed = time.time() - t0
 
     budget_exhausted = ladder.gemini_calls_count >= ladder.max_gemini_calls
+    st = ladder.agent_stats
 
     if args.format == "table":
         print_table_report(recovered, elapsed)
         budget_str = " (PRESUPUESTO AGOTADO: períodos subsecuentes no consultaron al agente)" if budget_exhausted else ""
         print(f"Llamadas a Gemini API en Escalón 5: {ladder.gemini_calls_count}/{ladder.max_gemini_calls}{budget_str}")
+        print("\n--- BALANCE DEL AGENTE EN ESCALÓN 5 (B-65) ---")
+        print(f"faltantes consultados al agente:      {st['faltantes_consultados']}")
+        print(f"candidatos propuestos:                {st['candidatos_propuestos']}")
+        print(f"pasaron HEAD:                         {st['pasaron_head']}")
+        print(f"pasaron verificacion de contenido:    {st['pasaron_contenido']}")
+        print(f"pasaron compuertas de calidad:        {st['pasaron_compuertas']}")
+        print(f"recuperados por el escalon 5:         {st['recuperados_rung_5']}")
+        print(f"derivados a cola de herencia:         {st['derivados_herencia']}")
+        print("------------------------------------------------")
         if ladder.inheritance_candidates:
             print(f"Candidatos derivados a la cola de herencia (B-55): {len(ladder.inheritance_candidates)} (guardados en docs/entregas/cola_herencia_b55.json)")
         if ladder.rechazos_calidad:
@@ -178,6 +188,8 @@ def main():
             "gemini_calls_count": ladder.gemini_calls_count,
             "gemini_max_calls": ladder.max_gemini_calls,
             "gemini_budget_exhausted": budget_exhausted,
+            "agent_stats": ladder.agent_stats,
+            "agent_query_log": ladder.agent_query_log,
             "inheritance_candidates_count": len(ladder.inheritance_candidates),
             "rechazos_calidad_count": len(ladder.rechazos_calidad),
             "recoveries": [r.to_dict() for r in recovered],
@@ -195,6 +207,8 @@ def main():
             "gemini_calls_count": ladder.gemini_calls_count,
             "gemini_max_calls": ladder.max_gemini_calls,
             "gemini_budget_exhausted": budget_exhausted,
+            "agent_stats": ladder.agent_stats,
+            "agent_query_log": ladder.agent_query_log,
             "inheritance_candidates_count": len(ladder.inheritance_candidates),
             "rechazos_calidad_count": len(ladder.rechazos_calidad),
             "recoveries": [r.to_dict() for r in recovered],

@@ -79,6 +79,7 @@ este archivo es la copia versionada, que es la que sobrevive.
 | B-62 | 🅰️ | Escalón 3 derivado de serie y sitemap (Fase 5) | 90/65 | Aprobado (solo) | Escalón 3 generalizado sobre patrones de serie observados y sitemaps para todos los datasets; resuelve P-3; 100% de huecos con candidatos en dry-run; 244 tests verdes (`0c39ab4`) |
 | B-63 | 🅰️ | Escalón 4 sobre motor CDX de Wayback (Fase 5) | 90/60 | Aprobado (solo) | Escalón 4 desacoplado de condicionales con motor CDX genérico (`wayback_engine.py`, timeout ≥15s, caché en disco); resuelve P-4; 6 datasets con instantáneas CDX en dry-run; 249 tests verdes (`aa0bf0f`) |
 | B-64 | 🅰️ | Reconocimiento de período en nombre de archivo (Fase 5) | 90/70 | Aprobado (solo) | Extractor reconoce mes abreviado con año corto/largo (`DEPEX_jun24.pdf`), mes completo (`Septiembre 2023`) y `AAAAMM`; cobertura BCB salta de 32% a 85.1%; 0 filas `high` desde solo carpeta; 252 tests verdes |
+| B-65 | 🅰️ | El agente con presupuesto completo (Fase 5) | 90/45 | Aprobado (solo) | Presupuesto completo ejecutado (26 faltantes consultados, 55 candidatos propuestos, 0 pasaron HEAD). Escalón 5 no aporta recuperaciones (0 vs 11 de escalones 2 y 3); guardarraíles intactos; 255 tests verdes |
 
 
 Trabajo propio de Claude, fuera de bloque: verificación en vivo del catálogo
@@ -179,6 +180,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-62 (Escalón 3 serie) | **Escalón 3 derivado de serie** | Escalón 3 generalizado para cualquier dataset a partir de URLs observadas e integración sitemap.xml. Resuelve P-3 en cobertura. 22/22 faltantes con candidatos en dry-run (100% de los 20 en asfi/poa_seguimiento). 244 tests verdes (`0c39ab4`). |
 | Tras B-63 (Escalón 4 CDX) | **Motor CDX en Escalón 4** | Escalón 4 desacoplado de condicionales cableados: consulta dinámica a la API CDX de Wayback Machine mediante `wayback_engine.py` (timeout ≥ 15s, caché en disco, soporte de sesión), derivación de comodines por dataset y filtro por período. Resuelve P-4. Dry-run reporta consultas CDX e instantáneas para los 6 datasets con faltantes. 249 tests verdes. |
 | Tras B-64 (Fechas en filename) | **Cobertura BCB ≥ 65 %** | Extractor enriquecido con meses abreviados/completos y AAAAMM; cobertura BCB sube de 32% a 85.1%; 0 filas `high` desde solo carpeta de publicación (`folder_only_high == 0`). Resuelve P-7. 252 tests verdes. |
+| Tras B-65 (Agente presupuesto) | **Aporte del agente medido** | Presupuesto completo ejecutado con 50 llamadas máx: 26 faltantes consultados, 55 candidatos propuestos, 0 pasaron HEAD. Escalón 5 no aporta recuperaciones frente a 11 de escalones deterministas (2 y 3). Resuelve P-5. 255 tests verdes. |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su

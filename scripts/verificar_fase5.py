@@ -31,6 +31,9 @@ TOTAL_CATALOGADAS_TARGET = 1165  # 121 BCB + 443 INE + 601 ASFI
 def get_recovery_metrics() -> Dict[str, Any]:
     """Carga los resultados de la corrida de recuperación más reciente y calcula indicadores."""
     candidates = [
+        Path("output/recup_fase5.json"),
+        Path("output/recup_b66.json"),
+        Path("output/recup_b65.json"),
         Path("output/recup_b59.json"),
         Path("output/baseline_test.json"),
         Path("docs/entregas/recuperaciones_b54b.json"),
@@ -60,7 +63,8 @@ def get_recovery_metrics() -> Dict[str, Any]:
 
     recoveries = data.get("recoveries", [])
     rechazos = data.get("rechazos_calidad", [])
-    gemini_calls = data.get("gemini_calls_count", 0)
+    agent_stats = data.get("agent_stats", {})
+    gemini_calls = agent_stats.get("faltantes_consultados", data.get("gemini_calls_count", 0))
 
     # Identificar falsos positivos en las recuperaciones admitidas:
     # 1. Huella SHA-256 repetida en el mismo dataset entre distintos períodos
