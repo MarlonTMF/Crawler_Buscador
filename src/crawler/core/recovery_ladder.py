@@ -31,6 +31,37 @@ from crawler.core.relocation_manager import RelocationManager, CANONICAL_SUCCESS
 from crawler.core.wayback_engine import query_cdx_snapshots
 from crawler.sources.generic_adapter import GenericSourceAdapter
 
+_YEAR_RE = re.compile(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)")
+_CD_FILENAME_EXT = re.compile(r"filename\*\s*=\s*([^']*)'[^']*'([^;]+)", re.IGNORECASE)
+_CD_FILENAME = re.compile(r'filename\s*=\s*"?([^";]+)"?', re.IGNORECASE)
+
+
+def _served_filename(response) -> str:
+    """Nombre del archivo que el servidor realmente entregó.
+
+    Prioriza Content-Disposition (RFC 6266 / 5987) y, si no viene, el último
+    segmento de la URL final tras redirecciones. Algunos portales —el INE entre
+    ellos— entregan por identificador numérico e ignoran el nombre que figura
+    en la URL pedida, así que ese nombre no prueba nada sobre el documento.
+    """
+    cd = ""
+    try:
+        cd = response.headers.get("content-disposition", "") or ""
+    except Exception:
+        cd = ""
+    m = _CD_FILENAME_EXT.search(cd)
+    if m:
+        charset = (m.group(1) or "utf-8").strip() or "utf-8"
+        try:
+            return unquote(m.group(2).strip(), encoding=charset, errors="replace")
+        except LookupError:
+            return unquote(m.group(2).strip())
+    m = _CD_FILENAME.search(cd)
+    if m and m.group(1).strip():
+        return m.group(1).strip()
+    final_url = getattr(response, "url", "") or ""
+    return unquote(urlparse(final_url).path).rstrip("/").split("/")[-1]
+
 urllib3.disable_warnings()
 logger = logging.getLogger(__name__)
 
@@ -122,6 +153,8 @@ class RecoveryLadder:
         self.max_gemini_calls = max_gemini_calls
         self.gemini_calls_count = 0
         self._last_download_sample = b""
+        # URL pedida -> nombre de archivo que declaró el servidor al descargarla.
+        self._served_names: Dict[str, str] = {}
         self.inheritance_candidates: List[Dict[str, Any]] = []
         self.rechazos_calidad: List[Dict[str, Any]] = []
         self._dataset_sha256_periods: Dict[Tuple[str, str], Dict[str, str]] = {}
@@ -202,6 +235,7 @@ class RecoveryLadder:
                     if len(sample_bytes) < 131072:
                         sample_bytes.extend(chunk[: 131072 - len(sample_bytes)])
             self._last_download_sample = bytes(sample_bytes)
+            self._served_names[url] = _served_filename(r)
             if total_size <= 0:
                 return None
             return total_size, hasher.hexdigest()
@@ -314,7 +348,31 @@ class RecoveryLadder:
                 except Exception as e:
                     logger.debug("Error verificando huella repetida en inventory.db: %s", e)
 
-        # 2. Compuerta de año contradictorio en el nombre del archivo
+        # 2. Compuerta de año contradictorio sobre lo que entregó el servidor.
+        #    El nombre de la URL pedida no basta: puede haberlo escrito el propio
+        #    sistema al construir el candidato, y hay portales que lo ignoran.
+        served_name = self._served_names.get(url)
+        served_years = set(_YEAR_RE.findall(served_name or ""))
+        wanted_years = set(_YEAR_RE.findall(str(period)))
+        if served_years and wanted_years and not (served_years & wanted_years):
+            reason = (
+                f"ano_servido_contradictorio: el servidor entregó '{served_name}', con año(s) "
+                f"{sorted(served_years)}, para el período buscado '{period}'"
+            )
+            self.rechazos_calidad.append({
+                "portal": portal,
+                "dataset_id": dataset_id,
+                "period": period,
+                "url": url,
+                "served_filename": served_name,
+                "content_sha256": content_sha256,
+                "source_rung": source_rung,
+                "motivo": reason,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+            return False, reason
+
+        # 3. Compuerta de año contradictorio en el nombre de la URL pedida
         parsed_url = urlparse(url)
         filename = unquote(parsed_url.path).split("/")[-1]
         file_years = set(re.findall(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)", filename))
