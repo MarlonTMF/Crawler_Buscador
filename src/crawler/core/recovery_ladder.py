@@ -27,6 +27,7 @@ import urllib3
 
 from crawler.core.fetcher import HttpFetcher
 from crawler.core.gap_detector import GapDetector
+from crawler.core.relocation_manager import RelocationManager, CANONICAL_SUCCESSIONS
 from crawler.sources.generic_adapter import GenericSourceAdapter
 
 urllib3.disable_warnings()
@@ -121,11 +122,14 @@ class RecoveryLadder:
         self.gemini_calls_count = 0
         self._last_download_sample = b""
         self.inheritance_candidates: List[Dict[str, Any]] = []
+        self.rechazos_calidad: List[Dict[str, Any]] = []
+        self._dataset_sha256_periods: Dict[Tuple[str, str], Dict[str, str]] = {}
         self._recovered_urls: Set[str] = set()
         self._session = requests.Session()
         self._session.headers.update({
             "User-Agent": getattr(self.fetcher, "user_agent", "DataX-Prospector/1.0 (+http://datax.org)")
         })
+        self.relocation_manager = RelocationManager(config_dir=self.base_config_dir)
 
     DOCUMENTARY_CONTENT_TYPES = {
         "application/pdf",
@@ -229,6 +233,99 @@ class RecoveryLadder:
             logger.debug("Error verificando inventario para %s: %s", canonical_url, e)
             return False
 
+    def _check_quality_gates(
+        self,
+        portal: str,
+        dataset_id: str,
+        period: str,
+        url: str,
+        content_sha256: str,
+        source_rung: int,
+    ) -> Tuple[bool, Optional[str]]:
+        """
+        Compuertas de calidad de la Fase 5 (B-59):
+        1. Huella SHA-256 repetida: si el mismo content_sha256 ya se asignó a otro período
+           del mismo dataset (en esta corrida o en inventory.db), se rechaza.
+        2. Año contradictorio: si el nombre del archivo contiene un año de cuatro dígitos
+           distinto del período buscado —y no hay otro año que coincida—, se rechaza.
+        """
+        ds_key = (portal.lower(), dataset_id)
+        if ds_key not in self._dataset_sha256_periods:
+            self._dataset_sha256_periods[ds_key] = {}
+
+        # 1. Compuerta de huella SHA-256 repetida
+        # 1a. En esta corrida
+        if content_sha256 and content_sha256 in self._dataset_sha256_periods[ds_key]:
+            assigned_p = self._dataset_sha256_periods[ds_key][content_sha256]
+            if str(assigned_p) != str(period):
+                reason = f"huella_repetida: content_sha256 {content_sha256[:16]}... ya asignado al período {assigned_p} en este dataset"
+                self.rechazos_calidad.append({
+                    "portal": portal,
+                    "dataset_id": dataset_id,
+                    "period": period,
+                    "url": url,
+                    "content_sha256": content_sha256,
+                    "source_rung": source_rung,
+                    "motivo": reason,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                })
+                return False, reason
+
+        # 1b. En inventory.db
+        if content_sha256:
+            db_path = self.base_output_dir / portal / "inventory.db"
+            if db_path.exists():
+                try:
+                    with sqlite3.connect(db_path) as conn:
+                        rows = conn.execute(
+                            "SELECT period_start, period_end, canonical_url FROM resource_audit_log WHERE dataset_id = ? AND content_sha256 = ? AND status IN ('PROCESADO_EXITOSAMENTE', 'RECUPERADO_VIA_CONTINGENCIA')",
+                            (dataset_id, content_sha256),
+                        ).fetchall()
+                        for p_start, p_end, c_url in rows:
+                            p_str = p_start or p_end or ""
+                            db_years = set(re.findall(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)", p_str))
+                            curr_years = set(re.findall(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)", str(period)))
+                            if db_years and curr_years and not (db_years & curr_years):
+                                reason = f"huella_repetida: content_sha256 {content_sha256[:16]}... ya existe en inventory.db asignado a {p_str}"
+                                self.rechazos_calidad.append({
+                                    "portal": portal,
+                                    "dataset_id": dataset_id,
+                                    "period": period,
+                                    "url": url,
+                                    "content_sha256": content_sha256,
+                                    "source_rung": source_rung,
+                                    "motivo": reason,
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                })
+                                return False, reason
+                except Exception as e:
+                    logger.debug("Error verificando huella repetida en inventory.db: %s", e)
+
+        # 2. Compuerta de año contradictorio en el nombre del archivo
+        parsed_url = urlparse(url)
+        filename = unquote(parsed_url.path).split("/")[-1]
+        file_years = set(re.findall(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)", filename))
+        period_years = set(re.findall(r"(?:^|[^\d])(19\d\d|20\d\d)(?:[^\d]|$)", str(period)))
+
+        if file_years and period_years and not (file_years & period_years):
+            reason = f"ano_contradictorio: el archivo '{filename}' contiene año(s) {sorted(file_years)} que no coinciden con el período buscado '{period}'"
+            self.rechazos_calidad.append({
+                "portal": portal,
+                "dataset_id": dataset_id,
+                "period": period,
+                "url": url,
+                "content_sha256": content_sha256,
+                "source_rung": source_rung,
+                "motivo": reason,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            })
+            return False, reason
+
+        if content_sha256:
+            self._dataset_sha256_periods[ds_key][content_sha256] = str(period)
+
+        return True, None
+
     def _try_rung_1_known_url(
         self, portal: str, dataset_id: str, period: str, periodicity: str
     ) -> Optional[RecoveredPeriod]:
@@ -295,43 +392,112 @@ class RecoveryLadder:
 
         # Probar candidatos encontrados en la base de datos: solo admitir si NO está ya en inventario (O-1)
         for cand_url in candidate_urls:
-            if self.is_url_in_inventory(portal, cand_url):
-                continue
-            res = self.fetch_and_verify(cand_url)
-            if res:
-                size, sha256 = res
-                return RecoveredPeriod(
-                    portal=portal,
-                    dataset_id=dataset_id,
-                    period=period,
-                    recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
-                    rung_name="misma_url",
-                    url=cand_url,
-                    file_size_bytes=size,
-                    content_sha256=sha256,
-                    verified_at=datetime.now(timezone.utc).isoformat(),
-                    metadata={"source_rung": 1, "method": "known_inventory_url"},
+            # 1. Probar la URL directa si no está en inventario
+            if not self.is_url_in_inventory(portal, cand_url) and not self.is_url_already_recovered(cand_url):
+                res = self.fetch_and_verify(cand_url)
+                if res:
+                    size, sha256 = res
+                    ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 1)
+                    if not ok_qg:
+                        continue
+                    return RecoveredPeriod(
+                        portal=portal,
+                        dataset_id=dataset_id,
+                        period=period,
+                        recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                        rung_name="misma_url",
+                        url=cand_url,
+                        file_size_bytes=size,
+                        content_sha256=sha256,
+                        verified_at=datetime.now(timezone.utc).isoformat(),
+                        metadata={"source_rung": 1, "method": "known_inventory_url"},
+                    )
+
+            # 2. Seguimiento de redirecciones HTTP (301/302/308)
+            try:
+                allowed_d = set(self._get_allowed_domains(portal))
+                redir = self.relocation_manager.follow_redirect(
+                    cand_url, session=self._session, allowed_domains=allowed_d
                 )
+                if redir.get("redirected") and redir.get("is_authorized"):
+                    final_u = redir["final_url"]
+                    if not self.is_url_in_inventory(portal, final_u) and not self.is_url_already_recovered(final_u):
+                        res_redir = self.fetch_and_verify(final_u)
+                        if res_redir:
+                            size, sha256 = res_redir
+                            sample = getattr(self, "_last_download_sample", b"")
+                            if self._verify_institution_content(portal, sample):
+                                ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, final_u, sha256, 1)
+                                if not ok_qg:
+                                    continue
+                                return RecoveredPeriod(
+                                    portal=portal,
+                                    dataset_id=dataset_id,
+                                    period=period,
+                                    recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                    rung_name="misma_url_redireccion",
+                                    url=final_u,
+                                    file_size_bytes=size,
+                                    content_sha256=sha256,
+                                    verified_at=datetime.now(timezone.utc).isoformat(),
+                                    metadata={
+                                        "source_rung": 1,
+                                        "method": "known_url_redirect",
+                                        "redirected_from": cand_url,
+                                    },
+                                )
+            except Exception as e:
+                logger.debug("Error siguiendo redirección para %s: %s", cand_url, e)
+
+            # 3. Traducción a dominio sucesor o mapeo en moved_urls.json
+            try:
+                for succ_u in self.relocation_manager.translate_url_to_successor(cand_url):
+                    if self.is_url_in_inventory(portal, succ_u) or self.is_url_already_recovered(succ_u):
+                        continue
+                    if self._check_head(succ_u, require_document_type=True):
+                        res_succ = self.fetch_and_verify(succ_u)
+                        if res_succ:
+                            size, sha256 = res_succ
+                            sample = getattr(self, "_last_download_sample", b"")
+                            if self._verify_institution_content(portal, sample):
+                                ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, succ_u, sha256, 1)
+                                if not ok_qg:
+                                    continue
+                                return RecoveredPeriod(
+                                    portal=portal,
+                                    dataset_id=dataset_id,
+                                    period=period,
+                                    recovery_rung=RecoveryRung.RUNG_1_KNOWN_URL,
+                                    rung_name="misma_url_reubicada",
+                                    url=succ_u,
+                                    file_size_bytes=size,
+                                    content_sha256=sha256,
+                                    verified_at=datetime.now(timezone.utc).isoformat(),
+                                    metadata={
+                                        "source_rung": 1,
+                                        "method": "known_url_successor_mapping",
+                                        "original_url": cand_url,
+                                    },
+                                )
+            except Exception as e:
+                logger.debug("Error probando sucesor para %s: %s", cand_url, e)
 
         return None
 
-    def _try_rung_2_series_template(
+    def _build_template_urls(
         self, portal: str, dataset_id: str, period: str, periodicity: str
-    ) -> Optional[RecoveredPeriod]:
-        """
-        Escalón 2: Plantilla de la serie extrapolada con el período faltante (D-17 + HEAD).
-        """
+    ) -> List[str]:
+        """Construye las URLs candidatas basadas en plantillas de serie conocidas."""
         templates = self.SERIES_TEMPLATES.get((portal, dataset_id), [])
         if not templates:
-            return None
+            return []
 
         year = int(period[:4])
         yy = f"{year % 100:02d}"
-        candidate_urls = []
+        candidate_urls: List[str] = []
 
         if periodicity == "semestral":
             sem = period[-1] if "S" in period else "1"
-            # S1 -> junio, S2 -> diciembre
             mon = "jun" if sem == "1" else "dic"
             mon_mayus = "JUN" if sem == "1" else "DIC"
             mes_nombre = "Junio" if sem == "1" else "Diciembre"
@@ -370,6 +536,29 @@ class RecoveryLadder:
                     candidate_urls.append(u)
                 except Exception:
                     pass
+        else:
+            for tmpl in templates:
+                try:
+                    u = tmpl.format(
+                        yy=yy,
+                        yyyy=year,
+                        year=year,
+                    )
+                    candidate_urls.append(u)
+                except Exception:
+                    pass
+
+        return candidate_urls
+
+    def _try_rung_2_series_template(
+        self, portal: str, dataset_id: str, period: str, periodicity: str
+    ) -> Optional[RecoveredPeriod]:
+        """
+        Escalón 2: Plantilla de la serie extrapolada con el período faltante (D-17 + HEAD).
+        """
+        candidate_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
+        if not candidate_urls:
+            return None
 
         # Validar candidatos con HEAD primero, luego descargar y verificar bytes y hash
         for url in candidate_urls:
@@ -377,6 +566,9 @@ class RecoveryLadder:
                 res = self.fetch_and_verify(url)
                 if res:
                     size, sha256 = res
+                    ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, url, sha256, 2)
+                    if not ok_qg:
+                        continue
                     return RecoveredPeriod(
                         portal=portal,
                         dataset_id=dataset_id,
@@ -417,11 +609,41 @@ class RecoveryLadder:
             ]
             candidate_urls.extend(variants)
 
+        # Generalización para cualquier portal y dataset mediante RelocationManager
+        if not candidate_urls:
+            seed_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
+            db_path = self.base_output_dir / portal / "inventory.db"
+            if db_path.exists():
+                try:
+                    with sqlite3.connect(db_path) as conn:
+                        rows = conn.execute(
+                            "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ? LIMIT 5",
+                            (dataset_id,)
+                        ).fetchall()
+                        for (u,) in rows:
+                            if u and u.startswith("http") and u not in seed_urls:
+                                seed_urls.append(u)
+                except Exception:
+                    pass
+
+            for s_url in seed_urls:
+                for var_u in self.relocation_manager.generate_path_variants(s_url, period=period):
+                    if var_u not in candidate_urls:
+                        candidate_urls.append(var_u)
+
         for url in candidate_urls:
+            if self.is_url_in_inventory(portal, url) or self.is_url_already_recovered(url):
+                continue
             if self._check_head(url):
                 res = self.fetch_and_verify(url)
                 if res:
                     size, sha256 = res
+                    sample = getattr(self, "_last_download_sample", b"")
+                    if sample and not self._verify_institution_content(portal, sample):
+                        continue
+                    ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, url, sha256, 3)
+                    if not ok_qg:
+                        continue
                     return RecoveredPeriod(
                         portal=portal,
                         dataset_id=dataset_id,
@@ -457,6 +679,23 @@ class RecoveryLadder:
             # Si existía en el inventario pero el portal estuviera caído
             candidate_urls.append(f"https://www.ine.gob.bo/index.php/descarga/rendicion-publica-de-cuentas-{year}")
 
+        # Generalización: si no hay candidatas específicas para bcb/ine, usar plantillas y semillas
+        if not candidate_urls:
+            candidate_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
+            db_path = self.base_output_dir / portal / "inventory.db"
+            if db_path.exists():
+                try:
+                    with sqlite3.connect(db_path) as conn:
+                        rows = conn.execute(
+                            "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ? AND canonical_url LIKE ? LIMIT 3",
+                            (dataset_id, f"%{year}%")
+                        ).fetchall()
+                        for (u,) in rows:
+                            if u and u not in candidate_urls:
+                                candidate_urls.append(u)
+                except Exception:
+                    pass
+
         for target_url in candidate_urls:
             api = f"https://archive.org/wayback/available?url={quote(target_url, safe=':/?=')}"
             try:
@@ -465,11 +704,17 @@ class RecoveryLadder:
                     data = resp.json()
                     snapshots = data.get("archived_snapshots", {})
                     closest = snapshots.get("closest", {})
-                    if closest.get("available") and closest.get("status") in ("200", 200):
+                    if closest.get("available") and str(closest.get("status")) == "200":
                         snap_url = closest.get("url")
                         res = self.fetch_and_verify(snap_url)
                         if res:
                             size, sha256 = res
+                            sample = getattr(self, "_last_download_sample", b"")
+                            if sample and not self._verify_institution_content(portal, sample):
+                                continue
+                            ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, snap_url, sha256, 4)
+                            if not ok_qg:
+                                continue
                             return RecoveredPeriod(
                                 portal=portal,
                                 dataset_id=dataset_id,
@@ -480,11 +725,7 @@ class RecoveryLadder:
                                 file_size_bytes=size,
                                 content_sha256=sha256,
                                 verified_at=datetime.now(timezone.utc).isoformat(),
-                                metadata={
-                                    "source_rung": 4,
-                                    "method": "wayback_archive_snapshot",
-                                    "original_url": target_url,
-                                },
+                                metadata={"source_rung": 4, "method": "wayback_archive_snapshot", "target_url": target_url},
                             )
             except Exception as e:
                 logger.debug("Error consultando Wayback para %s: %s", target_url, e)
@@ -501,16 +742,23 @@ class RecoveryLadder:
                     data = yaml.safe_load(f)
                     domains = data.get("source", {}).get("allowed_domains", [])
                     if domains:
-                        return [d.strip().lower() for d in domains if d and isinstance(d, str)]
+                        base_domains = [d.strip().lower() for d in domains if d and isinstance(d, str)]
             except Exception as e:
                 logger.debug("Error leyendo allowed_domains de %s: %s", cfg_path, e)
+                base_domains = []
+        else:
+            base_domains = []
 
-        fallbacks = {
-            "bcb": ["bcb.gob.bo", "www.bcb.gob.bo", "deudaexternapublica.bcb.gob.bo"],
-            "asfi": ["asfi.gob.bo", "www.asfi.gob.bo"],
-            "ine": ["ine.gob.bo", "www.ine.gob.bo"],
-        }
-        return fallbacks.get(portal.lower(), [f"{portal}.gob.bo"])
+        if not base_domains:
+            fallbacks = {
+                "bcb": ["bcb.gob.bo", "www.bcb.gob.bo", "deudaexternapublica.bcb.gob.bo"],
+                "asfi": ["asfi.gob.bo", "www.asfi.gob.bo"],
+                "ine": ["ine.gob.bo", "www.ine.gob.bo"],
+            }
+            base_domains = fallbacks.get(portal.lower(), [f"{portal}.gob.bo"])
+
+        # P-6 / D-18: Solo dominios base autorizados del portal (sucesores van a cola de herencia)
+        return sorted(list(set(base_domains)))
 
     def _verify_institution_content(self, portal: str, content: bytes) -> bool:
         """
@@ -534,7 +782,16 @@ class RecoveryLadder:
             "asfi": [r"\bautoridad de supervision del sistema financiero\b", r"\basfi\b"],
             "ine": [r"\binstituto nacional de estadistica\b", r"\bine\b"],
         }
-        regexes = portal_regexes.get(portal.lower(), [rf"\b{re.escape(portal.lower())}\b"])
+        regexes = list(portal_regexes.get(portal.lower(), [rf"\b{re.escape(portal.lower())}\b"]))
+
+        # También admitir palabras clave de entidades sucesoras o predecesoras autorizadas
+        p_clean = portal.lower().replace("-", "_")
+        for key, succ_info in CANONICAL_SUCCESSIONS.items():
+            if key == p_clean or portal.lower() in key:
+                for succ in succ_info.get("successors", []):
+                    for kw in succ.get("keywords", []):
+                        regexes.append(rf"\b{re.escape(kw.lower())}\b")
+
         return any(re.search(rx, clean_text) for rx in regexes)
 
     def _verify_period_correspondence(
@@ -680,9 +937,20 @@ class RecoveryLadder:
             if ":" in domain:
                 domain = domain.split(":")[0]
 
-            if not any(domain == ad or domain.endswith("." + ad) for ad in allowed_domains):
+            is_base = any(domain == ad or domain.endswith("." + ad) for ad in allowed_domains)
+
+            if not is_base:
+                is_succ = hasattr(self, "relocation_manager") and (
+                    self.relocation_manager.is_authorized_successor(portal, domain)
+                    or any(self.relocation_manager.is_authorized_successor(ad, domain) for ad in allowed_domains)
+                )
+                reason = (
+                    "Dominio sucesor derivado a cola de herencia B-55 (D-18 / P-6)"
+                    if is_succ
+                    else "Dominio externo sugerido por LLM (cola de herencia B-55)"
+                )
                 logger.info(
-                    "Candidato del agente derivado a cola de herencia B-55 por dominio no autorizado (%s no en %s): %s",
+                    "Candidato del agente derivado a cola de herencia B-55 (%s no en %s): %s",
                     domain,
                     allowed_domains,
                     cand_url,
@@ -695,7 +963,8 @@ class RecoveryLadder:
                     "proposed_domain": domain,
                     "allowed_domains": allowed_domains,
                     "detected_at": datetime.now(timezone.utc).isoformat(),
-                    "reason": "Dominio externo sugerido por LLM (cola de herencia B-55)",
+                    "reason": reason,
+                    "is_successor": is_succ,
                 })
                 continue
 
@@ -722,6 +991,11 @@ class RecoveryLadder:
 
             # Regla H-3 & O-1: No admitir documentos que ya estén en inventory.db ni repetidos en la corrida
             if self.is_url_in_inventory(portal, cand_url) or self.is_url_already_recovered(cand_url):
+                continue
+
+            # Compuertas de calidad Fase 5 (B-59)
+            ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, cand_url, sha256, 5)
+            if not ok_qg:
                 continue
 
             self._recovered_urls.add(cand_url)

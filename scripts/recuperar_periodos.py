@@ -132,6 +132,8 @@ def main():
         print(f"Llamadas a Gemini API en Escalón 5: {ladder.gemini_calls_count}/{ladder.max_gemini_calls}{budget_str}")
         if ladder.inheritance_candidates:
             print(f"Candidatos derivados a la cola de herencia (B-55): {len(ladder.inheritance_candidates)} (guardados en docs/entregas/cola_herencia_b55.json)")
+        if ladder.rechazos_calidad:
+            print(f"Candidatos rechazados por compuertas de calidad (B-59): {len(ladder.rechazos_calidad)}")
     else:
         out_dict = {
             "timestamp": datetime.now().isoformat(),
@@ -141,7 +143,9 @@ def main():
             "gemini_max_calls": ladder.max_gemini_calls,
             "gemini_budget_exhausted": budget_exhausted,
             "inheritance_candidates_count": len(ladder.inheritance_candidates),
+            "rechazos_calidad_count": len(ladder.rechazos_calidad),
             "recoveries": [r.to_dict() for r in recovered],
+            "rechazos_calidad": ladder.rechazos_calidad,
         }
         print(json.dumps(out_dict, indent=2, ensure_ascii=False))
 
@@ -156,7 +160,9 @@ def main():
             "gemini_max_calls": ladder.max_gemini_calls,
             "gemini_budget_exhausted": budget_exhausted,
             "inheritance_candidates_count": len(ladder.inheritance_candidates),
+            "rechazos_calidad_count": len(ladder.rechazos_calidad),
             "recoveries": [r.to_dict() for r in recovered],
+            "rechazos_calidad": ladder.rechazos_calidad,
         }
         out_path.write_text(json.dumps(out_dict, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"\nReporte guardado exitosamente en: {out_path}", file=sys.stderr)
