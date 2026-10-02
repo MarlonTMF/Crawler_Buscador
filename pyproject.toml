@@ -18,7 +18,9 @@ dependencies = [
     # Optional runtime for headless rendering and OCR (opt-in)
     "playwright>=1.40.0 ; extra == 'playwright'",
     "pillow>=9.0.0 ; extra == 'ocr'",
-    "pytesseract>=0.3.10 ; extra == 'ocr'"
+    "pytesseract>=0.3.10 ; extra == 'ocr'",
+    # Lectura de solo lectura del respaldo de SPIM (catálogo de producción)
+    "pgdumplib>=4.0.0 ; extra == 'spim'"
 ]
 
 [project.optional-dependencies]
