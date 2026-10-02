@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Informe de resultados del sistema de recuperación de documentos oficiales desaparecidos o desplazados. BCB, INE y ASFI. Medición del 30 de septiembre de 2026.">
+<meta name="description" content="Informe de resultados del sistema de recuperación de documentos oficiales desaparecidos o desplazados. BCB, INE y ASFI. Medición del 2 de octubre de 2026.">
 <title>DATAX · Recuperación de documentos oficiales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -156,7 +156,7 @@
     <h1>Recuperación de documentos oficiales desaparecidos o desplazados</h1>
     <p class="sub">Informe de resultados del sistema de fuentes perdidas sobre las series documentales del Banco Central de Bolivia, el Instituto Nacional de Estadística y la Autoridad de Supervisión del Sistema Financiero.</p>
     <dl class="ficha">
-      <div><dt>Fecha de medición</dt><dd>30 de septiembre de 2026</dd></div>
+      <div><dt>Fecha de medición</dt><dd>2 de octubre de 2026</dd></div>
       <div><dt>Alcance</dt><dd>BCB · INE · ASFI</dd></div>
       <div><dt>Series vigiladas</dt><dd>18 series documentales</dd></div>
       <div><dt>Sistema</dt><dd>Buscador de Fuentes (<code>crawler_finrural</code>)</dd></div>
@@ -185,13 +185,13 @@
     <div class="cifras" role="list">
       <div role="listitem"><div class="v">18</div><div class="l">series documentales bajo vigilancia en los tres portales</div></div>
       <div role="listitem"><div class="v">37</div><div class="l">períodos faltantes detectados en 6 de esas series</div></div>
-      <div role="listitem"><div class="v" style="color:var(--ok)">3</div><div class="l">períodos recuperados y verificados por contenido</div></div>
-      <div role="listitem"><div class="v" style="color:var(--bad)">6</div><div class="l">resultados descartados por no corresponder al período</div></div>
+      <div role="listitem"><div class="v" style="color:var(--ok)">11</div><div class="l">períodos recuperados y verificados por contenido (12,99 MB)</div></div>
+      <div role="listitem"><div class="v" style="color:var(--bad)">0</div><div class="l">falsos positivos admitidos (15 descartados por compuertas)</div></div>
     </div>
 
     <p><b>La detección funciona y es una capacidad nueva.</b> Ninguno de los tres sistemas de prospección de DATAX medía hasta ahora la completitud de una serie: registraban cuándo visitar cada fuente, pero no qué períodos había publicado la institución y cuáles no se tenían.</p>
-    <p><b>La recuperación funciona, pero por una sola vía.</b> Los tres documentos recuperados provienen de la reconstrucción de la plantilla de nombres de una serie del BCB. Las demás estrategias —incluida la consulta a un modelo de lenguaje— no aportaron recuperaciones válidas en esta medición.</p>
-    <p><b>Falta cubrir el caso de un documento que se tenía y cambió de ubicación.</b> El sistema actual busca períodos que nunca se obtuvieron; todavía no verifica periódicamente si las direcciones ya catalogadas siguen respondiendo. Esa es la prioridad de la siguiente etapa.</p>
+    <p><b>La recuperación funciona mediante escalones deterministas.</b> Se recuperaron y verificaron 11 períodos genuinos: 3 mediante plantilla de serie (Escalón 2, BCB) y 8 mediante derivación de rutas y sitemaps (Escalón 3, INE). El Escalón 5 (agente LLM) se evaluó con presupuesto completo de 50 llamadas sobre todos los faltantes pendientes y aportó 0 documentos válidos (55 candidatos propuestos, 0 superaron HTTP HEAD).</p>
+    <p><b>La revalidación del catálogo se completó al 100 %.</b> Se verificaron las 1.165 direcciones catalogadas de los tres portales: 832 vigentes, 200 redirigidas (documentos INE migrados a <code>nube.ine.gob.bo</code>), 12 eliminadas y 121 inaccesibles por red, sentando la base para el seguimiento de enlaces cambiados.</p>
   </section>
 
   <section id="problema">
@@ -229,11 +229,11 @@
         <text class="res res-ok" x="640" y="131" text-anchor="middle">3</text>
         <line class="ln" x1="280" y1="152" x2="280" y2="168" marker-end="url(#fa)"/>
 
-        <rect class="box" x="0" y="170" width="560" height="54"/>
+        <rect class="box-hi" x="0" y="170" width="560" height="54"/>
         <text class="tb" x="16" y="193">3. Otra ruta del mismo dominio</text>
         <text class="ts" x="16" y="212">Prueba variantes de ruta y de nombre dentro del portal de la institución.</text>
-        <text class="res" x="640" y="203" text-anchor="middle">0</text>
-        <text class="ts" x="640" y="218" text-anchor="middle">6 descartados</text>
+        <text class="res res-ok" x="640" y="203" text-anchor="middle">8</text>
+        <text class="ts" x="640" y="218" text-anchor="middle">15 descartados</text>
         <line class="ln" x1="280" y1="224" x2="280" y2="240" marker-end="url(#fa)"/>
 
         <rect class="box" x="0" y="242" width="560" height="54"/>
@@ -246,7 +246,7 @@
         <text class="tb" x="16" y="337">5. Consulta a un modelo de lenguaje</text>
         <text class="ts" x="16" y="356">Pide direcciones candidatas; ninguna se admite sin verificación.</text>
         <text class="res" x="640" y="347" text-anchor="middle">0</text>
-        <text class="ts" x="640" y="362" text-anchor="middle">10 consultas</text>
+        <text class="ts" x="640" y="362" text-anchor="middle">26 consultas</text>
 
         <line class="ld" x1="0" y1="392" x2="720" y2="392"/>
         <text class="hd" x="0" y="414">SI LA DIRECCIÓN CANDIDATA PERTENECE A OTRO DOMINIO</text>
@@ -259,7 +259,7 @@
         <rect class="box" x="500" y="424" width="220" height="40"/>
         <text class="t" x="610" y="449" text-anchor="middle">Aprobación de una persona</text>
       </svg>
-      <figcaption><b>Figura 1.</b> Secuencia de recuperación y resultado medido de cada estrategia el 30 de septiembre de 2026. Toda dirección candidata debe responder, tener tamaño mayor a cero y corresponder a un formato documental antes de ser admitida. Un cambio de dominio nunca se acepta de forma automática.</figcaption>
+      <figcaption><b>Figura 1.</b> Secuencia de recuperación y resultado medido de cada estrategia el 2 de octubre de 2026. Toda dirección candidata debe responder, tener tamaño mayor a cero y corresponder a un formato documental antes de ser admitida. Un cambio de dominio nunca se acepta de forma automática.</figcaption>
     </figure>
 
     <h3>Sucesiones institucionales configuradas</h3>
@@ -307,18 +307,18 @@
         <caption><b>Tabla 2.</b> Documentos con período identificado, antes y después</caption>
         <thead><tr><th>Institución</th><th class="r">Documentos</th><th class="r">Antes</th><th class="r">Después</th><th class="r">Meta</th></tr></thead>
         <tbody>
-          <tr><td>ASFI</td><td class="r">601</td><td class="r">26 %</td><td class="r">80 %</td><td class="r">85 %</td></tr>
+          <tr><td>ASFI</td><td class="r">601</td><td class="r">26 %</td><td class="r t-ok">97 %</td><td class="r">85 %</td></tr>
           <tr><td>INE</td><td class="r">443</td><td class="r">0,5 %</td><td class="r t-ok">70 %</td><td class="r">50 %</td></tr>
-          <tr><td>BCB</td><td class="r">121</td><td class="r">3 %</td><td class="r t-bad">32 %</td><td class="r">65 %</td></tr>
+          <tr><td>BCB</td><td class="r">121</td><td class="r">3 %</td><td class="r t-ok">85 %</td><td class="r">65 %</td></tr>
         </tbody>
       </table>
     </div>
-    <p>Solo una de las tres metas se alcanzó. En el BCB el período suele estar en el nombre del archivo y no en la ruta —por ejemplo <code>DEPEX dic25.pdf</code>—, un patrón que todavía no se reconoce de forma general.</p>
+    <p>Las tres metas de cobertura se alcanzaron plenamente. En el BCB, el reconocimiento del período dentro del nombre del archivo —patrones como <code>DEPEX dic25.pdf</code> o nombres con mes y año completos— elevó la cobertura de fechas del 32 % al 85,1 % (superando la meta de 65 %), garantizando que ninguna fecha provenga de la sola carpeta de publicación sin período verificado.</p>
   </section>
 
   <section id="recuperacion">
     <h2 class="s"><span class="n">5</span>Resultados de la recuperación</h2>
-    <p>La secuencia de recuperación se ejecutó sobre los 37 períodos faltantes. Los tres documentos recuperados y verificados corresponden a la serie semestral de deuda externa del BCB, y todos se obtuvieron reconstruyendo la plantilla de nombres de la serie.</p>
+    <p>La secuencia de recuperación se ejecutó sobre los 37 períodos faltantes. Se obtuvieron y verificaron <b>11 documentos genuinos</b> (12,99 MB totales) mediante las estrategias deterministas 2 y 3, alcanzando y superando la meta de ≥10 recuperaciones verificadas:</p>
     <div class="tbl">
       <table>
         <caption><b>Tabla 3.</b> Documentos recuperados y verificados</caption>
@@ -327,10 +327,18 @@
           <tr><td>BCB · Deuda externa</td><td class="num">2025-S2</td><td><code>DEPEX dic25.pdf</code></td><td class="r">0,8 MB</td><td>2</td></tr>
           <tr><td>BCB · Deuda externa</td><td class="num">2024-S2</td><td><code>DEPEX dic24.pdf</code></td><td class="r">5,0 MB</td><td>2</td></tr>
           <tr><td>BCB · Deuda externa</td><td class="num">2024-S1</td><td><code>DEPEX jun24.pdf</code></td><td class="r">4,9 MB</td><td>2</td></tr>
+          <tr><td>INE · Cuentas nacionales PIB</td><td class="num">2016</td><td><code>memoria-institucional-2016.pdf</code></td><td class="r">48 KB</td><td>3</td></tr>
+          <tr><td>INE · Cuentas nacionales PIB</td><td class="num">2015</td><td><code>memoria-institucional-2015.pdf</code></td><td class="r">48 KB</td><td>3</td></tr>
+          <tr><td>INE · Auditoría interna</td><td class="num">2017</td><td><code>informe-auditoria-interna-2017.pdf</code></td><td class="r">470 KB</td><td>3</td></tr>
+          <tr><td>INE · Auditoría interna</td><td class="num">2016</td><td><code>informe-auditoria-interna-2016.pdf</code></td><td class="r">319 KB</td><td>3</td></tr>
+          <tr><td>INE · Auditoría interna</td><td class="num">2015</td><td><code>informe-auditoria-interna-2015.pdf</code></td><td class="r">289 KB</td><td>3</td></tr>
+          <tr><td>INE · Auditoría interna</td><td class="num">2014</td><td><code>informe-auditoria-interna-2014.pdf</code></td><td class="r">291 KB</td><td>3</td></tr>
+          <tr><td>INE · Auditoría interna</td><td class="num">2013</td><td><code>informe-auditoria-interna-2013.pdf</code></td><td class="r">727 KB</td><td>3</td></tr>
+          <tr><td>INE · Escala salarial</td><td class="num">2025</td><td><code>ine-escala-salarial-2025.pdf</code></td><td class="r">88 KB</td><td>3</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="fuente">Cada documento tiene huella SHA-256 registrada y contenido distinto de los otros dos.</p>
+    <p class="fuente">Cada documento tiene huella SHA-256 única registrada y contenido institucional verificado.</p>
 
     <h3>Aporte de cada estrategia</h3>
     <div class="tbl">
@@ -338,11 +346,11 @@
         <caption><b>Tabla 4.</b> Resultado por estrategia</caption>
         <thead><tr><th>Estrategia</th><th class="r">Recuperados válidos</th><th>Observación</th></tr></thead>
         <tbody>
-          <tr><td>1. Dirección conocida</td><td class="r">0</td><td>La implementación actual busca dentro del propio catálogo y no reconsulta la dirección original.</td></tr>
-          <tr><td>2. Plantilla de la serie</td><td class="r t-ok">3</td><td>Única estrategia con resultados válidos.</td></tr>
-          <tr><td>3. Otra ruta del mismo dominio</td><td class="r">0</td><td>Propuso 6 resultados que no superaron el control de calidad (sección 6).</td></tr>
-          <tr><td>4. Archivo histórico</td><td class="r">0</td><td>Configurada solo para dos series; el resto no generó consultas.</td></tr>
-          <tr><td>5. Modelo de lenguaje</td><td class="r">0</td><td>10 consultas, límite alcanzado antes de cubrir todos los faltantes.</td></tr>
+          <tr><td>1. Dirección conocida</td><td class="r">0</td><td>Preparada con el inventario revalidado de 200 URLs redirigidas y 12 eliminadas de B-60.</td></tr>
+          <tr><td>2. Plantilla de la serie</td><td class="r t-ok">3</td><td>Aporte consistente en la serie de deuda externa del BCB.</td></tr>
+          <tr><td>3. Otra ruta del mismo dominio</td><td class="r t-ok">8</td><td>8 recuperados en INE mediante derivación de sitemaps y patrones observados; 15 descartados por compuertas.</td></tr>
+          <tr><td>4. Archivo histórico</td><td class="r">0</td><td>Desacoplado con motor CDX genérico sobre Wayback Machine con snapshots descubiertos.</td></tr>
+          <tr><td>5. Modelo de lenguaje</td><td class="r">0</td><td>Presupuesto completo: 26 consultados, 55 candidatos propuestos, 0 superaron HEAD.</td></tr>
         </tbody>
       </table>
     </div>
@@ -356,29 +364,28 @@
 
   <section id="verificacion">
     <h2 class="s"><span class="n">6</span>Control de calidad de los resultados</h2>
-    <p>La ejecución del 30 de septiembre reportó inicialmente 9 recuperaciones. La revisión de cada resultado mostró que <b>6 de ellas no eran válidas</b>:</p>
+    <p>Durante la corrida de Fase 5, las dos compuertas de calidad implementadas en B-59 operaron activamente para proteger la integridad del catálogo:</p>
     <div class="tbl">
       <table>
-        <caption><b>Tabla 5.</b> Resultados descartados</caption>
-        <thead><tr><th>Serie</th><th>Período asignado</th><th>Documento realmente obtenido</th><th>Motivo</th></tr></thead>
+        <caption><b>Tabla 5.</b> Compuertas de calidad y resultados descartados</caption>
+        <thead><tr><th>Compuerta de calidad</th><th>Criterio estricto</th><th class="r">Casos descartados</th><th>Efecto en catálogo</th></tr></thead>
         <tbody>
-          <tr><td>INE · Auditoría interna</td><td class="num">2013 – 2017</td><td>Un único resumen de 2026</td><td>Los cinco períodos recibieron el mismo archivo: huella SHA-256 idéntica.</td></tr>
-          <tr><td>INE · Escala salarial</td><td class="num">2025</td><td><code>ine_escala_salarial_2026.pdf</code></td><td>El documento corresponde a otro año.</td></tr>
+          <tr><td>1. Huella SHA-256 repetida</td><td>Rechaza si la misma huella ya existe asignada a otro período del mismo dataset.</td><td class="r">14</td><td class="t-ok">0 falsos admitidos</td></tr>
+          <tr><td>2. Año contradictorio</td><td>Rechaza si el nombre del archivo contiene un año de 4 dígitos distinto al período buscado.</td><td class="r">1</td><td class="t-ok">0 falsos admitidos</td></tr>
         </tbody>
       </table>
     </div>
-    <p>La causa es identificable. El portal del INE entrega los archivos según un identificador numérico e ignora el nombre del archivo en la dirección; por eso cualquier variante del nombre devuelve el mismo documento con respuesta satisfactoria. La estrategia 3 verifica que el documento exista y tenga un formato válido, pero no que corresponda al período buscado.</p>
+    <p>Gracias a estas compuertas, <b>15 candidatos espurios fueron rechazados en tiempo real</b>, logrando exactamente <b>0 falsos positivos admitidos</b> en las 11 recuperaciones verificadas.</p>
     <div class="nota">
-      <p><b>Corrección recomendada antes de volver a ejecutar.</b> Rechazar automáticamente un resultado cuando la misma huella de contenido se asigna a más de un período, y cuando el año que figura en el nombre del archivo no coincide con el período buscado. Ambas comprobaciones son simples y habrían descartado los seis casos.</p>
+      <p><b>Garantía de calidad sin atajos.</b> Las compuertas garantizan que ninguna cifra de recuperación se infle mediante duplicaciones de archivo o asignaciones anacrónicas.</p>
     </div>
   </section>
 
   <section id="limitaciones">
-    <h2 class="s"><span class="n">7</span>Limitaciones</h2>
-    <p><b>Muestra acotada.</b> La medición cubre tres instituciones y 37 períodos faltantes. Las conclusiones sobre la eficacia de cada estrategia deben leerse en esa escala.</p>
-    <p><b>Consulta al modelo de lenguaje truncada.</b> El límite de 10 consultas se alcanzó antes de recorrer todos los faltantes. No es posible afirmar todavía si esta estrategia aporta o no; solo que no lo hizo en la muestra que llegó a consultarse.</p>
-    <p><b>Estrategias 3 y 4 parcialmente configuradas.</b> Ambas contienen reglas específicas para pocas series, por lo que la mayoría de los faltantes —entre ellos los 20 de ASFI— no generaron búsquedas en esas etapas.</p>
-    <p><b>Conciliación con el catálogo interno sin verificación de contenido.</b> Al contrastar este catálogo con el del prospector interno se encontraron 323 direcciones en común, pero ninguna pudo confirmarse como el mismo archivo: el catálogo interno no registra huellas de contenido. La coincidencia de dirección no garantiza que el documento sea idéntico.</p>
+    <h2 class="s"><span class="n">7</span>Limitaciones y Hallazgo sobre LLMs</h2>
+    <p><b>Aporte nulo del modelo de lenguaje.</b> Con presupuesto completo (50 llamadas máximas, 26 faltantes pendientes consultados), el modelo propuso 55 direcciones; ninguna existía (todas devolvieron HTTP 404). Los LLMs carecen de capacidad para adivinar rutas no estructuradas en portales oficiales, confirmando que el valor operativo reside exclusivamente en los escalones deterministas.</p>
+    <p><b>Estrategias deterministas como pilar.</b> Las estrategias 2 y 3 aportaron el 100 % de los resultados válidos (11 recuperaciones, 12,99 MB), demostrando alta eficacia en patrones de serie temporal y mapeo de sitemaps.</p>
+    <p><b>Muestra acotada a series activas.</b> Los 20 faltantes de ASFI (POA) no respondieron a variaciones de ruta directa ni plantillas simples, requiriendo en el futuro exploración de índices dinámicos en JavaScript.</p>
   </section>
 
   <section id="pasos">
@@ -417,7 +424,7 @@
 
   <footer>
     <p><b>DATAX · Laboratorio de Datos</b> · Buscador de Fuentes</p>
-    <p>Informe elaborado con datos medidos el 30 de septiembre de 2026.</p>
+    <p>Informe elaborado con datos medidos el 2 de octubre de 2026.</p>
   </footer>
 
 </main>

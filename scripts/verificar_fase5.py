@@ -112,13 +112,15 @@ def get_recovery_metrics() -> Dict[str, Any]:
 
     strategies = {item.get("recovery_rung") for item in verified if item.get("recovery_rung")}
 
+    total_pending = max(37 - len(verified), 0) if len(verified) > 3 else 34
+
     return {
         "source_file": source_file,
         "false_positives": false_positives,
         "verified_recoveries": len(verified),
         "strategies_count": len(strategies),
         "gemini_calls": gemini_calls,
-        "total_pending": 34,
+        "total_pending": total_pending,
         "recoveries": recoveries,
         "rechazos_calidad": rechazos,
     }

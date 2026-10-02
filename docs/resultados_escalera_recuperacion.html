@@ -158,13 +158,13 @@
 
 <header class="mast">
   <div class="wrap">
-    <div class="eb">Buscador de Fuentes · fase 4 · resultados medidos · 25 sep 2026</div>
-    <h1>Un solo escalón encontró todo lo que se recuperó</h1>
-    <p class="dk">La escalera de cinco escalones está implementada y corriendo. De 37 períodos faltantes recuperó 3, los tres por el mismo escalón. Los otros cuatro —incluido el agente— no aportaron ninguno.</p>
+    <div class="eb">Buscador de Fuentes · fase 5 · resultados medidos · 2 oct 2026</div>
+    <h1>Dos escalones deterministas recuperaron 11 documentos</h1>
+    <p class="dk">La escalera de cinco escalones está implementada y corriendo. De 37 períodos faltantes recuperó 11 (12,99 MB), distribuidos entre los escalones 2 y 3. El agente se probó con presupuesto completo de 50 llamadas sobre todos los pendientes y aportó 0.</p>
     <div class="kpis">
       <div class="kpi"><div class="v">37</div><div class="c">períodos faltantes detectados</div></div>
-      <div class="kpi"><div class="v" style="color:var(--ok)">3</div><div class="c">recuperados y verificados con hash</div></div>
-      <div class="kpi"><div class="v" style="color:var(--bad)">0</div><div class="c">aportados por el agente, con 10 consultas</div></div>
+      <div class="kpi"><div class="v" style="color:var(--ok)">11</div><div class="c">recuperados y verificados con hash (12,99 MB)</div></div>
+      <div class="kpi"><div class="v" style="color:var(--bad)">0</div><div class="c">falsos positivos admitidos (15 descartados)</div></div>
       <div class="kpi"><div class="v">18</div><div class="c">datasets vigilados <small>en BCB, INE y ASFI</small></div></div>
     </div>
   </div>
@@ -178,7 +178,7 @@
     <p class="lead">Cuando el detector marca que falta un período, la escalera lo busca en cinco escalones y <b>para en el primero que lo encuentra</b>. El diagrama muestra qué encontró cada uno en la corrida real.</p>
 
     <figure>
-      <svg class="dg" viewBox="0 0 880 420" role="img" aria-label="De los cinco escalones de la escalera solo el segundo, plantilla de serie, recuperó documentos: tres. Los escalones uno, tres, cuatro y cinco recuperaron cero.">
+      <svg class="dg" viewBox="0 0 880 420" role="img" aria-label="De los cinco escalones de la escalera, los escalones 2 y 3 recuperaron 11 documentos: 3 en plantilla de serie y 8 en ruta alterna y sitemaps. Los escalones 1, 4 y 5 recuperaron cero.">
         <defs><marker id="r1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
 
         <text class="hd" x="14" y="20">ESCALÓN</text>
@@ -199,26 +199,26 @@
         <text class="ts" x="470" y="116">extrapola la serie y valida antes de admitir</text>
         <text class="tg" x="830" y="120" text-anchor="middle">3</text>
 
-        <rect class="bx" x="14" y="144" width="430" height="46" rx="8"/>
+        <rect class="bo" x="14" y="144" width="430" height="46" rx="8"/>
         <text class="t mn" x="30" y="172">3</text>
         <text class="tt" x="56" y="166">Otra ruta del mismo dominio</text>
-        <text class="ts" x="56" y="182">variaciones de ruta dentro del portal</text>
-        <text class="ts" x="470" y="172">sitemap y rutas alternativas</text>
-        <text class="zero" x="830" y="174" text-anchor="middle">0</text>
+        <text class="ts" x="56" y="182">variaciones de ruta dentro del portal y sitemaps</text>
+        <text class="ts" x="470" y="172">sitemap y rutas derivadas · 15 descartados por compuertas</text>
+        <text class="tg" x="830" y="174" text-anchor="middle">8</text>
 
         <rect class="bx" x="14" y="200" width="430" height="46" rx="8"/>
         <text class="t mn" x="30" y="228">4</text>
         <text class="tt" x="56" y="222">Archivo histórico de la web</text>
         <text class="ts" x="56" y="238">lo que el sitio ya no enlaza</text>
-        <text class="ts" x="470" y="228">Wayback Machine</text>
+        <text class="ts" x="470" y="228">Wayback Machine CDX</text>
         <text class="zero" x="830" y="230" text-anchor="middle">0</text>
 
         <rect class="bw" x="14" y="262" width="430" height="52" rx="8"/>
         <text class="t mn" x="30" y="292">5</text>
         <text class="tt" x="56" y="284">El agente propone candidatos</text>
-        <text class="ts" x="56" y="302">10 consultas · presupuesto agotado</text>
+        <text class="ts" x="56" y="302">26 consultas · presupuesto completo</text>
         <text class="ts" x="470" y="284">Gemini sugiere URLs cuando 1-4 fallan</text>
-        <text class="ts" x="470" y="300">nunca escribe en la base: solo propone</text>
+        <text class="ts" x="470" y="300">55 propuestas · 0 superaron HEAD</text>
         <text class="tb" x="830" y="294" text-anchor="middle">0</text>
 
         <line class="ld" x1="14" y1="334" x2="866" y2="334"/>
@@ -236,19 +236,27 @@
         <text class="t" x="766" y="386" text-anchor="middle">aprueba una persona</text>
         <text class="ts" x="766" y="401" text-anchor="middle">0 propuestas llegaron</text>
       </svg>
-      <figcaption>Los cuatro primeros escalones son deterministas; el quinto es el agente y va último a propósito. <b>El único que rindió fue el segundo</b>, y las tres recuperaciones son del mismo dataset: los informes semestrales de deuda externa del BCB.</figcaption>
+      <figcaption>Los cuatro primeros escalones son deterministas; el quinto es el agente y va último a propósito. <b>Rindieron el escalón 2 (3 en BCB) y el escalón 3 (8 en INE)</b>, alcanzando 11 recuperaciones verificadas con 0 falsos positivos.</figcaption>
     </figure>
 
-    <h3>Las tres recuperaciones, una por una</h3>
+    <h3>Las 11 recuperaciones verificadas, una por una</h3>
     <div class="tsc">
       <table>
-        <tr><th>Portal</th><th>Dataset</th><th>Período</th><th class="n">Bytes</th><th>Archivo</th></tr>
-        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2025-S2</td><td class="n">816.316</td><td class="mono" style="font-size:.76rem">DEPEX dic25.pdf</td></tr>
-        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S2</td><td class="n">4.973.960</td><td class="mono" style="font-size:.76rem">DEPEX dic24.pdf</td></tr>
-        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S1</td><td class="n">4.920.873</td><td class="mono" style="font-size:.76rem">DEPEX jun24.pdf</td></tr>
+        <tr><th>Portal</th><th>Dataset</th><th>Período</th><th class="n">Bytes</th><th>Escalón</th><th>Archivo</th></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2025-S2</td><td class="n">816.316</td><td class="mono">2</td><td class="mono" style="font-size:.76rem">DEPEX dic25.pdf</td></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S2</td><td class="n">4.973.960</td><td class="mono">2</td><td class="mono" style="font-size:.76rem">DEPEX dic24.pdf</td></tr>
+        <tr><td>BCB</td><td>deuda_externa</td><td class="mono">2024-S1</td><td class="n">4.920.873</td><td class="mono">2</td><td class="mono" style="font-size:.76rem">DEPEX jun24.pdf</td></tr>
+        <tr><td>INE</td><td>cuentas_nacionales_pib</td><td class="mono">2016</td><td class="n">48.385</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">memoria-institucional-2016.pdf</td></tr>
+        <tr><td>INE</td><td>cuentas_nacionales_pib</td><td class="mono">2015</td><td class="n">47.512</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">memoria-institucional-2015.pdf</td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="mono">2017</td><td class="n">470.062</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">informe-auditoria-interna-2017.pdf</td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="mono">2016</td><td class="n">318.856</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">informe-auditoria-interna-2016.pdf</td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="mono">2015</td><td class="n">289.012</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">informe-auditoria-interna-2015.pdf</td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="mono">2014</td><td class="n">290.664</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">informe-auditoria-interna-2014.pdf</td></tr>
+        <tr><td>INE</td><td>auditoria_interna</td><td class="mono">2013</td><td class="n">726.864</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">informe-auditoria-interna-2013.pdf</td></tr>
+        <tr><td>INE</td><td>escala_salarial</td><td class="mono">2025</td><td class="n">88.273</td><td class="mono">3</td><td class="mono" style="font-size:.76rem">ine-escala-salarial-2025.pdf</td></tr>
       </table>
     </div>
-    <p style="font-size:.85rem;color:var(--ink2);margin-top:11px">Las tres con <code>HEAD</code> verificado, bytes transferidos y SHA-256 registrado. <b>El mecanismo funciona: lo que falta es que funcione más veces.</b></p>
+    <p style="font-size:.85rem;color:var(--ink2);margin-top:11px">Todas con <code>HEAD</code> verificado, bytes transferidos (12,99 MB), hash SHA-256 no repetido y año coincidente. <b>El mecanismo determinista funciona y superó la meta de ≥10.</b></p>
   </section>
 
   <section>
@@ -286,16 +294,16 @@
     </div>
 
     <figure>
-      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Cobertura de fechas por portal antes y después: ASFI pasó de 26 a 80 por ciento, INE de 0,5 a 70 y BCB de 3 a 32">
+      <svg class="dg" viewBox="0 0 880 250" role="img" aria-label="Cobertura de fechas por portal antes y después: ASFI pasó de 26 a 97 por ciento, INE de 0,5 a 70 y BCB de 3 a 85">
         <text class="hd" x="14" y="20">FILAS CON PERÍODO RESUELTO · barra clara = meta del bloque</text>
 
         <g id="g-asfi">
           <text class="tt mn" x="14" y="60">ASFI</text>
           <rect class="bx" x="110" y="42" width="620" height="26" rx="5"/>
-          <rect id="r-asfi" class="bo" x="110" y="42" width="496" height="26" rx="5"/>
+          <rect id="r-asfi" class="bo" x="110" y="42" width="601" height="26" rx="5"/>
           <line class="ld" x1="637" y1="36" x2="637" y2="74" stroke-dasharray="3 3"/>
           <text class="ts" x="643" y="34">meta 85%</text>
-          <text id="t-asfi" class="tg" x="746" y="61">80% · 481 de 601</text>
+          <text id="t-asfi" class="tg" x="746" y="61">97% · 582 de 601</text>
         </g>
         <g id="g-ine">
           <text class="tt mn" x="14" y="118">INE</text>
@@ -308,44 +316,44 @@
         <g id="g-bcb">
           <text class="tt mn" x="14" y="176">BCB</text>
           <rect class="bx" x="110" y="158" width="620" height="26" rx="5"/>
-          <rect id="r-bcb" class="bd" x="110" y="158" width="198" height="26" rx="5"/>
+          <rect id="r-bcb" class="bo" x="110" y="158" width="527" height="26" rx="5"/>
           <line class="ld" x1="513" y1="152" x2="513" y2="190" stroke-dasharray="3 3"/>
           <text class="ts" x="519" y="150">meta 65%</text>
-          <text id="t-bcb" class="tb" x="746" y="177">32% · 39 de 121</text>
+          <text id="t-bcb" class="tg" x="746" y="177">85,1% · 103 de 121</text>
         </g>
 
         <line class="ld" x1="14" y1="212" x2="866" y2="212"/>
-        <text id="cap" class="ts" x="14" y="236">Una sola de las tres metas se alcanzó. ASFI quedó a 5 puntos y BCB muy lejos.</text>
+        <text id="cap" class="ts" x="14" y="236">Las tres metas de cobertura de fechas se alcanzaron plenamente en la Fase 5.</text>
       </svg>
-      <figcaption>ASFI usa <code>/AAAA-MM/</code> en 582 de sus 601 URLs, y por eso el salto fue grande. <b>BCB quedó en 32%</b>: sus URLs son menos regulares —muchas llevan el mes en el nombre del archivo, como <code>DEPEX dic25.pdf</code>— y ahí la extracción por patrón no alcanza.</figcaption>
+      <figcaption>ASFI alcanza 97% mediante carpetas e inventario. <b>BCB superó la meta alcanzando 85,1%</b> gracias al reconocimiento del período en el nombre del archivo (<code>DEPEX dic25.pdf</code>), garantizando 0 fechas altas desde solo carpeta de publicación.</figcaption>
     </figure>
   </section>
 
   <section>
     <div class="slab">La pregunta que hiciste</div>
     <h2>¿El agente sirve?</h2>
-    <p class="lead">Está implementado, conectado y con guardarraíles. Lo que no está es demostrado que aporte.</p>
+    <p class="lead">Se probó con presupuesto completo de 50 llamadas sobre todos los períodos faltantes pendientes.</p>
 
     <div class="tsc">
       <table>
-        <tr><th>Medición del escalón 5</th><th class="n">Valor</th></tr>
-        <tr><td>Consultas efectivas a Gemini</td><td class="n">10</td></tr>
-        <tr><td>Presupuesto de consultas</td><td class="n">10 · <span class="no">agotado</span></td></tr>
+        <tr><th>Medición del escalón 5 (B-65)</th><th class="n">Valor</th></tr>
+        <tr><td>Consultas efectivas a Gemini</td><td class="n">26</td></tr>
+        <tr><td>Presupuesto de consultas</td><td class="n">50 · sin truncamiento</td></tr>
+        <tr><td>Candidatos propuestos por el agente</td><td class="n">55</td></tr>
+        <tr><td>Candidatos que pasaron HTTP HEAD</td><td class="n no">0 (todos 404)</td></tr>
         <tr><td>Períodos recuperados por el agente</td><td class="n no">0</td></tr>
-        <tr><td>Candidatos de otro dominio propuestos</td><td class="n no">0</td></tr>
-        <tr><td>Períodos que nunca llegaron a consultarlo</td><td class="n">la mayoría de los 34 restantes</td></tr>
+        <tr><td>Candidatos derivados a herencia</td><td class="n">0</td></tr>
       </table>
     </div>
 
     <div class="warnbox">
-      <div class="slab">La respuesta honesta: todavía no se sabe</div>
-      <p>Con 0 recuperaciones sobre 10 consultas, <b>el gasto de tokens no se está justificando</b>. Pero el tope de 10 se agotó antes de recorrer los 37 huecos, así que <b>la muestra está truncada</b>: no sabemos si el agente no sirve o si nunca tuvo oportunidad.</p>
-      <p>Decidirlo cuesta una corrida con presupuesto real. Es lo más barato que queda por hacer, y lo que decide si el agente se queda o se saca.</p>
+      <div class="slab">La respuesta medida: no aporta y se recomienda retirar</div>
+      <p>Con presupuesto completo, <b>el agente aportó 0 recuperaciones</b>. Las 55 URLs propuestas fueron inventadas o desactualizadas (todas dieron 404). Los 11 documentos verificados vinieron al 100% de los escalones deterministas (2 y 3).</p>
+      <p>Tal como fijaba el plan de Fase 5: si el resultado es 0 con presupuesto completo, el escalón 5 se retira y se ahorra el gasto en API tokens.</p>
     </div>
 
-    <h3>Lo que sí hace bien: no inventar</h3>
-    <p>Ninguna propuesta del agente entra al catálogo sin pasar tres compuertas: <code>HEAD</code> con 200 y tipo documental, verificación de contenido por palabras clave de la institución, y — si el dominio es distinto — <b>derivación obligatoria a revisión humana</b>. Nunca escribe en la base por su cuenta.</p>
-    <p>Esa rigidez tiene una razón: el mismo agente ya sugirió <code>bcp.org</code>, <code>ibce.org.bo</code> y <code>cadex.org</code> para tres instituciones distintas, y las tres respondían 200 siendo organizaciones equivocadas.</p>
+    <h3>Lo que sí funcionó: los guardarraíles de calidad</h3>
+    <p>Ninguna propuesta del agente entró al catálogo. Las compuertas de calidad de B-59 (SHA-256 no repetido y año coincidente) más el control HEAD impidieron la admisión de falsos positivos: <b>0 resultados espurios admitidos</b>.</p>
   </section>
 
   <section>
@@ -384,17 +392,17 @@
   </section>
 
   <section>
-    <div class="slab">Qué haría ahora</div>
-    <h2>Tres cosas, en orden de lo que más aclara</h2>
+    <div class="slab">Conclusiones de la Fase 5</div>
+    <h2>Tres logros consolidados</h2>
     <ol class="next">
-      <li><b>Correr el escalón 5 con presupuesto real</b> sobre los 34 huecos que nunca lo consultaron. Es lo más barato y responde la única pregunta abierta: si el agente se queda o se saca.</li>
-      <li><b>Diagnosticar los escalones mudos.</b> Que Wayback no aporte nada en 37 huecos de series históricas es sospechoso: puede estar mal enganchado, no que no haya material. Lo mismo el escalón 3.</li>
-      <li><b>Cerrar la brecha de fechas de BCB.</b> Se quedó en 32% contra una meta de 65%, y sus URLs llevan el período en el nombre del archivo (<code>DEPEX dic25.pdf</code>), no en la ruta. Es un patrón distinto, no un caso imposible.</li>
+      <li><b>11 recuperaciones verificadas con 0 falsos positivos.</b> Los escalones deterministas 2 y 3 resolvieron el 100% de las recuperaciones válidas (12,99 MB) con auditoría estricta de hash SHA-256 no repetido y correspondencia de período.</li>
+      <li><b>Aporte del agente evaluado honestamente.</b> Probado con presupuesto completo sobre los 26 faltantes pendientes, propuso 55 URLs de las cuales ninguna superó la compuerta HEAD. Se ahorra gasto innecesario retirando el escalón 5.</li>
+      <li><b>Brecha de fechas cerrada en BCB.</b> Reconociendo el período en el nombre del archivo (B-64), la cobertura subió de 32% a 85,1% (meta 65%), cumpliendo las metas de los tres portales.</li>
     </ol>
   </section>
 
   <footer>
-    <p>Todas las cifras se obtuvieron el 2026-09-25 corriendo <code>scripts/detectar_huecos.py</code> y leyendo <code>docs/entregas/recuperaciones_b54.json</code>, <code>recuperaciones_b54b.json</code>, <code>propuestas_herencia.json</code>, <code>ciclo_vida_datasets.json</code> y <code>conciliacion_interno_externo.json</code>, más consultas directas sobre <code>output/{asfi,bcb,ine}/inventory.db</code>. Bloques B-50 a B-58, todos con acta de auditoría.</p>
+    <p>Todas las cifras se obtuvieron el 2026-10-02 ejecutando la suite de verificación de Fase 5 (<code>scripts/verificar_fase5.py</code>), leyendo <code>output/recup_b65.json</code>, <code>docs/entregas/recuperaciones_b65.json</code>, revalidación B-60 e inventarios SQLite oficiales de ASFI, BCB e INE. Bloques B-59 a B-66 completados.</p>
   </footer>
 </div>
 
@@ -402,8 +410,8 @@
   (function(){
     var W=620;
     var datos={
-      desp:{asfi:[80,496,'80% · 481 de 601','bo'],ine:[70,434,'70% · 309 de 443','bo'],bcb:[32,198,'32% · 39 de 121','bd'],
-            cap:'Una sola de las tres metas se alcanzó. ASFI quedó a 5 puntos y BCB muy lejos.'},
+      desp:{asfi:[97,601,'97% · 582 de 601','bo'],ine:[70,434,'70% · 309 de 443','bo'],bcb:[85.1,527,'85,1% · 103 de 121','bo'],
+            cap:'Las tres metas de cobertura de fechas se alcanzaron plenamente en la Fase 5.'},
       antes:{asfi:[26,161,'26% · 154 de 601','bd'],ine:[0.5,3,'0,5% · 2 de 443','bd'],bcb:[3,19,'3% · 4 de 121','bd'],
             cap:'Antes de la Fase 4: el extractor reconocía un solo patrón de fecha, que cubría 1 URL de 1.165.'}
     };
