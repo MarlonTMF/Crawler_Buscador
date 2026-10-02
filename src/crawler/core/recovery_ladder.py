@@ -28,6 +28,7 @@ import urllib3
 from crawler.core.fetcher import HttpFetcher
 from crawler.core.gap_detector import GapDetector
 from crawler.core.relocation_manager import RelocationManager, CANONICAL_SUCCESSIONS
+from crawler.core.wayback_engine import query_cdx_snapshots
 from crawler.sources.generic_adapter import GenericSourceAdapter
 
 urllib3.disable_warnings()
@@ -130,6 +131,8 @@ class RecoveryLadder:
             "User-Agent": getattr(self.fetcher, "user_agent", "DataX-Prospector/1.0 (+http://datax.org)")
         })
         self.relocation_manager = RelocationManager(config_dir=self.base_config_dir)
+        self._cdx_snapshots_cache: Dict[Tuple[str, str], List[Dict[str, str]]] = {}
+        self.dry_run_cdx_queries: Dict[Tuple[str, str], Tuple[str, int]] = {}
 
     DOCUMENTARY_CONTENT_TYPES = {
         "application/pdf",
@@ -979,51 +982,199 @@ class RecoveryLadder:
 
         return None
 
+    def _get_dataset_cdx_pattern(self, portal: str, dataset_id: str) -> str:
+        """Determina el patrón de búsqueda para la API CDX de Wayback Machine a partir de las URLs conocidas del dataset (B-63)."""
+        db_path = self.base_output_dir / portal / "inventory.db"
+        if db_path.exists():
+            try:
+                with sqlite3.connect(db_path) as conn:
+                    rows = conn.execute(
+                        "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ?",
+                        (dataset_id,)
+                    ).fetchall()
+                    doc_urls = [
+                        r[0] for r in rows
+                        if r[0] and any(r[0].lower().endswith(ext) for ext in (".pdf", ".xlsx", ".xls", ".zip", ".csv"))
+                    ]
+                    if not doc_urls and rows:
+                        doc_urls = [r[0] for r in rows if r[0]]
+
+                    if doc_urls:
+                        from collections import Counter
+                        import os
+                        domains = Counter(urlparse(u).netloc for u in doc_urls)
+                        primary_domain = domains.most_common(1)[0][0]
+                        domain_urls = [u for u in doc_urls if urlparse(u).netloc == primary_domain]
+
+                        paths = [urlparse(u).path for u in domain_urls]
+                        common_p = os.path.commonprefix(paths)
+                        if "/" in common_p:
+                            base_dir = common_p.rsplit("/", 1)[0]
+                            if base_dir:
+                                return f"{primary_domain}{base_dir}/*"
+                        return f"{primary_domain}/*"
+            except Exception as e:
+                logger.debug("Error infiriendo patron CDX desde inventory.db para %s/%s: %s", portal, dataset_id, e)
+
+        # Fallback a semillas de plantillas si existen
+        tpls = self.SERIES_TEMPLATES.get((portal, dataset_id), [])
+        if tpls:
+            p = urlparse(tpls[0])
+            path_dir = p.path.rsplit("/", 1)[0]
+            return f"{p.netloc}{path_dir}/*"
+
+        # Fallback a dominios autorizados de la fuente
+        allowed = self._get_allowed_domains(portal)
+        return f"{allowed[0]}/*" if allowed else f"{portal}.gob.bo/*"
+
+    def _get_dataset_cdx_snapshots(self, portal: str, dataset_id: str) -> List[Dict[str, str]]:
+        """Obtiene y cachea las instantáneas CDX de Wayback Machine para el dataset dado (B-63)."""
+        cache_key = (portal, dataset_id)
+        if cache_key in self._cdx_snapshots_cache:
+            return self._cdx_snapshots_cache[cache_key]
+
+        pattern = self._get_dataset_cdx_pattern(portal, dataset_id)
+        try:
+            snapshots = query_cdx_snapshots(pattern, timeout=15, session=self._session)
+        except Exception as e:
+            logger.warning("Error consultando motor CDX para %s/%s [%s]: %s", portal, dataset_id, pattern, e)
+            snapshots = []
+
+        self._cdx_snapshots_cache[cache_key] = snapshots
+        return snapshots
+
+    def _snapshot_matches_period(self, snap: Dict[str, str], period: str, periodicity: str) -> bool:
+        """Determina si una instantánea CDX corresponde al período faltante especificado (B-63)."""
+        target = unquote(snap.get("original", "")).lower()
+        year = period[:4]
+        yy = f"{int(year) % 100:02d}"
+
+        if periodicity == "anual":
+            return bool(re.search(rf"(?<!\d){re.escape(period)}(?!\d)", target))
+
+        if periodicity == "semestral":
+            is_s1 = period.endswith("S1") or period.endswith("-1") or period.endswith(" 1")
+            s_toks = ["jun", "junio", "primer", "1er", "s1"] if is_s1 else ["dic", "diciembre", "segundo", "2do", "s2"]
+            has_year = bool(re.search(rf"(?<!\d)({re.escape(year)}|{re.escape(yy)})(?!\d)", target))
+            if not has_year:
+                return False
+            return any(re.search(rf"(?<![a-zA-Z]){re.escape(tok)}(?![a-zA-Z])", target) for tok in s_toks)
+
+        if periodicity == "trimestral":
+            target_q = 1
+            if "-Q" in period:
+                try:
+                    target_q = int(period.split("-Q")[-1])
+                except Exception:
+                    pass
+            q_tok_map = {
+                1: ["primer", "1er", "q1", "marzo", "mar"],
+                2: ["segundo", "2do", "q2", "junio", "jun"],
+                3: ["tercer", "3er", "q3", "septiembre", "sep", "set"],
+                4: ["cuarto", "4to", "q4", "diciembre", "dic"],
+            }
+            q_toks = q_tok_map.get(target_q, ["primer", "1er", "q1"])
+            has_year = bool(re.search(rf"(?<!\d)({re.escape(year)}|{re.escape(yy)})(?!\d)", target))
+            if not has_year:
+                return False
+            return any(re.search(rf"(?<![a-zA-Z]){re.escape(tok)}(?![a-zA-Z])", target) for tok in q_toks)
+
+        if periodicity == "mensual":
+            try:
+                m_num = int(period.split("-")[1])
+            except Exception:
+                m_num = 1
+            meses_map = {
+                1: ("enero", "ene", "01"), 2: ("febrero", "feb", "02"), 3: ("marzo", "mar", "03"),
+                4: ("abril", "abr", "04"), 5: ("mayo", "may", "05"), 6: ("junio", "jun", "06"),
+                7: ("julio", "jul", "07"), 8: ("agosto", "ago", "08"), 9: ("septiembre", "sep", "09"),
+                10: ("octubre", "oct", "10"), 11: ("noviembre", "nov", "11"), 12: ("diciembre", "dic", "12"),
+            }
+            m_full, m_short, m_dig = meses_map.get(m_num, ("enero", "ene", "01"))
+            has_year = bool(re.search(rf"(?<!\d)({re.escape(year)}|{re.escape(yy)})(?!\d)", target))
+            if not has_year:
+                return False
+            if f"{year}{m_dig}" in target:
+                return True
+            return bool(
+                re.search(rf"(?<![a-zA-Z])({re.escape(m_full)}|{re.escape(m_short)})(?![a-zA-Z])", target) or
+                re.search(rf"(?:_|-){m_dig}(?:\.|\b)", target)
+            )
+
+        return bool(re.search(rf"(?<!\d){re.escape(year)}(?!\d)", target))
+
     def _try_rung_4_wayback_archive(
         self, portal: str, dataset_id: str, period: str, periodicity: str
     ) -> Optional[RecoveredPeriod]:
         """
-        Escalón 4: Archivo histórico de la web (Wayback Machine).
-        NOTA: Consulta la Availability API de Wayback para URLs candidatas predecibles.
-        No utiliza la infraestructura completa de wayback_engine (CDX / caché) en esta fase.
+        Escalón 4: Archivo histórico de la web (Wayback Machine CDX Engine) (B-63 / P-4).
+        Consulta la API CDX de Wayback Machine mediante wayback_engine para el patrón de URLs conocidas
+        del dataset (sin condicionales cableados), filtrando por período y validando contra compuertas de calidad.
         """
-        # Formular URLs candidatas a consultar en Wayback Availability API
-        candidate_urls = []
-        year = int(period[:4])
-        yy = f"{year % 100:02d}"
+        snapshots = self._get_dataset_cdx_snapshots(portal, dataset_id)
+        cdx_pattern = self._get_dataset_cdx_pattern(portal, dataset_id)
 
-        if portal == "bcb" and dataset_id == "deuda_externa":
-            mon = "jun" if period.endswith("S1") else "dic"
-            candidate_urls.append(f"https://www.bcb.gob.bo/webdocs/informes_deudaexterna/DEPEX%20{mon}{yy}.pdf")
-        elif portal == "ine" and dataset_id == "rendicion_cuentas":
-            # Si existía en el inventario pero el portal estuviera caído
-            candidate_urls.append(f"https://www.ine.gob.bo/index.php/descarga/rendicion-publica-de-cuentas-{year}")
+        if snapshots:
+            for snap in snapshots:
+                if not self._snapshot_matches_period(snap, period, periodicity):
+                    continue
 
-        # Generalización: si no hay candidatas específicas para bcb/ine, usar plantillas y semillas
-        if not candidate_urls:
-            candidate_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
-            db_path = self.base_output_dir / portal / "inventory.db"
-            if db_path.exists():
-                try:
-                    with sqlite3.connect(db_path) as conn:
-                        rows = conn.execute(
-                            "SELECT canonical_url FROM resource_audit_log WHERE dataset_id = ? AND canonical_url LIKE ? LIMIT 3",
-                            (dataset_id, f"%{year}%")
-                        ).fetchall()
-                        for (u,) in rows:
-                            if u and u not in candidate_urls:
-                                candidate_urls.append(u)
-                except Exception:
-                    pass
+                snap_url = snap.get("snapshot_url")
+                orig_url = snap.get("original", "")
+                if not snap_url:
+                    continue
 
+                # Evitar URLs ya presentes en inventario o recuperadas
+                if self.is_url_in_inventory(portal, snap_url) or self.is_url_in_inventory(portal, orig_url):
+                    continue
+                if self.is_url_already_recovered(snap_url) or self.is_url_already_recovered(orig_url):
+                    continue
+
+                # Descarga y verificación directa
+                res = self.fetch_and_verify(snap_url)
+                if not res:
+                    continue
+
+                size, sha256 = res
+                sample = getattr(self, "_last_download_sample", b"")
+                if sample and not self._verify_institution_content(portal, sample):
+                    continue
+
+                ok_qg, _ = self._check_quality_gates(portal, dataset_id, period, snap_url, sha256, 4)
+                if not ok_qg:
+                    continue
+
+                return RecoveredPeriod(
+                    portal=portal,
+                    dataset_id=dataset_id,
+                    period=period,
+                    recovery_rung=RecoveryRung.RUNG_4_WAYBACK_ARCHIVE,
+                    rung_name="archivo_historico",
+                    url=snap_url,
+                    file_size_bytes=size,
+                    content_sha256=sha256,
+                    verified_at=datetime.now(timezone.utc).isoformat(),
+                    metadata={
+                        "source_rung": 4,
+                        "method": "cdx_wayback_engine",
+                        "is_historical_archive": True,
+                        "archive_source": "wayback_machine",
+                        "original_url": orig_url,
+                        "archive_timestamp": snap.get("timestamp", ""),
+                        "cdx_query": cdx_pattern,
+                    },
+                )
+
+        # Fallback a Availability API si CDX no indexó la ruta o para retrocompatibilidad
+        candidate_urls = self._build_template_urls(portal, dataset_id, period, periodicity)
         for target_url in candidate_urls:
             api = f"https://archive.org/wayback/available?url={quote(target_url, safe=':/?=')}"
             try:
-                resp = self._session.get(api, timeout=2.0)
+                resp = self._session.get(api, timeout=self.timeout)
                 if resp.status_code == 200:
                     data = resp.json()
-                    snapshots = data.get("archived_snapshots", {})
-                    closest = snapshots.get("closest", {})
+                    snap_data = data.get("archived_snapshots", {}) if isinstance(data, dict) else {}
+                    closest = snap_data.get("closest", {})
                     if closest.get("available") and str(closest.get("status")) == "200":
                         snap_url = closest.get("url")
                         res = self.fetch_and_verify(snap_url)
@@ -1045,10 +1196,15 @@ class RecoveryLadder:
                                 file_size_bytes=size,
                                 content_sha256=sha256,
                                 verified_at=datetime.now(timezone.utc).isoformat(),
-                                metadata={"source_rung": 4, "method": "wayback_archive_snapshot", "target_url": target_url},
+                                metadata={
+                                    "source_rung": 4,
+                                    "method": "wayback_archive_snapshot",
+                                    "is_historical_archive": True,
+                                    "target_url": target_url,
+                                },
                             )
             except Exception as e:
-                logger.debug("Error consultando Wayback para %s: %s", target_url, e)
+                logger.debug("Error consultando Availability API para %s: %s", target_url, e)
 
         return None
 
@@ -1456,6 +1612,11 @@ class RecoveryLadder:
 
                 results[src][ds_id] = {}
 
+                # Escalón 4: Consulta CDX al motor de Wayback (B-63)
+                cdx_pat = self._get_dataset_cdx_pattern(src, ds_id)
+                cdx_snaps = self._get_dataset_cdx_snapshots(src, ds_id)
+                self.dry_run_cdx_queries[(src, ds_id)] = (cdx_pat, len(cdx_snaps))
+
                 for gap in rep.intermediate_gaps:
                     cands = self._derive_candidates_from_dataset_urls(
                         portal=src,
@@ -1466,6 +1627,13 @@ class RecoveryLadder:
                     for t_url in self._build_template_urls(src, ds_id, gap, periodicity):
                         if t_url not in cands:
                             cands.append(t_url)
+
+                    # Candidatos derivados de instantáneas CDX (Escalón 4)
+                    for snap in cdx_snaps:
+                        if self._snapshot_matches_period(snap, gap, periodicity):
+                            snap_u = snap.get("snapshot_url")
+                            if snap_u and snap_u not in cands:
+                                cands.append(snap_u)
 
                     results[src][ds_id][gap] = cands
 

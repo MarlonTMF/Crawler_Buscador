@@ -137,7 +137,9 @@ def main():
         for src, datasets in dry_results.items():
             print(f"\n--- FUENTE: {src.upper()} ---")
             for ds_id, periods in datasets.items():
+                cdx_info = ladder.dry_run_cdx_queries.get((src, ds_id), ("", 0))
                 print(f"Dataset: {ds_id} ({len(periods)} períodos con huecos detectados):")
+                print(f"  [CDX Escalón 4] Consulta: {cdx_info[0]} -> {cdx_info[1]} instantáneas encontradas")
                 for period, cands in periods.items():
                     total_gaps += 1
                     if cands:
