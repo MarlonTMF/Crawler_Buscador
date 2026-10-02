@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Informe de resultados del sistema de recuperación de documentos oficiales desaparecidos o desplazados. BCB, INE y ASFI. Medición del 30 de septiembre de 2026.">
+<title>DATAX · Recuperación de documentos oficiales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  [hidden]{display:none!important}
+  :root{
+    --page:#f4f4f2; --paper:#ffffff; --tint:#f0f1f2;
+    --ink:#1a1e23; --ink2:#4f5760; --ink3:#7d858d;
+    --rule:#d6d9dc; --rule-strong:#1a1e23;
+    --accent:#1f3a5f;
+    --ok:#2c6a3f; --warn:#7f5500; --bad:#98301f;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --page:#111315; --paper:#181b1e; --tint:#1f2327;
+    --ink:#e7e9eb; --ink2:#abb2b9; --ink3:#7d858d;
+    --rule:#30363c; --rule-strong:#c9ced3;
+    --accent:#8fb0d6;
+    --ok:#7cc08f; --warn:#d7a84f; --bad:#e28a73;
+  }}
+  :root[data-theme="dark"]{
+    --page:#111315; --paper:#181b1e; --tint:#1f2327;
+    --ink:#e7e9eb; --ink2:#abb2b9; --ink3:#7d858d;
+    --rule:#30363c; --rule-strong:#c9ced3;
+    --accent:#8fb0d6;
+    --ok:#7cc08f; --warn:#d7a84f; --bad:#e28a73;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--ink);
+    font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:15.5px;line-height:1.65}
+  .doc{max-width:860px;margin:0 auto;background:var(--paper);
+    padding-inline:clamp(18px,6vw,72px);padding-block:56px 72px;
+    border-inline:1px solid var(--rule)}
+  h1,h2,h3{font-family:'Source Serif 4',Georgia,'Times New Roman',serif;
+    font-weight:600;margin:0;color:var(--ink);text-wrap:balance}
+  p{margin:0 0 13px;max-width:68ch}
+  .num,code{font-family:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+    font-variant-numeric:tabular-nums}
+  code{font-size:.84em;background:var(--tint);padding:.08em .35em;border-radius:3px}
+  a{color:var(--accent)}
+
+  /* portada */
+  .org{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink3);font-weight:600;padding-bottom:14px;
+    border-bottom:1px solid var(--rule-strong)}
+  .portada{padding-block:34px 30px;border-bottom:1px solid var(--rule)}
+  .portada h1{font-size:clamp(1.8rem,4.2vw,2.35rem);line-height:1.15;
+    letter-spacing:-.01em;max-width:22ch}
+  .portada .sub{margin-top:12px;font-size:1.02rem;color:var(--ink2);max-width:60ch}
+  .ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:14px 28px;margin-top:26px;font-size:.84rem}
+  .ficha dt{color:var(--ink3);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .ficha dd{margin:3px 0 0;color:var(--ink)}
+
+  /* índice */
+  .indice{padding-block:22px;border-bottom:1px solid var(--rule);font-size:.88rem}
+  .indice h2{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    font-family:'IBM Plex Sans',sans-serif;color:var(--ink3);margin-bottom:8px}
+  .indice ol{margin:0;padding-left:1.3em;columns:2;column-gap:36px}
+  .indice li{margin-bottom:3px;break-inside:avoid}
+  .indice a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+  .indice a:hover{border-bottom-color:var(--ink)}
+
+  section{padding-block:34px 8px}
+  section+section{border-top:1px solid var(--rule)}
+  h2.s{font-size:1.42rem;margin-bottom:14px;display:flex;gap:12px;align-items:baseline}
+  h2.s .n{font-family:'IBM Plex Mono',monospace;font-size:.95rem;color:var(--ink3);font-weight:500}
+  h3{font-size:1.06rem;margin:24px 0 9px}
+
+  /* resumen: cifras clave */
+  .cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);
+    margin:20px 0 22px}
+  .cifras>div{padding:14px 16px 14px 0}
+  .cifras>div+div{padding-left:16px;border-left:1px solid var(--rule)}
+  .cifras .v{font-family:'Source Serif 4',serif;font-size:2rem;font-weight:600;line-height:1;
+    font-variant-numeric:tabular-nums}
+  .cifras .l{font-size:.8rem;color:var(--ink2);margin-top:7px;line-height:1.4}
+
+  /* tablas estilo informe */
+  .tbl{overflow-x:auto;margin:14px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+  caption{caption-side:top;text-align:left;font-size:.8rem;color:var(--ink2);padding-bottom:8px}
+  caption b{color:var(--ink)}
+  thead th{text-align:left;font-weight:600;font-size:.75rem;color:var(--ink2);
+    padding:8px 10px;border-top:1.5px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tbody tr:last-child td{border-bottom:1.5px solid var(--rule-strong)}
+  tfoot td{padding:8px 10px;font-weight:600;border-bottom:1.5px solid var(--rule-strong)}
+  td.r,th.r{text-align:right;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  .t-ok{color:var(--ok);font-weight:600}
+  .t-bad{color:var(--bad);font-weight:600}
+  .t-warn{color:var(--warn);font-weight:600}
+  .muted{color:var(--ink3)}
+  .fuente{font-size:.76rem;color:var(--ink3);margin:4px 0 0}
+
+  /* figura */
+  figure{margin:18px 0 8px}
+  figcaption{font-size:.8rem;color:var(--ink2);margin-top:10px;max-width:none}
+  figcaption b{color:var(--ink)}
+  .dg{width:100%;height:auto;display:block;color:var(--ink)}
+  .dg text{font-family:'IBM Plex Sans',sans-serif;fill:currentColor}
+  .dg .mn{font-family:'IBM Plex Mono',monospace}
+  .dg .box{fill:var(--paper);stroke:currentColor;stroke-width:1}
+  .dg .box-hi{fill:var(--tint);stroke:currentColor;stroke-width:1.6}
+  .dg .ln{stroke:currentColor;stroke-width:1;fill:none}
+  .dg .ld{stroke:currentColor;stroke-width:1;fill:none;stroke-dasharray:4 3;opacity:.55}
+  .dg .t{font-size:12.5px}
+  .dg .tb{font-size:12.5px;font-weight:600}
+  .dg .ts{font-size:10.8px;fill:var(--ink2)}
+  .dg .res{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500}
+  .dg .res-ok{fill:var(--ok);font-weight:600}
+  .dg .hd{font-size:9.8px;font-weight:600;letter-spacing:.1em;fill:var(--ink3)}
+
+  /* nota */
+  .nota{border-left:2px solid var(--rule-strong);padding:2px 0 2px 16px;margin:18px 0;
+    font-size:.9rem;color:var(--ink2)}
+  .nota b{color:var(--ink)}
+  .nota p{margin:0} .nota p+p{margin-top:8px}
+
+  ol.pasos{padding-left:1.25em;margin:10px 0 0}
+  ol.pasos li{margin-bottom:10px;max-width:68ch}
+
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--rule-strong);
+    font-size:.76rem;color:var(--ink3)}
+  footer p{max-width:none;margin-bottom:6px}
+
+  @media (max-width:560px){
+    .indice ol{columns:1}
+    .cifras>div+div{padding-left:0;border-left:0;border-top:1px solid var(--rule)}
+  }
+  @media print{
+    body{background:#fff;font-size:10.5pt}
+    .doc{border:0;padding:0;max-width:none}
+    section{break-inside:avoid-page}
+    .indice a{border:0}
+    figure,table{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<main class="doc">
+
+  <div class="org">DATAX · Laboratorio de Datos</div>
+
+  <header class="portada">
+    <h1>Recuperación de documentos oficiales desaparecidos o desplazados</h1>
+    <p class="sub">Informe de resultados del sistema de fuentes perdidas sobre las series documentales del Banco Central de Bolivia, el Instituto Nacional de Estadística y la Autoridad de Supervisión del Sistema Financiero.</p>
+    <dl class="ficha">
+      <div><dt>Fecha de medición</dt><dd>30 de septiembre de 2026</dd></div>
+      <div><dt>Alcance</dt><dd>BCB · INE · ASFI</dd></div>
+      <div><dt>Series vigiladas</dt><dd>18 series documentales</dd></div>
+      <div><dt>Sistema</dt><dd>Buscador de Fuentes (<code>crawler_finrural</code>)</dd></div>
+    </dl>
+  </header>
+
+  <nav class="indice" aria-label="Contenido">
+    <h2>Contenido</h2>
+    <ol>
+      <li><a href="#resumen">Resumen ejecutivo</a></li>
+      <li><a href="#problema">Planteamiento del problema</a></li>
+      <li><a href="#funcionamiento">Funcionamiento del sistema</a></li>
+      <li><a href="#deteccion">Detección de períodos faltantes</a></li>
+      <li><a href="#recuperacion">Resultados de la recuperación</a></li>
+      <li><a href="#verificacion">Control de calidad de los resultados</a></li>
+      <li><a href="#limitaciones">Limitaciones</a></li>
+      <li><a href="#pasos">Próximos pasos</a></li>
+      <li><a href="#anexo">Anexo: método y corpus</a></li>
+    </ol>
+  </nav>
+
+  <section id="resumen">
+    <h2 class="s"><span class="n">1</span>Resumen ejecutivo</h2>
+    <p>Las instituciones públicas bolivianas publican series periódicas —boletines, informes semestrales, memorias anuales— en portales que cambian de estructura con frecuencia. Cuando un documento deja de estar donde se esperaba, la serie queda incompleta sin que nadie lo advierta. El sistema evaluado en este informe tiene dos funciones: <b>detectar qué períodos faltan</b> en cada serie y <b>buscarlos</b> mediante una secuencia ordenada de estrategias de recuperación.</p>
+
+    <div class="cifras" role="list">
+      <div role="listitem"><div class="v">18</div><div class="l">series documentales bajo vigilancia en los tres portales</div></div>
+      <div role="listitem"><div class="v">37</div><div class="l">períodos faltantes detectados en 6 de esas series</div></div>
+      <div role="listitem"><div class="v" style="color:var(--ok)">3</div><div class="l">períodos recuperados y verificados por contenido</div></div>
+      <div role="listitem"><div class="v" style="color:var(--bad)">6</div><div class="l">resultados descartados por no corresponder al período</div></div>
+    </div>
+
+    <p><b>La detección funciona y es una capacidad nueva.</b> Ninguno de los tres sistemas de prospección de DATAX medía hasta ahora la completitud de una serie: registraban cuándo visitar cada fuente, pero no qué períodos había publicado la institución y cuáles no se tenían.</p>
+    <p><b>La recuperación funciona, pero por una sola vía.</b> Los tres documentos recuperados provienen de la reconstrucción de la plantilla de nombres de una serie del BCB. Las demás estrategias —incluida la consulta a un modelo de lenguaje— no aportaron recuperaciones válidas en esta medición.</p>
+    <p><b>Falta cubrir el caso de un documento que se tenía y cambió de ubicación.</b> El sistema actual busca períodos que nunca se obtuvieron; todavía no verifica periódicamente si las direcciones ya catalogadas siguen respondiendo. Esa es la prioridad de la siguiente etapa.</p>
+  </section>
+
+  <section id="problema">
+    <h2 class="s"><span class="n">2</span>Planteamiento del problema</h2>
+    <p>Un documento oficial puede dejar de estar disponible en la dirección conocida por tres causas principales:</p>
+    <p><b>Rediseño del portal.</b> La institución reorganiza su sitio y las direcciones de descarga cambian sin redirección. El documento sigue existiendo, pero en otra ruta del mismo dominio.</p>
+    <p><b>Sucesión institucional.</b> La entidad que publicaba la serie se disuelve o se fusiona, y sus funciones pasan a otra. Los documentos pueden reaparecer —o no— en el portal de la entidad sucesora, bajo otro dominio.</p>
+    <p><b>Eliminación.</b> El documento se retira y solo sobrevive, en el mejor de los casos, en archivos históricos de la web.</p>
+
+    <div class="nota">
+      <p>Conviene distinguir dos situaciones que exigen mecanismos distintos: <b>un período que nunca se obtuvo</b> —el boletín de febrero nunca entró al catálogo— y <b>un documento que se obtuvo y después cambió de lugar</b>. Este informe mide la primera. La segunda está especificada pero todavía no implementada (sección 8).</p>
+    </div>
+  </section>
+
+  <section id="funcionamiento">
+    <h2 class="s"><span class="n">3</span>Funcionamiento del sistema</h2>
+    <p>Cuando se detecta un período faltante, el sistema lo busca aplicando cinco estrategias en orden de menor a mayor riesgo, y se detiene en la primera que obtiene un documento válido. Las cuatro primeras son deterministas; la quinta recurre a un modelo de lenguaje y solo se activa cuando las anteriores no encontraron nada.</p>
+
+    <figure>
+      <svg class="dg" viewBox="0 0 720 470" role="img" aria-label="Secuencia de cinco estrategias de recuperación con el resultado medido de cada una: cero, tres, cero, cero y cero documentos recuperados.">
+        <defs><marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><polygon points="0,1 10,5 0,9" fill="currentColor"/></marker></defs>
+
+        <text class="hd" x="0" y="14">ESTRATEGIA</text>
+        <text class="hd" x="640" y="14" text-anchor="middle">RECUPERADOS</text>
+
+        <rect class="box" x="0" y="26" width="560" height="54"/>
+        <text class="tb" x="16" y="49">1. Dirección conocida</text>
+        <text class="ts" x="16" y="68">Vuelve a consultar la dirección registrada para ese documento.</text>
+        <text class="res" x="640" y="59" text-anchor="middle">0</text>
+        <line class="ln" x1="280" y1="80" x2="280" y2="96" marker-end="url(#fa)"/>
+
+        <rect class="box-hi" x="0" y="98" width="560" height="54"/>
+        <text class="tb" x="16" y="121">2. Plantilla de la serie</text>
+        <text class="ts" x="16" y="140">Reconstruye el nombre del período faltante a partir del patrón de la serie.</text>
+        <text class="res res-ok" x="640" y="131" text-anchor="middle">3</text>
+        <line class="ln" x1="280" y1="152" x2="280" y2="168" marker-end="url(#fa)"/>
+
+        <rect class="box" x="0" y="170" width="560" height="54"/>
+        <text class="tb" x="16" y="193">3. Otra ruta del mismo dominio</text>
+        <text class="ts" x="16" y="212">Prueba variantes de ruta y de nombre dentro del portal de la institución.</text>
+        <text class="res" x="640" y="203" text-anchor="middle">0</text>
+        <text class="ts" x="640" y="218" text-anchor="middle">6 descartados</text>
+        <line class="ln" x1="280" y1="224" x2="280" y2="240" marker-end="url(#fa)"/>
+
+        <rect class="box" x="0" y="242" width="560" height="54"/>
+        <text class="tb" x="16" y="265">4. Archivo histórico de la web</text>
+        <text class="ts" x="16" y="284">Busca copias archivadas del documento en Internet Archive.</text>
+        <text class="res" x="640" y="275" text-anchor="middle">0</text>
+        <line class="ln" x1="280" y1="296" x2="280" y2="312" marker-end="url(#fa)"/>
+
+        <rect class="box" x="0" y="314" width="560" height="54"/>
+        <text class="tb" x="16" y="337">5. Consulta a un modelo de lenguaje</text>
+        <text class="ts" x="16" y="356">Pide direcciones candidatas; ninguna se admite sin verificación.</text>
+        <text class="res" x="640" y="347" text-anchor="middle">0</text>
+        <text class="ts" x="640" y="362" text-anchor="middle">10 consultas</text>
+
+        <line class="ld" x1="0" y1="392" x2="720" y2="392"/>
+        <text class="hd" x="0" y="414">SI LA DIRECCIÓN CANDIDATA PERTENECE A OTRO DOMINIO</text>
+        <rect class="box" x="0" y="424" width="220" height="40"/>
+        <text class="t" x="110" y="449" text-anchor="middle">No se acepta</text>
+        <line class="ln" x1="220" y1="444" x2="248" y2="444" marker-end="url(#fa)"/>
+        <rect class="box" x="250" y="424" width="220" height="40"/>
+        <text class="t" x="360" y="449" text-anchor="middle">Evaluación de herencia</text>
+        <line class="ln" x1="470" y1="444" x2="498" y2="444" marker-end="url(#fa)"/>
+        <rect class="box" x="500" y="424" width="220" height="40"/>
+        <text class="t" x="610" y="449" text-anchor="middle">Aprobación de una persona</text>
+      </svg>
+      <figcaption><b>Figura 1.</b> Secuencia de recuperación y resultado medido de cada estrategia el 30 de septiembre de 2026. Toda dirección candidata debe responder, tener tamaño mayor a cero y corresponder a un formato documental antes de ser admitida. Un cambio de dominio nunca se acepta de forma automática.</figcaption>
+    </figure>
+
+    <h3>Sucesiones institucionales configuradas</h3>
+    <p>Para las búsquedas en otros dominios, el sistema conoce las siguientes relaciones entre entidades disueltas o reubicadas y sus sucesoras. Se usan para orientar la búsqueda, no para aceptar resultados sin verificación.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Entidad original</th><th>Sucesora</th><th>Dominio de búsqueda</th></tr></thead>
+        <tbody>
+          <tr><td>SPVS · Superintendencia de Pensiones, Valores y Seguros</td><td>ASFI y APS</td><td><code>asfi.gob.bo</code> · <code>aps.gob.bo</code></td></tr>
+          <tr><td>SBEF · Superintendencia de Bancos y Entidades Financieras</td><td>ASFI</td><td><code>asfi.gob.bo</code></td></tr>
+          <tr><td>SUPTRANS · Superintendencia de Transportes</td><td>ATT</td><td><code>att.gob.bo</code></td></tr>
+          <tr><td>FUNDEMPRESA · Registro de Comercio</td><td>SEPREC</td><td><code>seprec.gob.bo</code></td></tr>
+          <tr><td>CADEXCO</td><td>Cambio de dominio</td><td><code>cadexco.bo</code></td></tr>
+          <tr><td>IBCH</td><td>Cambio de dominio</td><td><code>ibch.com</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fuente">Fuente: <code>src/crawler/core/relocation_manager.py</code>.</p>
+  </section>
+
+  <section id="deteccion">
+    <h2 class="s"><span class="n">4</span>Detección de períodos faltantes</h2>
+    <p>Para cada serie, el sistema declara su periodicidad esperada —mensual, semestral, anual—, genera los períodos que deberían existir entre el primero y el último observado, y los contrasta con los que se tienen. De las 18 series vigiladas, 12 están completas, 5 presentan períodos faltantes y 1 está inactiva.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 1.</b> Series con períodos faltantes</caption>
+        <thead><tr><th>Institución</th><th>Serie</th><th class="r">Períodos faltantes</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>ASFI</td><td>Seguimiento al POA</td><td class="r">20</td><td>Con faltantes</td></tr>
+          <tr><td>BCB</td><td>Deuda externa (semestral)</td><td class="r">7</td><td>Con faltantes</td></tr>
+          <tr><td>INE</td><td>Auditoría interna (anual)</td><td class="r">5</td><td>Con faltantes</td></tr>
+          <tr><td>ASFI</td><td>Balance general</td><td class="r">2</td><td>Con faltantes</td></tr>
+          <tr><td>INE</td><td>Cuentas nacionales · PIB (anual)</td><td class="r">2</td><td class="t-warn">Inactiva</td></tr>
+          <tr><td>INE</td><td>Escala salarial (anual)</td><td class="r">1</td><td>Con faltantes</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="2">Total</td><td class="r">37</td><td></td></tr></tfoot>
+      </table>
+    </div>
+    <p>El caso de cuentas nacionales ilustra el tipo de hallazgo que el sistema hace visible: la serie cubre de 1988 a 2017, le faltan los años 2015 y 2016, y no registra publicaciones desde hace nueve años.</p>
+
+    <h3>Condición previa: fechar cada documento</h3>
+    <p>La detección depende de saber a qué período corresponde cada archivo. Al inicio de esta etapa, esa información estaba ausente en casi todo el catálogo porque el extractor reconocía un único formato de fecha que los portales no utilizan.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 2.</b> Documentos con período identificado, antes y después</caption>
+        <thead><tr><th>Institución</th><th class="r">Documentos</th><th class="r">Antes</th><th class="r">Después</th><th class="r">Meta</th></tr></thead>
+        <tbody>
+          <tr><td>ASFI</td><td class="r">601</td><td class="r">26 %</td><td class="r">80 %</td><td class="r">85 %</td></tr>
+          <tr><td>INE</td><td class="r">443</td><td class="r">0,5 %</td><td class="r t-ok">70 %</td><td class="r">50 %</td></tr>
+          <tr><td>BCB</td><td class="r">121</td><td class="r">3 %</td><td class="r t-bad">32 %</td><td class="r">65 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Solo una de las tres metas se alcanzó. En el BCB el período suele estar en el nombre del archivo y no en la ruta —por ejemplo <code>DEPEX dic25.pdf</code>—, un patrón que todavía no se reconoce de forma general.</p>
+  </section>
+
+  <section id="recuperacion">
+    <h2 class="s"><span class="n">5</span>Resultados de la recuperación</h2>
+    <p>La secuencia de recuperación se ejecutó sobre los 37 períodos faltantes. Los tres documentos recuperados y verificados corresponden a la serie semestral de deuda externa del BCB, y todos se obtuvieron reconstruyendo la plantilla de nombres de la serie.</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 3.</b> Documentos recuperados y verificados</caption>
+        <thead><tr><th>Serie</th><th>Período</th><th>Archivo</th><th class="r">Tamaño</th><th>Estrategia</th></tr></thead>
+        <tbody>
+          <tr><td>BCB · Deuda externa</td><td class="num">2025-S2</td><td><code>DEPEX dic25.pdf</code></td><td class="r">0,8 MB</td><td>2</td></tr>
+          <tr><td>BCB · Deuda externa</td><td class="num">2024-S2</td><td><code>DEPEX dic24.pdf</code></td><td class="r">5,0 MB</td><td>2</td></tr>
+          <tr><td>BCB · Deuda externa</td><td class="num">2024-S1</td><td><code>DEPEX jun24.pdf</code></td><td class="r">4,9 MB</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fuente">Cada documento tiene huella SHA-256 registrada y contenido distinto de los otros dos.</p>
+
+    <h3>Aporte de cada estrategia</h3>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 4.</b> Resultado por estrategia</caption>
+        <thead><tr><th>Estrategia</th><th class="r">Recuperados válidos</th><th>Observación</th></tr></thead>
+        <tbody>
+          <tr><td>1. Dirección conocida</td><td class="r">0</td><td>La implementación actual busca dentro del propio catálogo y no reconsulta la dirección original.</td></tr>
+          <tr><td>2. Plantilla de la serie</td><td class="r t-ok">3</td><td>Única estrategia con resultados válidos.</td></tr>
+          <tr><td>3. Otra ruta del mismo dominio</td><td class="r">0</td><td>Propuso 6 resultados que no superaron el control de calidad (sección 6).</td></tr>
+          <tr><td>4. Archivo histórico</td><td class="r">0</td><td>Configurada solo para dos series; el resto no generó consultas.</td></tr>
+          <tr><td>5. Modelo de lenguaje</td><td class="r">0</td><td>10 consultas, límite alcanzado antes de cubrir todos los faltantes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Búsqueda en entidades sucesoras</h3>
+    <p>No se generaron candidatos en otros dominios durante esta ejecución. En una evaluación anterior se examinaron tres propuestas de herencia y las tres fueron rechazadas por evidencia insuficiente; ninguna se aceptó. Ese resultado es coherente con la regla del sistema: un documento de otro dominio solo se incorpora con evidencia de continuidad y aprobación explícita de una persona.</p>
+
+    <h3>Estado de las series</h3>
+    <p>Con la información disponible, cada serie recibe un estado de vigencia. De 21 series clasificadas, 16 están vigentes, 2 atrasadas y 3 migradas. Ninguna se ha pasado a histórico, porque esa decisión exige haber agotado primero las estrategias de búsqueda, y esta medición no lo permite todavía.</p>
+  </section>
+
+  <section id="verificacion">
+    <h2 class="s"><span class="n">6</span>Control de calidad de los resultados</h2>
+    <p>La ejecución del 30 de septiembre reportó inicialmente 9 recuperaciones. La revisión de cada resultado mostró que <b>6 de ellas no eran válidas</b>:</p>
+    <div class="tbl">
+      <table>
+        <caption><b>Tabla 5.</b> Resultados descartados</caption>
+        <thead><tr><th>Serie</th><th>Período asignado</th><th>Documento realmente obtenido</th><th>Motivo</th></tr></thead>
+        <tbody>
+          <tr><td>INE · Auditoría interna</td><td class="num">2013 – 2017</td><td>Un único resumen de 2026</td><td>Los cinco períodos recibieron el mismo archivo: huella SHA-256 idéntica.</td></tr>
+          <tr><td>INE · Escala salarial</td><td class="num">2025</td><td><code>ine_escala_salarial_2026.pdf</code></td><td>El documento corresponde a otro año.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>La causa es identificable. El portal del INE entrega los archivos según un identificador numérico e ignora el nombre del archivo en la dirección; por eso cualquier variante del nombre devuelve el mismo documento con respuesta satisfactoria. La estrategia 3 verifica que el documento exista y tenga un formato válido, pero no que corresponda al período buscado.</p>
+    <div class="nota">
+      <p><b>Corrección recomendada antes de volver a ejecutar.</b> Rechazar automáticamente un resultado cuando la misma huella de contenido se asigna a más de un período, y cuando el año que figura en el nombre del archivo no coincide con el período buscado. Ambas comprobaciones son simples y habrían descartado los seis casos.</p>
+    </div>
+  </section>
+
+  <section id="limitaciones">
+    <h2 class="s"><span class="n">7</span>Limitaciones</h2>
+    <p><b>Muestra acotada.</b> La medición cubre tres instituciones y 37 períodos faltantes. Las conclusiones sobre la eficacia de cada estrategia deben leerse en esa escala.</p>
+    <p><b>Consulta al modelo de lenguaje truncada.</b> El límite de 10 consultas se alcanzó antes de recorrer todos los faltantes. No es posible afirmar todavía si esta estrategia aporta o no; solo que no lo hizo en la muestra que llegó a consultarse.</p>
+    <p><b>Estrategias 3 y 4 parcialmente configuradas.</b> Ambas contienen reglas específicas para pocas series, por lo que la mayoría de los faltantes —entre ellos los 20 de ASFI— no generaron búsquedas en esas etapas.</p>
+    <p><b>Conciliación con el catálogo interno sin verificación de contenido.</b> Al contrastar este catálogo con el del prospector interno se encontraron 323 direcciones en común, pero ninguna pudo confirmarse como el mismo archivo: el catálogo interno no registra huellas de contenido. La coincidencia de dirección no garantiza que el documento sea idéntico.</p>
+  </section>
+
+  <section id="pasos">
+    <h2 class="s"><span class="n">8</span>Próximos pasos</h2>
+    <p>Las acciones siguientes están especificadas en el plan de la próxima etapa, ordenadas por prioridad:</p>
+    <ol class="pasos">
+      <li><b>Revalidar periódicamente las 1.165 direcciones catalogadas</b> de los tres portales y clasificarlas como vigentes, redirigidas, eliminadas o inaccesibles. Es la capacidad que falta para detectar un documento que se tenía y cambió de lugar.</li>
+      <li><b>Corregir la estrategia 1</b> para que reconsulte la dirección original, siga redirecciones y examine el directorio superior cuando el archivo ya no esté.</li>
+      <li><b>Generalizar las estrategias 3 y 4</b> para que deriven sus búsquedas de las direcciones observadas en cada serie, e incorporar las dos comprobaciones de la sección 6.</li>
+      <li><b>Ejecutar la consulta al modelo de lenguaje sin límite artificial</b> sobre todos los faltantes pendientes y decidir, con ese dato, si se mantiene o se retira.</li>
+      <li><b>Reconocer el período en el nombre del archivo</b> para elevar la cobertura de fechas del BCB por encima del 65 %.</li>
+    </ol>
+  </section>
+
+  <section id="anexo">
+    <h2 class="s"><span class="n">9</span>Anexo: método y corpus</h2>
+    <h3>Método de medición</h3>
+    <p>Todas las cifras de este informe se obtuvieron el 30 de septiembre de 2026 ejecutando las herramientas del sistema y consultando directamente sus bases de datos, no a partir de reportes intermedios. Los resultados de recuperación se revisaron uno por uno, comparando huellas de contenido y nombres de archivo.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Medición</th><th>Fuente</th></tr></thead>
+        <tbody>
+          <tr><td>Períodos faltantes</td><td><code>scripts/detectar_huecos.py</code></td></tr>
+          <tr><td>Recuperación por estrategia</td><td><code>scripts/recuperar_periodos.py --sources bcb,ine,asfi</code></td></tr>
+          <tr><td>Cobertura de fechas</td><td><code>output/{asfi,bcb,ine}/inventory.db</code></td></tr>
+          <tr><td>Estado de las series</td><td><code>docs/entregas/ciclo_vida_datasets.json</code></td></tr>
+          <tr><td>Evaluación de herencia</td><td><code>docs/entregas/propuestas_herencia.json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Corpus piloto de FINRURAL</h3>
+    <p>Como referencia del funcionamiento general del sistema de descarga, el portal piloto de FINRURAL registra 248 direcciones procesadas: 222 con descarga directa, 19 obtenidas mediante reintentos y mecanismos de contingencia de la descarga, y 7 con error. Los 241 documentos obtenidos suman 199,8 MB y tienen huella SHA-256 registrada. Ese catálogo se exporta en <code>output/bridge/external_map_finrural.json</code> para su conciliación con el prospector interno.</p>
+    <p class="fuente">Las 19 obtenciones por contingencia pertenecen a la etapa de descarga y son independientes de la secuencia de recuperación de períodos descrita en la sección 3.</p>
+  </section>
+
+  <footer>
+    <p><b>DATAX · Laboratorio de Datos</b> · Buscador de Fuentes</p>
+    <p>Informe elaborado con datos medidos el 30 de septiembre de 2026.</p>
+  </footer>
+
+</main>
+</body>
+</html>
