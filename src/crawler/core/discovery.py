@@ -16,6 +16,7 @@ from urllib.parse import parse_qsl, urlencode, urljoin, urlparse, urlunparse
 from bs4 import BeautifulSoup
 
 from crawler.core.fetcher import HttpFetcher
+from crawler.core.relocation_manager import RelocationManager
 from crawler.core.search_dorker import SearchDorker
 from crawler.core.smart_robots import discover_sitemap_urls
 from crawler.core.subdomain_finder import find_subdomains
@@ -62,6 +63,7 @@ class DiscoveryEngine:
         # Por defecto bfs (retrocompatibilidad); priority se activa con 'priority' o 'prio'
         self.strategy = str(crawl_cfg.get("strategy", "bfs")).lower()
         self.semantic_keywords = self._load_semantic_keywords()
+        self.relocation_manager = RelocationManager()
 
     def _load_semantic_keywords(self) -> Set[str]:
         defaults = {
@@ -126,8 +128,17 @@ class DiscoveryEngine:
         if parsed.scheme and parsed.scheme not in ("http", "https"):
             return False
         domain = parsed.netloc.lower()
+        if ":" in domain:
+            domain = domain.split(":")[0]
         allowed = {d.lower() for d in self.adapter.allowed_domains}
-        return not domain or not allowed or domain in allowed
+        if not domain or not allowed or domain in allowed:
+            return True
+
+        # Verificar si domain es un sucesor autorizado de alguno de los allowed_domains
+        for ad in allowed:
+            if self.relocation_manager.is_authorized_successor(ad, domain):
+                return True
+        return False
 
     def _score_link(self, url: str, anchor_text: str, context_text: str, depth: int) -> float:
         combined = f"{url} {anchor_text} {context_text}".lower()
@@ -412,6 +423,15 @@ class DiscoveryEngine:
                 for sitemap_url in discover_sitemap_urls(base, self.fetcher):
                     if sitemap_url not in crawl_seeds and self._is_allowed_domain(sitemap_url):
                         crawl_seeds.append(sitemap_url)
+
+        # Incorporar semillas mapeadas en moved_urls.json
+        for s in list(crawl_seeds):
+            mapping = self.relocation_manager.get_moved_mapping(s)
+            if mapping and mapping.get("resolved"):
+                res_url = mapping["resolved"]
+                if res_url not in crawl_seeds and self._is_allowed_domain(res_url):
+                    logger.info("Adding relocated seed from moved_urls.json: %s -> %s", s, res_url)
+                    crawl_seeds.append(res_url)
 
         return crawl_seeds
 

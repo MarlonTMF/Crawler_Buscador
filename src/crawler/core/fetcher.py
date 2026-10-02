@@ -131,6 +131,11 @@ class HttpFetcher:
         self._robots_parsers: Dict[str, RobotFileParser] = {}
         self.resolved_via_headless_urls: Set[str] = set()
         self.last_fetch_resolved_via_headless: bool = False
+        try:
+            from crawler.core.relocation_manager import RelocationManager
+            self.relocation_manager = RelocationManager()
+        except Exception:
+            self.relocation_manager = None
 
     def is_resolved_via_headless(self, url: str) -> bool:
         """Indica si una URL fue resuelta exitosamente mediante reintento headless ante 403."""
@@ -916,6 +921,15 @@ class HttpFetcher:
                 candidates.append(build(sch, nloc, ""))
                 # trailing slash variants
                 candidates.append(build(sch, nloc, path.rstrip('/') + '/'))
+
+        # Incorporar candidatos de RelocationManager (moved_urls.json y dominios sucesores)
+        if getattr(self, "relocation_manager", None):
+            rel_mapping = self.relocation_manager.get_moved_mapping(url)
+            if rel_mapping and rel_mapping.get("resolved"):
+                candidates.insert(0, rel_mapping["resolved"])
+            for succ_u in self.relocation_manager.translate_url_to_successor(url):
+                if succ_u not in candidates:
+                    candidates.append(succ_u)
 
         # dedupe while preserving order
         seen = set()
