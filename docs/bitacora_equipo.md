@@ -172,6 +172,7 @@ dependencia al 100% de la contingencia Wayback.
 | Tras B-59 (Fase 5 base limpia) | **0 falsos positivos admitidos** | 2 compuertas de calidad (huella SHA-256 repetida y año contradictorio); reversión P-6 (sucesores a cola D-18); 0 falsos admitidos (vs 6); verificador de Fase 5 oficial; 230 tests verdes (`73abbf5`). |
 | Tras B-60 (Revalidación 1.165) | **1.165 de 1.165 revalidadas** | Revalidación masiva completada: 832 VIGENTE (71.4%), 200 REDIRIGIDA (17.2%, documentos INE en Nextcloud), 12 ELIMINADA (1.0%), 121 INACCESIBLE (10.4%). Resuelve P-1. 236 tests verdes (`f23bd2f`). |
 | Tras B-61 (Escalón 1 real) | **Escalón 1 sobre URL conocida** | Escalón 1 operativo sobre rastro determinista de URL conocida (redirección 301/302, directorio superior si 404, variantes de codificación/separadores/capitalización). Resuelve P-2. No es sondeo especulativo (D-02). 240 tests verdes (`8191bce`). |
+| Tras B-62 (Escalón 3 serie) | **Escalón 3 derivado de serie** | Escalón 3 generalizado para cualquier dataset a partir de URLs observadas e integración sitemap.xml. Resuelve P-3 en cobertura. 22/22 faltantes con candidatos en dry-run (100% de los 20 en asfi/poa_seguimiento). 244 tests verdes (`0c39ab4`). |
 
 **El sistema no empeoró en ningún momento.** Cada cambio vino de medir mejor.
 Un porcentaje de cobertura no significa nada sin su denominador y su
